@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>$(NetTargetFramework)</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Folder Include="ViewModels\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\src\src-platform\KSW.Core\KSW.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Views\ProcessBarDialog.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	</ItemGroup>
+
+</Project>

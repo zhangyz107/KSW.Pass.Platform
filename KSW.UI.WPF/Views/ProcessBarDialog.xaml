@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="KSW.UI.WPF.Views.ProcessBarDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KSW.UI.WPF.Views"
+        xmlns:prism="http://prismlibrary.com/"
+        Background="Transparent"
+        mc:Ignorable="d"      
+        Height="150" Width="300"
+        prism:ViewModelLocator.AutoWireViewModel="True">
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="ShowInTaskbar" Value="False"/>
+            <Setter Property="SizeToContent" Value="WidthAndHeight"/>
+            <Setter Property="WindowStyle" Value="None"/>
+            <Setter Property="ResizeMode" Value="NoResize"/>
+            <Setter Property="AllowsTransparency" Value="True"></Setter>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </prism:Dialog.WindowStyle>
+
+    <Border BorderThickness="1" BorderBrush="Gray" Background="White"  CornerRadius="15">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock Margin="0,0,0,10" Grid.Row="1" HorizontalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsIndeterminate}" Value="True">
+                                <Setter Property="Text" Value="正在处理，请稍后..."></Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsIndeterminate}" Value="False">
+                                <Setter Property="Text" Value="{Binding ProcessContent,Mode=OneWay}"></Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <ContentControl Grid.Row="2">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsIndeterminate}" Value="True">
+                                <Setter Property="ContentTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <ProgressBar Margin="16,0" IsIndeterminate="True" Height="20" Style="{StaticResource MaterialDesignCircularProgressBar}" Value="35">
+                                            </ProgressBar>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding IsIndeterminate}" Value="False">
+                                <Setter Property="ContentTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <ProgressBar Margin="16,0" IsIndeterminate="False" Height="10" Minimum="0" Maximum="100" Value="{Binding DataContext.ProcessRate,Mode=OneWay,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}">
+                                            </ProgressBar>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
+        </Grid>
+    </Border>
+</UserControl>

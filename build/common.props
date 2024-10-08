@@ -1,0 +1,20 @@
+<Project>
+    <Import Project="version.props" />
+    <PropertyGroup>
+        <NetTargetFramework>net8.0-windows</NetTargetFramework>
+    </PropertyGroup>
+
+	<PropertyGroup Label="Package Versions">
+		<!-- Prism packages -->
+		<PrismVersion>9.0.537</PrismVersion>
+
+		<!-- Microsoft packages -->
+		<MicrosoftEntityFrameworkCoreDesignVersion>8.0.8</MicrosoftEntityFrameworkCoreDesignVersion>
+	</PropertyGroup>
+
+    <PropertyGroup>
+        <Product>KSW.Instrument.Platform</Product>
+        <Authors>ncc;坤恒顺维</Authors>
+        <Copyright>ncc;坤恒顺维</Copyright>
+    </PropertyGroup>
+</Project>

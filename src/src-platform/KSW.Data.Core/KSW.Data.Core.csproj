@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>KSW.Data</RootNamespace>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.2" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+    <ProjectReference Include="..\Ksw.Core\KSW.Core.csproj" />
+    <ProjectReference Include="..\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

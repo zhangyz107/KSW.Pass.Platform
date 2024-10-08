@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>$(NetTargetFramework)</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
+		<PackageReference Include="Prism.DryIoc" Version="$(PrismVersion)" />
+		<PackageReference Include="Serilog" Version="4.0.1" />
+		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\KSW.Pass.Data\KSW.Pass.Data.csproj" />
+	  <ProjectReference Include="..\..\KSW.Pass.Sqlite\KSW.Pass.Sqlite.csproj" />
+	  <ProjectReference Include="..\..\KSW.UI.WPF\KSW.UI.WPF.csproj" />
+	  <ProjectReference Include="..\src-platform\KSW.ObjectMapping.AutoMapper\KSW.ObjectMapping.AutoMapper.csproj" />
+	</ItemGroup>
+
+</Project>

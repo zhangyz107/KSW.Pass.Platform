@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(NetTargetFramework)</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(MicrosoftEntityFrameworkCoreDesignVersion)" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="$(MicrosoftEntityFrameworkCoreDesignVersion)" />
+	</ItemGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
+    <ProjectReference Include="..\KSW.Data.Core\KSW.Data.Core.csproj" />
+    <ProjectReference Include="..\KSW.Domain\KSW.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

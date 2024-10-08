@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	 <TargetFramework>$(NetTargetFramework)</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KSW.Aop.AspectCore\KSW.Aop.AspectCore.csproj" />
+    <ProjectReference Include="..\Ksw.Core\KSW.Core.csproj" />
+    <ProjectReference Include="..\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
+    <ProjectReference Include="..\KSW.Validators\KSW.Validators.csproj" />
+  </ItemGroup>
+
+</Project>
