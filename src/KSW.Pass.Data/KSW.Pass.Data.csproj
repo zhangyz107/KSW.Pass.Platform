@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\src-platform\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
+    <ProjectReference Include="..\src-platform\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -12,7 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\src\src-platform\KSW.Core\KSW.Core.csproj" />
+	  <ProjectReference Include="..\KSW.Core\KSW.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

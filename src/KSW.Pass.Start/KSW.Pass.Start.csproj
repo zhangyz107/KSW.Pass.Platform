@@ -16,10 +16,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\KSW.Pass.Data\KSW.Pass.Data.csproj" />
-	  <ProjectReference Include="..\..\KSW.Pass.Sqlite\KSW.Pass.Sqlite.csproj" />
-	  <ProjectReference Include="..\..\KSW.UI.WPF\KSW.UI.WPF.csproj" />
+	  <ProjectReference Include="..\KSW.Pass.Data\KSW.Pass.Data.csproj" />
+	  <ProjectReference Include="..\KSW.Pass.Sqlite\KSW.Pass.Sqlite.csproj" />
 	  <ProjectReference Include="..\src-platform\KSW.ObjectMapping.AutoMapper\KSW.ObjectMapping.AutoMapper.csproj" />
+	  <ProjectReference Include="..\src-platform\KSW.UI.WPF\KSW.UI.WPF.csproj" />
 	</ItemGroup>
 
 </Project>
