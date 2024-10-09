@@ -16,8 +16,8 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KSW.Pass.Common\KSW.Pass.Common.csproj" />
-    <ProjectReference Include="..\KSW.Pass.Data\KSW.Pass.Data.csproj" />
+    <ProjectReference Include="..\KSW.ATE01.Common\KSW.ATE01.Common.csproj" />
+    <ProjectReference Include="..\KSW.ATE01.Data\KSW.ATE01.Data.csproj" />
     <ProjectReference Include="..\src-platform\KSW.Data.EntityFrameworkCore.Sqlite\KSW.Data.EntityFrameworkCore.Sqlite.csproj" />
   </ItemGroup>
 

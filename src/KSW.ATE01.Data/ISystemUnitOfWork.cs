@@ -1,6 +1,6 @@
 ﻿using KSW.Data.Abstractions;
 
-namespace KSW.Pass.Data
+namespace KSW.ATE01.Data
 {
     /// <summary>
     /// 工作单元

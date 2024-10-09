@@ -1,5 +1,5 @@
-﻿using KSW.Pass.Common.Helper;
-using KSW.Pass.Data;
+﻿using KSW.ATE01.Common.Helper;
+using KSW.ATE01.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KSW.Pass.Sqlite
+namespace KSW.ATE01.Sqlite
 {
     public class SqliteModule : IModule
     {

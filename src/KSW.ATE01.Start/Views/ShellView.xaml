@@ -1,9 +1,9 @@
-﻿<Window x:Class="KSW.Pass.Start.Views.ShellView"
+﻿<Window x:Class="KSW.ATE01.Start.Views.ShellView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:KSW.Pass.Start.Views"
+        xmlns:local="clr-namespace:KSW.ATE01.Start.Views"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
@@ -16,7 +16,13 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
-    <Grid>
+    <TabControl Style="{StaticResource MaterialDesignFilledTabControl}" HorizontalContentAlignment="Left">
+        <TabItem Header="Project" Margin="8,0">
+            <ContentControl Padding="8,0" Content="{Binding ProjectView}"></ContentControl>
+        </TabItem>
 
-    </Grid>
+        <TabItem Header="Help">
+            <ContentControl Padding="8,0" Content="{Binding HelpView}"></ContentControl>
+        </TabItem>
+    </TabControl>
 </Window>

@@ -11,13 +11,14 @@
 	<ItemGroup>
 		<PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
 		<PackageReference Include="Prism.DryIoc" Version="$(PrismVersion)" />
+		<PackageReference Include="MaterialDesignThemes" Version="$(MaterialDesignVersion)" />
 		<PackageReference Include="Serilog" Version="4.0.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\KSW.Pass.Data\KSW.Pass.Data.csproj" />
-	  <ProjectReference Include="..\KSW.Pass.Sqlite\KSW.Pass.Sqlite.csproj" />
+	  <ProjectReference Include="..\KSW.ATE01.Data\KSW.ATE01.Data.csproj" />
+	  <ProjectReference Include="..\KSW.ATE01.Sqlite\KSW.ATE01.Sqlite.csproj" />
 	  <ProjectReference Include="..\src-platform\KSW.ObjectMapping.AutoMapper\KSW.ObjectMapping.AutoMapper.csproj" />
 	  <ProjectReference Include="..\src-platform\KSW.UI.WPF\KSW.UI.WPF.csproj" />
 	</ItemGroup>

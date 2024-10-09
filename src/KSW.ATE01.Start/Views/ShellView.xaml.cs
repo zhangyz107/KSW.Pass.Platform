@@ -10,7 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace KSW.Pass.Start.Views
+namespace KSW.ATE01.Start.Views
 {
     /// <summary>
     /// Interaction logic for ShellView.xaml

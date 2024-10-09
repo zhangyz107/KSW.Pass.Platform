@@ -1,11 +1,11 @@
 ﻿using KSW.Infrastructure;
-using KSW.Pass.Sqlite;
-using KSW.Pass.Start.Views;
+using KSW.ATE01.Sqlite;
+using KSW.ATE01.Start.Views;
 using Serilog;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace KSW.Pass.Platform
+namespace KSW.ATE01.Platform
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -39,6 +39,15 @@ namespace KSW.Pass.Platform
 
             var bootstrapper = new Bootstrapper(containerRegistry);
             bootstrapper.Start();
+
+            RegisterView(containerRegistry);
+        }
+
+        private void RegisterView(IContainerRegistry containerRegistry)
+        {
+            containerRegistry.Register<ProjectView>();
+            containerRegistry.Register<HelpView>();
+
         }
 
         private void InitLogConfig()
