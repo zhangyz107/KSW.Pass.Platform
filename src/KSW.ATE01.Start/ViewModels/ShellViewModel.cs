@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace KSW.ATE01.Start.ViewModels
 {
@@ -31,7 +32,26 @@ namespace KSW.ATE01.Start.ViewModels
             set => SetProperty(ref _helpView, value);
         }
 
+        private string _language;
 
+        public string Language
+        {
+            get => _language;
+            set
+            {
+                if (SetProperty(ref _language, value))
+                {
+                    ChangeLanguage(value);
+                }
+            }
+        }
+
+
+        public Dictionary<string, string> LanguageCbItems => new Dictionary<string, string>()
+        {
+            {"zh-CN","简体中文" },
+            {"en-US", "English"}
+        };
         #endregion
 
         private DelegateCommand _loadingCommand;
@@ -48,22 +68,18 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ExecuteLoadingCommand()
         {
-            //var tempParams = ProcessBarHelper.CreateProcessBarParameters(DoWork, false);
-            //_dialogService.ShowProcessBarDialog(tempParams);
+            var currentCulture = CultureInfo.CurrentCulture;
+            Language = currentCulture.Name;
 
             ProjectView = _container.Resolve<ProjectView>();
             HelpView = _container.Resolve<HelpView>();
         }
 
-        private async Task DoWork(Action<double, string> action)
+
+        private void ChangeLanguage(string value)
         {
-            int length = 100;
-            for (int i = 0; i < length; i++)
-            {
-                if (action != null)
-                    action(i + 1, $"当前进度：{i + 1}%");
-                await Task.Delay(100);
-            }
+            CultureInfo culture = new CultureInfo(value);
+            LanguageManager.Instance.ChangeLanguage(culture);
         }
     }
 }

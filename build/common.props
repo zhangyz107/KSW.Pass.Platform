@@ -14,7 +14,7 @@
 	</PropertyGroup>
 
     <PropertyGroup>
-        <Product>KSW.Instrument.Platform</Product>
+        <Product>KSW.ATE01.Platform</Product>
         <Authors>ncc;坤恒顺维</Authors>
         <Copyright>ncc;坤恒顺维</Copyright>
     </PropertyGroup>

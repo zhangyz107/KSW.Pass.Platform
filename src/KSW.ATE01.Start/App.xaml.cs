@@ -4,6 +4,9 @@ using KSW.ATE01.Start.Views;
 using Serilog;
 using System.Windows;
 using System.Windows.Threading;
+using System.Globalization;
+using KSW.ATE01.Start.ViewModels.Dialogs;
+using KSW.ATE01.Start.Views.Dialogs;
 
 namespace KSW.ATE01.Platform
 {
@@ -47,7 +50,10 @@ namespace KSW.ATE01.Platform
         {
             containerRegistry.Register<ProjectView>();
             containerRegistry.Register<HelpView>();
+            containerRegistry.Register<ProjectDetailView>();
 
+            containerRegistry.RegisterDialog<NewProjectDialog, NewProjectDialogViewModel>();
+            containerRegistry.RegisterDialog<OpenProjectDialog, OpenProjectDialogViewModel>();
         }
 
         private void InitLogConfig()

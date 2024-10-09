@@ -1,4 +1,6 @@
-﻿using KSW.Ui;
+﻿using KSW.ATE01.Start.Views;
+using KSW.ATE01.Start.Views.Dialogs;
+using KSW.Ui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +12,30 @@ namespace KSW.ATE01.Start.ViewModels
 {
     public class ProjectViewModel : ViewModel
     {
+        #region Fields
+        private readonly IContainerExtension _container;
+        private readonly IDialogService _dialogService;
+        private ProjectDetailView _projectDetailView;
+        #endregion
+
+        #region Properties
+
+        public ProjectDetailView ProjectDetailView
+        {
+            get => _projectDetailView;
+            set => SetProperty(ref _projectDetailView, value);
+        }
+
+        #endregion
+
         #region Command
         private DelegateCommand _newProjectCommand;
         public DelegateCommand NewProjectCommand =>
             _newProjectCommand ?? (_newProjectCommand = new DelegateCommand(ExecuteNewProjectCommand));
 
-        private DelegateCommand _selectProjectCommand;
-        public DelegateCommand SelectProjectCommand =>
-            _selectProjectCommand ?? (_selectProjectCommand = new DelegateCommand(ExecuteSelectProjectCommand));
+        private DelegateCommand _openProjectCommand;
+        public DelegateCommand OpenProjectCommand =>
+            _openProjectCommand ?? (_openProjectCommand = new DelegateCommand(ExecuteOpenProjectCommand));
 
         private DelegateCommand _saveAsCommand;
         public DelegateCommand SaveAsCommand =>
@@ -37,19 +55,25 @@ namespace KSW.ATE01.Start.ViewModels
 
         #endregion
 
-        public ProjectViewModel()
+        public ProjectViewModel(IContainerExtension container, IDialogService dialogService)
         {
+            _container = container;
+            _dialogService = dialogService;
+
+            #region 加载页面
+            _projectDetailView = _container.Resolve<ProjectDetailView>();
+            #endregion
         }
 
 
         private void ExecuteNewProjectCommand()
         {
-            MessageBox.Show($"触发了{nameof(ExecuteNewProjectCommand)}");
+            _dialogService.ShowDialog(nameof(NewProjectDialog));
         }
 
-        private void ExecuteSelectProjectCommand()
+        private void ExecuteOpenProjectCommand()
         {
-            MessageBox.Show($"触发了{nameof(ExecuteSelectProjectCommand)}");
+            _dialogService.ShowDialog(nameof(OpenProjectDialog));
         }
         private void ExecuteSaveAsCommand()
         {

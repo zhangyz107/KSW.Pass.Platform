@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:KSW.ATE01.Start.Views"
+             xmlns:language="clr-namespace:KSW.ATE01.Start"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
@@ -24,13 +25,15 @@
                     <RowDefinition Height="auto"></RowDefinition>
                     <RowDefinition Height="auto"></RowDefinition>
                 </Grid.RowDefinitions>
-                <Button Margin="0,0,0,4" Content="New Project" Command="{Binding NewProjectCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="1" Content="Select Project" Command="{Binding SelectProjectCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="2" Content="Save As" Command="{Binding SaveAsCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="3" Content="Develop" Command="{Binding DelelopCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="4" Content="Run" Command="{Binding RunCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="5" Content="Release" Command="{Binding ReleaseCommand}"></Button>
+                <Button Margin="0,0,0,4" Content="{Binding [NewProject],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding NewProjectCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="1" Content="{Binding [OpenProject],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding OpenProjectCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="2" Content="{Binding [SaveAs],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding SaveAsCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="3" Content="{Binding [Develop],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding DelelopCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="4" Content="{Binding [Run],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding RunCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="5" Content="{Binding [Release],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding ReleaseCommand}"></Button>
             </Grid>
         </Border>
+
+        <ContentControl Margin="3,3,6,3" Grid.Column="1" Content="{Binding ProjectDetailView,Mode=OneWay}"></ContentControl>
     </Grid>
 </UserControl>
