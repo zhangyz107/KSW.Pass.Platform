@@ -77,7 +77,7 @@ namespace KSW.ATE01.Start.ViewModels
         }
         private void ExecuteSaveAsCommand()
         {
-            MessageBox.Show($"触发了{nameof(ExecuteSaveAsCommand)}");
+            _dialogService.ShowDialog(nameof(SaveAsDialog));
         }
 
         private void ExecuteDelelopCommand()

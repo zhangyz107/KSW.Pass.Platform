@@ -54,6 +54,7 @@ namespace KSW.ATE01.Platform
 
             containerRegistry.RegisterDialog<NewProjectDialog, NewProjectDialogViewModel>();
             containerRegistry.RegisterDialog<OpenProjectDialog, OpenProjectDialogViewModel>();
+            containerRegistry.RegisterDialog<SaveAsDialog, SaveAsDialogViewModel>();
         }
 
         private void InitLogConfig()
