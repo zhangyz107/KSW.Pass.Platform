@@ -6,20 +6,54 @@
              xmlns:local="clr-namespace:KSW.ATE01.Start.Views.Dialogs"
              xmlns:language="clr-namespace:KSW.ATE01.Start"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="WindowStyle" Value="ToolWindow"></Setter>
-            <Setter Property="Height" Value="350"></Setter>
-            <Setter Property="Width" Value="300"></Setter>
+            <Setter Property="Height" Value="180"></Setter>
+            <Setter Property="Width" Value="380"></Setter>
             <Setter Property="ResizeMode" Value="NoResize"></Setter>
             <Setter Property="ShowInTaskbar" Value="False"></Setter>
         </Style>
     </prism:Dialog.WindowStyle>
 
-    <Grid>
-            
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Label Margin="0,0,0,6" Content="{Binding [ProjectPath],Source={x:Static language:LanguageManager.Instance}}" VerticalContentAlignment="Center"></Label>
+        <TextBox Margin="0,0,0,6" Grid.Column="1" BorderThickness="1" IsReadOnly="True" Text=""></TextBox>
+
+        <Label Margin="0,0,0,6" Grid.Row="1" Content="{Binding [ProjectReleaseTo],Source={x:Static language:LanguageManager.Instance}}" VerticalContentAlignment="Center"></Label>
+        <TextBox Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" BorderThickness="1" IsReadOnly="True" Text=""></TextBox>
+        <Button Margin="0,0,0,6" Grid.Row="1" Grid.Column="2" BorderThickness="0" VerticalContentAlignment="Center" Style="{StaticResource MaterialDesignOutlinedButton}" ToolTip="{Binding [Browse],Source={x:Static language:LanguageManager.Instance}}">
+            <Button.Content>
+                <materialDesign:PackIcon Kind="FolderOpenOutline" />
+            </Button.Content>
+        </Button>
+
+        <Grid Grid.Row="3" Grid.ColumnSpan="3" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" Margin="0,0,6,0" Content="{Binding [OK],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding OKCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
+
+            <Button Grid.Column="2" Content="{Binding [Cancel],Source={x:Static language:LanguageManager.Instance}}" Style="{StaticResource MaterialDesignPaperButton}" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
+        </Grid>
     </Grid>
 </UserControl>

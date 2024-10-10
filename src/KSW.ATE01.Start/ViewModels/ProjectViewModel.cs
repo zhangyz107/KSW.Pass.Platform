@@ -86,12 +86,12 @@ namespace KSW.ATE01.Start.ViewModels
         }
         private void ExecuteRunCommand()
         {
-            MessageBox.Show($"触发了{nameof(ExecuteRunCommand)}");
+            _dialogService.ShowDialog(nameof(RunDialog));
         }
 
         private void ExecuteReleaseCommand()
         {
-            MessageBox.Show($"触发了{nameof(ExecuteReleaseCommand)}");
+            _dialogService.ShowDialog(nameof(ReleaseDialog));
         }
     }
 }

@@ -198,4 +198,61 @@
   <data name="SaveAsName" xml:space="preserve">
     <value>Save As Project Name</value>
   </data>
+  <data name="ProjectReleaseTo" xml:space="preserve">
+    <value>Project Release To</value>
+  </data>
+  <data name="Datalog" xml:space="preserve">
+    <value>Data Log</value>
+  </data>
+  <data name="LogPath" xml:space="preserve">
+    <value>Log Path</value>
+  </data>
+  <data name="TestItem" xml:space="preserve">
+    <value>Test Item</value>
+  </data>
+  <data name="Option" xml:space="preserve">
+    <value>Option</value>
+  </data>
+  <data name="Looping" xml:space="preserve">
+    <value>Looping</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="LoopCount" xml:space="preserve">
+    <value>Loop Count</value>
+  </data>
+  <data name="LoopsExecuted" xml:space="preserve">
+    <value>Loops Executed</value>
+  </data>
+  <data name="DelayBetweenLoops" xml:space="preserve">
+    <value>Delay Between Loops</value>
+  </data>
+  <data name="FailCount" xml:space="preserve">
+    <value>Fail Count</value>
+  </data>
+  <data name="StopOnFail" xml:space="preserve">
+    <value>Stop On Fail</value>
+  </data>
+  <data name="PrintTime" xml:space="preserve">
+    <value>Print Time</value>
+  </data>
+  <data name="OfflineMode" xml:space="preserve">
+    <value>Offline Mode</value>
+  </data>
+  <data name="Operate" xml:space="preserve">
+    <value>Operate</value>
+  </data>
+  <data name="LoadTestPlan" xml:space="preserve">
+    <value>Load Test Plan</value>
+  </data>
+  <data name="SetTestItem" xml:space="preserve">
+    <value>Set Test Item</value>
+  </data>
+  <data name="StartTest" xml:space="preserve">
+    <value>Start Test</value>
+  </data>
+  <data name="EndTest" xml:space="preserve">
+    <value>End Test</value>
+  </data>
 </root>

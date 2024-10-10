@@ -198,4 +198,61 @@
   <data name="SaveAsName" xml:space="preserve">
     <value>另存为项目名称</value>
   </data>
+  <data name="ProjectReleaseTo" xml:space="preserve">
+    <value>项目发布到</value>
+  </data>
+  <data name="Datalog" xml:space="preserve">
+    <value>数据记录</value>
+  </data>
+  <data name="LogPath" xml:space="preserve">
+    <value>日志路径</value>
+  </data>
+  <data name="TestItem" xml:space="preserve">
+    <value>测试项</value>
+  </data>
+  <data name="Option" xml:space="preserve">
+    <value>选项</value>
+  </data>
+  <data name="Looping" xml:space="preserve">
+    <value>循环</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="LoopCount" xml:space="preserve">
+    <value>循环次数</value>
+  </data>
+  <data name="LoopsExecuted" xml:space="preserve">
+    <value>已循环次数</value>
+  </data>
+  <data name="DelayBetweenLoops" xml:space="preserve">
+    <value>循环间延迟</value>
+  </data>
+  <data name="FailCount" xml:space="preserve">
+    <value>失败次数</value>
+  </data>
+  <data name="StopOnFail" xml:space="preserve">
+    <value>失败时停止</value>
+  </data>
+  <data name="PrintTime" xml:space="preserve">
+    <value>打印时间</value>
+  </data>
+  <data name="OfflineMode" xml:space="preserve">
+    <value>离线模式</value>
+  </data>
+  <data name="Operate" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="LoadTestPlan" xml:space="preserve">
+    <value>加载测试计划</value>
+  </data>
+  <data name="SetTestItem" xml:space="preserve">
+    <value>设置测试项</value>
+  </data>
+  <data name="StartTest" xml:space="preserve">
+    <value>开始测试</value>
+  </data>
+  <data name="EndTest" xml:space="preserve">
+    <value>结束测试</value>
+  </data>
 </root>

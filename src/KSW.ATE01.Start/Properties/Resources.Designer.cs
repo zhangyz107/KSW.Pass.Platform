@@ -97,11 +97,29 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Data Log 的本地化字符串。
+        /// </summary>
+        internal static string Datalog {
+            get {
+                return ResourceManager.GetString("Datalog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Date 的本地化字符串。
         /// </summary>
         internal static string Date {
             get {
                 return ResourceManager.GetString("Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Delay Between Loops 的本地化字符串。
+        /// </summary>
+        internal static string DelayBetweenLoops {
+            get {
+                return ResourceManager.GetString("DelayBetweenLoops", resourceCulture);
             }
         }
         
@@ -115,11 +133,29 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 End Test 的本地化字符串。
+        /// </summary>
+        internal static string EndTest {
+            get {
+                return ResourceManager.GetString("EndTest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Executable 的本地化字符串。
         /// </summary>
         internal static string Executable {
             get {
                 return ResourceManager.GetString("Executable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Fail Count 的本地化字符串。
+        /// </summary>
+        internal static string FailCount {
+            get {
+                return ResourceManager.GetString("FailCount", resourceCulture);
             }
         }
         
@@ -151,11 +187,65 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Load Test Plan 的本地化字符串。
+        /// </summary>
+        internal static string LoadTestPlan {
+            get {
+                return ResourceManager.GetString("LoadTestPlan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Log Path 的本地化字符串。
+        /// </summary>
+        internal static string LogPath {
+            get {
+                return ResourceManager.GetString("LogPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Loop Count 的本地化字符串。
+        /// </summary>
+        internal static string LoopCount {
+            get {
+                return ResourceManager.GetString("LoopCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Looping 的本地化字符串。
+        /// </summary>
+        internal static string Looping {
+            get {
+                return ResourceManager.GetString("Looping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Loops Executed 的本地化字符串。
+        /// </summary>
+        internal static string LoopsExecuted {
+            get {
+                return ResourceManager.GetString("LoopsExecuted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 New Project 的本地化字符串。
         /// </summary>
         internal static string NewProject {
             get {
                 return ResourceManager.GetString("NewProject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Offline Mode 的本地化字符串。
+        /// </summary>
+        internal static string OfflineMode {
+            get {
+                return ResourceManager.GetString("OfflineMode", resourceCulture);
             }
         }
         
@@ -174,6 +264,33 @@ namespace KSW.ATE01.Start.Properties {
         internal static string OpenProject {
             get {
                 return ResourceManager.GetString("OpenProject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Operate 的本地化字符串。
+        /// </summary>
+        internal static string Operate {
+            get {
+                return ResourceManager.GetString("Operate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Option 的本地化字符串。
+        /// </summary>
+        internal static string Option {
+            get {
+                return ResourceManager.GetString("Option", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Print Time 的本地化字符串。
+        /// </summary>
+        internal static string PrintTime {
+            get {
+                return ResourceManager.GetString("PrintTime", resourceCulture);
             }
         }
         
@@ -232,6 +349,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Project Release To 的本地化字符串。
+        /// </summary>
+        internal static string ProjectReleaseTo {
+            get {
+                return ResourceManager.GetString("ProjectReleaseTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Release 的本地化字符串。
         /// </summary>
         internal static string Release {
@@ -259,7 +385,7 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 Save As Project Name 的本地化字符串。
         /// </summary>
         internal static string SaveAsName {
             get {
@@ -273,6 +399,51 @@ namespace KSW.ATE01.Start.Properties {
         internal static string SaveAsPath {
             get {
                 return ResourceManager.GetString("SaveAsPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Set Test Item 的本地化字符串。
+        /// </summary>
+        internal static string SetTestItem {
+            get {
+                return ResourceManager.GetString("SetTestItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Start Test 的本地化字符串。
+        /// </summary>
+        internal static string StartTest {
+            get {
+                return ResourceManager.GetString("StartTest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Stop 的本地化字符串。
+        /// </summary>
+        internal static string Stop {
+            get {
+                return ResourceManager.GetString("Stop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Stop On Fail 的本地化字符串。
+        /// </summary>
+        internal static string StopOnFail {
+            get {
+                return ResourceManager.GetString("StopOnFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Test Item 的本地化字符串。
+        /// </summary>
+        internal static string TestItem {
+            get {
+                return ResourceManager.GetString("TestItem", resourceCulture);
             }
         }
         
