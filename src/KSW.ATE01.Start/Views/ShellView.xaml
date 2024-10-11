@@ -20,11 +20,11 @@
 
     <Grid>
         <TabControl Style="{StaticResource MaterialDesignFilledTabControl}"  HorizontalContentAlignment="Left">
-            <TabItem Header="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}" Margin="8,0">
+            <TabItem Header="{language:L Project}" Margin="8,0">
                 <ContentControl Padding="8,0" Content="{Binding ProjectView}"></ContentControl>
             </TabItem>
 
-            <TabItem Header="{Binding [Help],Source={x:Static language:LanguageManager.Instance}}">
+            <TabItem Header="{language:L Help}">
                 <ContentControl Padding="8,0" Content="{Binding HelpView}"></ContentControl>
             </TabItem>
         </TabControl>

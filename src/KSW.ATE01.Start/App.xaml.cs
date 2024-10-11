@@ -1,12 +1,13 @@
-﻿using KSW.Infrastructure;
-using KSW.ATE01.Sqlite;
+﻿using KSW.ATE01.Sqlite;
+using KSW.ATE01.Start;
+using KSW.ATE01.Start.ViewModels.Dialogs;
 using KSW.ATE01.Start.Views;
+using KSW.ATE01.Start.Views.Dialogs;
+using KSW.Infrastructure;
+using KSW.Localization;
 using Serilog;
 using System.Windows;
 using System.Windows.Threading;
-using System.Globalization;
-using KSW.ATE01.Start.ViewModels.Dialogs;
-using KSW.ATE01.Start.Views.Dialogs;
 
 namespace KSW.ATE01.Platform
 {
@@ -33,8 +34,14 @@ namespace KSW.ATE01.Platform
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.GetContainer();
+            var container = containerRegistry.GetContainer();
+
+            // 初始化日志配置
             InitLogConfig();
+
+            // 初始化多语言配置
+            InitLanguageConfig(containerRegistry);
+
             // 将 Serilog 注入容器
             containerRegistry.RegisterInstance(Log.Logger);
 
@@ -44,6 +51,12 @@ namespace KSW.ATE01.Platform
             bootstrapper.Start();
 
             RegisterView(containerRegistry);
+        }
+
+
+        protected override IContainerExtension CreateContainerExtension()
+        {
+            return base.CreateContainerExtension();
         }
 
         private void RegisterView(IContainerRegistry containerRegistry)
@@ -65,6 +78,12 @@ namespace KSW.ATE01.Platform
                 .MinimumLevel.Debug()
                 .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
+        }
+
+        private void InitLanguageConfig(IContainerRegistry containerRegistry)
+        {
+            var languageManager = LanguageManager.Instance;
+            containerRegistry.RegisterInstance<ILanguageManager>(languageManager);
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)

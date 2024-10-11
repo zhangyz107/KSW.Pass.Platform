@@ -62,11 +62,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KSW.ATE01.Application", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KSW.ATE01.Application.Models", "src\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj", "{4E19F16B-B58E-4AA7-83B5-C2D142601226}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KSW.ATE01.Domain.Projects", "src\KSW.ATE01.Domain.Projects\KSW.ATE01.Domain.Projects.csproj", "{1EE191EC-16A9-458D-9F9F-9CB087D04576}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KSW.ATE01.Domain.Projects", "src\KSW.ATE01.Domain.Projects\KSW.ATE01.Domain.Projects.csproj", "{1EE191EC-16A9-458D-9F9F-9CB087D04576}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KSW.ATE01.Domain.Projects.Core", "src\KSW.ATE01.Domain.Projects.Core\KSW.ATE01.Domain.Projects.Core.csproj", "{20788514-6D20-4119-8F0F-64347E3DC7B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KSW.ATE01.Domain.Projects.Core", "src\KSW.ATE01.Domain.Projects.Core\KSW.ATE01.Domain.Projects.Core.csproj", "{20788514-6D20-4119-8F0F-64347E3DC7B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KSW.ATE01.Application.Events", "src\KSW.ATE01.Application.Events\KSW.ATE01.Application.Events.csproj", "{A7E09AAF-22C4-4158-B04F-F32BE346FAC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KSW.ATE01.Application.Events", "src\KSW.ATE01.Application.Events\KSW.ATE01.Application.Events.csproj", "{A7E09AAF-22C4-4158-B04F-F32BE346FAC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

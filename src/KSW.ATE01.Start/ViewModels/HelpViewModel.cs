@@ -20,5 +20,8 @@ namespace KSW.ATE01.Start.ViewModels
     /// </summary>
     public class HelpViewModel : ViewModelBase
     {
+        public HelpViewModel(IContainerProvider containerProvider) : base(containerProvider)
+        {
+        }
     }
 }

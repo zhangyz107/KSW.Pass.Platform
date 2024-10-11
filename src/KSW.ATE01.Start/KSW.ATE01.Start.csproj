@@ -17,6 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\KSW.UI\KSW.UI.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Application.Events\KSW.ATE01.Application.Events.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Application\KSW.ATE01.Application.csproj" />

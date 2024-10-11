@@ -14,6 +14,7 @@
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Ui;
+using Prism.Ioc;
 using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels
@@ -24,13 +25,13 @@ namespace KSW.ATE01.Start.ViewModels
     public class ProjectViewModel : ViewModelBase
     {
         #region Fields
-        private readonly IContainerExtension _container;
+        private readonly IContainerExtension _containerProvider;
         private readonly IDialogService _dialogService;
         private ProjectDetailView _projectDetailView;
         #endregion
 
         #region Properties
-        
+
         public ProjectDetailView ProjectDetailView
         {
             get => _projectDetailView;
@@ -70,14 +71,14 @@ namespace KSW.ATE01.Start.ViewModels
         /// 构造函数
         /// </summary>
         public ProjectViewModel(
-            IContainerExtension container, 
-            IDialogService dialogService)
+            IContainerExtension containerProvider,
+            IDialogService dialogService) : base(containerProvider)
         {
-            _container = container;
+            _containerProvider = containerProvider;
             _dialogService = dialogService;
 
             #region 加载页面
-            _projectDetailView = _container.Resolve<ProjectDetailView>();
+            _projectDetailView = _containerProvider.Resolve<ProjectDetailView>();
             #endregion
         }
 

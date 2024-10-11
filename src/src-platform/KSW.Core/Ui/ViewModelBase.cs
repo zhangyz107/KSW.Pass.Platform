@@ -1,5 +1,5 @@
 ﻿using KSW.Dtos;
-using System.Windows.Threading;
+using KSW.Localization;
 
 namespace KSW.Ui
 {
@@ -8,6 +8,14 @@ namespace KSW.Ui
     /// </summary>
     public abstract class ViewModelBase : DtoBase
     {
+        protected IContainerProvider ContainerProvider { get; }
 
+        protected ILanguageManager L { get; }
+
+        protected ViewModelBase(IContainerProvider containerProvider)
+        {
+            ContainerProvider = containerProvider ?? throw new ArgumentNullException(nameof(containerProvider)); ;
+            L = containerProvider.Resolve<ILanguageManager>();
+        }
     }
 }

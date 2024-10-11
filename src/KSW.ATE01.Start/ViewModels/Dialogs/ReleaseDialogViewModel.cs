@@ -23,7 +23,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Properties
         public DialogCloseListener RequestClose { get; }
 
-        public string Title => LanguageManager.Instance["Release"];
+        public string Title => L["Release"];
         #endregion
 
         #region Command;
@@ -32,9 +32,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _oKCommand ?? (_oKCommand = new DelegateCommand(ExecuteOKCommand));
 
         private DelegateCommand _cancelCommand;
+
         public DelegateCommand CancelCommand =>
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
         #endregion
+        public ReleaseDialogViewModel(IContainerProvider containerProvider) : base(containerProvider)
+        {
+        }
 
         public bool CanCloseDialog()
         {

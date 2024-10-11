@@ -12,11 +12,6 @@
 //------------------------------------------------------------*/
 
 using KSW.Ui;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
@@ -39,6 +34,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public DelegateCommand CancelCommand =>
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
         #endregion
+
+        public SaveAsDialogViewModel(IContainerProvider containerProvider) : base(containerProvider)
+        {
+        }
+
 
         public bool CanCloseDialog()
         {

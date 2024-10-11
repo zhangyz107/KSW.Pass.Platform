@@ -24,7 +24,7 @@ namespace KSW.ATE01.Start.ViewModels
     public class ProjectDetailViewModel : ViewModelBase
     {
         #region Fields
-        private readonly IContainerExtension _container;
+        private readonly IContainerExtension _containerProvider;
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private ProjectInfoModel _projectInfo;
@@ -53,13 +53,13 @@ namespace KSW.ATE01.Start.ViewModels
         #endregion
 
         public ProjectDetailViewModel(
-                     IContainerExtension container,
-                     IEventAggregator eventAggregator)
+            IContainerExtension containerProvider,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
-            _container = container;
+            _containerProvider = containerProvider;
             _eventAggregator = eventAggregator;
 
-            _projectBLL = _container.Resolve<IProjectBLL>();
+            _projectBLL = _containerProvider.Resolve<IProjectBLL>();
 
             RegisterEvent();
         }

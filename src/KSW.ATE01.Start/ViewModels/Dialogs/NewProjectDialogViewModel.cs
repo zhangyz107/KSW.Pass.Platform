@@ -17,7 +17,6 @@ using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Ui;
 using Microsoft.Win32;
-using Prism.Ioc;
 using Serilog;
 using System.IO;
 using System.Windows;
@@ -30,7 +29,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     public class NewProjectDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
-        private readonly IContainerExtension _container;
+        private readonly IContainerExtension _containerProvider;
         private readonly IEventAggregator _eventAggregator;
         private readonly ILogger _logger;
         private readonly IProjectBLL _projectBLL;
@@ -44,7 +43,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Properties
         public DialogCloseListener RequestClose { get; }
 
-        public string Title => LanguageManager.Instance["NewProject"];
+        public string Title => L["NewProject"];
 
         public Dictionary<TestPlanType, string> TestPlanTypeCbItems => new Dictionary<TestPlanType, string>()
         {
@@ -94,13 +93,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #endregion
 
         public NewProjectDialogViewModel(
-            IContainerExtension container,
-            IEventAggregator eventAggregator)
+            IContainerExtension containerProvider,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
-            _container = container;
+            _containerProvider = containerProvider;
             _eventAggregator = eventAggregator;
-            _logger = _container.Resolve<ILogger>();
-            _projectBLL = _container.Resolve<IProjectBLL>();
+            _logger = _containerProvider.Resolve<ILogger>();
+            _projectBLL = _containerProvider.Resolve<IProjectBLL>();
 
             _projectInfo = new ProjectInfoModel()
             {

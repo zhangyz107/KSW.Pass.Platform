@@ -11,7 +11,10 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.Localization;
+using Prism.Ioc;
 using System.ComponentModel;
+using System.Configuration;
 using System.Globalization;
 using System.Resources;
 
@@ -20,8 +23,10 @@ namespace KSW.ATE01.Start
     /// <summary>
     /// 多语言管理
     /// </summary>
-    public class LanguageManager : INotifyPropertyChanged
+    public class LanguageManager : ILanguageManager
     {
+        private readonly string _resource = "KSW.ATE01.Start.Properties.Resources";
+
         private readonly ResourceManager _resourceManager;
 
         private static readonly Lazy<LanguageManager> _lazy = new Lazy<LanguageManager>(() => new LanguageManager());
@@ -32,7 +37,7 @@ namespace KSW.ATE01.Start
 
         public LanguageManager()
         {
-            _resourceManager = new ResourceManager("KSW.ATE01.Start.Properties.Resources", typeof(LanguageManager).Assembly);
+            _resourceManager = new ResourceManager(_resource, GetType().Assembly);
         }
 
         public string this[string name]

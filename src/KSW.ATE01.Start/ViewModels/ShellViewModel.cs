@@ -23,7 +23,7 @@ namespace KSW.ATE01.Start.ViewModels
     /// </summary>
     public class ShellViewModel : ViewModelBase
     {
-        private readonly IContainerExtension _container;
+        private readonly IContainerExtension _containerProvider;
         private readonly IDialogService _dialogService;
         private ProjectView _projectView;
         private HelpView _helpView;
@@ -63,6 +63,8 @@ namespace KSW.ATE01.Start.ViewModels
             {"zh-CN","简体中文" },
             {"en-US", "English"}
         };
+
+        //public LanguageManager L => LanguageManager.Instance;
         #endregion
 
         private DelegateCommand _loadingCommand;
@@ -70,10 +72,10 @@ namespace KSW.ATE01.Start.ViewModels
             _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommand));
 
         public ShellViewModel(
-            IContainerExtension container,
-            IDialogService dialogService)
+            IContainerExtension containerProvider,
+            IDialogService dialogService) : base(containerProvider)
         {
-            _container = container;
+            _containerProvider = containerProvider;
             _dialogService = dialogService;
         }
 
@@ -82,8 +84,8 @@ namespace KSW.ATE01.Start.ViewModels
             var currentCulture = CultureInfo.CurrentCulture;
             Language = currentCulture.Name;
 
-            ProjectView = _container.Resolve<ProjectView>();
-            HelpView = _container.Resolve<HelpView>();
+            ProjectView = _containerProvider.Resolve<ProjectView>();
+            HelpView = _containerProvider.Resolve<HelpView>();
         }
 
 

@@ -14,6 +14,7 @@ using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Data;
+using KSW.Localization;
 
 namespace KSW.ATE01.Application.BLLs.Implements
 {
@@ -22,12 +23,17 @@ namespace KSW.ATE01.Application.BLLs.Implements
     /// </summary>
     public class ProjectBLL : ServiceBase, IProjectBLL
     {
+        private readonly IContainerProvider _containerProvider;
+        private readonly ILanguageManager _languageManager;
         private ProjectInfoModel _currentProjectInfo;
+
 
         public ProjectBLL(
             IContainerProvider containerProvider) : base(containerProvider)
         {
+            _containerProvider = containerProvider;
 
+            _languageManager = _containerProvider.Resolve<ILanguageManager>();
         }
 
         public Task CreateProject(ProjectInfoModel projectInfo)

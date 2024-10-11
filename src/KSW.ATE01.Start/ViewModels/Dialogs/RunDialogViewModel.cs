@@ -28,7 +28,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Properties
         public DialogCloseListener RequestClose { get; }
 
-        public string Title => LanguageManager.Instance["Run"];
+        public string Title => L["Run"];
 
         public bool? IsAllItemsSelected
         {
@@ -47,6 +47,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public DelegateCommand CancelCommand =>
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
         #endregion
+        public RunDialogViewModel(IContainerProvider containerProvider) : base(containerProvider)
+        {
+        }
+
 
         public bool CanCloseDialog()
         {
