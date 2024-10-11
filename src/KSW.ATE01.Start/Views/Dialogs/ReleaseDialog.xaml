@@ -33,12 +33,12 @@
             <ColumnDefinition Width="auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Label Margin="0,0,0,6" Content="{Binding [ProjectPath],Source={x:Static language:LanguageManager.Instance}}" VerticalContentAlignment="Center"></Label>
+        <Label Margin="0,0,0,6" Content="{language:L ProjectPath}" VerticalContentAlignment="Center"></Label>
         <TextBox Margin="0,0,0,6" Grid.Column="1" BorderThickness="1" IsReadOnly="True" Text=""></TextBox>
 
-        <Label Margin="0,0,0,6" Grid.Row="1" Content="{Binding [ProjectReleaseTo],Source={x:Static language:LanguageManager.Instance}}" VerticalContentAlignment="Center"></Label>
+        <Label Margin="0,0,0,6" Grid.Row="1" Content="{language:L ProjectReleaseTo}" VerticalContentAlignment="Center"></Label>
         <TextBox Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" BorderThickness="1" IsReadOnly="True" Text=""></TextBox>
-        <Button Margin="0,0,0,6" Grid.Row="1" Grid.Column="2" BorderThickness="0" VerticalContentAlignment="Center" Style="{StaticResource MaterialDesignOutlinedButton}" ToolTip="{Binding [Browse],Source={x:Static language:LanguageManager.Instance}}">
+        <Button Margin="0,0,0,6" Grid.Row="1" Grid.Column="2" BorderThickness="0" VerticalContentAlignment="Center" Style="{StaticResource MaterialDesignOutlinedButton}" ToolTip="{language:L Browse}">
             <Button.Content>
                 <materialDesign:PackIcon Kind="FolderOpenOutline" />
             </Button.Content>
@@ -51,9 +51,9 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Margin="0,0,6,0" Content="{Binding [OK],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding OKCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
+            <Button Grid.Column="1" Margin="0,0,6,0" Content="{language:L OK}" Command="{Binding OKCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
 
-            <Button Grid.Column="2" Content="{Binding [Cancel],Source={x:Static language:LanguageManager.Instance}}" Style="{StaticResource MaterialDesignPaperButton}" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
+            <Button Grid.Column="2" Content="{language:L Cancel}" Style="{StaticResource MaterialDesignPaperButton}" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
         </Grid>
     </Grid>
 </UserControl>

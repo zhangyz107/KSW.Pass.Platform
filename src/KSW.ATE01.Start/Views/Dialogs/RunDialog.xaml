@@ -25,7 +25,7 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <FrameworkElement x:Name="DataContextProxy" DataContext="{Binding}" />
-        <GroupBox Margin="0,0,0,6" Header="{Binding [Datalog],Source={x:Static language:LanguageManager.Instance}}">
+        <GroupBox Margin="0,0,0,6" Header="{language:L Datalog}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"></RowDefinition>
@@ -48,9 +48,9 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Label VerticalAlignment="Center" Content="{Binding [LogPath],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                    <Label VerticalAlignment="Center" Content="{language:L LogPath}"></Label>
                     <TextBox Grid.Column="1" BorderThickness="1" IsReadOnly="True"></TextBox>
-                    <Button Grid.Column="2" BorderThickness="0" VerticalContentAlignment="Center" Style="{StaticResource MaterialDesignOutlinedButton}" ToolTip="{Binding [Browse],Source={x:Static language:LanguageManager.Instance}}" >
+                    <Button Grid.Column="2" BorderThickness="0" VerticalContentAlignment="Center" Style="{StaticResource MaterialDesignOutlinedButton}" ToolTip="{language:L Browse}" >
                         <Button.Content>
                             <materialDesign:PackIcon Kind="FolderOpenOutline" />
                         </Button.Content>
@@ -69,7 +69,7 @@
                 <RowDefinition Height="auto"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <GroupBox Padding="0" Grid.RowSpan="4" Margin="0,0,6,0" Header="{Binding [TestItem],Source={x:Static language:LanguageManager.Instance}}">
+            <GroupBox Padding="0" Grid.RowSpan="4" Margin="0,0,6,0" Header="{language:L TestItem}">
                 <DataGrid   AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" CanUserSortColumns="False" >
                     <DataGrid.Columns>
                         <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False">
@@ -90,13 +90,13 @@
                                 </Style>
                             </DataGridCheckBoxColumn.HeaderStyle>
                         </DataGridCheckBoxColumn>
-                        <DataGridTextColumn Width="*" Header="{Binding [TestItem],Source={x:Static language:LanguageManager.Instance}}" CanUserReorder="False" Binding="{Binding TestItemName}" IsReadOnly="True">
+                        <DataGridTextColumn Width="*" Header="{language:L TestItem}" CanUserReorder="False" Binding="{Binding TestItemName}" IsReadOnly="True">
                         </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>
 
-            <GroupBox Margin="0,0,0,6" Grid.Column="1" Header="{Binding [Option],Source={x:Static language:LanguageManager.Instance}}">
+            <GroupBox Margin="0,0,0,6" Grid.Column="1" Header="{language:L Option}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"></ColumnDefinition>
@@ -104,11 +104,11 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <CheckBox Content="DoAll"></CheckBox>
-                    <CheckBox Grid.Column="1" Content="{Binding [PrintTime],Source={x:Static language:LanguageManager.Instance}}"></CheckBox>
-                    <CheckBox Grid.Column="2" Content="{Binding [OfflineMode],Source={x:Static language:LanguageManager.Instance}}"></CheckBox>
+                    <CheckBox Grid.Column="1" Content="{language:L PrintTime}"></CheckBox>
+                    <CheckBox Grid.Column="2" Content="{language:L OfflineMode}"></CheckBox>
                 </Grid>
             </GroupBox>
-            <GroupBox Margin="0,0,0,6" Grid.Column="1" Grid.Row="1" Header="{Binding [Looping],Source={x:Static language:LanguageManager.Instance}}">
+            <GroupBox Margin="0,0,0,6" Grid.Column="1" Grid.Row="1" Header="{language:L Looping}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"></RowDefinition>
@@ -122,28 +122,28 @@
                         <ColumnDefinition Width="auto"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Label Margin="0,0,6,6" VerticalAlignment="Center" Content="{Binding [LoopCount],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                    <Label Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopCount}"></Label>
                     <TextBox Margin="0,0,6,6" Grid.Column="1" BorderThickness="1"></TextBox>
 
-                    <Label Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{Binding [LoopsExecuted],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                    <Label Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopsExecuted}"></Label>
                     <TextBox Margin="0,0,6,6" Grid.Column="3" BorderThickness="1" IsReadOnly="True"></TextBox>
 
-                    <Label Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Content="{Binding [DelayBetweenLoops],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                    <Label Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L DelayBetweenLoops}"></Label>
                     <TextBox Grid.Row="1" Margin="0,0,6,6" Grid.Column="1" BorderThickness="1"></TextBox>
 
-                    <Label Grid.Row="1" Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{Binding [FailCount],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                    <Label Grid.Row="1" Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L FailCount}"></Label>
                     <TextBox Grid.Row="1" Margin="0,0,6,6" Grid.Column="3" BorderThickness="1" IsReadOnly="True"></TextBox>
 
                     <Label Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,6" Content="s（max 300s）"></Label>
 
-                    <CheckBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,0,0,6" VerticalContentAlignment="Center" Content="{Binding [StopOnFail],Source={x:Static language:LanguageManager.Instance}}"></CheckBox>
+                    <CheckBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,0,0,6" VerticalContentAlignment="Center" Content="{language:L StopOnFail}"></CheckBox>
 
-                    <Button Grid.Row="3" Grid.ColumnSpan="2" Margin="0,0,6,0" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{Binding [Looping],Source={x:Static language:LanguageManager.Instance}}"></Button>
+                    <Button Grid.Row="3" Grid.ColumnSpan="2" Margin="0,0,6,0" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Looping}"></Button>
 
-                    <Button Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{Binding [Stop],Source={x:Static language:LanguageManager.Instance}}"></Button>
+                    <Button Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Stop}"></Button>
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Column="1" Grid.Row="2" Header="{Binding [Operate],Source={x:Static language:LanguageManager.Instance}}">
+            <GroupBox Grid.Column="1" Grid.Row="2" Header="{language:L Operate}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"></RowDefinition>
@@ -153,13 +153,13 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Button Margin="0,0,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{Binding [LoadTestPlan],Source={x:Static language:LanguageManager.Instance}}"></Button>
+                    <Button Margin="0,0,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L LoadTestPlan}"></Button>
 
-                    <Button Margin="0,0,0,6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{Binding [SetTestItem],Source={x:Static language:LanguageManager.Instance}}"></Button>
+                    <Button Margin="0,0,0,6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L SetTestItem}"></Button>
 
-                    <Button Margin="0,0,6,0" Grid.Row="1" Content="{Binding [StartTest],Source={x:Static language:LanguageManager.Instance}}"></Button>
+                    <Button Margin="0,0,6,0" Grid.Row="1" Content="{language:L StartTest}"></Button>
 
-                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{Binding [EndTest],Source={x:Static language:LanguageManager.Instance}}"></Button>
+                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L EndTest}"></Button>
 
                 </Grid>
             </GroupBox>

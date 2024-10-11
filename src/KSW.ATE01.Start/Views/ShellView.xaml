@@ -33,7 +33,7 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Label Margin="0,1,0,0" Content="{Binding [Language],Source={x:Static language:LanguageManager.Instance}}" Foreground="White"></Label>
+            <Label Margin="0,1,0,0" Content="{language:L Language}" Foreground="White"></Label>
             <ComboBox Grid.Column="1" TextElement.Foreground="White" materialDesign:ColorZoneAssist.Mode="PrimaryMid" ItemsSource="{Binding LanguageCbItems,Mode=OneWay}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Language}">
 
             </ComboBox>

@@ -25,12 +25,12 @@
                     <RowDefinition Height="auto"></RowDefinition>
                     <RowDefinition Height="auto"></RowDefinition>
                 </Grid.RowDefinitions>
-                <Button Margin="0,0,0,4" Content="{Binding [NewProject],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding NewProjectCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="1" Content="{Binding [OpenProject],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding OpenProjectCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="2" Content="{Binding [SaveAs],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding SaveAsCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="3" Content="{Binding [Develop],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding DelelopCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="4" Content="{Binding [Run],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding RunCommand}"></Button>
-                <Button Margin="0,0,0,4" Grid.Row="5" Content="{Binding [Release],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding ReleaseCommand}"></Button>
+                <Button Margin="0,0,0,4" Content="{language:L NewProject}" Command="{Binding NewProjectCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="1" Content="{language:L OpenProject}" Command="{Binding OpenProjectCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="2" Content="{language:L SaveAs}" Command="{Binding SaveAsCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="3" Content="{language:L Develop}" Command="{Binding DelelopCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="4" Content="{language:L Run}" Command="{Binding RunCommand}"></Button>
+                <Button Margin="0,0,0,4" Grid.Row="5" Content="{language:L Release}" Command="{Binding ReleaseCommand}"></Button>
             </Grid>
         </Border>
 

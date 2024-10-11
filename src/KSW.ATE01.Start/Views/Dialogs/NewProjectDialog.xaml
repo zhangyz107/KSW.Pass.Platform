@@ -31,7 +31,7 @@
                                     <ColumnDefinition Width="auto"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Padding="6,0,0,0" Text="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}"></TextBlock>
-                                <Button Padding="6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" BorderThickness="0" ToolTip="{Binding [Browse],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding DataContext.OpenFolderCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}" IsEnabled="{Binding Path=IsEnabled,RelativeSource={RelativeSource AncestorType=TextBox}}">
+                                <Button Padding="6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" BorderThickness="0" ToolTip="{language:L Browse}" Command="{Binding DataContext.OpenFolderCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}" IsEnabled="{Binding Path=IsEnabled,RelativeSource={RelativeSource AncestorType=TextBox}}">
                                     <Button.Content>
                                         <materialDesign:PackIcon Kind="FolderOpenOutline" />
                                     </Button.Content>
@@ -58,13 +58,13 @@
         </Grid.ColumnDefinitions>
 
 
-        <Label Margin="0,0,0,6" VerticalAlignment="Center" Content="{Binding [TestPlanType],Source={x:Static language:LanguageManager.Instance}}"></Label>
+        <Label Margin="0,0,0,6" VerticalAlignment="Center" Content="{language:L TestPlanType}"></Label>
         <ComboBox Padding="6" Margin="0,0,0,6" Grid.Column="1" ItemsSource="{Binding TestPlanTypeCbItems,Mode=OneWay}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding ProjectInfo.TestPlanType}" Style="{StaticResource MaterialDesignOutlinedComboBox}"></ComboBox>
 
-        <Label Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Content="{Binding [ProjectName],Source={x:Static language:LanguageManager.Instance}}"></Label>
+        <Label Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Content="{language:L ProjectName}"></Label>
         <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" Text="{Binding ProjectInfo.ProjectName,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
 
-        <GroupBox Grid.Row="2" Grid.ColumnSpan="2" Header="{Binding [ProjectFile],Source={x:Static language:LanguageManager.Instance}}" Padding="0" Style="{StaticResource MaterialDesignCardGroupBox}">
+        <GroupBox Grid.Row="2" Grid.ColumnSpan="2" Header="{language:L ProjectFile}" Padding="0" Style="{StaticResource MaterialDesignCardGroupBox}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"></RowDefinition>
@@ -76,13 +76,13 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <Label Margin="0,6,0,6" VerticalAlignment="Center" Content="{Binding [ProjectPath],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                <Label Margin="0,6,0,6" VerticalAlignment="Center" Content="{language:L ProjectPath}"></Label>
                 <TextBox Margin="0,6,0,6" Grid.Column="1" BorderThickness="1" Style="{StaticResource BrowseTextBlock}" Text="{Binding ProjectInfo.ProjectPath}" IsEnabled="{Binding IsProjectPathEnable}"></TextBox>
 
-                <Label Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Content="{Binding [Configuration],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                <Label Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Content="{language:L Configuration}"></Label>
                 <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" Text="{Binding ConfigurationName}" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" ></TextBox>
 
-                <Label Margin="0,0,0,6" Grid.Row="2" VerticalAlignment="Center" Content="{Binding [Executable],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                <Label Margin="0,0,0,6" Grid.Row="2" VerticalAlignment="Center" Content="{language:L Executable}"></Label>
                 <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="2" Grid.Column="1" Text="{Binding ExecuteName}" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" ></TextBox>
             </Grid>
         </GroupBox>
@@ -94,9 +94,9 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Margin="0,0,6,0" Content="{Binding [OK],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding OKCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
+            <Button Grid.Column="1" Margin="0,0,6,0" Content="{language:L OK}" Command="{Binding OKCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
 
-            <Button Grid.Column="2" Content="{Binding [Cancel],Source={x:Static language:LanguageManager.Instance}}" Style="{StaticResource MaterialDesignPaperButton}" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
+            <Button Grid.Column="2" Content="{language:L Cancel}" Style="{StaticResource MaterialDesignPaperButton}" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
         </Grid>
     </Grid>
 </UserControl>
