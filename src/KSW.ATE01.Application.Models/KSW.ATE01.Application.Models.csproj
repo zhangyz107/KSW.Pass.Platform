@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(NetTargetFramework)</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KSW.ATE01.Domain.Projects.Core\KSW.ATE01.Domain.Projects.Core.csproj" />
+    <ProjectReference Include="..\src-platform\KSW.Core\KSW.Core.csproj" />
+  </ItemGroup>
+
+</Project>

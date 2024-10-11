@@ -8,7 +8,7 @@ namespace KSW.Dtos
     /// Abstract base class for a DataModel implementation.
     /// </summary>
     [Serializable]
-    public class DtoBase : BindableBase
+    public abstract class DtoBase : BindableBase
     {
         [NonSerialized]
         private readonly List<PropertyChangedEventListener> propertyChangedListeners = new List<PropertyChangedEventListener>();

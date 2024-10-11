@@ -1,16 +1,27 @@
-﻿using KSW.ATE01.Start.Views;
+﻿/*--------------------------------------------------------------
+// Copyright (C) KSW-Tech
+// 版权所有。
+//
+// 文件名称：ProjectViewModel.cs
+// 功能描述：项目视图模型
+//
+// 作者：zhangyingzhong
+// 日期：2024/10/09 13:46
+// 修改记录(Revision History)
+//
+//------------------------------------------------------------*/
+
+using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Ui;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels
 {
-    public class ProjectViewModel : ViewModel
+    /// <summary>
+    /// 项目视图模型
+    /// </summary>
+    public class ProjectViewModel : ViewModelBase
     {
         #region Fields
         private readonly IContainerExtension _container;
@@ -19,7 +30,7 @@ namespace KSW.ATE01.Start.ViewModels
         #endregion
 
         #region Properties
-
+        
         public ProjectDetailView ProjectDetailView
         {
             get => _projectDetailView;
@@ -55,7 +66,12 @@ namespace KSW.ATE01.Start.ViewModels
 
         #endregion
 
-        public ProjectViewModel(IContainerExtension container, IDialogService dialogService)
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public ProjectViewModel(
+            IContainerExtension container, 
+            IDialogService dialogService)
         {
             _container = container;
             _dialogService = dialogService;

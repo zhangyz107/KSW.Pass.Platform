@@ -25,26 +25,26 @@
                 <RowDefinition Height="auto"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Label FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
-            <Label Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.ProjectName}"></Label>
 
-            <Label Grid.Row="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Version],Source={x:Static language:LanguageManager.Instance}}"></Label>
-            <Label  Grid.Row="1" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Version],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.ProjectVersion}"></Label>
 
-            <Label Grid.Row="2" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Date],Source={x:Static language:LanguageManager.Instance}}"></Label>
-            <Label  Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="2" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Date],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.CreateTime}"></Label>
 
-            <Label Grid.Row="3" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [FilePath],Source={x:Static language:LanguageManager.Instance}}"></Label>
-            <Label Grid.Row="3" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="3" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [FilePath],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="3" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.ProjectPath}"></Label>
 
-            <Label Grid.Row="4" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Executable],Source={x:Static language:LanguageManager.Instance}}"></Label>
-            <Label Grid.Row="4" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="4" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Executable],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="4" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ExecuteName}"></Label>
 
-            <Label Grid.Row="5" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [TestPlan],Source={x:Static language:LanguageManager.Instance}}"></Label>
-            <Label Grid.Row="5" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="5" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [TestPlan],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="5" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding TestPlanName}"></Label>
 
-            <Label Grid.Row="6" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [TestPlanType],Source={x:Static language:LanguageManager.Instance}}"></Label>
-            <Label  Grid.Row="6" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [Project],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="6" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding [TestPlanType],Source={x:Static language:LanguageManager.Instance}}"></Label>
+            <Label VerticalAlignment="Center" Grid.Row="6" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.TestPlanTypeDescription}"></Label>
         </Grid>
     </GroupBox>
 </UserControl>

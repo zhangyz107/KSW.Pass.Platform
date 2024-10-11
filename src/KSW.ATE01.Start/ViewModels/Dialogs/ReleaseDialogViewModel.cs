@@ -1,13 +1,24 @@
-﻿using KSW.Ui;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/*--------------------------------------------------------------
+// Copyright (C) KSW-Tech
+// 版权所有。
+//
+// 文件名称：ReleaseDialogViewModel.cs
+// 功能描述：发布窗口视图模型
+//
+// 作者：zhangyingzhong
+// 日期：2024/10/10 13:41
+// 修改记录(Revision History)
+//
+//------------------------------------------------------------*/
+
+using KSW.Ui;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
-    public class ReleaseDialogViewModel : ViewModel, IDialogAware
+    /// <summary>
+    /// 发布窗口视图模型
+    /// </summary>
+    public class ReleaseDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Properties
         public DialogCloseListener RequestClose { get; }

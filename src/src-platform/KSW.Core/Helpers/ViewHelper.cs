@@ -10,7 +10,7 @@ namespace KSW.Helpers
 {
     public static class ViewHelper
     {
-        public static ViewModel GetViewModel(this IView view)
+        public static ViewModelBase GetViewModel(this IView view)
         {
             if (view == null) { throw new ArgumentNullException("view"); }
 
@@ -21,10 +21,10 @@ namespace KSW.Helpers
             {
                 dataContext = view.DataContext;
             }
-            return dataContext as ViewModel;
+            return dataContext as ViewModelBase;
         }
 
-        public static T GetViewModel<T>(this IView view) where T : ViewModel
+        public static T GetViewModel<T>(this IView view) where T : ViewModelBase
         {
             return GetViewModel(view) as T;
         }

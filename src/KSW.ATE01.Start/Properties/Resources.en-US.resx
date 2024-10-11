@@ -255,4 +255,7 @@
   <data name="EndTest" xml:space="preserve">
     <value>End Test</value>
   </data>
+  <data name="SelectFolder" xml:space="preserve">
+    <value>Select Folder</value>
+  </data>
 </root>

@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:KSW.ATE01.Start.Views.Dialogs"
         xmlns:language="clr-namespace:KSW.ATE01.Start"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True">
     <prism:Dialog.WindowStyle>
@@ -17,7 +18,32 @@
             <Setter Property="ShowInTaskbar" Value="False"></Setter>
         </Style>
     </prism:Dialog.WindowStyle>
-    
+
+    <UserControl.Resources>
+        <Style x:Key="BrowseTextBlock" TargetType="{x:Type TextBox}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="2">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Padding="6,0,0,0" Text="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}"></TextBlock>
+                                <Button Padding="6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" BorderThickness="0" ToolTip="{Binding [Browse],Source={x:Static language:LanguageManager.Instance}}" Command="{Binding DataContext.OpenFolderCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}" IsEnabled="{Binding Path=IsEnabled,RelativeSource={RelativeSource AncestorType=TextBox}}">
+                                    <Button.Content>
+                                        <materialDesign:PackIcon Kind="FolderOpenOutline" />
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <Grid Margin="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -30,11 +56,13 @@
             <ColumnDefinition Width="90"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Label Margin="0,0,0,6" Content="{Binding [TestPlanType],Source={x:Static language:LanguageManager.Instance}}"></Label>
-        <ComboBox Margin="0,0,0,6" Grid.Column="1" BorderThickness="1"></ComboBox>
 
-        <Label Margin="0,0,0,6" Grid.Row="1" Content="{Binding [ProjectName],Source={x:Static language:LanguageManager.Instance}}"></Label>
-        <TextBox Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" BorderThickness="1" Text=""></TextBox>
+
+        <Label Margin="0,0,0,6" VerticalAlignment="Center" Content="{Binding [TestPlanType],Source={x:Static language:LanguageManager.Instance}}"></Label>
+        <ComboBox Padding="6" Margin="0,0,0,6" Grid.Column="1" ItemsSource="{Binding TestPlanTypeCbItems,Mode=OneWay}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding ProjectInfo.TestPlanType}" Style="{StaticResource MaterialDesignOutlinedComboBox}"></ComboBox>
+
+        <Label Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Content="{Binding [ProjectName],Source={x:Static language:LanguageManager.Instance}}"></Label>
+        <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" Text="{Binding ProjectInfo.ProjectName,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
 
         <GroupBox Grid.Row="2" Grid.ColumnSpan="2" Header="{Binding [ProjectFile],Source={x:Static language:LanguageManager.Instance}}" Padding="0" Style="{StaticResource MaterialDesignCardGroupBox}">
             <Grid>
@@ -48,14 +76,14 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <Label Margin="0,6,0,6" Content="{Binding [ProjectPath],Source={x:Static language:LanguageManager.Instance}}"></Label>
-                <TextBox Margin="0,6,0,6" Grid.Column="1" BorderThickness="1" Text=""></TextBox>
+                <Label Margin="0,6,0,6" VerticalAlignment="Center" Content="{Binding [ProjectPath],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                <TextBox Margin="0,6,0,6" Grid.Column="1" BorderThickness="1" Style="{StaticResource BrowseTextBlock}" Text="{Binding ProjectInfo.ProjectPath}" IsEnabled="{Binding IsProjectPathEnable}"></TextBox>
 
-                <Label Margin="0,0,0,6" Grid.Row="1" Content="{Binding [Configuration],Source={x:Static language:LanguageManager.Instance}}"></Label>
-                <TextBox Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" BorderThickness="1" Text=""></TextBox>
+                <Label Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Content="{Binding [Configuration],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" Text="{Binding ConfigurationName}" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" ></TextBox>
 
-                <Label Margin="0,0,0,6" Grid.Row="2" Content="{Binding [Executable],Source={x:Static language:LanguageManager.Instance}}"></Label>
-                <TextBox Margin="0,0,0,6" Grid.Row="2" Grid.Column="1" BorderThickness="1" Text=""></TextBox>
+                <Label Margin="0,0,0,6" Grid.Row="2" VerticalAlignment="Center" Content="{Binding [Executable],Source={x:Static language:LanguageManager.Instance}}"></Label>
+                <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="2" Grid.Column="1" Text="{Binding ExecuteName}" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" ></TextBox>
             </Grid>
         </GroupBox>
 

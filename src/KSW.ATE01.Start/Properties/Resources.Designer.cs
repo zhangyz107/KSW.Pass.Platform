@@ -403,6 +403,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Select Folder 的本地化字符串。
+        /// </summary>
+        internal static string SelectFolder {
+            get {
+                return ResourceManager.GetString("SelectFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Set Test Item 的本地化字符串。
         /// </summary>
         internal static string SetTestItem {

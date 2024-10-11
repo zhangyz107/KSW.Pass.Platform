@@ -301,4 +301,8 @@
     <value>End Test</value>
     <comment>结束测试</comment>
   </data>
+  <data name="SelectFolder" xml:space="preserve">
+    <value>Select Folder</value>
+    <comment>选择文件夹</comment>
+  </data>
 </root>

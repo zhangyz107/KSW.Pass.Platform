@@ -11,6 +11,7 @@
     <ProjectReference Include="..\KSW.Aop.AspectCore\KSW.Aop.AspectCore.csproj" />
     <ProjectReference Include="..\Ksw.Core\KSW.Core.csproj" />
     <ProjectReference Include="..\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
+    <ProjectReference Include="..\KSW.Domain\KSW.Domain.csproj" />
     <ProjectReference Include="..\KSW.Validators\KSW.Validators.csproj" />
   </ItemGroup>
 

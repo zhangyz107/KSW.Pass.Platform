@@ -1,16 +1,27 @@
-﻿using KSW.Helpers;
+﻿/*--------------------------------------------------------------
+// Copyright (C) KSW-Tech
+// 版权所有。
+//
+// 文件名称：ShellViewModel.cs
+// 功能描述：主窗口视图模型
+//
+// 作者：zhangyingzhong
+// 日期：2024/10/09 13:41
+// 修改记录(Revision History)
+//
+//------------------------------------------------------------*/
+
+
 using KSW.ATE01.Start.Views;
 using KSW.Ui;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Globalization;
 
 namespace KSW.ATE01.Start.ViewModels
 {
-    public class ShellViewModel : ViewModel
+    /// <summary>
+    /// 主窗口视图模型
+    /// </summary>
+    public class ShellViewModel : ViewModelBase
     {
         private readonly IContainerExtension _container;
         private readonly IDialogService _dialogService;

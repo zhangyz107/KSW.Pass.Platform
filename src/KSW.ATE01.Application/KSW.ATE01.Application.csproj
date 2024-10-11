@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(NetTargetFramework)</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj" />
+    <ProjectReference Include="..\KSW.ATE01.Data\KSW.ATE01.Data.csproj" />
+    <ProjectReference Include="..\src-platform\KSW.Application\KSW.Application.csproj" />
+  </ItemGroup>
+
+</Project>

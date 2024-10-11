@@ -1,14 +1,26 @@
-﻿using KSW.Ui;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/*--------------------------------------------------------------
+// Copyright (C) KSW-Tech
+// 版权所有。
+//
+// 文件名称：OpenProjectDialogViewModel.cs
+// 功能描述：打开项目窗口视图模型
+//
+// 作者：zhangyingzhong
+// 日期：2024/10/09 13:41
+// 修改记录(Revision History)
+//
+//------------------------------------------------------------*/
+
+
+using KSW.Ui;
 using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
-    public class OpenProjectDialogViewModel : ViewModel, IDialogAware
+    /// <summary>
+    /// 打开项目窗口视图模型
+    /// </summary>
+    public class OpenProjectDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
         private string _folderPath;

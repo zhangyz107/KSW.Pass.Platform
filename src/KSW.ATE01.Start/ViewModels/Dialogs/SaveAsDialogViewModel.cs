@@ -1,4 +1,17 @@
-﻿using KSW.Ui;
+﻿/*--------------------------------------------------------------
+// Copyright (C) KSW-Tech
+// 版权所有。
+//
+// 文件名称：SaveAsDialogViewModel.cs
+// 功能描述：另存为窗口视图模型
+//
+// 作者：zhangyingzhong
+// 日期：2024/10/09 13:41
+// 修改记录(Revision History)
+//
+//------------------------------------------------------------*/
+
+using KSW.Ui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +20,10 @@ using System.Threading.Tasks;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
-    public class SaveAsDialogViewModel : ViewModel, IDialogAware
+    /// <summary>
+    /// 另存为窗口视图模型
+    /// </summary>
+    public class SaveAsDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Properties
         public DialogCloseListener RequestClose{ get; }
