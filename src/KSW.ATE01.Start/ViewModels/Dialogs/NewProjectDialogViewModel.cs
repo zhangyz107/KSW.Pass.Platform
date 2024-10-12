@@ -153,7 +153,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, ex.Message);
+                Log.LogError(ex, ex.Message);
                 MessageBox.Show(ex.Message);
             }
         }

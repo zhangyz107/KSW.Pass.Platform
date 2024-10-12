@@ -135,14 +135,14 @@ namespace KSW.ATE01.Application.BLLs.Implements
                     {
                         var installedResult = await ProjectTemplateHelper.InstallTemplate(templatePath);
                         if (installedResult)
-                            Logger?.LogInformation("模板安装成功");
+                            Log?.LogInformation("模板安装成功");
                         else
                             throw new Exception("模板安装失败");
                     }
 
                     var createResult = await ProjectTemplateHelper.CreateSolutionByTemplate(projectInfo.ProjectPath, templateName);
                     if (createResult)
-                        Logger?.LogInformation("项目创建成功");
+                        Log?.LogInformation("项目创建成功");
                     else
                         throw new Exception("项目创建失败");
                 }

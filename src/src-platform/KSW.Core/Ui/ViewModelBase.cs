@@ -14,7 +14,7 @@ namespace KSW.Ui
             ContainerProvider = containerProvider ?? throw new ArgumentNullException(nameof(containerProvider));
             L = containerProvider.Resolve<ILanguageManager>() ?? throw new ArgumentNullException(nameof(ILanguageManager));
             var logFactory = containerProvider.Resolve<ILoggerFactory>() ?? throw new ArgumentNullException(nameof(ILoggerFactory));
-            Logger = logFactory?.CreateLogger(GetType());
+            Log = logFactory?.CreateLogger(GetType());
         }
 
         /// <summary>
@@ -30,6 +30,6 @@ namespace KSW.Ui
         /// <summary>
         /// 日志记录
         /// </summary>
-        protected ILogger Logger { get; }
+        protected ILogger Log { get; }
     }
 }

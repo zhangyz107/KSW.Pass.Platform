@@ -107,7 +107,7 @@ namespace KSW.ATE01.Start.ViewModels
             }
             catch (Exception e)
             {
-                Logger?.LogError(e, e.Message);
+                Log?.LogError(e, e.Message);
                 MessageBox.Show(e.Message);
             }
         }
