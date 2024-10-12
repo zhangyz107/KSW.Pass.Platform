@@ -10,14 +10,15 @@
 
 	<ItemGroup>
 		<PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
 		<PackageReference Include="Prism.DryIoc" Version="$(PrismVersion)" />
 		<PackageReference Include="MaterialDesignThemes" Version="$(MaterialDesignVersion)" />
 		<PackageReference Include="Serilog" Version="4.0.1" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\KSW.UI\KSW.UI.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Application.Events\KSW.ATE01.Application.Events.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Application\KSW.ATE01.Application.csproj" />
@@ -42,5 +43,9 @@
 	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
 	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="call postbuild.bat $(SolutionDir) $(TargetDir)" />
+	</Target>
 
 </Project>

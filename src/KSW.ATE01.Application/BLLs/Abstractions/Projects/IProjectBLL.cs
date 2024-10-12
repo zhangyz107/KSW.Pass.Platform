@@ -11,7 +11,12 @@ namespace KSW.ATE01.Application.BLLs.Abstractions
         /// <summary>
         /// 创建项目
         /// </summary>
-        Task CreateProject(ProjectInfoModel projectInfo);
+        Task CreateProjectAsync(ProjectInfoModel projectInfo);
+
+        /// <summary>
+        /// 通过VS运行当前项目
+        /// </summary>
+        void RunProjecctByVS();
 
         /// <summary>
         /// 获取当前项目

@@ -4,7 +4,7 @@
     "classifications": [ "Common", "Console" ],
     "identity": "KSW.ATE01.Template",
     "name": "KSW.ATE01.Template",
-    "shortName": "PassTemplate",
+    "shortName": "ATE01",
     "sourceName":"KSW.ATE01.Template",
     "tags": {
       "language": "C#",

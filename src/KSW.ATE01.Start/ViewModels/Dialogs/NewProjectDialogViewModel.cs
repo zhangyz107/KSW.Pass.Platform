@@ -16,8 +16,8 @@ using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Ui;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
-using Serilog;
 using System.IO;
 using System.Windows;
 
@@ -31,7 +31,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Fields
         private readonly IContainerExtension _containerProvider;
         private readonly IEventAggregator _eventAggregator;
-        private readonly ILogger _logger;
         private readonly IProjectBLL _projectBLL;
         private ProjectInfoModel _projectInfo;
         private bool _isProjectPathEnable;
@@ -98,7 +97,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _containerProvider = containerProvider;
             _eventAggregator = eventAggregator;
-            _logger = _containerProvider.Resolve<ILogger>();
             _projectBLL = _containerProvider.Resolve<IProjectBLL>();
 
             _projectInfo = new ProjectInfoModel()
@@ -147,7 +145,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             try
             {
-                await _projectBLL.CreateProject(_projectInfo);
+                await _projectBLL.CreateProjectAsync(_projectInfo);
 
                 _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
 
@@ -155,7 +153,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, ex.Message);
+                Logger.LogError(ex, ex.Message);
                 MessageBox.Show(ex.Message);
             }
         }

@@ -11,10 +11,11 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Ui;
-using Prism.Ioc;
+using Microsoft.Extensions.Logging;
 using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels
@@ -27,6 +28,7 @@ namespace KSW.ATE01.Start.ViewModels
         #region Fields
         private readonly IContainerExtension _containerProvider;
         private readonly IDialogService _dialogService;
+        private readonly IProjectBLL _projectBLL;
         private ProjectDetailView _projectDetailView;
         #endregion
 
@@ -76,7 +78,7 @@ namespace KSW.ATE01.Start.ViewModels
         {
             _containerProvider = containerProvider;
             _dialogService = dialogService;
-
+            _projectBLL = containerProvider.Resolve<IProjectBLL>() ?? throw new ArgumentNullException(nameof(IProjectBLL));
             #region 加载页面
             _projectDetailView = _containerProvider.Resolve<ProjectDetailView>();
             #endregion
@@ -99,7 +101,15 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ExecuteDelelopCommand()
         {
-            MessageBox.Show($"触发了{nameof(ExecuteDelelopCommand)}");
+            try
+            {
+                _projectBLL.RunProjecctByVS();
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError(e, e.Message);
+                MessageBox.Show(e.Message);
+            }
         }
         private void ExecuteRunCommand()
         {

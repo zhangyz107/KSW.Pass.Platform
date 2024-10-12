@@ -1,5 +1,6 @@
 ﻿using KSW.Dtos;
 using KSW.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace KSW.Ui
 {
@@ -8,14 +9,27 @@ namespace KSW.Ui
     /// </summary>
     public abstract class ViewModelBase : DtoBase
     {
-        protected IContainerProvider ContainerProvider { get; }
-
-        protected ILanguageManager L { get; }
-
         protected ViewModelBase(IContainerProvider containerProvider)
         {
-            ContainerProvider = containerProvider ?? throw new ArgumentNullException(nameof(containerProvider)); ;
+            ContainerProvider = containerProvider ?? throw new ArgumentNullException(nameof(containerProvider));
             L = containerProvider.Resolve<ILanguageManager>();
+            var logFactory = containerProvider.Resolve<ILoggerFactory>();
+            Logger = logFactory?.CreateLogger(GetType());
         }
+
+        /// <summary>
+        /// 容器
+        /// </summary>
+        protected IContainerProvider ContainerProvider { get; }
+
+        /// <summary>
+        /// 多语言
+        /// </summary>
+        protected ILanguageManager L { get; }
+
+        /// <summary>
+        /// 日志记录
+        /// </summary>
+        protected ILogger Logger { get; }
     }
 }

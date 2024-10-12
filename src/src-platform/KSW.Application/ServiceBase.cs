@@ -1,4 +1,6 @@
 ﻿using KSW.Data.Abstractions;
+using KSW.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace KSW.Application;
 
@@ -14,10 +16,23 @@ public abstract class ServiceBase : IService
     protected ServiceBase(IContainerProvider containerProvider)
     {
         ContainerProvider = containerProvider ?? throw new ArgumentNullException(nameof(containerProvider));
+        L = containerProvider.Resolve<ILanguageManager>();
+        var logFactory = containerProvider.Resolve<ILoggerFactory>();
+        Logger = logFactory?.CreateLogger(GetType());
     }
 
     /// <summary>
     /// 容器
     /// </summary>
     protected IContainerProvider ContainerProvider { get; }
+
+    /// <summary>
+    /// 多语言
+    /// </summary>
+    protected ILanguageManager L { get; }
+
+    /// <summary>
+    /// 日志记录
+    /// </summary>
+    protected ILogger Logger { get; }
 }
