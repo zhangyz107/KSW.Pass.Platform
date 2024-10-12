@@ -12,8 +12,8 @@ namespace KSW.Ui
         protected ViewModelBase(IContainerProvider containerProvider)
         {
             ContainerProvider = containerProvider ?? throw new ArgumentNullException(nameof(containerProvider));
-            L = containerProvider.Resolve<ILanguageManager>();
-            var logFactory = containerProvider.Resolve<ILoggerFactory>();
+            L = containerProvider.Resolve<ILanguageManager>() ?? throw new ArgumentNullException(nameof(ILanguageManager));
+            var logFactory = containerProvider.Resolve<ILoggerFactory>() ?? throw new ArgumentNullException(nameof(ILoggerFactory));
             Logger = logFactory?.CreateLogger(GetType());
         }
 
