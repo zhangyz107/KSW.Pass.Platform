@@ -12,7 +12,14 @@
 //------------------------------------------------------------*/
 
 
+using KSW.ATE01.Application.BLLs.Abstractions;
+using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Domain.Projects.Entities;
 using KSW.Ui;
+using Microsoft.Win32;
+using Prism.Ioc;
+using System.IO;
 using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
@@ -24,6 +31,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     {
         #region Fields
         private string _folderPath;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly IProjectBLL _projectBLL;
+        private List<ProjectInfoModel> _projectList = new List<ProjectInfoModel>();
+        private ProjectInfoModel _selectProject;
 
         #endregion
 
@@ -36,6 +47,19 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             get => _folderPath;
             set => SetProperty(ref _folderPath, value);
+        }
+
+        public List<ProjectInfoModel> ProjectList
+        {
+            get => _projectList;
+            set => SetProperty(ref _projectList, value);
+        }
+
+
+        public ProjectInfoModel SelectProject
+        {
+            get => _selectProject;
+            set => SetProperty(ref _selectProject, value);
         }
 
         #endregion
@@ -55,8 +79,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
         #endregion
 
-        public OpenProjectDialogViewModel(IContainerProvider containerProvider) : base(containerProvider)
+        public OpenProjectDialogViewModel(
+            IContainerProvider containerProvider,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
+            _eventAggregator = eventAggregator;
+            _projectBLL = ContainerProvider.Resolve<IProjectBLL>();
         }
 
 
@@ -82,13 +110,32 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private void ExecuteOpenFolderCommand()
         {
-            MessageBox.Show("打开文件夹！");
+            var folderDialog = new OpenFolderDialog()
+            {
+                Title = LanguageManager.Instance["SelectFolder"],
+
+            };
+
+            if (folderDialog.ShowDialog() == true)
+            {
+                var folderName = folderDialog.FolderName;
+                FolderPath = folderName;
+
+                ProjectList = _projectBLL?.ScanProjects(folderName);
+            }
         }
 
 
         private void ExecuteOKCommand()
         {
+            if (_selectProject == null)
+            {
+                MessageBox.Show("没有选择任何项目");
+                return;
+            }
 
+            _projectBLL?.SetCurrentProjectInfo(_selectProject);
+            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
             RaiseRequestClose(new DialogResult(ButtonResult.OK));
         }
 

@@ -19,7 +19,7 @@ public abstract class ServiceBase : IService
         L = containerProvider.Resolve<ILanguageManager>() ?? throw new ArgumentNullException(nameof(ILanguageManager));
         var logFactory = containerProvider.Resolve<ILoggerFactory>() ?? throw new ArgumentNullException(nameof(ILoggerFactory)); ;
         Log = logFactory?.CreateLogger(GetType());
-    }
+    }       
 
     /// <summary>
     /// 容器

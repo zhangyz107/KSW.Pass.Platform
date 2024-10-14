@@ -60,16 +60,16 @@
         </Grid.ColumnDefinitions>
 
         <Label Margin="0,0,0,6" Content="{language:L TestPlanType}" VerticalAlignment="Center"></Label>
-        <ComboBox Margin="0,0,0,6" Grid.Column="1" BorderThickness="1"></ComboBox>
+        <ComboBox Padding="6" Margin="0,0,0,6" Grid.Column="1" ItemsSource="{Binding TestPlanTypeCbItems,Mode=OneWay}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding TestPlanType}" Style="{StaticResource MaterialDesignOutlinedComboBox}"></ComboBox>
 
         <Label Margin="0,0,0,6" Grid.Row="1" Content="{language:L CurrentProject}" VerticalAlignment="Center"></Label>
-        <TextBox Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" BorderThickness="1" Text=""></TextBox>
+        <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" BorderThickness="1" Text="{Binding CurrentProjectPath}" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
 
         <Label Margin="0,0,0,6" Grid.Row="2" Content="{language:L SaveAsPath}" VerticalAlignment="Center"></Label>
-        <TextBox Margin="0,0,0,6" Grid.Row="2" Style="{StaticResource BrowseTextBlock}" Grid.Column="1"></TextBox>
+        <TextBox Margin="0,0,0,6" Grid.Row="2" Style="{StaticResource BrowseTextBlock}" Grid.Column="1" Text="{Binding SaveAsDir}"></TextBox>
 
         <Label Margin="0,0,0,6" Grid.Row="3" Content="{language:L SaveAsName}" VerticalAlignment="Center"></Label>
-        <TextBox Margin="0,0,0,6" Grid.Row="3" Grid.Column="1" BorderThickness="1" Text=""></TextBox>
+        <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="3" Grid.Column="1" BorderThickness="1" Text="{Binding SaveAsName}"  Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
 
         <Grid Grid.Row="5" Grid.ColumnSpan="2" >
             <Grid.ColumnDefinitions>

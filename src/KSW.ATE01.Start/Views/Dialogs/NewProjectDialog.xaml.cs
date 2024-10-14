@@ -23,6 +23,7 @@ namespace KSW.ATE01.Start.Views.Dialogs
         public NewProjectDialog()
         {
             InitializeComponent();
+
         }
     }
 }

@@ -29,7 +29,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     public class NewProjectDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
-        private readonly IContainerExtension _containerProvider;
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private ProjectInfoModel _projectInfo;
@@ -49,7 +48,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             { TestPlanType.Excel,TestPlanType.Excel.Description()},
             { TestPlanType.Csv,TestPlanType.Csv.Description()}
         };
-
 
         public ProjectInfoModel ProjectInfo
         {
@@ -95,9 +93,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             IContainerExtension containerProvider,
             IEventAggregator eventAggregator) : base(containerProvider)
         {
-            _containerProvider = containerProvider;
             _eventAggregator = eventAggregator;
-            _projectBLL = _containerProvider.Resolve<IProjectBLL>();
+            _projectBLL = ContainerProvider.Resolve<IProjectBLL>();
 
             _projectInfo = new ProjectInfoModel()
             {
@@ -130,7 +127,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             var folderDialog = new OpenFolderDialog()
             {
-                Title = LanguageManager.Instance["SelectFolder"],
+                Title = L["SelectFolder"],
 
             };
 
@@ -145,11 +142,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             try
             {
-                await _projectBLL.CreateProjectAsync(_projectInfo);
+                var result = await _projectBLL.CreateProjectAsync(_projectInfo);
 
-                _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+                if (result)
+                {
+                    _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
 
-                RaiseRequestClose(new DialogResult(ButtonResult.OK));
+                    RaiseRequestClose(new DialogResult(ButtonResult.OK));
+                }
             }
             catch (Exception ex)
             {

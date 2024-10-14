@@ -61,8 +61,13 @@
             <TextBox Grid.Column="1" Style="{StaticResource BrowseTextBlock}" Text="{Binding FolderPath}" ToolTip="{Binding FolderPath}"></TextBox>
         </Grid>
 
-        <ListBox Margin="0,0,0,6" Grid.Row="1" BorderThickness="1" BorderBrush="#00A9F2">
-
+        <ListBox Margin="0,0,0,6" Grid.Row="1" BorderThickness="1" BorderBrush="#00A9F2" ItemsSource="{Binding ProjectList}" SelectionMode="Single" SelectedValue="{Binding SelectProject}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Width="{Binding Path=ActualWidth,RelativeSource={RelativeSource AncestorType=ListBoxItem} }" Text="{Binding  Path=ProjectName}"
+                       ToolTipService.ToolTip="{Binding Path=ProjectPath}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
 
         <Grid Grid.Row="2">

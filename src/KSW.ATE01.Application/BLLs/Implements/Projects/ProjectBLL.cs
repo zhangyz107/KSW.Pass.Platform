@@ -14,6 +14,7 @@ using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Domain.Projects.Entities;
 using KSW.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
@@ -38,8 +39,9 @@ namespace KSW.ATE01.Application.BLLs.Implements
             _dialogService = dialogService;
         }
 
-        public async Task CreateProjectAsync(ProjectInfoModel projectInfo)
+        public async Task<bool> CreateProjectAsync(ProjectInfoModel projectInfo)
         {
+            bool result = false;
             try
             {
                 if (projectInfo.ProjectName.IsEmpty())
@@ -54,37 +56,21 @@ namespace KSW.ATE01.Application.BLLs.Implements
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 var templatePath = Path.Combine(baseDirectory, templateDirName);
 
-                if (!Directory.Exists(projectInfo.ProjectPath))
-                {
-                    Directory.CreateDirectory(projectInfo.ProjectPath);
+                if (Directory.Exists(projectInfo.ProjectPath) && MessageBox.Show($"当前路径下项目文件{projectInfo.ProjectName}已存在，是否进行覆盖", "项目已存在", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    return result;
 
-                    CreateProjectByTemplate(projectInfo, templateName, templatePath);
+                CreateProjectByTemplate(projectInfo, templateName, templatePath);
 
-                    //补充项目信息
-                    ReplenishProjectInfo(projectInfo);
+                //补充项目信息
+                ReplenishProjectInfo(projectInfo);
 
-                    _currentProjectInfo = projectInfo;
-                }
-                else
-                {
-                    var isCover = MessageBox.Show($"当前路径下项目文件{projectInfo.ProjectName}已存在，是否进行覆盖", "项目已存在", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
-                    if (isCover)
-                    {
-                        CreateProjectByTemplate(projectInfo, templateName, templatePath);
+                //保存项目信息
+                SaveProjectInfo(projectInfo);
 
-                        //补充项目信息
-                        ReplenishProjectInfo(projectInfo);
+                _currentProjectInfo = projectInfo;
+                result = true;
 
-                        _currentProjectInfo = projectInfo;
-                    }
-                    else
-                    {
-                        //todo 加载已有项目文件
-                        return;
-                    }
-                }
-
-                return;
+                return result;
             }
             catch (Exception)
             {
@@ -124,6 +110,60 @@ namespace KSW.ATE01.Application.BLLs.Implements
             return _currentProjectInfo;
         }
 
+        public List<ProjectInfoModel> ScanProjects(string folderName)
+        {
+            var result = new List<ProjectInfoModel>();
+            try
+            {
+                folderName.CheckNull(nameof(folderName));
+
+                if (!Directory.Exists(folderName))
+                    throw new FileNotFoundException($"未能找到路径：{folderName}");
+
+                var files = Directory.GetFiles(folderName, "*.atecfg", SearchOption.AllDirectories);
+                if (files.IsEmpty())
+                    return result;
+
+                foreach (var file in files)
+                {
+                    var projectInfo = LoadProjectInfo(file);
+                    if (projectInfo != null)
+                        result.Add(projectInfo);
+                }
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public ProjectInfoModel LoadProjectInfo(string file)
+        {
+            try
+            {
+                file.CheckNull(nameof(file));
+
+                if (File.Exists(file))
+                {
+                    var projectInfo = XmlHelper.DeserializeFromXml<ProjectInfo>(file);
+                    return projectInfo.MapTo<ProjectInfoModel>();
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public void SetCurrentProjectInfo(ProjectInfoModel projectInfo)
+        {
+            if (projectInfo != null)
+                _currentProjectInfo = projectInfo;
+        }
+
         private void CreateProjectByTemplate(ProjectInfoModel projectInfo, string templateName, string templatePath)
         {
             var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
@@ -159,8 +199,14 @@ namespace KSW.ATE01.Application.BLLs.Implements
         {
             //完善项目相关信息
             projectInfo.CreateTime = DateTime.Now;
-            projectInfo.ProjectVersion = "1.0.0000.1";
+            projectInfo.ProjectVersion = new Version("1.0.0000.1").ToString();
         }
 
+        private void SaveProjectInfo(ProjectInfoModel projectInfo)
+        {
+            var configPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + projectInfo.ConfigurationExtension);
+            var entity = projectInfo.MapTo<ProjectInfo>();
+            XmlHelper.SerializeToXml(entity, configPath);
+        }
     }
 }

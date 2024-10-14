@@ -11,7 +11,7 @@
         prism:ViewModelLocator.AutoWireViewModel="True">
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
-            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
             <Setter Property="ShowInTaskbar" Value="False"/>
             <Setter Property="SizeToContent" Value="WidthAndHeight"/>
             <Setter Property="WindowStyle" Value="None"/>

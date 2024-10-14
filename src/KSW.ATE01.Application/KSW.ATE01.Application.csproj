@@ -9,7 +9,9 @@
   <ItemGroup>
     <ProjectReference Include="..\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Data\KSW.ATE01.Data.csproj" />
+    <ProjectReference Include="..\KSW.ATE01.Domain.Projects\KSW.ATE01.Domain.Projects.csproj" />
     <ProjectReference Include="..\src-platform\KSW.Application\KSW.Application.csproj" />
+    <ProjectReference Include="..\src-platform\KSW.ObjectMapping.AutoMapper\KSW.ObjectMapping.AutoMapper.csproj" />
     <ProjectReference Include="..\src-platform\KSW.UI.WPF\KSW.UI.WPF.csproj" />
   </ItemGroup>
 
