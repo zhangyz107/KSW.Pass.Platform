@@ -199,7 +199,7 @@ namespace KSW.ATE01.Application.BLLs.Implements
 
                 #region 处理解决方案名及命名空间
                 var oldSln = Path.Combine(targetDir, _currentProjectInfo.ProjectName + _slnExt);
-                await VSHelper.RenameSolutionAndProjct(oldSln, saveAsName, _currentProjectInfo.ProjectName, saveAsName);
+                await VSHelper.RenameSolutionAndProjctAsync(oldSln, saveAsName, _currentProjectInfo.ProjectName, saveAsName);
                 #endregion
 
                 #region 处理测试计划类型变更
@@ -217,6 +217,33 @@ namespace KSW.ATE01.Application.BLLs.Implements
                 _currentProjectInfo = newProjectInfo;
                 #endregion
 
+                result = true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return result;
+        }
+
+        public async Task<bool> ReleaseSolutionAsync(ProjectInfoModel projectInfo = null, bool openReleaseDir = false)
+        {
+            var result = false;
+            try
+            {
+                projectInfo = projectInfo ?? _currentProjectInfo;
+
+                if (projectInfo == null)
+                    throw new Warning("选择项目为空!");
+
+                var slnPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + _slnExt);
+                if (!await ProjectTemplateHelper.ReleaseProjectAsync(slnPath, projectInfo.ReleasePath))
+                    throw new Warning("发布失败");
+
+                if (openReleaseDir)
+                    Process.Start("explorer.exe", projectInfo.ReleasePath);
                 result = true;
             }
             catch (Exception)
@@ -263,5 +290,6 @@ namespace KSW.ATE01.Application.BLLs.Implements
 
             File.Move(srcFile, destFile);
         }
+
     }
 }

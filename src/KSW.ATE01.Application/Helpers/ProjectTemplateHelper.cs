@@ -28,6 +28,13 @@ namespace KSW.ATE01.Application.Helpers
     {
         private static readonly string _commandExecute = "dotnet";
 
+        /// <summary>
+        /// 通过模板创建解决方案
+        /// </summary>
+        /// <param name="targetDir"></param>
+        /// <param name="templateName"></param>
+        /// <param name="isCover"></param>
+        /// <returns></returns>
         public static async Task<bool> CreateSolutionByTemplateAsync(string targetDir, string templateName, bool isCover = true)
         {
             var result = false;
@@ -50,6 +57,12 @@ namespace KSW.ATE01.Application.Helpers
             return result;
         }
 
+        /// <summary>
+        /// 安装项目模板
+        /// </summary>
+        /// <param name="templatePath"></param>
+        /// <param name="isUpdate"></param>
+        /// <returns></returns>
         public static async Task<bool> InstallTemplateAsync(string templatePath, bool isUpdate = false)
         {
             var result = false;
@@ -65,6 +78,11 @@ namespace KSW.ATE01.Application.Helpers
             return result;
         }
 
+        /// <summary>
+        /// 当前项目模板是否安装
+        /// </summary>
+        /// <param name="templateName"></param>
+        /// <returns></returns>
         public static async Task<bool> IsTemplateInstalledAsync(string templateName)
         {
             var commandParams = "new --list";
@@ -73,6 +91,12 @@ namespace KSW.ATE01.Application.Helpers
             return output.Contains(templateName, StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        /// 拷贝项目
+        /// </summary>
+        /// <param name="sourceDir"></param>
+        /// <param name="destinationDir"></param>
+        /// <returns></returns>
         public static async Task<bool> CopyProjectAsync(string sourceDir, string destinationDir)
         {
             var result = false;
@@ -81,6 +105,30 @@ namespace KSW.ATE01.Application.Helpers
                 var commandExecute = "robocopy";
                 var commandParams = $"{sourceDir} {destinationDir} /E /XF *.atecfg /XD bin obj";
                 var output = await CommandLineHelper.SendCommandLine(commandExecute, commandParams);
+                result = true;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 发布项目
+        /// </summary>
+        /// <param name="slnFilePath">解决方案文件路径</param>
+        /// <param name="releaseDir">发布路径</param>
+        /// <returns></returns>
+        public static async Task<bool> ReleaseProjectAsync(string slnFilePath, string releaseDir)
+        {
+            var result = false;
+            try
+            {
+                var commandParams = $"msbuild {slnFilePath} -p:Configuration=Release -p:OutDir={releaseDir}";
+                var output = await CommandLineHelper.SendCommandLine(_commandExecute, commandParams);
                 result = true;
 
             }

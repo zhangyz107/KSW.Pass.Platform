@@ -15,6 +15,7 @@
 using EnvDTE;
 using EnvDTE80;
 using KSW.Exceptions;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace KSW.ATE01.Application.Helpers
@@ -31,7 +32,7 @@ namespace KSW.ATE01.Application.Helpers
         /// <param name="oldProjectName">原项目名称</param>
         /// <param name="newProjectName">重命名项目名称</param>
         /// <returns></returns>
-        public static async Task<bool> RenameProjct(string slnPath, string oldProjectName, string newProjectName)
+        public static async Task<bool> RenameProjctAsync(string slnPath, string oldProjectName, string newProjectName)
         {
             var result = false;
             await Task.Factory.StartNew(() =>
@@ -81,7 +82,7 @@ namespace KSW.ATE01.Application.Helpers
         /// <param name="oldProjectName">原项目名称</param>
         /// <param name="newProjectName">重命名项目名称</param>
         /// <returns></returns>
-        public static async Task<bool> RenameSolutionAndProjct(string slnPath, string newSlnName, string oldProjectName, string newProjectName)
+        public static async Task<bool> RenameSolutionAndProjctAsync(string slnPath, string newSlnName, string oldProjectName, string newProjectName)
         {
             var result = false;
             await Task.Factory.StartNew(() =>

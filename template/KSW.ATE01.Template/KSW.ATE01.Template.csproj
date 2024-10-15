@@ -5,7 +5,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A8B1E4C4-6345-44B2-8FAC-055BBF06689B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType Condition="'$(Configuration)' == 'Debug'">Exe</OutputType>
+    <OutputType Condition="'$(Configuration)' == 'Release'">Library</OutputType>
     <RootNamespace>CustomerProgram</RootNamespace>
     <AssemblyName>KSW.ATE01.Template</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -48,7 +49,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>CustomerProgram.TestItems</StartupObject>
+    <StartupObject Condition="'$(Configuration)' == 'Debug'">CustomerProgram.TestItems</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

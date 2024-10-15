@@ -14,10 +14,14 @@
 using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
+using KSW.Data;
+using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Ui;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.IO;
+using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
@@ -27,6 +31,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     public class ReleaseDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private ProjectInfoModel _projectInfo;
@@ -60,8 +65,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #endregion
         public ReleaseDialogViewModel(
             IContainerProvider containerProvider,
+            IDialogService dialogService,
             IEventAggregator eventAggregator) : base(containerProvider)
         {
+            _dialogService = dialogService;
             _eventAggregator = eventAggregator;
             _projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
         }
@@ -113,10 +120,29 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
         }
 
-        private void ExecuteOKCommand()
+        private async void ExecuteOKCommand()
         {
+            try
+            {
+                if (_projectInfo == null)
+                    throw new Warning("选择项目为空!");
 
-            RaiseRequestClose(new DialogResult(ButtonResult.OK));
+                if (_projectInfo.ReleasePath.IsEmpty())
+                    throw new Warning($"{L["SaveAsPath"]}不能为空");
+
+                var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
+                {
+                    if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo, true))
+                        RaiseRequestClose(new DialogResult(ButtonResult.OK));
+
+                });
+                await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
+            }
+            catch (Exception e)
+            {
+                await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
+                Log.LogError(e, e.Message);
+            }
         }
 
         private void ExecuteCancelCommand()
