@@ -13,12 +13,39 @@
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="WindowStyle" Value="ToolWindow"></Setter>
-            <Setter Property="Height" Value="550"></Setter>
-            <Setter Property="Width" Value="580"></Setter>
+            <Setter Property="Height" Value="570"></Setter>
+            <Setter Property="Width" Value="600"></Setter>
             <Setter Property="ResizeMode" Value="NoResize"></Setter>
             <Setter Property="ShowInTaskbar" Value="False"></Setter>
         </Style>
     </prism:Dialog.WindowStyle>
+
+    <UserControl.Resources>
+        <Style x:Key="BrowseTextBlock" TargetType="{x:Type TextBox}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="2">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Padding="6,0,0,0" Text="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"></TextBlock>
+                                <Button Padding="6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" BorderThickness="0" ToolTip="{language:L Browse}" Command="{Binding DataContext.OpenFolderCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}">
+                                    <Button.Content>
+                                        <materialDesign:PackIcon Kind="FolderOpenOutline" />
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+
     <Grid Margin="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -37,24 +64,18 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <CheckBox Margin="0,0,0,6" Content="RealTime TXT"></CheckBox>
-                <CheckBox Margin="0,0,0,6" Grid.Column="1" Content="CSV"></CheckBox>
-                <CheckBox Margin="0,0,0,6" Grid.Column="2"  Content="Summary"></CheckBox>
-                <CheckBox Margin="0,0,0,6" Grid.Column="3"  Content="STDF"></CheckBox>
+                <CheckBox Margin="0,0,0,6" Content="RealTime TXT" IsChecked="{Binding ProjectInfo.SaveRealTimeText}"></CheckBox>
+                <CheckBox Margin="0,0,0,6" Grid.Column="1" Content="CSV" IsChecked="{Binding ProjectInfo.SaveCsv}"></CheckBox>
+                <CheckBox Margin="0,0,0,6" Grid.Column="2"  Content="Summary" IsChecked="{Binding ProjectInfo.SaveSummary}"></CheckBox>
+                <CheckBox Margin="0,0,0,6" Grid.Column="3"  Content="STDF" IsChecked="{Binding ProjectInfo.SaveSTDF}"></CheckBox>
 
                 <Grid Grid.Row="1" Grid.ColumnSpan="4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Label VerticalAlignment="Center" Content="{language:L LogPath}"></Label>
-                    <TextBox Grid.Column="1" BorderThickness="1" IsReadOnly="True"></TextBox>
-                    <Button Grid.Column="2" BorderThickness="0" VerticalContentAlignment="Center" Style="{StaticResource MaterialDesignOutlinedButton}" ToolTip="{language:L Browse}" >
-                        <Button.Content>
-                            <materialDesign:PackIcon Kind="FolderOpenOutline" />
-                        </Button.Content>
-                    </Button>
+                    <TextBox Margin="0,0,0,6" Grid.Column="1" IsReadOnly="True" Style="{StaticResource BrowseTextBlock}" Text="{Binding ProjectInfo.DatalogPath}"></TextBox>
                 </Grid>
             </Grid>
         </GroupBox>
@@ -103,9 +124,9 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <CheckBox Content="DoAll"></CheckBox>
-                    <CheckBox Grid.Column="1" Content="{language:L PrintTime}"></CheckBox>
-                    <CheckBox Grid.Column="2" Content="{language:L OfflineMode}"></CheckBox>
+                    <CheckBox Content="DoAll" IsChecked="{Binding ProjectInfo.IsDoAll}"></CheckBox>
+                    <CheckBox Grid.Column="1" Content="{language:L PrintTime}" IsChecked="{Binding ProjectInfo.IsPrintTime}"></CheckBox>
+                    <CheckBox Grid.Column="2" Content="{language:L OfflineMode}" IsChecked="{Binding ProjectInfo.IsOffLine}"></CheckBox>
                 </Grid>
             </GroupBox>
             <GroupBox Margin="0,0,0,6" Grid.Column="1" Grid.Row="1" Header="{language:L Looping}">
@@ -123,20 +144,20 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Label Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopCount}"></Label>
-                    <TextBox Margin="0,0,6,6" Grid.Column="1" BorderThickness="1"></TextBox>
+                    <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="1" BorderThickness="1" Text="{Binding ProjectInfo.LoopCount,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
 
                     <Label Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopsExecuted}"></Label>
-                    <TextBox Margin="0,0,6,6" Grid.Column="3" BorderThickness="1" IsReadOnly="True"></TextBox>
+                    <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="3" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding LoopExecuted}"></TextBox>
 
                     <Label Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L DelayBetweenLoops}"></Label>
-                    <TextBox Grid.Row="1" Margin="0,0,6,6" Grid.Column="1" BorderThickness="1"></TextBox>
+                    <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="1" Text="{Binding ProjectInfo.DelayBetweenLoops,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
 
                     <Label Grid.Row="1" Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L FailCount}"></Label>
-                    <TextBox Grid.Row="1" Margin="0,0,6,6" Grid.Column="3" BorderThickness="1" IsReadOnly="True"></TextBox>
+                    <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="3" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsReadOnly="True" Text="{Binding FailCount}"></TextBox>
 
                     <Label Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,6" Content="s（max 300s）"></Label>
 
-                    <CheckBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,0,0,6" VerticalContentAlignment="Center" Content="{language:L StopOnFail}"></CheckBox>
+                    <CheckBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,0,0,6" VerticalContentAlignment="Center" Content="{language:L StopOnFail}" IsChecked="{Binding ProjectInfo.StopOnFail}"></CheckBox>
 
                     <Button Grid.Row="3" Grid.ColumnSpan="2" Margin="0,0,6,0" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Looping}"></Button>
 

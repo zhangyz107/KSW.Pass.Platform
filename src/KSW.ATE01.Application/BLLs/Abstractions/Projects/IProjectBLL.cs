@@ -30,6 +30,11 @@ namespace KSW.ATE01.Application.BLLs.Abstractions
         List<ProjectInfoModel> ScanProjects(string folderName);
 
         /// <summary>
+        /// 保存项目信息
+        /// </summary>
+        bool SaveProjectInfo(ProjectInfoModel projectInfo);
+
+        /// <summary>
         /// 从项目配置文件中加载项目信息
         /// </summary>
         ProjectInfoModel LoadProjectInfo(string file);

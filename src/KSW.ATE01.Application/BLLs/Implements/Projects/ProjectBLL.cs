@@ -138,6 +138,24 @@ namespace KSW.ATE01.Application.BLLs.Implements
             }
         }
 
+        public bool SaveProjectInfo(ProjectInfoModel projectInfo)
+        {
+            var result = false;
+            try
+            {
+                var configPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + projectInfo.ConfigurationExtension);
+                var entity = projectInfo.MapTo<ProjectInfo>();
+                XmlHelper.SerializeToXml(entity, configPath);
+                result = true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
         public ProjectInfoModel LoadProjectInfo(string file)
         {
             try
@@ -232,13 +250,6 @@ namespace KSW.ATE01.Application.BLLs.Implements
             //完善项目相关信息
             projectInfo.CreateTime = DateTime.Now;
             projectInfo.ProjectVersion = new Version("1.0.0000.1").ToString();
-        }
-
-        private void SaveProjectInfo(ProjectInfoModel projectInfo)
-        {
-            var configPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + projectInfo.ConfigurationExtension);
-            var entity = projectInfo.MapTo<ProjectInfo>();
-            XmlHelper.SerializeToXml(entity, configPath);
         }
 
         private void FileRename(string srcFile, string destFile)
