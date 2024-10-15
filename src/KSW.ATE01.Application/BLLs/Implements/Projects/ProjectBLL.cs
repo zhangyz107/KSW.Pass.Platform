@@ -267,14 +267,14 @@ namespace KSW.ATE01.Application.BLLs.Implements
                     if (installedResult)
                         Log?.LogInformation(L["TemplateInstalledSuccessfully"]);
                     else
-                        throw new Exception(L["TemplateInstalledFailed"]);
+                        throw new Warning(L["TemplateInstalledFailed"]);
                 }
 
                 var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.ProjectPath, templateName);
                 if (createResult)
                     Log?.LogInformation(L["ProjectCreatedSuccessfully"]);
                 else
-                    throw new Exception(L["ProjectCreatedFailed"]);
+                    throw new Warning(L["ProjectCreatedFailed"]);
             }
             catch (Exception)
             {
