@@ -7,7 +7,7 @@
     <ProjectGuid>{A8B1E4C4-6345-44B2-8FAC-055BBF06689B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>CustomerProgram</RootNamespace>
-    <AssemblyName>KSW.Pass.Template</AssemblyName>
+    <AssemblyName>KSW.ATE01.Template</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
