@@ -28,10 +28,10 @@ namespace KSW.ATE01.Application.Helpers
     {
         private static readonly string _commandExecute = "dotnet";
 
-        public static async Task<bool> CreateSolutionByTemplate(string targetDir, string templateName, bool isCover = true)
+        public static async Task<bool> CreateSolutionByTemplateAsync(string targetDir, string templateName, bool isCover = true)
         {
             var result = false;
-            if (!await IsTemplateInstalled(templateName))
+            if (!await IsTemplateInstalledAsync(templateName))
                 return result;
 
             if (Directory.Exists(targetDir))
@@ -50,7 +50,7 @@ namespace KSW.ATE01.Application.Helpers
             return result;
         }
 
-        public static async Task<bool> InstallTemplate(string templatePath, bool isUpdate = false)
+        public static async Task<bool> InstallTemplateAsync(string templatePath, bool isUpdate = false)
         {
             var result = false;
 
@@ -65,7 +65,7 @@ namespace KSW.ATE01.Application.Helpers
             return result;
         }
 
-        public static async Task<bool> IsTemplateInstalled(string templateName)
+        public static async Task<bool> IsTemplateInstalledAsync(string templateName)
         {
             var commandParams = "new --list";
             var output = await CommandLineHelper.SendCommandLine(_commandExecute, commandParams);
@@ -73,10 +73,30 @@ namespace KSW.ATE01.Application.Helpers
             return output.Contains(templateName, StringComparison.OrdinalIgnoreCase);
         }
 
+        public static async Task<bool> CopyProjectAsync(string sourceDir, string destinationDir)
+        {
+            var result = false;
+            try
+            {
+                var commandExecute = "robocopy";
+                var commandParams = $"{sourceDir} {destinationDir} /E /XF *.atecfg /XD bin obj";
+                var output = await CommandLineHelper.SendCommandLine(commandExecute, commandParams);
+                result = true;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
         private static bool IsDirectoryEmpty(string path)
         {
             // 检查目录中是否有任何文件或子文件夹
             return Directory.GetFiles(path).Length == 0 && Directory.GetDirectories(path).Length == 0;
         }
+
     }
 }

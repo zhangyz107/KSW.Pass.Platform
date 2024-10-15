@@ -16,6 +16,7 @@ using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Entities;
+using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
 using Prism.Ioc;
@@ -32,6 +33,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Fields
         private string _folderPath;
         private readonly IEventAggregator _eventAggregator;
+        private readonly IDialogService _dialogService;
         private readonly IProjectBLL _projectBLL;
         private List<ProjectInfoModel> _projectList = new List<ProjectInfoModel>();
         private ProjectInfoModel _selectProject;
@@ -81,10 +83,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public OpenProjectDialogViewModel(
             IContainerProvider containerProvider,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IEventAggregator eventAggregator,
+            IDialogService dialogService) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
             _projectBLL = ContainerProvider.Resolve<IProjectBLL>();
+            _dialogService = dialogService;
         }
 
 
@@ -130,7 +134,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             if (_selectProject == null)
             {
-                MessageBox.Show("没有选择任何项目");
+                _dialogService.ShowMessageDialog("没有选择任何项目");
                 return;
             }
 

@@ -14,7 +14,9 @@ using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
+using KSW.Exceptions;
 using KSW.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
@@ -30,7 +32,8 @@ namespace KSW.ATE01.Application.BLLs.Implements
     {
         private readonly IDialogService _dialogService;
         private ProjectInfoModel _currentProjectInfo;
-
+        private readonly string _csprojExt = ".csproj";
+        private readonly string _slnExt = ".sln";
 
         public ProjectBLL(
             IContainerProvider containerProvider,
@@ -44,22 +47,18 @@ namespace KSW.ATE01.Application.BLLs.Implements
             bool result = false;
             try
             {
-                if (projectInfo.ProjectName.IsEmpty())
-                    throw new ArgumentNullException(nameof(ProjectInfoModel.ProjectName));
-
-                if (projectInfo.ProjectPath.IsEmpty())
-                    throw new ArgumentNullException(nameof(ProjectInfoModel.ProjectPath));
-
                 var templateName = ConfigurationManager.AppSettings["TemplateName"] ?? throw new ArgumentNullException("TemplateName");
                 var templateDirName = ConfigurationManager.AppSettings["TemplateDirName"] ?? throw new ArgumentNullException("TemplateDirName");
 
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 var templatePath = Path.Combine(baseDirectory, templateDirName);
 
-                if (Directory.Exists(projectInfo.ProjectPath) && MessageBox.Show($"当前路径下项目文件{projectInfo.ProjectName}已存在，是否进行覆盖", "项目已存在", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                if (!Directory.Exists(projectInfo.ProjectPath))
+                    Directory.CreateDirectory(projectInfo.ProjectPath);
+                else if (Directory.Exists(projectInfo.ProjectPath) && (await _dialogService.ShowMessageDialog($"当前路径下项目文件{projectInfo.ProjectName}已存在，是否进行覆盖", MessageBoxButton.YesNo, MessageBoxImage.Question))?.Result == ButtonResult.No)
                     return result;
 
-                CreateProjectByTemplate(projectInfo, templateName, templatePath);
+                await CreateProjectByTemplate(projectInfo, templateName, templatePath);
 
                 //补充项目信息
                 ReplenishProjectInfo(projectInfo);
@@ -72,8 +71,9 @@ namespace KSW.ATE01.Application.BLLs.Implements
 
                 return result;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw;
             }
         }
@@ -164,35 +164,67 @@ namespace KSW.ATE01.Application.BLLs.Implements
                 _currentProjectInfo = projectInfo;
         }
 
-        private void CreateProjectByTemplate(ProjectInfoModel projectInfo, string templateName, string templatePath)
+        public async Task<bool> SaveAsProjectInfoAsync(TestPlanType testPlanType, string saveAsDir, string saveAsName)
         {
-            var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
+            var result = false;
+            try
             {
-                try
-                {
-                    var isInstalled = await ProjectTemplateHelper.IsTemplateInstalled(templateName);
-                    if (!isInstalled)
-                    {
-                        var installedResult = await ProjectTemplateHelper.InstallTemplate(templatePath);
-                        if (installedResult)
-                            Log?.LogInformation("模板安装成功");
-                        else
-                            throw new Exception("模板安装失败");
-                    }
+                #region 拷贝项目文件
+                if (_currentProjectInfo == null)
+                    throw new Warning("选择项目为空!");
+                var targetDir = Path.Combine(saveAsDir, saveAsName);
+                if (!await ProjectTemplateHelper.CopyProjectAsync(_currentProjectInfo?.ProjectPath, targetDir))
+                    throw new Warning("文件拷贝失败");
+                #endregion
 
-                    var createResult = await ProjectTemplateHelper.CreateSolutionByTemplate(projectInfo.ProjectPath, templateName);
-                    if (createResult)
-                        Log?.LogInformation("项目创建成功");
-                    else
-                        throw new Exception("项目创建失败");
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-            });
+                #region 处理解决方案名及命名空间
+                var oldSln = Path.Combine(targetDir, _currentProjectInfo.ProjectName + _slnExt);
+                await VSHelper.RenameSolutionAndProjct(oldSln, saveAsName, _currentProjectInfo.ProjectName, saveAsName);
+                #endregion
 
-            ProcessBarHelper.ShowProcessBarDialog(_dialogService, processBarParameters);
+                #region 处理测试计划类型变更
+
+                #endregion
+
+                #region 保存项目配置
+                var newProjectInfo = DeepCopy.Copy(_currentProjectInfo);
+                newProjectInfo.ProjectName = saveAsName;
+                newProjectInfo.ProjectPath = targetDir;
+                newProjectInfo.TestPlanType = testPlanType;
+                newProjectInfo.CreateTime = DateTime.Now;
+                SaveProjectInfo(newProjectInfo);
+
+                _currentProjectInfo = newProjectInfo;
+                #endregion
+
+                result = true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return result;
+        }
+
+        private async Task CreateProjectByTemplate(ProjectInfoModel projectInfo, string templateName, string templatePath)
+        {
+            var isInstalled = await ProjectTemplateHelper.IsTemplateInstalledAsync(templateName);
+            if (!isInstalled)
+            {
+                var installedResult = await ProjectTemplateHelper.InstallTemplateAsync(templatePath);
+                if (installedResult)
+                    Log?.LogInformation("模板安装成功");
+                else
+                    throw new Exception("模板安装失败");
+            }
+
+            var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.ProjectPath, templateName);
+            if (createResult)
+                Log?.LogInformation("项目创建成功");
+            else
+                throw new Exception("项目创建失败");
         }
 
         private void ReplenishProjectInfo(ProjectInfoModel projectInfo)
@@ -207,6 +239,14 @@ namespace KSW.ATE01.Application.BLLs.Implements
             var configPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + projectInfo.ConfigurationExtension);
             var entity = projectInfo.MapTo<ProjectInfo>();
             XmlHelper.SerializeToXml(entity, configPath);
+        }
+
+        private void FileRename(string srcFile, string destFile)
+        {
+            if (!File.Exists(srcFile))
+                throw new FileNotFoundException($"未找到文件{srcFile}");
+
+            File.Move(srcFile, destFile);
         }
     }
 }

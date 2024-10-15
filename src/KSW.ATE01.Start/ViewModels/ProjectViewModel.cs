@@ -14,6 +14,7 @@
 using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
+using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Extensions.Logging;
 using System.Windows;
@@ -107,8 +108,8 @@ namespace KSW.ATE01.Start.ViewModels
             }
             catch (Exception e)
             {
+                _dialogService.ShowMessageDialog(e.Message);
                 Log?.LogError(e, e.Message);
-                MessageBox.Show(e.Message);
             }
         }
         private void ExecuteRunCommand()

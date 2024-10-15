@@ -1,9 +1,12 @@
 ﻿using KSW.Localization;
-using System.Windows;
-using System.Windows.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Markup;
 
-namespace KSW.ATE01.Start
+namespace KSW.UI.WPF.Language
 {
     public class LExtension : LanguageMarkupExtension
     {

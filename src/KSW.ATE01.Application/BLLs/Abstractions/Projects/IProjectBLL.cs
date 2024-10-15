@@ -1,5 +1,6 @@
 ﻿using KSW.Application;
 using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Domain.Projects.Core.Enums;
 
 namespace KSW.ATE01.Application.BLLs.Abstractions
 {
@@ -38,5 +39,10 @@ namespace KSW.ATE01.Application.BLLs.Abstractions
         /// </summary>
         /// <param name="projectInfo"></param>
         void SetCurrentProjectInfo(ProjectInfoModel projectInfo);
+
+        /// <summary>
+        /// 另存为项目信息
+        /// </summary>
+        Task<bool> SaveAsProjectInfoAsync(TestPlanType testPlanType, string saveAsDir, string saveAsName);
     }
 }

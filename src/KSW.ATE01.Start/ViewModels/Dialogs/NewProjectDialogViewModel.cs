@@ -15,6 +15,8 @@ using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
+using KSW.Exceptions;
+using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
@@ -30,6 +32,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     {
         #region Fields
         private readonly IEventAggregator _eventAggregator;
+        private readonly IDialogService _dialogService;
         private readonly IProjectBLL _projectBLL;
         private ProjectInfoModel _projectInfo;
         private bool _isProjectPathEnable;
@@ -91,9 +94,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public NewProjectDialogViewModel(
             IContainerExtension containerProvider,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IEventAggregator eventAggregator,
+            IDialogService dialogService) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
+            _dialogService = dialogService;
             _projectBLL = ContainerProvider.Resolve<IProjectBLL>();
 
             _projectInfo = new ProjectInfoModel()
@@ -142,19 +147,30 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             try
             {
-                var result = await _projectBLL.CreateProjectAsync(_projectInfo);
+                if (_projectInfo.ProjectName.IsEmpty())
+                    throw new Warning($"{L["ProjectName"]}不能为空!");
 
-                if (result)
+                if (_projectInfo.ProjectPath.IsEmpty())
+                    throw new Warning($"{L["ProjectPath"]}不能为空!");
+
+                var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-                    _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+                    var result = await _projectBLL.CreateProjectAsync(_projectInfo);
 
-                    RaiseRequestClose(new DialogResult(ButtonResult.OK));
-                }
+                    if (result)
+                    {
+                        _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+
+                        RaiseRequestClose(new DialogResult(ButtonResult.OK));
+                    }
+                });
+
+                await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
             }
             catch (Exception ex)
             {
+                await _dialogService.ShowMessageDialog(ex.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
                 Log.LogError(ex, ex.Message);
-                MessageBox.Show(ex.Message);
             }
         }
 

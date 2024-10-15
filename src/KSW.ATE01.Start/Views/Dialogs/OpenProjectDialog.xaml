@@ -32,7 +32,7 @@
                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                     <ColumnDefinition Width="auto"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"></TextBlock>
+                                <TextBlock Padding="6,0,0,0" Text="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"></TextBlock>
                                 <Button Padding="6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" BorderThickness="0" ToolTip="{language:L Browse}" Command="{Binding DataContext.OpenFolderCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}">
                                     <Button.Content>
                                         <materialDesign:PackIcon Kind="FolderOpenOutline" />

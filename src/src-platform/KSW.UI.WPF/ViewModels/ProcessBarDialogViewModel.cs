@@ -58,17 +58,27 @@ namespace KSW.UI.WPF.ViewModels
             ProcessContent = processBarParameters.ProcessContent;
             ProcessRate = processBarParameters.ProcessRate;
 
-            processBarParameters.UpdateProgress = (processRate, processContent) =>
+            try
             {
-                if (!IsIndeterminate)
+                processBarParameters.UpdateProgress = (processRate, processContent) =>
                 {
-                    ProcessRate = processRate;
-                    if (!string.IsNullOrEmpty(processContent))
-                        ProcessContent = processContent;
-                }
-            };
-            await processBarParameters.DoWork();
-            RaiseRequestClose(new DialogResult(ButtonResult.Yes));
+                    if (!IsIndeterminate)
+                    {
+                        ProcessRate = processRate;
+                        if (!string.IsNullOrEmpty(processContent))
+                            ProcessContent = processContent;
+                    }
+                };
+                await processBarParameters.DoWork();
+                RaiseRequestClose(new DialogResult(ButtonResult.Yes));
+            }
+            catch (Exception e)
+            {
+                RaiseRequestClose(new DialogResult(ButtonResult.Yes)
+                {
+                    Exception = e
+                });
+            }
         }
     }
 }

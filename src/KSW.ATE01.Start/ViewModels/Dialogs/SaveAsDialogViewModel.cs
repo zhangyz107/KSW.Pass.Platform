@@ -16,8 +16,12 @@ using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Ui;
 using Microsoft.Win32;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Windows;
+using KSW.Exceptions;
+using KSW.Helpers;
+using KSW.ATE01.Application.Events.Projects;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
@@ -27,6 +31,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     public class SaveAsDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IDialogService _dialogService;
+        private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private TestPlanType? _testPlanType;
         private ProjectInfoModel _currentProjectInfo;
@@ -96,8 +102,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
         #endregion
 
-        public SaveAsDialogViewModel(IContainerProvider containerProvider) : base(containerProvider)
+        public SaveAsDialogViewModel(
+            IContainerProvider containerProvider,
+            IDialogService dialogService,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
+            _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
             _projectBLL = ContainerProvider.Resolve<IProjectBLL>();
 
             LoadData();
@@ -107,8 +118,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
             _testPlanType = _currentProjectInfo?.TestPlanType;
-            _currentProjectPath =_currentProjectInfo?.ProjectPath;
-
+            _currentProjectPath = _currentProjectInfo?.ProjectPath;
+            _saveAsDir = Path.GetDirectoryName(_currentProjectInfo?.ProjectPath);
         }
 
         public bool CanCloseDialog()
@@ -146,10 +157,41 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
         }
 
-        private void ExecuteOKCommand()
+        private async void ExecuteOKCommand()
         {
+            try
+            {
+                if (_currentProjectInfo == null)
+                    throw new Warning("选择项目为空!");
 
-            RaiseRequestClose(new DialogResult(ButtonResult.OK));
+                if (_saveAsDir.IsEmpty())
+                    throw new Warning($"{L["SaveAsPath"]}不能为空");
+
+                if (_saveAsName.IsEmpty())
+                    throw new Warning($"{L["SaveAsName"]}不能为空");
+
+                var saveAsPath = Path.Combine(_saveAsDir, _saveAsName);
+                if (saveAsPath.Equals(_currentProjectPath))
+                    throw new Warning($"另存为{L["ProjectPath"]}不能与源路径相同");
+
+                var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
+                {
+                    var result = await _projectBLL?.SaveAsProjectInfoAsync(_testPlanType.GetValueOrDefault(), _saveAsDir, _saveAsName);
+
+                    if (result)
+                    {
+                        _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+                        RaiseRequestClose(new DialogResult(ButtonResult.OK));
+                    }
+                });
+                await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
+            }
+            catch (Exception e)
+            {
+                await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
+                Log.LogError(e, e.Message);
+            }
+
         }
 
         private void ExecuteCancelCommand()

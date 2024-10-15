@@ -38,6 +38,7 @@ namespace KSW.ATE01.Start
         public LanguageManager()
         {
             _resourceManager = new ResourceManager(_resource, GetType().Assembly);
+            CultureManager.CurrentCultureChanged += CultureManager_CurrentCultureChanged;
         }
 
         public string this[string name]
@@ -58,8 +59,12 @@ namespace KSW.ATE01.Start
         /// <param name="cultureInfo"></param>
         public void ChangeLanguage(CultureInfo cultureInfo)
         {
-            CultureInfo.CurrentCulture = cultureInfo;
-            CultureInfo.CurrentUICulture = cultureInfo;
+            CultureManager.CurrentCulture = cultureInfo;
+        }
+
+
+        private void CultureManager_CurrentCultureChanged(object? sender, CultureInfo e)
+        {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("item[]"));
         }
 

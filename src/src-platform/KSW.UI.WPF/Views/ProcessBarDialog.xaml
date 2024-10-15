@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KSW.UI.WPF.Views"
+        xmlns:language="clr-namespace:KSW.UI.WPF.Language"
         xmlns:prism="http://prismlibrary.com/"
         Background="Transparent"
         mc:Ignorable="d"      
@@ -34,7 +35,7 @@
                     <Style TargetType="TextBlock">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsIndeterminate}" Value="True">
-                                <Setter Property="Text" Value="正在处理，请稍后..."></Setter>
+                                <Setter Property="Text" Value="{language:L WaitForPrompt}"></Setter>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding IsIndeterminate}" Value="False">
                                 <Setter Property="Text" Value="{Binding ProcessContent,Mode=OneWay}"></Setter>
