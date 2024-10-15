@@ -24,6 +24,7 @@ namespace KSW.ATE01.Application.Models.Projects
         private int _loopCount;
         private int _delayBetweenLoops;
         private bool _stopOnFail;
+        private string _releasePath;
 
         /// <summary>
         /// 项目名称
@@ -210,5 +211,13 @@ namespace KSW.ATE01.Application.Models.Projects
             set => SetProperty(ref _stopOnFail, value);
         }
 
+        /// <summary>
+        /// 发布路径
+        /// </summary>
+        public string ReleasePath 
+        {
+            get => _releasePath; 
+            set => SetProperty(ref _releasePath, value);
+        }
     }
 }

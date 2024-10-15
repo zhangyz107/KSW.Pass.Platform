@@ -17,6 +17,7 @@ using KSW.ATE01.Application.Models.Projects;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
+using System.IO;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
@@ -25,7 +26,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     /// </summary>
     public class RunDialogViewModel : ViewModelBase, IDialogAware
     {
-        #region Field
+        #region Fields
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private bool? _isAllItemsSelected = false;
@@ -81,6 +82,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public ProjectInfoModel ProjectInfo
         {
             get => _projectInfo;
+            private set => SetProperty(ref _projectInfo, value);
         }
         #endregion
 
@@ -90,8 +92,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _eventAggregator = eventAggregator;
             _projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
-
-            LoadData();
         }
 
         public bool CanCloseDialog()
@@ -110,7 +110,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-
+            LoadData();
         }
 
         public virtual void RaiseRequestClose(IDialogResult dialogResult)
@@ -121,7 +121,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private void LoadData()
         {
             var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
-            _projectInfo = currentProjectInfo != null ? DeepCopy.Copy(currentProjectInfo) : null;
+            ProjectInfo = currentProjectInfo != null ? DeepCopy.Copy(currentProjectInfo) : null;
         }
 
         private void ExecuteOpenFolderCommand()
@@ -129,8 +129,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             var folderDialog = new OpenFolderDialog()
             {
                 Title = L["SelectFolder"],
-
             };
+
+            if(!_projectInfo.DatalogPath.IsEmpty() && Directory.Exists(_projectInfo.DatalogPath))
+                folderDialog.InitialDirectory = _projectInfo.DatalogPath;
 
             if (folderDialog.ShowDialog() == true)
             {

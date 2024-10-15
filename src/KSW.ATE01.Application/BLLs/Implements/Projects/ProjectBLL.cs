@@ -32,6 +32,8 @@ namespace KSW.ATE01.Application.BLLs.Implements
     {
         private readonly IDialogService _dialogService;
         private ProjectInfoModel _currentProjectInfo;
+        private readonly string _logDirName = "Log";
+        private readonly string _releaseDirName = "Release";
         private readonly string _csprojExt = ".csproj";
         private readonly string _slnExt = ".sln";
 
@@ -250,6 +252,8 @@ namespace KSW.ATE01.Application.BLLs.Implements
             //完善项目相关信息
             projectInfo.CreateTime = DateTime.Now;
             projectInfo.ProjectVersion = new Version("1.0.0000.1").ToString();
+            projectInfo.DatalogPath = Path.Combine(projectInfo.ProjectPath, _logDirName);
+            projectInfo.ReleasePath = Path.Combine(projectInfo.ProjectPath, _releaseDirName);
         }
 
         private void FileRename(string srcFile, string destFile)

@@ -18,6 +18,7 @@ using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Entities;
 using KSW.Helpers;
 using KSW.Ui;
+using Microsoft.CodeAnalysis;
 using Microsoft.Win32;
 using Prism.Ioc;
 using System.IO;
@@ -91,7 +92,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _dialogService = dialogService;
         }
 
-
         public bool CanCloseDialog()
         {
             return true;
@@ -117,8 +117,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             var folderDialog = new OpenFolderDialog()
             {
                 Title = LanguageManager.Instance["SelectFolder"],
-
             };
+
+            var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
+
+            if ((!currentProjectInfo?.ProjectPath.IsEmpty()) == true && Directory.Exists(currentProjectInfo?.ProjectPath))
+                folderDialog.InitialDirectory = currentProjectInfo.ProjectPath;
 
             if (folderDialog.ShowDialog() == true)
             {

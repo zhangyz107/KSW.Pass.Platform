@@ -84,5 +84,10 @@ namespace KSW.ATE01.Domain.Projects.Entities
         /// 失败时停止
         /// </summary>
         public bool StopOnFail { get; set; }
+
+        /// <summary>
+        /// 发布路径
+        /// </summary>
+        public string ReleasePath { get; set; }
     }
 }

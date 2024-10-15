@@ -20,6 +20,31 @@
         </Style>
     </prism:Dialog.WindowStyle>
 
+    <UserControl.Resources>
+        <Style x:Key="BrowseTextBlock" TargetType="{x:Type TextBox}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="2">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Padding="6,0,0,0" Text="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path=Text,RelativeSource={RelativeSource Mode=Self}}"></TextBlock>
+                                <Button Padding="6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" BorderThickness="0" ToolTip="{language:L Browse}" Command="{Binding DataContext.OpenFolderCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}">
+                                    <Button.Content>
+                                        <materialDesign:PackIcon Kind="FolderOpenOutline" />
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <Grid Margin="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -30,19 +55,13 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <Label Margin="0,0,0,6" Content="{language:L ProjectPath}" VerticalContentAlignment="Center"></Label>
-        <TextBox Margin="0,0,0,6" Grid.Column="1" BorderThickness="1" IsReadOnly="True" Text=""></TextBox>
+        <TextBox Padding="6" Margin="0,0,0,6" Grid.Column="1" IsReadOnly="True" Text="{Binding ProjectInfo.ProjectPath}" Style="{StaticResource MaterialDesignOutlinedTextBox}" ToolTip="{Binding Path=Text,RelativeSource={RelativeSource Mode=Self}}"></TextBox>
 
         <Label Margin="0,0,0,6" Grid.Row="1" Content="{language:L ProjectReleaseTo}" VerticalContentAlignment="Center"></Label>
-        <TextBox Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" BorderThickness="1" IsReadOnly="True" Text=""></TextBox>
-        <Button Margin="0,0,0,6" Grid.Row="1" Grid.Column="2" BorderThickness="0" VerticalContentAlignment="Center" Style="{StaticResource MaterialDesignOutlinedButton}" ToolTip="{language:L Browse}">
-            <Button.Content>
-                <materialDesign:PackIcon Kind="FolderOpenOutline" />
-            </Button.Content>
-        </Button>
+        <TextBox Margin="0,0,0,6" Grid.Row="1" Grid.Column="1"  Text="{Binding ProjectInfo.ReleasePath}" Style="{StaticResource BrowseTextBlock}"></TextBox>
 
         <Grid Grid.Row="3" Grid.ColumnSpan="3" >
             <Grid.ColumnDefinitions>
