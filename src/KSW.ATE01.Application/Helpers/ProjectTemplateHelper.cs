@@ -38,22 +38,29 @@ namespace KSW.ATE01.Application.Helpers
         public static async Task<bool> CreateSolutionByTemplateAsync(string targetDir, string templateName, bool isCover = true)
         {
             var result = false;
-            if (!await IsTemplateInstalledAsync(templateName))
-                return result;
-
-            if (Directory.Exists(targetDir))
+            try
             {
-                if (IsDirectoryEmpty(targetDir) || isCover)
-                {
-                    var commandExecute = "cmd.exe";
+                if (!await IsTemplateInstalledAsync(templateName))
+                    return result;
 
-                    var nameSpace = Path.GetFileName(targetDir);
-                    var commandParams = $"/C cd /d {targetDir} && {_commandExecute} new {templateName} -N {nameSpace} --force";
-                    var output = await CommandLineHelper.SendCommandLine(commandExecute, commandParams);
-                    result = true;
+                if (Directory.Exists(targetDir))
+                {
+                    if (IsDirectoryEmpty(targetDir) || isCover)
+                    {
+                        var commandExecute = "cmd.exe";
+
+                        var nameSpace = Path.GetFileName(targetDir);
+                        var commandParams = $"/C cd /d {targetDir} && {_commandExecute} new {templateName} -N {nameSpace} --force";
+                        var output = await CommandLineHelper.SendCommandLine(commandExecute, commandParams);
+                        result = true;
+                    }
                 }
             }
+            catch (Exception)
+            {
 
+                throw;
+            }
             return result;
         }
 
@@ -66,14 +73,21 @@ namespace KSW.ATE01.Application.Helpers
         public static async Task<bool> InstallTemplateAsync(string templatePath, bool isUpdate = false)
         {
             var result = false;
-
-            if (Directory.Exists(templatePath))
+            try
             {
-                var commandParams = $"new install {templatePath}";
-                if (isUpdate)
-                    commandParams = $"new install {templatePath} --force";
-                var output = await CommandLineHelper.SendCommandLine(_commandExecute, commandParams);
-                result = true;
+                if (Directory.Exists(templatePath))
+                {
+                    var commandParams = $"new install {templatePath}";
+                    if (isUpdate)
+                        commandParams = $"new install {templatePath} --force";
+                    var output = await CommandLineHelper.SendCommandLine(_commandExecute, commandParams);
+                    result = true;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
             return result;
         }
@@ -85,10 +99,18 @@ namespace KSW.ATE01.Application.Helpers
         /// <returns></returns>
         public static async Task<bool> IsTemplateInstalledAsync(string templateName)
         {
-            var commandParams = "new --list";
-            var output = await CommandLineHelper.SendCommandLine(_commandExecute, commandParams);
-            // 检查模板名称是否存在于输出中
-            return output.Contains(templateName, StringComparison.OrdinalIgnoreCase);
+            try
+            {
+                var commandParams = "new --list";
+                var output = await CommandLineHelper.SendCommandLine(_commandExecute, commandParams);
+                // 检查模板名称是否存在于输出中
+                return output.Contains(templateName, StringComparison.OrdinalIgnoreCase);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
 
         /// <summary>

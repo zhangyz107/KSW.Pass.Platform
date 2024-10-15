@@ -125,10 +125,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             try
             {
                 if (_projectInfo == null)
-                    throw new Warning("选择项目为空!");
+                    throw new Warning(string.Format("{0}{1}", L["SelectProject"], L["CanNotBeEmpty"]));
 
                 if (_projectInfo.ReleasePath.IsEmpty())
-                    throw new Warning($"{L["SaveAsPath"]}不能为空");
+                    throw new Warning(string.Format("{0}{1}", L["SaveAsPath"], L["CanNotBeEmpty"]));
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {

@@ -91,11 +91,11 @@ namespace KSW.ATE01.Application.BLLs.Implements
                 string executablePath = Path.Combine(installationPath, @"Common7\IDE\devenv.exe");
 
                 if (!File.Exists(executablePath))
-                    throw new FileNotFoundException("未能找到IDE!");
+                    throw new Warning(string.Format("{0}{1}", L["NotFound"], "IDE"));
 
                 var solutionPath = Path.Combine(_currentProjectInfo.ProjectPath, Path.GetFileName(_currentProjectInfo.ProjectName) + ".sln");
                 if (!File.Exists(solutionPath))
-                    throw new FileNotFoundException("未能找打项目文件!");
+                    throw new Warning(string.Format("{0}{1}", L["NotFound"], L["ProjectFile"]));
 
                 Process.Start(executablePath, solutionPath);
 
@@ -120,7 +120,7 @@ namespace KSW.ATE01.Application.BLLs.Implements
                 folderName.CheckNull(nameof(folderName));
 
                 if (!Directory.Exists(folderName))
-                    throw new FileNotFoundException($"未能找到路径：{folderName}");
+                    throw new Warning(string.Format("{0}{1}:{2}", L["NotFound"], L["SelectFolder"], folderName));
 
                 var files = Directory.GetFiles(folderName, "*.atecfg", SearchOption.AllDirectories);
                 if (files.IsEmpty())
@@ -191,10 +191,10 @@ namespace KSW.ATE01.Application.BLLs.Implements
             {
                 #region 拷贝项目文件
                 if (_currentProjectInfo == null)
-                    throw new Warning("选择项目为空!");
+                    throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
                 var targetDir = Path.Combine(saveAsDir, saveAsName);
                 if (!await ProjectTemplateHelper.CopyProjectAsync(_currentProjectInfo?.ProjectPath, targetDir))
-                    throw new Warning("文件拷贝失败");
+                    throw new Warning(L["FileCopyFailed"]);
                 #endregion
 
                 #region 处理解决方案名及命名空间
@@ -236,12 +236,13 @@ namespace KSW.ATE01.Application.BLLs.Implements
                 projectInfo = projectInfo ?? _currentProjectInfo;
 
                 if (projectInfo == null)
-                    throw new Warning("选择项目为空!");
+                    throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
 
                 var slnPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + _slnExt);
                 if (!await ProjectTemplateHelper.ReleaseProjectAsync(slnPath, projectInfo.ReleasePath))
-                    throw new Warning("发布失败");
+                    throw new Warning(L["PublishFailed"]);
 
+                //打开发布文件夹
                 if (openReleaseDir)
                     Process.Start("explorer.exe", projectInfo.ReleasePath);
                 result = true;
@@ -257,21 +258,29 @@ namespace KSW.ATE01.Application.BLLs.Implements
 
         private async Task CreateProjectByTemplate(ProjectInfoModel projectInfo, string templateName, string templatePath)
         {
-            var isInstalled = await ProjectTemplateHelper.IsTemplateInstalledAsync(templateName);
-            if (!isInstalled)
+            try
             {
-                var installedResult = await ProjectTemplateHelper.InstallTemplateAsync(templatePath);
-                if (installedResult)
-                    Log?.LogInformation("模板安装成功");
-                else
-                    throw new Exception("模板安装失败");
-            }
+                var isInstalled = await ProjectTemplateHelper.IsTemplateInstalledAsync(templateName);
+                if (!isInstalled)
+                {
+                    var installedResult = await ProjectTemplateHelper.InstallTemplateAsync(templatePath);
+                    if (installedResult)
+                        Log?.LogInformation(L["TemplateInstalledSuccessfully"]);
+                    else
+                        throw new Exception(L["TemplateInstalledFailed"]);
+                }
 
-            var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.ProjectPath, templateName);
-            if (createResult)
-                Log?.LogInformation("项目创建成功");
-            else
-                throw new Exception("项目创建失败");
+                var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.ProjectPath, templateName);
+                if (createResult)
+                    Log?.LogInformation(L["ProjectCreatedSuccessfully"]);
+                else
+                    throw new Exception(L["ProjectCreatedFailed"]);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         private void ReplenishProjectInfo(ProjectInfoModel projectInfo)
@@ -285,10 +294,18 @@ namespace KSW.ATE01.Application.BLLs.Implements
 
         private void FileRename(string srcFile, string destFile)
         {
-            if (!File.Exists(srcFile))
-                throw new FileNotFoundException($"未找到文件{srcFile}");
+            try
+            {
+                if (!File.Exists(srcFile))
+                    throw new Warning(string.Format("{0}{1}:{2}", L["NotFound"], L["ProjectFile"], srcFile));
 
             File.Move(srcFile, destFile);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
     }

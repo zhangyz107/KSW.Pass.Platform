@@ -11,6 +11,7 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,28 +34,43 @@ namespace KSW.ATE01.Application.Helpers
         /// <returns></returns>
         public static async Task<string> SendCommandLine(string commandExecute, string commandParams)
         {
-            if (commandExecute == null)
-                return string.Empty;
-
-            var processStartInfo = new ProcessStartInfo()
+            try
             {
-                FileName = commandExecute,
-                Arguments = commandParams,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            //启动进程
-            using (Process process = Process.Start(processStartInfo))
-            {
-                if (process == null)
+                if (commandExecute == null)
                     return string.Empty;
 
-                // 读取输出内容
-                string output = await process.StandardOutput.ReadToEndAsync();
-                await process.WaitForExitAsync();
-                return output;
+                var processStartInfo = new ProcessStartInfo()
+                {
+                    FileName = commandExecute,
+                    Arguments = commandParams,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    StandardErrorEncoding = Encoding.UTF8,
+                };
+
+                //启动进程
+                using (Process process = Process.Start(processStartInfo))
+                {
+                    if (process == null)
+                        return string.Empty;
+
+                    // 读取输出内容
+                    string output = await process.StandardOutput.ReadToEndAsync();
+                    string error = await process.StandardError.ReadToEndAsync();
+                    await process.WaitForExitAsync();
+
+                    if (!error.IsEmpty())
+                        throw new Warning(error);
+
+                    return output;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -65,19 +81,36 @@ namespace KSW.ATE01.Application.Helpers
         /// <returns></returns>
         public static async Task<string> SendCommandLine(ProcessStartInfo info)
         {
-            if (info == null)
-                return string.Empty;
-
-            //启动进程
-            using (Process process = Process.Start(info))
+            try
             {
-                if (process == null)
+                if (info == null)
                     return string.Empty;
 
-                // 读取输出内容
-                string output = await process.StandardOutput.ReadToEndAsync();
-                await process.WaitForExitAsync();
-                return output;
+                info.RedirectStandardError = true;
+                info.RedirectStandardOutput = true;
+                info.StandardOutputEncoding = Encoding.UTF8;
+                info.StandardErrorEncoding = Encoding.UTF8;
+
+                //启动进程
+                using (Process process = Process.Start(info))
+                {
+                    if (process == null)
+                        return string.Empty;
+
+                    // 读取输出内容
+                    string output = await process.StandardOutput.ReadToEndAsync();
+                    string error = await process.StandardError.ReadToEndAsync();
+                    await process.WaitForExitAsync();
+
+                    if (!error.IsEmpty())
+                        throw new Warning(error);
+
+                    return output;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

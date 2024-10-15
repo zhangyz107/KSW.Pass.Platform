@@ -148,10 +148,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             try
             {
                 if (_projectInfo.ProjectName.IsEmpty())
-                    throw new Warning($"{L["ProjectName"]}不能为空!");
+                    throw new Warning(string.Format("{0}{1}", L["ProjectName"], L["CanNotBeEmpty"]));
 
                 if (_projectInfo.ProjectPath.IsEmpty())
-                    throw new Warning($"{L["ProjectPath"]}不能为空!");
+                    throw new Warning(string.Format("{0}{1}", L["ProjectPath"], L["CanNotBeEmpty"]));
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {

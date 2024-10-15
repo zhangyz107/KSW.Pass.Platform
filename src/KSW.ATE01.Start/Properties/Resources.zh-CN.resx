@@ -258,4 +258,37 @@
   <data name="SelectFolder" xml:space="preserve">
     <value>选择文件夹</value>
   </data>
+  <data name="TemplateInstalledSuccessfully" xml:space="preserve">
+    <value>模板安装成功</value>
+  </data>
+  <data name="TemplateInstalledFailed" xml:space="preserve">
+    <value>模板安装失败</value>
+  </data>
+  <data name="ProjectCreatedSuccessfully" xml:space="preserve">
+    <value>项目创建成功</value>
+  </data>
+  <data name="ProjectCreatedFailed" xml:space="preserve">
+    <value>项目创建失败</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>未能找到</value>
+  </data>
+  <data name="PublishFailed" xml:space="preserve">
+    <value>发布失败</value>
+  </data>
+  <data name="FileCopyFailed" xml:space="preserve">
+    <value>文件拷贝失败</value>
+  </data>
+  <data name="IsEmpty" xml:space="preserve">
+    <value>为空</value>
+  </data>
+  <data name="CanNotBeEmpty" xml:space="preserve">
+    <value>不能为空</value>
+  </data>
+  <data name="SelectProject" xml:space="preserve">
+    <value>选择项目</value>
+  </data>
+  <data name="SaveAsPathSameError" xml:space="preserve">
+    <value>另存为{0}不能与源路径相同</value>
+  </data>
 </root>

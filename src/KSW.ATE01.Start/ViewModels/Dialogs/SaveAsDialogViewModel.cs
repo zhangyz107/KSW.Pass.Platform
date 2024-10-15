@@ -162,17 +162,17 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             try
             {
                 if (_currentProjectInfo == null)
-                    throw new Warning("选择项目为空!");
+                    throw new Warning(string.Format("{0}{1}", L["SelectProject"], L["IsEmpty"]));
 
                 if (_saveAsDir.IsEmpty())
-                    throw new Warning($"{L["SaveAsPath"]}不能为空");
+                    throw new Warning(string.Format("{0}{1}", L["SaveAsPath"], L["CanNotBeEmpty"]));
 
                 if (_saveAsName.IsEmpty())
-                    throw new Warning($"{L["SaveAsName"]}不能为空");
+                    throw new Warning(string.Format("{0}{1}", L["SaveAsName"], L["CanNotBeEmpty"]));
 
                 var saveAsPath = Path.Combine(_saveAsDir, _saveAsName);
                 if (saveAsPath.Equals(_currentProjectPath))
-                    throw new Warning($"另存为{L["ProjectPath"]}不能与源路径相同");
+                    throw new Warning(string.Format(L["SaveAsPathSameError"], L["ProjectPath"]));
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {

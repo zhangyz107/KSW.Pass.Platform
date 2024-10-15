@@ -305,4 +305,48 @@
     <value>Select Folder</value>
     <comment>选择文件夹</comment>
   </data>
+  <data name="TemplateInstalledSuccessfully" xml:space="preserve">
+    <value>Template Installed Successfully</value>
+    <comment>模板安装成功</comment>
+  </data>
+  <data name="TemplateInstalledFailed" xml:space="preserve">
+    <value>Template Installed Failed</value>
+    <comment>模板安装失败</comment>
+  </data>
+  <data name="ProjectCreatedSuccessfully" xml:space="preserve">
+    <value>Project Created Successfully</value>
+    <comment>项目创建成功</comment>
+  </data>
+  <data name="ProjectCreatedFailed" xml:space="preserve">
+    <value>Project Created Failed</value>
+    <comment>项目创建失败</comment>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Not found</value>
+    <comment>未能找到</comment>
+  </data>
+  <data name="PublishFailed" xml:space="preserve">
+    <value>Publish Failed</value>
+    <comment>发布失败</comment>
+  </data>
+  <data name="FileCopyFailed" xml:space="preserve">
+    <value>File Copy Failed</value>
+    <comment>文件拷贝失败</comment>
+  </data>
+  <data name="IsEmpty" xml:space="preserve">
+    <value>is empty</value>
+    <comment>为空</comment>
+  </data>
+  <data name="CanNotBeEmpty" xml:space="preserve">
+    <value>can not be empty</value>
+    <comment>不能为空</comment>
+  </data>
+  <data name="SelectProject" xml:space="preserve">
+    <value>Select Project</value>
+    <comment>选择项目</comment>
+  </data>
+  <data name="SaveAsPathSameError" xml:space="preserve">
+    <value>Save as {0} cannot be the same as the source path</value>
+    <comment>另存为{0}不能与源路径相同</comment>
+  </data>
 </root>

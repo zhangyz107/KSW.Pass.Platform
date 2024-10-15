@@ -258,4 +258,37 @@
   <data name="SelectFolder" xml:space="preserve">
     <value>Select Folder</value>
   </data>
+  <data name="TemplateInstalledSuccessfully" xml:space="preserve">
+    <value>Template Installed Successfully</value>
+  </data>
+  <data name="TemplateInstalledFailed" xml:space="preserve">
+    <value>Template Installed Failed</value>
+  </data>
+  <data name="ProjectCreatedSuccessfully" xml:space="preserve">
+    <value>Project Created Successfully</value>
+  </data>
+  <data name="ProjectCreatedFailed" xml:space="preserve">
+    <value>Project Created Failed</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Not found</value>
+  </data>
+  <data name="PublishFailed" xml:space="preserve">
+    <value>Publish Failed</value>
+  </data>
+  <data name="FileCopyFailed" xml:space="preserve">
+    <value>File Copy Failed</value>
+  </data>
+  <data name="IsEmpty" xml:space="preserve">
+    <value>is empty</value>
+  </data>
+  <data name="CanNotBeEmpty" xml:space="preserve">
+    <value>can not be empty</value>
+  </data>
+  <data name="SelectProject" xml:space="preserve">
+    <value>Select Project</value>
+  </data>
+  <data name="SaveAsPathSameError" xml:space="preserve">
+    <value>Save as {0} cannot be the same as the source path</value>
+  </data>
 </root>

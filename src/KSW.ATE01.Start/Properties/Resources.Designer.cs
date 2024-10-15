@@ -79,6 +79,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 can not be empty 的本地化字符串。
+        /// </summary>
+        internal static string CanNotBeEmpty {
+            get {
+                return ResourceManager.GetString("CanNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Configuration 的本地化字符串。
         /// </summary>
         internal static string Configuration {
@@ -160,6 +169,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 File Copy Failed 的本地化字符串。
+        /// </summary>
+        internal static string FileCopyFailed {
+            get {
+                return ResourceManager.GetString("FileCopyFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 File Path 的本地化字符串。
         /// </summary>
         internal static string FilePath {
@@ -174,6 +192,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string Help {
             get {
                 return ResourceManager.GetString("Help", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 is empty 的本地化字符串。
+        /// </summary>
+        internal static string IsEmpty {
+            get {
+                return ResourceManager.GetString("IsEmpty", resourceCulture);
             }
         }
         
@@ -241,6 +268,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Not found 的本地化字符串。
+        /// </summary>
+        internal static string NotFound {
+            get {
+                return ResourceManager.GetString("NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Offline Mode 的本地化字符串。
         /// </summary>
         internal static string OfflineMode {
@@ -304,6 +340,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Project Created Failed 的本地化字符串。
+        /// </summary>
+        internal static string ProjectCreatedFailed {
+            get {
+                return ResourceManager.GetString("ProjectCreatedFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Project Created Successfully 的本地化字符串。
+        /// </summary>
+        internal static string ProjectCreatedSuccessfully {
+            get {
+                return ResourceManager.GetString("ProjectCreatedSuccessfully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 ProjectDetail 的本地化字符串。
         /// </summary>
         internal static string ProjectDetail {
@@ -358,6 +412,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Publish Failed 的本地化字符串。
+        /// </summary>
+        internal static string PublishFailed {
+            get {
+                return ResourceManager.GetString("PublishFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Release 的本地化字符串。
         /// </summary>
         internal static string Release {
@@ -403,11 +466,29 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Save as {0} cannot be the same as the source path 的本地化字符串。
+        /// </summary>
+        internal static string SaveAsPathSameError {
+            get {
+                return ResourceManager.GetString("SaveAsPathSameError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Select Folder 的本地化字符串。
         /// </summary>
         internal static string SelectFolder {
             get {
                 return ResourceManager.GetString("SelectFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Select Project 的本地化字符串。
+        /// </summary>
+        internal static string SelectProject {
+            get {
+                return ResourceManager.GetString("SelectProject", resourceCulture);
             }
         }
         
@@ -444,6 +525,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string StopOnFail {
             get {
                 return ResourceManager.GetString("StopOnFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Template Installed Failed 的本地化字符串。
+        /// </summary>
+        internal static string TemplateInstalledFailed {
+            get {
+                return ResourceManager.GetString("TemplateInstalledFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Template Installed Successfully 的本地化字符串。
+        /// </summary>
+        internal static string TemplateInstalledSuccessfully {
+            get {
+                return ResourceManager.GetString("TemplateInstalledSuccessfully", resourceCulture);
             }
         }
         

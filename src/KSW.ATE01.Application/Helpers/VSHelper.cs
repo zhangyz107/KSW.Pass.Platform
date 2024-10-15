@@ -25,6 +25,8 @@ namespace KSW.ATE01.Application.Helpers
     /// </summary>
     public class VSHelper
     {
+        private static readonly string _vs2022 = "VisualStudio.DTE.17.0";
+
         /// <summary>
         /// 重命名解决方案和项目
         /// </summary>
@@ -38,7 +40,7 @@ namespace KSW.ATE01.Application.Helpers
             await Task.Factory.StartNew(() =>
             {
                 // 创建 DTE 实例
-                var dte = (DTE2)Activator.CreateInstance(Type.GetTypeFromProgID("VisualStudio.DTE.17.0"));
+                var dte = (DTE2)Activator.CreateInstance(Type.GetTypeFromProgID(_vs2022));
                 if (dte == null)
                     throw new Warning("未找到Visual Stdio 2022");
 
@@ -88,7 +90,7 @@ namespace KSW.ATE01.Application.Helpers
             await Task.Factory.StartNew(() =>
              {
                  // 创建 DTE 实例
-                 var dte = (DTE2)Activator.CreateInstance(Type.GetTypeFromProgID("VisualStudio.DTE.17.0"));
+                 var dte = (DTE2)Activator.CreateInstance(Type.GetTypeFromProgID(_vs2022));
                  if (dte == null)
                      throw new Warning("未找到Visual Stdio 2022");
 
