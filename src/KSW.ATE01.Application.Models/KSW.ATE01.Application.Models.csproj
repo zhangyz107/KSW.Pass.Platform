@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KSW.ATE01.Domain.Projects.Core\KSW.ATE01.Domain.Projects.Core.csproj" />
+    <ProjectReference Include="..\KSW.ATE01.Domain.TestPlan.Core\KSW.ATE01.Domain.TestPlan.Core.csproj" />
     <ProjectReference Include="..\src-platform\KSW.Core\KSW.Core.csproj" />
   </ItemGroup>
 
