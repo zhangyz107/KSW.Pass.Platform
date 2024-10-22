@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using KSW.Data;
+using Prism.Mvvm;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
@@ -8,12 +9,17 @@ namespace KSW.Dtos
     /// Abstract base class for a DataModel implementation.
     /// </summary>
     [Serializable]
-    public abstract class DtoBase : BindableBase
+    public abstract class DtoBase : BindableBase, IDataKey
     {
         [NonSerialized]
         private readonly List<PropertyChangedEventListener> propertyChangedListeners = new List<PropertyChangedEventListener>();
         [NonSerialized]
         private readonly List<CollectionChangedEventListener> collectionChangedListeners = new List<CollectionChangedEventListener>();
+
+        /// <summary>
+        /// 标识
+        /// </summary>
+        public string Id { get; set; }
 
 
         /// <summary>

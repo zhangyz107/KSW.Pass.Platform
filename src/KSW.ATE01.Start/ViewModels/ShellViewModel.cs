@@ -67,9 +67,11 @@ namespace KSW.ATE01.Start.ViewModels
         //public LanguageManager L => LanguageManager.Instance;
         #endregion
 
+        #region Command
         private DelegateCommand _loadingCommand;
         public DelegateCommand LoadingCommand =>
             _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommand));
+        #endregion
 
         public ShellViewModel(
             IContainerExtension containerProvider,

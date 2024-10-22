@@ -12,7 +12,8 @@ namespace KSW.Ui
         protected ViewModelBase(IContainerProvider containerProvider)
         {
             ContainerProvider = containerProvider ?? throw new ArgumentNullException(nameof(containerProvider));
-            L = containerProvider.Resolve<ILanguageManager>() ?? throw new ArgumentNullException(nameof(ILanguageManager));
+            DialogService = containerProvider.IsRegistered<IDialogService>() ? containerProvider?.Resolve<IDialogService>() : null;
+            L = containerProvider.IsRegistered<ILanguageManager>() == true ? containerProvider.Resolve<ILanguageManager>() : null;
             var logFactory = containerProvider.Resolve<ILoggerFactory>() ?? throw new ArgumentNullException(nameof(ILoggerFactory));
             Log = logFactory?.CreateLogger(GetType());
         }
@@ -23,6 +24,11 @@ namespace KSW.Ui
         protected IContainerProvider ContainerProvider { get; }
 
         /// <summary>
+        /// 对话框服务
+        /// </summary>
+        protected IDialogService DialogService { get; }
+
+        /// <summary>
         /// 多语言
         /// </summary>
         protected ILanguageManager L { get; }
@@ -31,5 +37,29 @@ namespace KSW.Ui
         /// 日志记录
         /// </summary>
         protected ILogger Log { get; }
+
+        /// <summary>
+        /// 执行异常处理
+        /// </summary>
+        protected async Task ExecuteWithExceptionHandling(Func<Task> action, Func<Exception, Task> errorCallBack = null)
+        {
+            try
+            {
+                await action();
+            }
+            catch (Exception ex)
+            {
+                await HandleException(ex, errorCallBack);
+            }
+        }
+
+        /// <summary>
+        /// 处理异常
+        /// </summary>
+        protected virtual async Task HandleException(Exception ex, Func<Exception, Task> errorCallBack = null)
+        {
+            Log?.LogError(ex, ex.Message);
+            await errorCallBack(ex);
+        }
     }
 }

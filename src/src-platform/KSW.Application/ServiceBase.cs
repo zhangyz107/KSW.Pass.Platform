@@ -17,7 +17,7 @@ public abstract class ServiceBase : IService
     {
         ContainerProvider = containerProvider ?? throw new ArgumentNullException(nameof(containerProvider));
         L = containerProvider.Resolve<ILanguageManager>() ?? throw new ArgumentNullException(nameof(ILanguageManager));
-        var logFactory = containerProvider.Resolve<ILoggerFactory>() ?? throw new ArgumentNullException(nameof(ILoggerFactory)); ;
+        var logFactory = containerProvider.Resolve<ILoggerFactory>() ?? throw new ArgumentNullException(nameof(ILoggerFactory)); 
         Log = logFactory?.CreateLogger(GetType());
     }       
 

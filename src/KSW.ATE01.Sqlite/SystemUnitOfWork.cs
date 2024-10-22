@@ -6,7 +6,7 @@ namespace KSW.ATE01.Sqlite
 {
     public class SystemUnitOfWork : SqliteUnitOfWorkBase, ISystemUnitOfWork
     {
-        public SystemUnitOfWork(DbContextOptions options) : base(options)
+        public SystemUnitOfWork(IContainerProvider containerProvider, DbContextOptions options) : base(containerProvider, options)
         {
         }
     }

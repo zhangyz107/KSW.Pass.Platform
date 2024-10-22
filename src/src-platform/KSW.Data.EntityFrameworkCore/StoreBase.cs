@@ -3,6 +3,7 @@ using KSW.Data;
 using KSW.Data.Abstractions;
 using KSW.Data.Abstractions.Queries;
 using KSW.Data.Abstractions.Stores;
+using KSW.Data.Filters;
 using KSW.Domain;
 using KSW.Exceptions;
 using KSW.Validators;
@@ -30,7 +31,7 @@ public abstract class StoreBase<TEntity> : StoreBase<TEntity, Guid>, IStore<TEnt
 /// </summary>
 /// <typeparam name="TEntity">实体类型</typeparam>
 /// <typeparam name="TKey">实体标识类型</typeparam>
-public abstract class StoreBase<TEntity, TKey> : IStore<TEntity, TKey>, ITrack where TEntity : class, IKey<TKey>
+public abstract class StoreBase<TEntity, TKey> : IStore<TEntity, TKey>, IFilterSwitch, ITrack where TEntity : class, IKey<TKey>
 {
 
     #region 字段
@@ -82,6 +83,32 @@ public abstract class StoreBase<TEntity, TKey> : IStore<TEntity, TKey>, ITrack w
     public void NoTracking()
     {
         IsTracking = false;
+    }
+
+    #endregion
+
+    #region EnableFilter(启用过滤器)
+
+    /// <summary>
+    /// 启用过滤器
+    /// </summary>
+    /// <typeparam name="TFilterType">过滤器类型</typeparam>
+    public void EnableFilter<TFilterType>() where TFilterType : class
+    {
+        UnitOfWork.EnableFilter<TFilterType>();
+    }
+
+    #endregion
+
+    #region DisableFilter(禁用过滤器)
+
+    /// <summary>
+    /// 禁用过滤器
+    /// </summary>
+    /// <typeparam name="TFilterType">过滤器类型</typeparam>
+    public IDisposable DisableFilter<TFilterType>() where TFilterType : class
+    {
+        return UnitOfWork.DisableFilter<TFilterType>();
     }
 
     #endregion

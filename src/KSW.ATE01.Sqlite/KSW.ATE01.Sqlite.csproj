@@ -19,6 +19,7 @@
     <ProjectReference Include="..\KSW.ATE01.Common\KSW.ATE01.Common.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Data\KSW.ATE01.Data.csproj" />
     <ProjectReference Include="..\src-platform\KSW.Data.EntityFrameworkCore.Sqlite\KSW.Data.EntityFrameworkCore.Sqlite.csproj" />
+    <ProjectReference Include="..\src-platform\KSW.Migrations\KSW.Migrations.csproj" />
   </ItemGroup>
 
 </Project>
