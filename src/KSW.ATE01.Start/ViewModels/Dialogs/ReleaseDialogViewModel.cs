@@ -122,7 +122,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private async void ExecuteOKCommand()
         {
-            try
+            await ExecuteWithExceptionHandling(async () =>
             {
                 if (_projectInfo == null)
                     throw new Warning(string.Format("{0}{1}", L["SelectProject"], L["CanNotBeEmpty"]));
@@ -137,12 +137,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
                 });
                 await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
-            }
-            catch (Exception e)
-            {
-                await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
-                Log.LogError(e, e.Message);
-            }
+            }, async (e) => await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
 
         private void ExecuteCancelCommand()

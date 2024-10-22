@@ -66,10 +66,18 @@
     <Compile Include="TestItems.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Testplan)' == 'Excel' ">
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup Condition=" '$(Testplan)' == 'Csv' ">
+    <None Include="packages.config" />
+    <None Include="TestPlan\Channel.csv" />
+    <None Include="TestPlan\Flow.csv" />
+    <None Include="TestPlan\Level.csv" />
+    <None Include="TestPlan\Limits.csv" />
+    <None Include="TestPlan\TestItem.csv" />
+    <None Include="TestPlan\Timing.csv" />
+  </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>

@@ -145,7 +145,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private async void ExecuteOKCommand()
         {
-            try
+            await ExecuteWithExceptionHandling(async () =>
             {
                 if (_projectInfo.ProjectName.IsEmpty())
                     throw new Warning(string.Format("{0}{1}", L["ProjectName"], L["CanNotBeEmpty"]));
@@ -155,23 +155,23 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
+                    //创建项目
                     var result = await _projectBLL.CreateProjectAsync(_projectInfo);
 
+                    //生成Release文件夹
+                    result = await _projectBLL?.ReleaseSolutionAsync(_projectInfo, false);
+
+                    //拷贝测试计划
+                    result = await _projectBLL?.CopyTestPlanAsync(_projectInfo);
                     if (result)
                     {
                         _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
-
                         RaiseRequestClose(new DialogResult(ButtonResult.OK));
                     }
                 });
 
                 await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowMessageDialog(ex.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
-                Log.LogError(ex, ex.Message);
-            }
+            }, async (e) => await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
 
         private void ExecuteCancelCommand()

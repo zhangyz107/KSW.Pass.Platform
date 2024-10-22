@@ -249,11 +249,59 @@ namespace KSW.ATE01.Application.BLLs.Implements
             }
             catch (Exception)
             {
-
                 throw;
             }
 
             return result;
+        }
+
+        public async Task<bool> CopyTestPlanAsync(ProjectInfoModel projectInfo = null)
+        {
+            var result = false;
+            try
+            {
+                projectInfo = projectInfo ?? _currentProjectInfo;
+                if (projectInfo == null)
+                    throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
+
+                switch (projectInfo.TestPlanType)
+                {
+                    case TestPlanType.Excel:
+                        CopyExcelFile(projectInfo);
+                        break;
+                    case TestPlanType.Csv:
+                        break;
+                }
+
+                result = true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return result;
+        }
+
+        private void CopyExcelFile(ProjectInfoModel projectInfo)
+        {
+            var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
+
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            var testPlanPath = Path.Combine(baseDirectory, testPlanDirName);
+
+            if (!Directory.Exists(testPlanPath))
+                throw new Warning("");
+
+            var excelFiles = Directory.GetFiles(testPlanPath, "*.xlsx");
+            if (!excelFiles.IsEmpty())
+                foreach (var file in excelFiles)
+                {
+                    var targetPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + ".xlsx");
+                    if (!Directory.Exists(projectInfo.ReleasePath))
+                        Directory.CreateDirectory(projectInfo.ReleasePath);
+                    File.Copy(file, targetPath);
+                }
         }
 
         private async Task CreateProjectByTemplate(ProjectInfoModel projectInfo, string templateName, string templatePath)
@@ -299,7 +347,7 @@ namespace KSW.ATE01.Application.BLLs.Implements
                 if (!File.Exists(srcFile))
                     throw new Warning(string.Format("{0}{1}:{2}", L["NotFound"], L["ProjectFile"], srcFile));
 
-            File.Move(srcFile, destFile);
+                File.Move(srcFile, destFile);
             }
             catch (Exception)
             {
@@ -307,6 +355,5 @@ namespace KSW.ATE01.Application.BLLs.Implements
                 throw;
             }
         }
-
     }
 }

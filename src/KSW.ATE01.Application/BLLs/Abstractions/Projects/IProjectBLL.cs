@@ -54,5 +54,10 @@ namespace KSW.ATE01.Application.BLLs.Abstractions
         /// 发布解决方案
         /// </summary>
         Task<bool> ReleaseSolutionAsync(ProjectInfoModel projectInfo = null, bool openReleaseDir = false);
+
+        /// <summary>
+        /// 拷贝测试计划
+        /// </summary>
+        Task<bool> CopyTestPlanAsync(ProjectInfoModel projectInfo = null);
     }
 }

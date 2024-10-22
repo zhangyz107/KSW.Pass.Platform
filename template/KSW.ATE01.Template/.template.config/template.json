@@ -17,10 +17,45 @@
             "defaultValue": "KSW.ATE01.Template",
             "replaces": "KSW.ATE01.Template"
         },
-        "EnableRedis":{
-            "type": "parameter",
-            "datatype":"bool",
-            "defaultValue": "true"
+        "Testplan":{
+           "type": "parameter",
+            "datatype":"choice",
+            "defaultValue": "Excel",
+            "choices": [
+                {
+                    "choice": "Excel",
+                    "description": "Excel"
+                },
+                {
+                    "choice": "Csv",
+                    "description": "Csv"
+                }
+            ]
         }
-    }
+    },
+    "Excel": {
+        "type": "computed",
+        "value": "(TestPlanType == \"Excel\")"
+    },
+    "Csv": {
+        "type": "computed",
+        "value": "(TestPlanType == \"Csv\")"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "condition": "Testplan == Excel",
+                    "exclude": [
+                      "TestPlan/Channel.csv",
+                      "TestPlan/Flow.csv",
+                      "TestPlan/Level.csv",
+                      "TestPlan/Limits.csv",
+                      "TestPlan/TestItem.csv",
+                      "TestPlan/Timing.csv"
+                    ]
+                }
+            ]
+        }
+      ]  
   }
