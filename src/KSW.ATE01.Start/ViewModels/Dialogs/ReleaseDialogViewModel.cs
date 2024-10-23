@@ -11,7 +11,7 @@
 //
 //------------------------------------------------------------*/
 
-using KSW.ATE01.Application.BLLs.Abstractions;
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.Data;

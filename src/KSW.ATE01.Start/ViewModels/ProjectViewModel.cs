@@ -11,7 +11,7 @@
 //
 //------------------------------------------------------------*/
 
-using KSW.ATE01.Application.BLLs.Abstractions;
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Helpers;
@@ -112,8 +112,15 @@ namespace KSW.ATE01.Start.ViewModels
                 Log?.LogError(e, e.Message);
             }
         }
-        private void ExecuteRunCommand()
+        private async void ExecuteRunCommand()
         {
+            var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
+            if (currentProjectInfo == null)
+            {
+                await DialogService.ShowMessageDialog("未打开项目!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
             _dialogService.ShowDialog(nameof(RunDialog));
         }
 

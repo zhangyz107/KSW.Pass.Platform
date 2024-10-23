@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.Dtos;
+using MiniExcelLibs.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
     public class LimitsModel : DtoBase
     {
         private Guid _testItemId;
+        private string _testItemName;
         private string _limitName;
         private int _testNumber;
         private decimal _lowLimit;
@@ -34,6 +36,12 @@ namespace KSW.ATE01.Application.Models.TestPlan
             set => SetProperty(ref _testItemId, value);
         }
 
+        public string TestItemName
+        {
+            get => _testItemName;
+            set => SetProperty(ref _testItemName, value);
+        }
+
         /// <summary>
         /// 电压限制名称
         /// </summary>
@@ -46,7 +54,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 测试编号
         /// </summary>
-        public int TestNumber 
+        public int TestNumber
         {
             get => _testNumber;
             set => SetProperty(ref _testNumber, value);
@@ -55,72 +63,72 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 电压下限
         /// </summary>
-        public decimal LowLimit 
-        { 
-            get => _lowLimit; 
+        public decimal LowLimit
+        {
+            get => _lowLimit;
             set => SetProperty(ref _lowLimit, value);
         }
 
         /// <summary>
         /// 电压上限
         /// </summary>
-        public decimal HighLimit 
+        public decimal HighLimit
         {
-            get => _highLimit; 
+            get => _highLimit;
             set => SetProperty(ref _highLimit, value);
         }
 
         /// <summary>
         /// 单位
         /// </summary>
-        public string Units 
-        { 
-            get => _units; 
-            set => SetProperty(ref _units, value); 
+        public string Units
+        {
+            get => _units;
+            set => SetProperty(ref _units, value);
         }
 
         /// <summary>
         /// 软件Bin号
         /// </summary>
-        public int FailSoftwareBin 
+        public int FailSoftwareBin
         {
-            get => _failSoftwareBin; 
+            get => _failSoftwareBin;
             set => SetProperty(ref _failSoftwareBin, value);
         }
 
         /// <summary>
         /// 软件Bin号
         /// </summary>
-        public int PassSoftwareBin 
+        public int PassSoftwareBin
         {
-            get => _passSoftwareBin; 
+            get => _passSoftwareBin;
             set => SetProperty(ref _passSoftwareBin, value);
         }
 
         /// <summary>
         /// 硬件Bin号
         /// </summary>
-        public int FailHardwareBin 
-        { 
-            get => _failHardwareBin; 
-            set => SetProperty(ref _failHardwareBin, value); 
+        public int FailHardwareBin
+        {
+            get => _failHardwareBin;
+            set => SetProperty(ref _failHardwareBin, value);
         }
 
         /// <summary>
         /// 硬件Bin号
         /// </summary>
-        public int PassHardwareBin 
-        { 
+        public int PassHardwareBin
+        {
             get => _passHardwareBin;
-            set => SetProperty(ref _passHardwareBin, value); 
+            set => SetProperty(ref _passHardwareBin, value);
         }
 
         /// <summary>
         /// 测试结果
         /// </summary>
-        public DUTResultType DUTResult 
-        { 
-            get => _dUTResult; 
+        public DUTResultType DUTResult
+        {
+            get => _dUTResult;
             set => SetProperty(ref _dUTResult, value);
         }
     }

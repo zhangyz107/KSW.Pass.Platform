@@ -2,7 +2,7 @@
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 
-namespace KSW.ATE01.Application.BLLs.Abstractions
+namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
 {
     /// <summary>
     /// 项目业务逻辑层接口

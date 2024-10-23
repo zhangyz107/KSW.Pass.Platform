@@ -13,6 +13,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
     public class LevelModel : DtoBase
     {
         private Guid _channelGroupId;
+        private string _groupName;
         private decimal _vil;
         private decimal _vih;
         private decimal _vol;
@@ -26,27 +27,35 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 组Id
         /// </summary>
-        public Guid ChannelGroupId 
+        public Guid ChannelGroupId
         {
-            get => _channelGroupId; 
+            get => _channelGroupId;
             set => SetProperty(ref _channelGroupId, value);
         }
+
+
+        public string GroupName
+        {
+            get => _groupName;
+            set => SetProperty(ref _groupName, value);
+        }
+
 
         /// <summary>
         /// 输入低电压
         /// </summary>
-        public decimal Vil 
-        { 
-            get => _vil; 
-            set => SetProperty(ref  _vil, value); 
+        public decimal Vil
+        {
+            get => _vil;
+            set => SetProperty(ref _vil, value);
         }
 
         /// <summary>
         /// 输入高电压
         /// </summary>
-        public decimal Vih 
+        public decimal Vih
         {
-            get => _vih; 
+            get => _vih;
             set => SetProperty(ref _vih, value);
         }
 
@@ -54,25 +63,25 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// 输出低电压
         /// </summary>
         public decimal Vol
-        { 
+        {
             get => _vol;
-            set => SetProperty(ref _vol, value); 
+            set => SetProperty(ref _vol, value);
         }
 
         /// <summary>
         /// 输出高电压
         /// </summary>
-        public decimal Voh 
-        { 
-            get => _voh; 
-            set => SetProperty(ref _voh, value); 
+        public decimal Voh
+        {
+            get => _voh;
+            set => SetProperty(ref _voh, value);
         }
 
         /// <summary>
         /// 输出低电流
         /// </summary>
-        public decimal Iol 
-        { 
+        public decimal Iol
+        {
             get => _iol;
             set => SetProperty(ref _iol, value);
         }
@@ -80,8 +89,8 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 输出高电流
         /// </summary>
-        public decimal Ioh 
-        { 
+        public decimal Ioh
+        {
             get => _ioh;
             set => SetProperty(ref _ioh, value);
         }
@@ -89,28 +98,28 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 电压基准
         /// </summary>
-        public decimal Vt 
+        public decimal Vt
         {
             get => _vt;
-            set => SetProperty(ref _vt, value); 
+            set => SetProperty(ref _vt, value);
         }
 
         /// <summary>
         /// 钳位低电压
         /// </summary>
-        public decimal Vcl 
-        { 
-            get => _vcl; 
+        public decimal Vcl
+        {
+            get => _vcl;
             set => SetProperty(ref _vcl, value);
         }
 
         /// <summary>
         /// 钳位高电压
         /// </summary>
-        public decimal Vch 
+        public decimal Vch
         {
-            get => _vch; 
-            set => SetProperty(ref _vch, value); 
+            get => _vch;
+            set => SetProperty(ref _vch, value);
         }
     }
 }

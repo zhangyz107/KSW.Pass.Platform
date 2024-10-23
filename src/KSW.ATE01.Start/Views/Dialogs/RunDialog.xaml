@@ -91,14 +91,14 @@
             </Grid.RowDefinitions>
 
             <GroupBox Padding="0" Grid.RowSpan="4" Margin="0,0,6,0" Header="{language:L TestItem}">
-                <DataGrid   AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" CanUserSortColumns="False" >
+                <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding TestPlan.Flow}" CanUserResizeRows="False">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False">
+                        <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
                             <DataGridCheckBoxColumn.Header>
                                 <Border
           Background="Transparent">
                                     <CheckBox
-            IsChecked="{Binding DataContext.IsAllItemsSelected, Source={x:Reference DataContextProxy}}" />
+            IsChecked="{Binding DataContext.IsAllItemsSelected, Source={x:Reference DataContextProxy}}"/>
                                 </Border>
                             </DataGridCheckBoxColumn.Header>
                             <DataGridCheckBoxColumn.HeaderStyle>
@@ -111,7 +111,7 @@
                                 </Style>
                             </DataGridCheckBoxColumn.HeaderStyle>
                         </DataGridCheckBoxColumn>
-                        <DataGridTextColumn Width="*" Header="{language:L TestItem}" CanUserReorder="False" Binding="{Binding TestItemName}" IsReadOnly="True">
+                        <DataGridTextColumn Width="*" Header="{language:L TestItem}" CanUserReorder="False" Binding="{Binding TestItemName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding TestItemName}">
                         </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
@@ -174,14 +174,13 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Button Margin="0,0,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L LoadTestPlan}"></Button>
+                    <Button Margin="0,0,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L LoadTestPlan}" Command="{Binding LoadTestPlanCommand}"></Button>
 
-                    <Button Margin="0,0,0,6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L SetTestItem}"></Button>
+                    <Button Margin="0,0,0,6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L SetTestItem}" Command="{Binding SetTestItemCommand}"></Button>
 
-                    <Button Margin="0,0,6,0" Grid.Row="1" Content="{language:L StartTest}"></Button>
+                    <Button Margin="0,0,6,0" Grid.Row="1" Content="{language:L StartTest}" Command="{Binding StartTestCommand}"></Button>
 
-                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L EndTest}"></Button>
-
+                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L EndTest}" Command="{Binding EndTestCommand}"></Button>
                 </Grid>
             </GroupBox>
         </Grid>

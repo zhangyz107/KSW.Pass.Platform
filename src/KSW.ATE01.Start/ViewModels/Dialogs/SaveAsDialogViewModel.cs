@@ -11,7 +11,6 @@
 //
 //------------------------------------------------------------*/
 
-using KSW.ATE01.Application.BLLs.Abstractions;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Ui;
@@ -22,6 +21,7 @@ using System.Windows;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {

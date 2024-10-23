@@ -11,7 +11,7 @@
 //
 //------------------------------------------------------------*/
 using KSW.Application;
-using KSW.ATE01.Application.BLLs.Abstractions;
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
@@ -23,7 +23,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Windows;
 
-namespace KSW.ATE01.Application.BLLs.Implements
+namespace KSW.ATE01.Application.BLLs.Implements.Projects
 {
     /// <summary>
     /// 项目业务逻辑层
@@ -318,7 +318,7 @@ namespace KSW.ATE01.Application.BLLs.Implements
                         throw new Warning(L["TemplateInstalledFailed"]);
                 }
 
-                var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.ProjectPath, templateName);
+                var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.TestPlanType, projectInfo.ProjectPath, templateName);
                 if (createResult)
                     Log?.LogInformation(L["ProjectCreatedSuccessfully"]);
                 else
