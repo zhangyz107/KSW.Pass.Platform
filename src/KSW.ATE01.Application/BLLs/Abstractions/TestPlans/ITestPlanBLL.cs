@@ -17,6 +17,6 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         /// <summary>
         /// 设置测试计划Flow
         /// </summary>
-        void SetTestPlanFlow(TestPlanModel testPlan, TestPlanType testPlanType, string filePath);
+        bool SetTestPlanFlow(TestPlanModel testPlan, TestPlanType testPlanType, string filePath);
     }
 }

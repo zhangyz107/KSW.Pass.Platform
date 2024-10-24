@@ -21,6 +21,7 @@ using KSW.Ui;
 using Microsoft.Win32;
 using Prism.Dialogs;
 using System.IO;
+using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
@@ -210,10 +211,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         }
 
-        private void ExecuteSetTestItemCommand()
+        private async void ExecuteSetTestItemCommand()
         {
             var filePath = Path.Combine(_projectInfo.ReleasePath, _projectInfo.ProjectName + _projectInfo.TestPlanExtension);
-            _testPlanBLL?.SetTestPlanFlow(_testPlan, _projectInfo.TestPlanType, filePath);
+            await ExecuteWithExceptionHandling(() =>
+              {
+                  var result = _testPlanBLL?.SetTestPlanFlow(_testPlan, _projectInfo.TestPlanType, filePath);
+              }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
+
         }
 
         private void ExecuteStartTestCommand()

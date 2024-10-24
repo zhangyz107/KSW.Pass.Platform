@@ -41,6 +41,21 @@ namespace KSW.Ui
         /// <summary>
         /// 执行异常处理
         /// </summary>
+        protected async Task ExecuteWithExceptionHandling(Action action, Func<Exception, Task> errorCallBack = null)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                await HandleException(ex, errorCallBack);
+            }
+        }
+
+        /// <summary>
+        /// 执行异常处理
+        /// </summary>
         protected async Task ExecuteWithExceptionHandling(Func<Task> action, Func<Exception, Task> errorCallBack = null)
         {
             try

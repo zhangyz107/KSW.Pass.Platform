@@ -18,8 +18,9 @@ using KSW.ATE01.Application.Models.TestPlan;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.Exceptions;
-using Microsoft.Office.Interop.Excel;
 using MiniExcelLibs;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
@@ -298,27 +299,45 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                 testItem.Timings = timings;
         }
 
-        public void SetTestPlanFlow(TestPlanModel testPlan, TestPlanType testPlanType, string filePath)
+        public bool SetTestPlanFlow(TestPlanModel testPlan, TestPlanType testPlanType, string filePath)
         {
+            var result = false;
+
             if (testPlan == null)
-                return;
+                return result;
 
             if (testPlan.Flow.IsEmpty())
-                return;
+                return result;
 
-            var excelApp = new Microsoft.Office.Interop.Excel.Application();
-            excelApp.Visible = false;
-            var workbook = excelApp.Workbooks.Open(filePath);
-            var worksheet = (Worksheet)workbook.Worksheets["Flow"];
-            var startRowIndex = 3;
-            foreach (var flow in testPlan.Flow)
+            if (!File.Exists(filePath))
+                throw new Warning("文件不存在");
+
+            IWorkbook workbook = null;
+            try
             {
-                worksheet.Cells[startRowIndex++,3] = flow.Enable;
-            }
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    workbook = new XSSFWorkbook(stream);
+                    var sheet = workbook?.GetSheet("Flow");
+                    var startRowIndex = 2;
+                    var enableColIndex = 2;
+                    foreach (var flow in testPlan.Flow)
+                        sheet?.GetRow(startRowIndex++)?.CreateCell(enableColIndex)?.SetCellValue(flow.Enable);
+                }
 
-            workbook.Save();
-            workbook.Close();
-            excelApp.Quit();
+                using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                {
+                    workbook?.Write(stream);
+                    workbook?.Close();
+                }
+                result = true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
         }
     }
 }
