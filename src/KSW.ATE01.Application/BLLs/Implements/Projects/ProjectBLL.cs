@@ -18,10 +18,13 @@ using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
 using KSW.Exceptions;
 using KSW.Helpers;
+using KSW.Reflections;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
+using System.Xml;
 
 namespace KSW.ATE01.Application.BLLs.Implements.Projects
 {
@@ -189,21 +192,23 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             var result = false;
             try
             {
-                #region 拷贝项目文件
+                var templateName = ConfigurationManager.AppSettings["TemplateName"] ?? throw new ArgumentNullException("TemplateName");
+                var templateDirName = ConfigurationManager.AppSettings["TemplateDirName"] ?? throw new ArgumentNullException("TemplateDirName");
+
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                var templatePath = Path.Combine(baseDirectory, templateDirName);
+
                 if (_currentProjectInfo == null)
                     throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
                 var targetDir = Path.Combine(saveAsDir, saveAsName);
+                if (!Directory.Exists(targetDir))
+                    Directory.CreateDirectory(targetDir);
                 if (!await ProjectTemplateHelper.CopyProjectAsync(_currentProjectInfo?.ProjectPath, targetDir))
                     throw new Warning(L["FileCopyFailed"]);
-                #endregion
 
                 #region 处理解决方案名及命名空间
                 var oldSln = Path.Combine(targetDir, _currentProjectInfo.ProjectName + _slnExt);
                 await VSHelper.RenameSolutionAndProjctAsync(oldSln, saveAsName, _currentProjectInfo.ProjectName, saveAsName);
-                #endregion
-
-                #region 处理测试计划类型变更
-
                 #endregion
 
                 #region 保存项目配置
@@ -211,11 +216,29 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 newProjectInfo.ProjectName = saveAsName;
                 newProjectInfo.ProjectPath = targetDir;
                 newProjectInfo.TestPlanType = testPlanType;
+                newProjectInfo.ReleasePath = Path.Combine(targetDir, _releaseDirName);
                 newProjectInfo.CreateTime = DateTime.Now;
                 SaveProjectInfo(newProjectInfo);
+                #endregion
+
+                #region 处理测试计划类型变更
+
+                if (_currentProjectInfo.TestPlanType != testPlanType)
+                {
+                    ChangeTestPlanType(testPlanType, targetDir, saveAsName);
+
+                    //另存为TestPlan类型值
+
+                    var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
+                    var csvDirPath = Path.Combine(targetDir, testPlanDirName);
+                    if (testPlanType == TestPlanType.Excel && Directory.Exists(csvDirPath))
+                        Directory.Delete(csvDirPath, true);
+                }
+
+                #endregion
 
                 _currentProjectInfo = newProjectInfo;
-                #endregion
+
 
                 result = true;
             }
@@ -226,6 +249,35 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
 
             return result;
+        }
+
+        private void ChangeTestPlanType(TestPlanType targetType, string targetDir, string projectName)
+        {
+            var projectPath = Path.Combine(targetDir, projectName + _csprojExt);
+            // 加载 XML 文档
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(projectPath);
+
+            var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+            nsmgr.AddNamespace("msbuild", "http://schemas.microsoft.com/developer/msbuild/2003");
+
+            // 查找 TestplanType 节点
+            XmlNode testplanTypeNode = xmlDoc.SelectSingleNode("/msbuild:Project/msbuild:PropertyGroup/msbuild:TestplanType", nsmgr);
+
+            if (testplanTypeNode != null)
+            {
+                // 修改 TestplanType 的值
+                testplanTypeNode.InnerText = targetType.Description();
+                Console.WriteLine("TestplanType value updated to: " + testplanTypeNode.InnerText);
+
+                // 保存修改后的 XML 文件
+                xmlDoc.Save(projectPath);
+                Console.WriteLine("XML file saved.");
+            }
+            else
+            {
+                Console.WriteLine("TestplanType node not found.");
+            }
         }
 
         public async Task<bool> ReleaseSolutionAsync(ProjectInfoModel projectInfo = null, bool openReleaseDir = false)
@@ -281,6 +333,48 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
 
             return result;
+        }
+        public void StartTestPlan(ProjectInfoModel projectInfo = null)
+        {
+            try
+            {
+                projectInfo = projectInfo ?? _currentProjectInfo;
+                if (projectInfo == null)
+                    throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
+
+                var testItemName = ConfigurationManager.AppSettings["TestItemName"] ?? throw new ArgumentNullException("TestItemName");
+                var startTestMethod = ConfigurationManager.AppSettings["StartTestMethod"] ?? throw new ArgumentNullException("StartTestMethod");
+
+                var dllPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.ExecuteExtension);
+                var loadContext = new PluginLoadContext(Path.GetDirectoryName(dllPath));
+                var assem = loadContext.LoadFromAssemblyPath(dllPath);
+                var classType = assem.GetType(testItemName);
+                // 获取实现该接口的类型
+                if (classType != null)
+                {
+                    // 创建类的实例
+                    object instance = Activator.CreateInstance(classType);
+
+                    // 调用接口方法
+                    MethodInfo methodInfo = classType.GetMethod(startTestMethod);
+                    if (methodInfo != null)
+                    {
+                        var result = methodInfo.Invoke(instance, null); // 调用方法
+                    }
+                }
+
+                // 释放加载的上下文和程序集
+                loadContext.Unload();
+
+                // 在适当的地方调用GC以释放未管理的资源
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private void CopyExcelFile(ProjectInfoModel projectInfo)
@@ -355,5 +449,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 throw;
             }
         }
+
     }
 }

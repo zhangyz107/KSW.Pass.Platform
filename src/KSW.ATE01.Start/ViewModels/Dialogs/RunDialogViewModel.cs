@@ -16,6 +16,7 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlan;
+using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
@@ -189,25 +190,29 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private async void ExecuteLoadTestPlanCommand()
         {
             var filePath = Path.Combine(_projectInfo.ReleasePath, _projectInfo.ProjectName + _projectInfo.TestPlanExtension);
-            TestPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo.TestPlanType, filePath);
-            if (TestPlan?.Flow?.IsEmpty() == false)
+
+            await ExecuteWithExceptionHandling(async () =>
             {
-                foreach (var flow in TestPlan?.Flow)
+                TestPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo.TestPlanType, filePath);
+                if (TestPlan?.Flow?.IsEmpty() == false)
                 {
-                    flow.PropertyChanged += (sender, args) =>
+                    foreach (var flow in TestPlan?.Flow)
                     {
-                        if (args.PropertyName.Equals(nameof(FlowModel.IsSelected)))
+                        flow.PropertyChanged += (sender, args) =>
                         {
-                            if (sender is FlowModel model)
+                            if (args.PropertyName.Equals(nameof(FlowModel.IsSelected)))
                             {
-                                model.Enable = model.IsSelected ? null : "False";
+                                if (sender is FlowModel model)
+                                {
+                                    model.Enable = model.IsSelected ? null : "False";
+                                }
+                                RaisePropertyChanged(nameof(IsAllItemsSelected));
                             }
-                            RaisePropertyChanged(nameof(IsAllItemsSelected));
-                        }
-                    };
+                        };
+                    }
+                    RaisePropertyChanged(nameof(IsAllItemsSelected));
                 }
-                RaisePropertyChanged(nameof(IsAllItemsSelected));
-            }
+            }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
 
         }
 
@@ -221,9 +226,18 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         }
 
-        private void ExecuteStartTestCommand()
+        private async void ExecuteStartTestCommand()
         {
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                //todo 先保证生成dll
+                if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
+                {
+                    _projectBLL?.StartTestPlan(_projectInfo);
 
+                }
+
+            }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
 
         private void ExecuteEndTestCommand()
@@ -256,5 +270,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 flow.IsSelected = select;
             }
         }
+
+
     }
 }

@@ -19,27 +19,11 @@
         },
         "Testplan":{
            "type": "parameter",
-            "datatype":"choice",
+            "datatype":"string",
             "defaultValue": "Excel",
-            "choices": [
-                {
-                    "choice": "Excel",
-                    "description": "Excel"
-                },
-                {
-                    "choice": "Csv",
-                    "description": "Csv"
-                }
-            ]
+            "replaces": "Test-Plan",
+            "description":"TestPlan Type Setting"
         }
-    },
-    "Excel": {
-        "type": "computed",
-        "value": "(TestPlanType == \"Excel\")"
-    },
-    "Csv": {
-        "type": "computed",
-        "value": "(TestPlanType == \"Csv\")"
     },
     "sources": [
         {

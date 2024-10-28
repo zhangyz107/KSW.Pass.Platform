@@ -100,7 +100,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             return result;
         }
 
-
         private void GetChannelData(TestPlanModel result, int siteCount, string filePath, string sheetName)
         {
             var rows = MiniExcel.QueryRange(filePath, useHeaderRow: false, sheetName: sheetName, startCell: _channelDataStartCell)?.Cast<IDictionary<string, object>>();
@@ -238,7 +237,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             }
         }
 
-
         private async Task GetFlowData(TestPlanModel result, string filePath, string sheetName)
         {
             var rows = await MiniExcel.QueryAsync<FlowModel>(filePath, sheetName: sheetName, startCell: _flowDataStartCell);
@@ -282,6 +280,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             foreach (var testItem in testItems)
                 testItem.Levels = levels;
         }
+
         private async Task GetTimingData(TestPlanModel result, string filePath, string sheetName)
         {
             var rows = await MiniExcel.QueryAsync<TimingModel>(filePath, sheetName: sheetName, startCell: _timingDataStartCell);

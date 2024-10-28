@@ -59,5 +59,11 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// 拷贝测试计划
         /// </summary>
         Task<bool> CopyTestPlanAsync(ProjectInfoModel projectInfo = null);
+
+        /// <summary>
+        /// 开始测试计划
+        /// </summary>
+
+        void StartTestPlan(ProjectInfoModel projectInfo = null);
     }
 }

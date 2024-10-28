@@ -126,7 +126,7 @@ namespace KSW.ATE01.Application.Helpers
             try
             {
                 var commandExecute = "robocopy";
-                var commandParams = $"{sourceDir} {destinationDir} /E /XF *.atecfg /XD bin obj";
+                var commandParams = $"{sourceDir} {destinationDir} /E /XF *.atecfg /XD bin obj Release";
                 var output = await CommandLineHelper.SendCommandLine(commandExecute, commandParams);
                 result = true;
 

@@ -28,6 +28,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TestplanType>Test-Plan</TestplanType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,7 +36,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -66,18 +67,21 @@
     <Compile Include="TestItems.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(Testplan)' == 'Excel' ">
+  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(Testplan)' == 'Csv' ">
-    <None Include="packages.config" />
-    <None Include="TestPlan\Channel.csv" />
-    <None Include="TestPlan\Flow.csv" />
-    <None Include="TestPlan\Level.csv" />
-    <None Include="TestPlan\Limits.csv" />
-    <None Include="TestPlan\TestItem.csv" />
-    <None Include="TestPlan\Timing.csv" />
-  </ItemGroup>
+  <Choose>
+    <When Condition="'$(TestplanType)'=='Csv'">
+      <ItemGroup>
+        <EmbeddedResource Include="TestPlan\Channel.csv" />
+        <EmbeddedResource Include="TestPlan\Flow.csv" />
+        <EmbeddedResource Include="TestPlan\Level.csv" />
+        <EmbeddedResource Include="TestPlan\Limits.csv" />
+        <EmbeddedResource Include="TestPlan\TestItem.csv" />
+        <EmbeddedResource Include="TestPlan\Timing.csv" />
+      </ItemGroup>
+    </When>
+  </Choose>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>

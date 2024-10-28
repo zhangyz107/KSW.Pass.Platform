@@ -88,7 +88,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         #endregion
 
-        #region Command;
+        #region Command
         private DelegateCommand _openFolderCommand;
         public DelegateCommand OpenFolderCommand =>
             _openFolderCommand ?? (_openFolderCommand = new DelegateCommand(ExecuteOpenFolderCommand));
