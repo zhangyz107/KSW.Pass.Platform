@@ -189,11 +189,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private async void ExecuteLoadTestPlanCommand()
         {
-            var filePath = Path.Combine(_projectInfo.ReleasePath, _projectInfo.ProjectName + _projectInfo.TestPlanExtension);
-
             await ExecuteWithExceptionHandling(async () =>
             {
-                TestPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo.TestPlanType, filePath);
+                TestPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
                 if (TestPlan?.Flow?.IsEmpty() == false)
                 {
                     foreach (var flow in TestPlan?.Flow)

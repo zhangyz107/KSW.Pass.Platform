@@ -104,6 +104,8 @@ namespace KSW.ATE01.Application.Helpers
                      if (project != null)
                      {
                          project.Name = newProjectName;
+                         Property assemblyNameProperty = project.Properties.Item("AssemblyName");
+                         assemblyNameProperty.Value = newProjectName;
                          project.Save();
                      }
 

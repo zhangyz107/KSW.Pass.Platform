@@ -17,9 +17,9 @@ namespace KSW.ATE01.Application.Models.TestPlan
         private Guid _testItemId;
         private string _testItemName;
         private string _limitName;
-        private int _testNumber;
-        private decimal _lowLimit;
-        private decimal _highLimit;
+        private int? _testNumber;
+        private decimal? _lowLimit;
+        private decimal? _highLimit;
         private string _units;
         private int _failSoftwareBin;
         private int _passSoftwareBin;
@@ -54,7 +54,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 测试编号
         /// </summary>
-        public int TestNumber
+        public int? TestNumber
         {
             get => _testNumber;
             set => SetProperty(ref _testNumber, value);
@@ -63,7 +63,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 电压下限
         /// </summary>
-        public decimal LowLimit
+        public decimal? LowLimit
         {
             get => _lowLimit;
             set => SetProperty(ref _lowLimit, value);
@@ -72,7 +72,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 电压上限
         /// </summary>
-        public decimal HighLimit
+        public decimal? HighLimit
         {
             get => _highLimit;
             set => SetProperty(ref _highLimit, value);

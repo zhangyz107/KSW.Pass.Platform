@@ -15,7 +15,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
     {
         private string _testItemName;
         private string _functionName;
-        private decimal _force;
+        private decimal? _force;
         private string _pins;
         private string _level;
         private string _timing;
@@ -49,7 +49,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 强制值
         /// </summary>
-        public decimal Force
+        public decimal? Force
         {
             get => _force;
             set => SetProperty(ref _force, value);

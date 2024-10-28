@@ -46,11 +46,6 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         void SetCurrentProjectInfo(ProjectInfoModel projectInfo);
 
         /// <summary>
-        /// 另存为项目信息
-        /// </summary>
-        Task<bool> SaveAsProjectInfoAsync(TestPlanType testPlanType, string saveAsDir, string saveAsName);
-
-        /// <summary>
         /// 发布解决方案
         /// </summary>
         Task<bool> ReleaseSolutionAsync(ProjectInfoModel projectInfo = null, bool openReleaseDir = false);

@@ -18,7 +18,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
         private string _groupName;
         private Guid _pinId;
         private string _pinName;
-        private ChannelType _type;
+        private ChannelType? _type;
         private List<SiteModel> _sites = new List<SiteModel>();
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 通道类型
         /// </summary>
-        public ChannelType Type
+        public ChannelType? Type
         {
             get => _type;
             set => SetProperty(ref _type, value);

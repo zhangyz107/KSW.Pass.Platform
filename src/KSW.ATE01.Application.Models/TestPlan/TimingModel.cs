@@ -9,8 +9,9 @@ namespace KSW.ATE01.Application.Models.TestPlan
     public class TimingModel : DtoBase
     {
         private string _timingName;
-        private int _period;
+        private int? _period;
         private Guid _pinId;
+        private string _pinName;
         private string _pinSetup;
         private string _fmt;
         private string _driveA;
@@ -33,7 +34,7 @@ namespace KSW.ATE01.Application.Models.TestPlan
         /// <summary>
         /// 周期
         /// </summary>
-        public int Period
+        public int? Period
         {
             get => _period;
             set => SetProperty(ref _period, value);
@@ -46,6 +47,15 @@ namespace KSW.ATE01.Application.Models.TestPlan
         {
             get => _pinId;
             set => SetProperty(ref _pinId, value);
+        }
+
+        /// <summary>
+        /// 引脚名字
+        /// </summary>
+        public string PinName
+        {
+            get => _pinName;
+            set => SetProperty(ref _pinName, value);
         }
 
         /// <summary>

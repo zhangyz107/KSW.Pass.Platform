@@ -22,6 +22,8 @@ using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.BLLs.Abstractions.Managers;
+using KSW.ATE01.Application.BLLs.Implements.Managers;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
@@ -34,6 +36,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
+        private readonly IProjectTestPlanManager _projectTestPlanManager;
         private TestPlanType? _testPlanType;
         private ProjectInfoModel _currentProjectInfo;
         private string _currentProjectPath;
@@ -109,8 +112,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
-            _projectBLL = ContainerProvider.Resolve<IProjectBLL>();
-
+            _projectBLL = ContainerProvider.IsRegistered<IProjectBLL>() ? ContainerProvider.Resolve<IProjectBLL>() : null;
+            _projectTestPlanManager = ContainerProvider.IsRegistered<IProjectTestPlanManager>() ? ContainerProvider.Resolve<IProjectTestPlanManager>() : null;
             LoadData();
         }
 
@@ -176,7 +179,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-                    var result = await _projectBLL?.SaveAsProjectInfoAsync(_testPlanType.GetValueOrDefault(), _saveAsDir, _saveAsName);
+                    var result = await _projectTestPlanManager?.SaveAsProjectInfoAsync(_testPlanType.GetValueOrDefault(), _saveAsDir, _saveAsName);
 
                     if (result)
                     {

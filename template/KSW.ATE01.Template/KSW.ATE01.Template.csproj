@@ -73,12 +73,7 @@
   <Choose>
     <When Condition="'$(TestplanType)'=='Csv'">
       <ItemGroup>
-        <EmbeddedResource Include="TestPlan\Channel.csv" />
-        <EmbeddedResource Include="TestPlan\Flow.csv" />
-        <EmbeddedResource Include="TestPlan\Level.csv" />
-        <EmbeddedResource Include="TestPlan\Limits.csv" />
-        <EmbeddedResource Include="TestPlan\TestItem.csv" />
-        <EmbeddedResource Include="TestPlan\Timing.csv" />
+        <EmbeddedResource Include="TestPlan\*.csv" />
       </ItemGroup>
     </When>
   </Choose>
