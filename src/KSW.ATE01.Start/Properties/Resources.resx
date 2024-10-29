@@ -349,4 +349,8 @@
     <value>Save as {0} cannot be the same as the source path</value>
     <comment>另存为{0}不能与源路径相同</comment>
   </data>
+  <data name="SaveAsPathExist" xml:space="preserve">
+    <value>Save as file already exists</value>
+    <comment>另存为文件已存在</comment>
+  </data>
 </root>

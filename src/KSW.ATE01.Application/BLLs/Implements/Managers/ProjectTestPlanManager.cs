@@ -112,30 +112,32 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
         private void ChangeTestPlanType(TestPlanType targetType, string targetDir, string projectName)
         {
             var projectPath = Path.Combine(targetDir, projectName + _csprojExt);
-            // 加载 XML 文档
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(projectPath);
-
-            var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
-            nsmgr.AddNamespace("msbuild", "http://schemas.microsoft.com/developer/msbuild/2003");
-
-            // 查找 TestplanType 节点
-            XmlNode testplanTypeNode = xmlDoc.SelectSingleNode("/msbuild:Project/msbuild:PropertyGroup/msbuild:TestplanType", nsmgr);
-
-            if (testplanTypeNode != null)
+            try
             {
+                // 加载 XML 文档
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(projectPath);
+
+                var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                nsmgr.AddNamespace("msbuild", "http://schemas.microsoft.com/developer/msbuild/2003");
+
+                // 查找 TestplanType 节点
+                XmlNode testplanTypeNode = xmlDoc.SelectSingleNode("/msbuild:Project/msbuild:PropertyGroup/msbuild:TestplanType", nsmgr);
+                if (testplanTypeNode == null)
+                    return;
+
                 // 修改 TestplanType 的值
                 testplanTypeNode.InnerText = targetType.Description();
-                Console.WriteLine("TestplanType value updated to: " + testplanTypeNode.InnerText);
 
                 // 保存修改后的 XML 文件
                 xmlDoc.Save(projectPath);
-                Console.WriteLine("XML file saved.");
             }
-            else
+            catch (Exception)
             {
-                Console.WriteLine("TestplanType node not found.");
+
+                throw;
             }
+
         }
 
     }

@@ -466,6 +466,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Save as file already exists 的本地化字符串。
+        /// </summary>
+        internal static string SaveAsPathExist {
+            get {
+                return ResourceManager.GetString("SaveAsPathExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Save as {0} cannot be the same as the source path 的本地化字符串。
         /// </summary>
         internal static string SaveAsPathSameError {

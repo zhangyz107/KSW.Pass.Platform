@@ -162,7 +162,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private async void ExecuteOKCommand()
         {
-            try
+            await ExecuteWithExceptionHandling(async () =>
             {
                 if (_currentProjectInfo == null)
                     throw new Warning(string.Format("{0}{1}", L["SelectProject"], L["IsEmpty"]));
@@ -177,6 +177,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 if (saveAsPath.Equals(_currentProjectPath))
                     throw new Warning(string.Format(L["SaveAsPathSameError"], L["ProjectPath"]));
 
+                if (Directory.Exists(saveAsPath))
+                    throw new Warning(L["SaveAsPathExist"]);
+
+
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
                     var result = await _projectTestPlanManager?.SaveAsProjectInfoAsync(_testPlanType.GetValueOrDefault(), _saveAsDir, _saveAsName);
@@ -186,15 +190,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                         _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
                         RaiseRequestClose(new DialogResult(ButtonResult.OK));
                     }
+
                 });
                 await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
-            }
-            catch (Exception e)
-            {
-                await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
-                Log.LogError(e, e.Message);
-            }
-
+            }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
 
         private void ExecuteCancelCommand()

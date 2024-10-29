@@ -291,4 +291,7 @@
   <data name="SaveAsPathSameError" xml:space="preserve">
     <value>另存为{0}不能与源路径相同</value>
   </data>
+  <data name="SaveAsPathExist" xml:space="preserve">
+    <value>另存为文件已存在</value>
+  </data>
 </root>

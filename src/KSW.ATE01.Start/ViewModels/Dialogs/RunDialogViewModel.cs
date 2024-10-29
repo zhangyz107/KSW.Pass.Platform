@@ -216,10 +216,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private async void ExecuteSetTestItemCommand()
         {
-            var filePath = Path.Combine(_projectInfo.ReleasePath, _projectInfo.ProjectName + _projectInfo.TestPlanExtension);
             await ExecuteWithExceptionHandling(() =>
               {
-                  var result = _testPlanBLL?.SetTestPlanFlow(_testPlan, _projectInfo.TestPlanType, filePath);
+                  var result = _testPlanBLL?.SetTestPlanFlow(_testPlan, _projectInfo);
               }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
 
         }

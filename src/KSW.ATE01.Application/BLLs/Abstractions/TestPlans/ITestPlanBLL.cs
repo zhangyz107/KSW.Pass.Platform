@@ -18,7 +18,7 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         /// <summary>
         /// 设置测试计划Flow
         /// </summary>
-        bool SetTestPlanFlow(TestPlanModel testPlan, TestPlanType testPlanType, string filePath);
+        bool SetTestPlanFlow(TestPlanModel testPlan, ProjectInfoModel projectInfo);
 
         /// <summary>
         /// 另存为测试计划
