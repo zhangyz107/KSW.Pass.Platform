@@ -294,4 +294,7 @@
   <data name="SaveAsPathExist" xml:space="preserve">
     <value>Save as file already exists</value>
   </data>
+  <data name="FileDoesNotExist" xml:space="preserve">
+    <value>File does not exist</value>
+  </data>
 </root>

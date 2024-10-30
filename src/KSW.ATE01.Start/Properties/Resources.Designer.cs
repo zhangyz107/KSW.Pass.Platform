@@ -178,6 +178,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 File does not exist 的本地化字符串。
+        /// </summary>
+        internal static string FileDoesNotExist {
+            get {
+                return ResourceManager.GetString("FileDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 File Path 的本地化字符串。
         /// </summary>
         internal static string FilePath {

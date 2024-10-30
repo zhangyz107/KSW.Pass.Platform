@@ -353,4 +353,8 @@
     <value>Save as file already exists</value>
     <comment>另存为文件已存在</comment>
   </data>
+  <data name="FileDoesNotExist" xml:space="preserve">
+    <value>File does not exist</value>
+    <comment>文件不存在</comment>
+  </data>
 </root>

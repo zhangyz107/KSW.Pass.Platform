@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!--  This is the file that defines the actual layout and type of the commands.
+        It is divided in different sections (e.g. command definition, command
+        placement, ...), with each defining a specific set of properties.
+        See the comment before each section for more details about how to
+        use it. -->
+
+	<!--  The VSCT compiler (the tool that translates this file into the binary
+        format that VisualStudio will consume) has the ability to run a preprocessor
+        on the vsct file; this preprocessor is (usually) the C++ preprocessor, so
+        it is possible to define includes and macros with the same syntax used
+        in C++ files. Using this ability of the compiler here, we include some files
+        defining some of the constants that we will use inside the file. -->
+
+	<!--This is the file that defines the IDs for all the commands exposed by VisualStudio. -->
+	<Extern href="stdidcmd.h"/>
+
+	<!--This header contains the command ids for the menus provided by the shell. -->
+	<Extern href="vsshlids.h"/>
+
+	<!--The Commands section is where commands, menus, and menu groups are defined.
+      This section uses a Guid to identify the package that provides the command defined inside it. -->
+	<Commands package="guidATE01Package">
+		<!-- Inside this section we have different sub-sections: one for the menus, another
+    for the menu groups, one for the buttons (the actual commands), one for the combos
+    and the last one for the bitmaps used. Each element is identified by a command id that
+    is a unique pair of guid and numeric identifier; the guid part of the identifier is usually
+    called "command set" and is used to group different command inside a logically related
+    group; your package should define its own command set in order to avoid collisions
+    with command ids defined by other packages. -->
+
+		<Menus>
+			<Menu guid="guidATE01MenuSet" id="GroupIDATE01MenuBaseGroup" priority="0x0700" type="Menu">
+				<Parent guid="guidSHLMainMenu" id="IDG_VS_MM_TOOLSADDINS"/>
+				<Strings>
+					<ButtonText>ATE01</ButtonText>
+					<CommandName>ATE01</CommandName>
+				</Strings>
+			</Menu>
+		</Menus>
+
+		<!-- In this section you can define new menu groups. A menu group is a container for
+         other menus or buttons (commands); from a visual point of view you can see the
+         group as the part of a menu contained between two lines. The parent of a group
+         must be a menu. -->
+		<Groups>
+			<Group guid="guidATE01MenuSet" id="GroupIDATE01MenuMetaGroup" priority="0x0100">
+				<Parent guid="guidATE01MenuSet" id="GroupIDATE01MenuBaseGroup"/>
+			</Group>
+		</Groups>
+
+
+		<!--Buttons section. -->
+		<!--This section defines the elements the user can interact with, like a menu command or a button
+        or combo box in a toolbar. -->
+		<Buttons>
+			<!--To define a menu group you have to specify its ID, the parent menu and its display priority.
+          The command is visible and enabled by default. If you need to change the visibility, status, etc, you can use
+          the CommandFlag node.
+          You can add more than one CommandFlag node e.g.:
+              <CommandFlag>DefaultInvisible</CommandFlag>
+              <CommandFlag>DynamicVisibility</CommandFlag>
+          If you do not want an image next to your command, remove the Icon node /> -->
+			<Button guid="guidATE01MenuSet" id="TestPlanId" priority="0x0100" type="Button">
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<Strings>
+					<ButtonText>Test Plan</ButtonText>
+				</Strings>
+			</Button>
+
+			<Button guid="guidATE01MenuSet" id="PpmuDteId" priority="0x0110" type="Button">
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<Strings>
+					<ButtonText>PPMU DTE</ButtonText>
+				</Strings>
+			</Button>
+
+			<Button guid="guidATE01MenuSet" id="DigitalDteId" priority="0x0120" type="Button">
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<Strings>
+					<ButtonText>Digital DTE</ButtonText>
+				</Strings>
+			</Button>
+
+			<Button guid="guidATE01MenuSet" id="DpsDteId" priority="0x0130" type="Button">
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<Strings>
+					<ButtonText>DPS DTE</ButtonText>
+				</Strings>
+			</Button>
+
+			<Button guid="guidATE01MenuSet" id="UdbDteId" priority="0x0140" type="Button">
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<Strings>
+					<ButtonText>UDB DTE</ButtonText>
+				</Strings>
+			</Button>
+		</Buttons>
+
+		<!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
+		<Bitmaps>
+			<!--  The bitmap id is defined in a way that is a little bit different from the others:
+            the declaration starts with a guid for the bitmap strip, then there is the resource id of the
+            bitmap strip containing the bitmaps and then there are the numeric ids of the elements used
+            inside a button definition. An important aspect of this declaration is that the element id
+            must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
+			<Bitmap guid="guidImages" href="Resources\ATE01.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+		</Bitmaps>
+	</Commands>
+
+	<CommandPlacements>
+		<CommandPlacement guid="guidATE01MenuSet" id="TestPlanId" priority="0x0200">
+			<Parent guid="guidATE01MenuSet" id="GroupIDATE01MenuMetaGroup" />
+		</CommandPlacement>
+
+		<CommandPlacement guid="guidATE01MenuSet" id="PpmuDteId" priority="0x0300">
+			<Parent guid="guidATE01MenuSet" id="GroupIDATE01MenuMetaGroup" />
+		</CommandPlacement>
+
+		<CommandPlacement guid="guidATE01MenuSet" id="DigitalDteId" priority="0x0400">
+			<Parent guid="guidATE01MenuSet" id="GroupIDATE01MenuMetaGroup" />
+		</CommandPlacement>
+
+		<CommandPlacement guid="guidATE01MenuSet" id="DpsDteId" priority="0x0500">
+			<Parent guid="guidATE01MenuSet" id="GroupIDATE01MenuMetaGroup" />
+		</CommandPlacement>
+
+		<CommandPlacement guid="guidATE01MenuSet" id="UdbDteId" priority="0x0600">
+			<Parent guid="guidATE01MenuSet" id="GroupIDATE01MenuMetaGroup" />
+		</CommandPlacement>
+	</CommandPlacements>
+
+	<Symbols>
+		<!-- This is the package guid. -->
+		<GuidSymbol name="guidATE01Package" value="{8bf623b2-f831-4f3d-a729-88f0716f8954}" />
+
+		<!-- This is the guid used to group the menu commands together -->
+		<GuidSymbol name="guidATE01MenuSet" value="{75503bc2-7ed6-4788-b072-83af7f587d68}">
+			<IDSymbol name="GroupIDATE01MenuBaseGroup" value="0x1020" />
+
+			<IDSymbol name="GroupIDATE01MenuMetaGroup" value="0x1024" />
+			
+			<IDSymbol name="TestPlanId" value="0x2000" />
+			<IDSymbol name="PpmuDteId" value="0x2100" />
+			<IDSymbol name="DigitalDteId" value="0x2200" />
+			<IDSymbol name="DpsDteId" value="0x2300" />
+			<IDSymbol name="UdbDteId" value="0x2400" />
+		</GuidSymbol>
+
+		<GuidSymbol name="guidImages" value="{5c212953-cad0-4592-8bcc-ba061c5e2b08}" >
+			<IDSymbol name="bmpPic1" value="1" />
+			<IDSymbol name="bmpPic2" value="2" />
+			<IDSymbol name="bmpPicSearch" value="3" />
+			<IDSymbol name="bmpPicX" value="4" />
+			<IDSymbol name="bmpPicArrows" value="5" />
+			<IDSymbol name="bmpPicStrikethrough" value="6" />
+		</GuidSymbol>
+	</Symbols>
+</CommandTable>

@@ -17,18 +17,12 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlan;
 using KSW.ATE01.Domain.Projects.Core.Enums;
-using KSW.ATE01.Domain.Projects.Entities;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.Exceptions;
 using MiniExcelLibs;
-using NPOI.HSSF.UserModel;
-using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
@@ -94,7 +88,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             try
             {
                 if (!File.Exists(filePath))
-                    throw new Warning("测试计划文件不存在");
+                    throw new Warning(L["FileDoesNotExist"]);
 
                 var sheetNames = MiniExcel.GetSheetNames(filePath);
                 if (sheetNames.IsEmpty())
@@ -348,11 +342,11 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             try
             {
                 if (!Directory.Exists(testPlanDir))
-                    throw new Warning("测试计划文件不存在");
+                    throw new Warning(L["FileDoesNotExist"]);
 
                 var csvFiles = Directory.GetFiles(testPlanDir, "*.csv");
                 if (csvFiles?.IsEmpty() == true)
-                    throw new Warning("测试计划文件不存在");
+                    throw new Warning(L["FileDoesNotExist"]);
 
                 var orderFiles = GetReorderCsvFiles(csvFiles);
 
@@ -864,7 +858,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                     filePath = Path.Combine(projectInfo.ProjectPath, testPlanDirName, _flowSheetName + projectInfo.TestPlanExtension);
 
                 if (!File.Exists(filePath))
-                    throw new Warning("文件不存在");
+                    throw new Warning(L["FileDoesNotExist"]);
 
                 switch (projectInfo.TestPlanType)
                 {

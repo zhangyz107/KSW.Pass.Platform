@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f5a26e40-66ee-4aea-b779-ae8507d45316</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>KSW.ATE01.Extension.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\TestPlanType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\OutputWindowHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ATE01SettingsProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\Projects\ProjectHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\SettingsContextHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\SettingsMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\SolutionHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\UIHierarchyHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\XmlHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\Commands\BaseCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ATE01Package.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\Commands\DigitalDteCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\Commands\DpsDteCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\Commands\PpmuDteCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\Commands\TestPlanCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\Commands\UdbDteCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\Events\BaseEventListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\Events\SolutionEventListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integration\ISwitchableFeature.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ProjectInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\Resources.Designer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\Settings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Properties\Settings.settings" />
+  </ItemGroup>
+</Project>
