@@ -64,6 +64,7 @@
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
 			<Button guid="guidATE01MenuSet" id="TestPlanId" priority="0x0100" type="Button">
+				<Icon guid="GuidImageTestPlan" id="IconTestPlan"></Icon>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<Strings>
@@ -111,7 +112,7 @@
             bitmap strip containing the bitmaps and then there are the numeric ids of the elements used
             inside a button definition. An important aspect of this declaration is that the element id
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
-			<Bitmap guid="guidImages" href="Resources\ATE01.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+			<Bitmap guid="GuidImageTestPlan" href="Resources\TestPlan.png" usedList="IconTestPlan"></Bitmap>
 		</Bitmaps>
 	</Commands>
 
@@ -154,13 +155,8 @@
 			<IDSymbol name="UdbDteId" value="0x2400" />
 		</GuidSymbol>
 
-		<GuidSymbol name="guidImages" value="{5c212953-cad0-4592-8bcc-ba061c5e2b08}" >
-			<IDSymbol name="bmpPic1" value="1" />
-			<IDSymbol name="bmpPic2" value="2" />
-			<IDSymbol name="bmpPicSearch" value="3" />
-			<IDSymbol name="bmpPicX" value="4" />
-			<IDSymbol name="bmpPicArrows" value="5" />
-			<IDSymbol name="bmpPicStrikethrough" value="6" />
+		<GuidSymbol name="GuidImageTestPlan" value="{9D420295-64CF-4850-A84C-2C1A638255A2}">
+			<IDSymbol name="IconTestPlan" value="1" />
 		</GuidSymbol>
 	</Symbols>
 </CommandTable>

@@ -1,4 +1,6 @@
 ﻿using KSW.ATE01.Extension.VS2022;
+using KSW.ATE01.Extension.VS2022.UI.ViewModels;
+using KSW.ATE01.Extension.VS2022.UI.Views;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +13,11 @@ namespace KSW.ATE01.Extension.Shared.Integration.Commands
     /// </summary>
     internal sealed class DigitalDteCommand : BaseCommand
     {
+        private DigitalView _digital;
+        private bool _isShow = false;
+        private static readonly object lockObject = new object();
+
+
         public DigitalDteCommand(ATE01Package package) : base(package, ATE01Guids.GuidATE01MenuSet, ATE01Ids.DigitalDteId)
         {
 
@@ -35,6 +42,27 @@ namespace KSW.ATE01.Extension.Shared.Integration.Commands
         protected override void OnExecute()
         {
             base.OnExecute();
+
+            if (_digital == null || !_isShow)
+            {
+                lock (lockObject)
+                {
+                    _isShow = true;
+                }
+                _digital = new DigitalView(new DigitalViewModel());
+                _digital.Closing += Digital_Closing;
+                _digital.Show();
+            }
+            else
+                _digital.Activate();
+        }
+
+        private void Digital_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            lock (lockObject)
+            {
+                _isShow = false;
+            }
         }
 
         protected override void OnBeforeQueryStatus()
