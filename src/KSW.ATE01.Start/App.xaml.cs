@@ -6,10 +6,14 @@ using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Infrastructure;
 using KSW.Localization;
+using MaterialDesignColors;
+using MaterialDesignColors.ColorManipulation;
+using MaterialDesignThemes.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Configuration;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace KSW.ATE01.Platform
@@ -22,7 +26,6 @@ namespace KSW.ATE01.Platform
         protected override void OnStartup(StartupEventArgs e)
         {
             Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
-
             base.OnStartup(e);
         }
 
@@ -50,7 +53,7 @@ namespace KSW.ATE01.Platform
 
             // 初始化日志配置
             InitLogConfig();
-            
+
             // 初始化多语言配置
             InitLanguageConfig(containerRegistry);
 

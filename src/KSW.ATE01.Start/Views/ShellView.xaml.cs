@@ -1,4 +1,5 @@
-﻿using KSW.Ui;
+﻿using KSW.ATE01.Application.Events.Projects;
+using KSW.Ui;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,9 +18,19 @@ namespace KSW.ATE01.Start.Views
     /// </summary>
     public partial class ShellView : IView
     {
-        public ShellView()
+        public ShellView(IEventAggregator eventAggregator)
         {
             InitializeComponent();
+
+            eventAggregator.GetEvent<ShellRevealControlEvent>().Subscribe(RevealControl, ThreadOption.UIThread);
+        }
+
+        private void RevealControl(bool isVisible)
+        {
+            if (isVisible)
+                this.Show();
+            else
+                this.Hide();
         }
     }
 }

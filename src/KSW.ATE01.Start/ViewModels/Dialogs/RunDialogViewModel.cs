@@ -253,7 +253,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             RaiseRequestClose(new DialogResult(ButtonResult.Cancel));
         }
 
-
         private void SelectAll(bool select)
         {
             if (_testPlan == null)
@@ -267,7 +266,5 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 flow.IsSelected = select;
             }
         }
-
-
     }
 }

@@ -12,6 +12,7 @@
 //------------------------------------------------------------*/
 using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
@@ -34,6 +35,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
     public class ProjectBLL : ServiceBase, IProjectBLL
     {
         private readonly IDialogService _dialogService;
+        private readonly IEventAggregator _eventAggregator;
         private ProjectInfoModel _currentProjectInfo;
         private readonly string _logDirName = "Log";
         private readonly string _releaseDirName = "Release";
@@ -42,9 +44,11 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
         public ProjectBLL(
             IContainerProvider containerProvider,
-            IDialogService dialogService) : base(containerProvider)
+            IDialogService dialogService,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
             _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
         }
 
         public async Task<bool> CreateProjectAsync(ProjectInfoModel projectInfo)
@@ -100,8 +104,19 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 if (!File.Exists(solutionPath))
                     throw new Warning(string.Format("{0}{1}", L["NotFound"], L["ProjectFile"]));
 
-                Process.Start(executablePath, solutionPath);
+                var process = new Process();
+                process.StartInfo.FileName = executablePath;
+                process.StartInfo.Arguments = solutionPath;
+                process.Start();
 
+                _eventAggregator.GetEvent<ShellRevealControlEvent>().Publish(false);
+
+                // 监视进程退出
+                process.EnableRaisingEvents = true;
+                process.Exited += (sender, e) =>
+                {
+                    _eventAggregator.GetEvent<ShellRevealControlEvent>().Publish(true);
+                };
             }
             catch (Exception)
             {

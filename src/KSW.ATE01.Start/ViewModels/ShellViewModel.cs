@@ -12,9 +12,15 @@
 //------------------------------------------------------------*/
 
 
+using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Start.Views;
 using KSW.Ui;
+using MaterialDesignColors;
+using MaterialDesignColors.ColorManipulation;
+using MaterialDesignColors.Recommended;
+using MaterialDesignThemes.Wpf;
 using System.Globalization;
+using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels
 {
@@ -25,6 +31,8 @@ namespace KSW.ATE01.Start.ViewModels
     {
         private readonly IContainerExtension _containerProvider;
         private readonly IDialogService _dialogService;
+        private readonly PaletteHelper _paletteHelper = new();
+
         private ProjectView _projectView;
         private HelpView _helpView;
 
@@ -75,14 +83,19 @@ namespace KSW.ATE01.Start.ViewModels
 
         public ShellViewModel(
             IContainerExtension containerProvider,
-            IDialogService dialogService) : base(containerProvider)
+            IDialogService dialogService
+            ) : base(containerProvider)
         {
             _containerProvider = containerProvider;
             _dialogService = dialogService;
+
+            Theme theme = _paletteHelper.GetTheme();
         }
 
         private void ExecuteLoadingCommand()
         {
+            ChangePrimaryColor(BlueSwatch.Blue300);
+
             var currentCulture = CultureInfo.CurrentCulture;
             Language = currentCulture.Name;
 
@@ -95,6 +108,17 @@ namespace KSW.ATE01.Start.ViewModels
         {
             CultureInfo culture = new CultureInfo(value);
             LanguageManager.Instance.ChangeLanguage(culture);
+        }
+
+        private void ChangePrimaryColor(Color color)
+        {
+            Theme theme = _paletteHelper.GetTheme();
+
+            theme.PrimaryLight = new ColorPair(color.Lighten());
+            theme.PrimaryMid = new ColorPair(color);
+            theme.PrimaryDark = new ColorPair(color.Darken());
+            theme.SetPrimaryColor(color);
+            _paletteHelper.SetTheme(theme);
         }
     }
 }

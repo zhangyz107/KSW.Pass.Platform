@@ -3,15 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:KSW.ATE01.Platform"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:prism="http://prismlibrary.com/">
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <materialDesign:BundledTheme BaseTheme="Inherit" PrimaryColor="Blue" SecondaryColor="Blue" ColorAdjustment="{materialDesign:ColorAdjustment}"/>
+                <materialDesign:BundledTheme BaseTheme="Inherit" PrimaryColor="Blue" SecondaryColor="Blue" ColorAdjustment="{materialDesign:ColorAdjustment}" />
 
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ProgressBar.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ObsoleteBrushes.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <!--<SolidColorBrush x:Key="MaterialDesign.Brush.Primary" Color="#FF6E6E6E" po:Freeze="True" />
+            <SolidColorBrush x:Key="MaterialDesign.Brush.Primary.Dark" Color="#FF8D8D8D" po:Freeze="True" />
+            <SolidColorBrush x:Key="MaterialDesign.Brush.Primary.Dark.Foreground" Color="#FFE0E0E0" po:Freeze="True" />
+            <SolidColorBrush x:Key="MaterialDesign.Brush.Primary.Light" Color="#FFEFEFEF" po:Freeze="True" />
+            <SolidColorBrush x:Key="MaterialDesign.Brush.Primary.Light.Foreground" Color="#FFE0E0E0" po:Freeze="True" />
+            <SolidColorBrush x:Key="MaterialDesign.Brush.Primary.Mid" Color="#FFBDBDBD" po:Freeze="True" />
+            <SolidColorBrush x:Key="MaterialDesign.Brush.Primary.Mid.Foreground" Color="#FFE0E0E0" po:Freeze="True" />-->
         </ResourceDictionary>
     </Application.Resources>
 </prism:PrismApplication>
