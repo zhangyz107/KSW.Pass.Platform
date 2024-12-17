@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "KSW.ATE01.Start": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    }
+  }
+}
