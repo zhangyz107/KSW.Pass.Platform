@@ -21,6 +21,7 @@ using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
 using Prism.Dialogs;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 
@@ -61,12 +62,31 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             {
                 if (value.HasValue)
                 {
-                    SelectAll(value.Value);
+                    SelectAllItems(value.Value);
                     RaisePropertyChanged();
                 }
             }
         }
 
+        public bool? IsAllSitesSelected
+        {
+            get
+            {
+                bool? result = false;
+                var selected = _testPlan?.SiteHeaders?.Select(item => item.IsSelected)?.Distinct()?.ToList();
+                if (selected != null)
+                    result = selected.Count == 1 ? selected.Single() : (bool?)null;
+                return result;
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    SelectAllSites(value.Value);
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// 已执行循环
@@ -92,7 +112,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             get => _testPlan;
             set => SetProperty(ref _testPlan, value);
         }
-
         #endregion
 
         #region Command
@@ -210,6 +229,21 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                     }
                     RaisePropertyChanged(nameof(IsAllItemsSelected));
                 }
+
+                if (TestPlan?.SiteHeaders?.IsEmpty() == false)
+                {
+                    foreach (var siteHeader in TestPlan?.SiteHeaders)
+                    {
+                        siteHeader.PropertyChanged += (sender, args) =>
+                        {
+                            if (args.PropertyName.Equals(nameof(SiteHeaderModel.IsSelected)))
+                            {
+                                RaisePropertyChanged(nameof(IsAllSitesSelected));
+                            }
+                        };
+                    }
+                    RaisePropertyChanged(nameof(IsAllSitesSelected));
+                }
             }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
 
         }
@@ -253,7 +287,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             RaiseRequestClose(new DialogResult(ButtonResult.Cancel));
         }
 
-        private void SelectAll(bool select)
+        private void SelectAllItems(bool select)
         {
             if (_testPlan == null)
                 return;
@@ -262,6 +296,20 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 return;
 
             foreach (var flow in _testPlan.Flow)
+            {
+                flow.IsSelected = select;
+            }
+        }
+
+        private void SelectAllSites(bool select)
+        {
+            if (_testPlan == null)
+                return;
+
+            if (_testPlan.SiteHeaders.IsEmpty())
+                return;
+
+            foreach (var flow in _testPlan.SiteHeaders)
             {
                 flow.IsSelected = select;
             }

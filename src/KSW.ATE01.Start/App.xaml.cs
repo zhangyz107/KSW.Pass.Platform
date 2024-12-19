@@ -90,6 +90,8 @@ namespace KSW.ATE01.Platform
             containerRegistry.RegisterDialog<SaveAsDialog, SaveAsDialogViewModel>();
             containerRegistry.RegisterDialog<ReleaseDialog, ReleaseDialogViewModel>();
             containerRegistry.RegisterDialog<RunDialog, RunDialogViewModel>();
+            containerRegistry.RegisterDialog<RealTimeTxtDialog, RealTimeTxtDialogViewModel>();
+            containerRegistry.RegisterDialog<FindDialog, FindDialogViewModel>();
         }
 
         private void InitLogConfig()

@@ -15,6 +15,8 @@ namespace KSW.Localization
     public abstract class LanguageMarkupExtension : MarkupExtension
     {
         private string _name;
+        public IValueConverter Converter { get; set; }
+        public object ConverterParameter { get; set; }
 
         public LanguageMarkupExtension(string name)
         {
@@ -27,7 +29,9 @@ namespace KSW.Localization
             var binding = new Binding
             {
                 Path = new PropertyPath($"[{_name}]"),
-                Source = LanguageSource
+                Source = LanguageSource,
+                Converter = Converter,
+                ConverterParameter = ConverterParameter
             };
 
             // 解析当前的提供者

@@ -20,6 +20,7 @@ using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.Exceptions;
 using MiniExcelLibs;
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Configuration;
@@ -104,7 +105,27 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                         {
                             case TestPlanSheetType.Channel:
                                 var siteCount = Convert.ToInt32(rows[1].B);
-                                GetChannelData(result, siteCount, filePath, sheetName);
+                                var siteHeaders = new List<SiteHeaderModel>();
+                                if (siteCount > 0)
+                                {
+                                    var row = rows[2];
+                                    var currentIndex = 0;
+                                    foreach (var item in row)
+                                    {
+                                        if (currentIndex >= 3 && item.Value != null)
+                                        {
+                                            var tempSiteHeader = new SiteHeaderModel()
+                                            {
+                                                Id = Guid.NewGuid().ToString(),
+                                                SiteHeaderName = item.Value,
+                                            };
+                                            siteHeaders.Add(tempSiteHeader);
+                                        }
+                                        currentIndex++;
+                                    }
+                                    result.SiteHeaders = siteHeaders;
+                                }
+                                GetChannelData(result, siteHeaders, filePath, sheetName);
                                 break;
                             case TestPlanSheetType.TestItem:
                                 GetTestItemData(result, filePath, sheetName);
@@ -136,7 +157,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             }
         }
 
-        private void GetChannelData(TestPlanModel result, int siteCount, string filePath, string sheetName)
+        private void GetChannelData(TestPlanModel result, List<SiteHeaderModel> siteHeaders, string filePath, string sheetName)
         {
             var rows = MiniExcel.QueryRange(filePath, useHeaderRow: false, sheetName: sheetName, startCell: _channelDataStartCell)?.Cast<IDictionary<string, object>>();
             if (!rows.Any())
@@ -164,8 +185,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                 if (row.ContainsKey("C") && row["C"] != null && channelTypeDic.Keys.Contains(row["C"]?.ToString()))
                     tempChannel.Type = channelTypeDic[row["C"]?.ToString()];
 
-                if (siteCount > 0)
-                    GetSites(siteCount, row, tempChannel);
+                if (siteHeaders.Count > 0)
+                    GetSites(siteHeaders, row, tempChannel);
                 channels.Add(tempChannel);
             }
             result.Channel = channels;
@@ -183,15 +204,21 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             return result;
         }
 
-        private void GetSites(int siteCount, IDictionary<string, object> row, ChannelModel tempChannel)
+        private void GetSites(List<SiteHeaderModel> siteHeaders, IDictionary<string, object> row, ChannelModel tempChannel)
         {
             var col = 'D';
             var siteList = new List<SiteModel>();
-            for (int i = 0; i < siteCount; i++)
+            foreach (var siteHeader in siteHeaders)
             {
+                var i = siteHeaders.IndexOf(siteHeader);
                 var currentCol = ((char)(col + i)).ToString();
                 if (row.ContainsKey(currentCol))
-                    siteList.Add(new SiteModel() { SiteName = row[currentCol]?.ToString() });
+                    siteList.Add(
+                        new SiteModel()
+                        {
+                            SiteHeaderId = siteHeader.Id.ToGuid(),
+                            SiteName = row[currentCol]?.ToString()
+                        });
             }
             tempChannel.Sites = siteList;
         }
@@ -366,9 +393,27 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                                         row = reader.ReadLine();
                                         var cols = row.Split(",");
                                         var siteCount = cols[1].IsEmpty() ? 0 : Convert.ToInt32(cols[1]);
-                                        if (!reader.EndOfStream)
-                                            reader.ReadLine();
-                                        GetChannelData(result, siteCount, reader);
+                                        var siteHeaders = new List<SiteHeaderModel>();
+                                        if (siteCount > 0)
+                                        {
+                                            row = reader.ReadLine();
+                                            cols = row.Split(",");
+                                            for (int i = 0; i < siteCount; i++)
+                                            {
+                                                var siteHeader = cols.Length > 3 + i ? cols[3 + i]?.ToString() : string.Empty;
+                                                if (!siteHeader.IsEmpty())
+                                                {
+                                                    var tempSiteHeader = new SiteHeaderModel()
+                                                    {
+                                                        Id = Guid.NewGuid().ToString(),
+                                                        SiteHeaderName = siteHeader,
+                                                    };
+                                                    siteHeaders.Add(tempSiteHeader);
+                                                }
+                                            }
+                                            result.SiteHeaders = siteHeaders;
+                                        }
+                                        GetChannelData(result, siteHeaders, reader);
                                     }
                                     break;
                                 case TestPlanSheetType.TestItem:
@@ -441,7 +486,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         }
 
-        private void GetChannelData(TestPlanModel result, int siteCount, StreamReader reader)
+        private void GetChannelData(TestPlanModel result, List<SiteHeaderModel> siteHeaders, StreamReader reader)
         {
             var channels = new List<ChannelModel>();
             var channelTypeDic = GetEnumDescriptionDic<ChannelType>();
@@ -476,8 +521,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                         tempChannel.Type = channelTypeDic[cols[colIndex]];
                     colIndex++;
 
-                    if (cols.Length > 2 + siteCount && siteCount > 0)
-                        GetSites(siteCount, colIndex, cols, tempChannel);
+                    if (cols.Length >= 3 + siteHeaders.Count && siteHeaders.Count > 0)
+                        GetSites(siteHeaders, colIndex, cols, tempChannel);
                     channels.Add(tempChannel);
                 }
 
@@ -491,13 +536,19 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         }
 
-        private void GetSites(int siteCount, int startColIndex, string[]? cols, ChannelModel tempChannel)
+        private void GetSites(List<SiteHeaderModel> siteHeaders, int startColIndex, string[]? cols, ChannelModel tempChannel)
         {
             var siteList = new List<SiteModel>();
-            for (int i = 0; i < siteCount; i++)
+            foreach (var siteHeader in siteHeaders)
             {
+                var i = siteHeaders.IndexOf(siteHeader);
                 if (!cols[startColIndex + i].IsEmpty())
-                    siteList.Add(new SiteModel() { SiteName = cols[startColIndex + i] });
+                    siteList.Add(
+                        new SiteModel()
+                        {
+                            SiteHeaderId = siteHeader.Id.ToGuid(),
+                            SiteName = cols[startColIndex + i]
+                        });
             }
             tempChannel.Sites = siteList;
         }
@@ -1422,7 +1473,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                     #endregion
 
                     #region 通道头
-                    var siteCount = testPlan.Channel.Max(x => x.Sites.Count);
+                    var siteCount = testPlan.SiteHeaders.Count;
                     writer.WriteLine(string.Join(",", "SiteCount", siteCount));
 
                     var channelHeader = new List<string>

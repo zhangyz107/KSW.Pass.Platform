@@ -17,6 +17,7 @@ using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Extensions.Logging;
+using Prism.Dialogs;
 using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels
@@ -28,7 +29,6 @@ namespace KSW.ATE01.Start.ViewModels
     {
         #region Fields
         private readonly IContainerExtension _containerProvider;
-        private readonly IDialogService _dialogService;
         private readonly IProjectBLL _projectBLL;
         private ProjectDetailView _projectDetailView;
         #endregion
@@ -74,11 +74,9 @@ namespace KSW.ATE01.Start.ViewModels
         /// 构造函数
         /// </summary>
         public ProjectViewModel(
-            IContainerExtension containerProvider,
-            IDialogService dialogService) : base(containerProvider)
+            IContainerExtension containerProvider) : base(containerProvider)
         {
             _containerProvider = containerProvider;
-            _dialogService = dialogService;
             _projectBLL = containerProvider.Resolve<IProjectBLL>() ?? throw new ArgumentNullException(nameof(IProjectBLL));
             #region 加载页面
             _projectDetailView = _containerProvider.Resolve<ProjectDetailView>();
@@ -88,16 +86,16 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ExecuteNewProjectCommand()
         {
-            _dialogService.ShowDialog(nameof(NewProjectDialog));
+            DialogService.ShowDialog(nameof(NewProjectDialog));
         }
 
         private void ExecuteOpenProjectCommand()
         {
-            _dialogService.ShowDialog(nameof(OpenProjectDialog));
+            DialogService.ShowDialog(nameof(OpenProjectDialog));
         }
         private void ExecuteSaveAsCommand()
         {
-            _dialogService.ShowDialog(nameof(SaveAsDialog));
+            DialogService.ShowDialog(nameof(SaveAsDialog));
         }
 
         private void ExecuteDelelopCommand()
@@ -108,7 +106,7 @@ namespace KSW.ATE01.Start.ViewModels
             }
             catch (Exception e)
             {
-                _dialogService.ShowMessageDialog(e.Message);
+                DialogService.ShowMessageDialog(e.Message);
                 Log?.LogError(e, e.Message);
             }
         }
@@ -120,13 +118,13 @@ namespace KSW.ATE01.Start.ViewModels
                 await DialogService.ShowMessageDialog("未打开项目!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 return;
             }
-
-            _dialogService.ShowDialog(nameof(RunDialog));
+            DialogService.Show(nameof(RealTimeTxtDialog));
+            DialogService.Show(nameof(RunDialog));
         }
 
         private void ExecuteReleaseCommand()
         {
-            _dialogService.ShowDialog(nameof(ReleaseDialog));
+            DialogService.ShowDialog(nameof(ReleaseDialog));
         }
     }
 }

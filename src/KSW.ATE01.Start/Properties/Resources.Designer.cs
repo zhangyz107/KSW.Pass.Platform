@@ -61,6 +61,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Always on top 的本地化字符串。
+        /// </summary>
+        internal static string Always_on_top {
+            get {
+                return ResourceManager.GetString("Always on top", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Bookmarks 的本地化字符串。
+        /// </summary>
+        internal static string Bookmarks {
+            get {
+                return ResourceManager.GetString("Bookmarks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Browse 的本地化字符串。
         /// </summary>
         internal static string Browse {
@@ -88,11 +106,47 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Clear All 的本地化字符串。
+        /// </summary>
+        internal static string ClearAll {
+            get {
+                return ResourceManager.GetString("ClearAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Close 的本地化字符串。
+        /// </summary>
+        internal static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Configuration 的本地化字符串。
         /// </summary>
         internal static string Configuration {
             get {
                 return ResourceManager.GetString("Configuration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Copy 的本地化字符串。
+        /// </summary>
+        internal static string Copy {
+            get {
+                return ResourceManager.GetString("Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Copy as path 的本地化字符串。
+        /// </summary>
+        internal static string Copyaspath {
+            get {
+                return ResourceManager.GetString("Copyaspath", resourceCulture);
             }
         }
         
@@ -142,6 +196,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Edit 的本地化字符串。
+        /// </summary>
+        internal static string Edit {
+            get {
+                return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 End Test 的本地化字符串。
         /// </summary>
         internal static string EndTest {
@@ -160,11 +223,29 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Exit 的本地化字符串。
+        /// </summary>
+        internal static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Fail Count 的本地化字符串。
         /// </summary>
         internal static string FailCount {
             get {
                 return ResourceManager.GetString("FailCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 File 的本地化字符串。
+        /// </summary>
+        internal static string File {
+            get {
+                return ResourceManager.GetString("File", resourceCulture);
             }
         }
         
@@ -192,6 +273,42 @@ namespace KSW.ATE01.Start.Properties {
         internal static string FilePath {
             get {
                 return ResourceManager.GetString("FilePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Find 的本地化字符串。
+        /// </summary>
+        internal static string Find {
+            get {
+                return ResourceManager.GetString("Find", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Find Target 的本地化字符串。
+        /// </summary>
+        internal static string FindTarget {
+            get {
+                return ResourceManager.GetString("FindTarget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Goto Next Highlight 的本地化字符串。
+        /// </summary>
+        internal static string GotoNextHighlight {
+            get {
+                return ResourceManager.GetString("GotoNextHighlight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Goto Previous Highlight 的本地化字符串。
+        /// </summary>
+        internal static string GotoPreviousHighlight {
+            get {
+                return ResourceManager.GetString("GotoPreviousHighlight", resourceCulture);
             }
         }
         
@@ -259,6 +376,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Loop Search 的本地化字符串。
+        /// </summary>
+        internal static string LoopSearch {
+            get {
+                return ResourceManager.GetString("LoopSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Loops Executed 的本地化字符串。
         /// </summary>
         internal static string LoopsExecuted {
@@ -304,6 +430,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Open File 的本地化字符串。
+        /// </summary>
+        internal static string Open_File {
+            get {
+                return ResourceManager.GetString("Open File", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Open Containing Folder 的本地化字符串。
+        /// </summary>
+        internal static string OpenContainingFolder {
+            get {
+                return ResourceManager.GetString("OpenContainingFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Open Project 的本地化字符串。
         /// </summary>
         internal static string OpenProject {
@@ -327,6 +471,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string Option {
             get {
                 return ResourceManager.GetString("Option", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pause Window 的本地化字符串。
+        /// </summary>
+        internal static string PauseWindow {
+            get {
+                return ResourceManager.GetString("PauseWindow", resourceCulture);
             }
         }
         
@@ -430,11 +583,29 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 RealTimeTxt 的本地化字符串。
+        /// </summary>
+        internal static string RealTimeTxt {
+            get {
+                return ResourceManager.GetString("RealTimeTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Release 的本地化字符串。
         /// </summary>
         internal static string Release {
             get {
                 return ResourceManager.GetString("Release", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Reopen File 的本地化字符串。
+        /// </summary>
+        internal static string ReopenFile {
+            get {
+                return ResourceManager.GetString("ReopenFile", resourceCulture);
             }
         }
         
@@ -493,6 +664,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Search Down 的本地化字符串。
+        /// </summary>
+        internal static string SearchDown {
+            get {
+                return ResourceManager.GetString("SearchDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Search Up 的本地化字符串。
+        /// </summary>
+        internal static string SearchUp {
+            get {
+                return ResourceManager.GetString("SearchUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Select Folder 的本地化字符串。
         /// </summary>
         internal static string SelectFolder {
@@ -516,6 +705,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string SetTestItem {
             get {
                 return ResourceManager.GetString("SetTestItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Site 的本地化字符串。
+        /// </summary>
+        internal static string Site {
+            get {
+                return ResourceManager.GetString("Site", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Site Information 的本地化字符串。
+        /// </summary>
+        internal static string SiteInformation {
+            get {
+                return ResourceManager.GetString("SiteInformation", resourceCulture);
             }
         }
         
@@ -597,6 +804,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string Version {
             get {
                 return ResourceManager.GetString("Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 View Options 的本地化字符串。
+        /// </summary>
+        internal static string ViewOptions {
+            get {
+                return ResourceManager.GetString("ViewOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Whole Word Match 的本地化字符串。
+        /// </summary>
+        internal static string WholeWordMatch {
+            get {
+                return ResourceManager.GetString("WholeWordMatch", resourceCulture);
             }
         }
     }

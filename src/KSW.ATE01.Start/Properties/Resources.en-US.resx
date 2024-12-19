@@ -297,4 +297,79 @@
   <data name="FileDoesNotExist" xml:space="preserve">
     <value>File does not exist</value>
   </data>
+  <data name="File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Open File" xml:space="preserve">
+    <value>Open File</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Always on top" xml:space="preserve">
+    <value>Always on top</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="ClearAll" xml:space="preserve">
+    <value>Clear All</value>
+  </data>
+  <data name="Find" xml:space="preserve">
+    <value>Find</value>
+  </data>
+  <data name="GotoPreviousHighlight" xml:space="preserve">
+    <value>Goto Previous Highlight</value>
+  </data>
+  <data name="GotoNextHighlight" xml:space="preserve">
+    <value>Goto Next Highlight</value>
+  </data>
+  <data name="PauseWindow" xml:space="preserve">
+    <value>Pause Window</value>
+  </data>
+  <data name="ViewOptions" xml:space="preserve">
+    <value>View Options</value>
+  </data>
+  <data name="OpenContainingFolder" xml:space="preserve">
+    <value>Open Containing Folder</value>
+  </data>
+  <data name="Copyaspath" xml:space="preserve">
+    <value>Copy as path</value>
+  </data>
+  <data name="ReopenFile" xml:space="preserve">
+    <value>Reopen File</value>
+  </data>
+  <data name="Bookmarks" xml:space="preserve">
+    <value>Bookmarks</value>
+  </data>
+  <data name="WholeWordMatch" xml:space="preserve">
+    <value>Whole Word Match</value>
+  </data>
+  <data name="LoopSearch" xml:space="preserve">
+    <value>Loop Search</value>
+  </data>
+  <data name="FindTarget" xml:space="preserve">
+    <value>Find Target</value>
+  </data>
+  <data name="SearchUp" xml:space="preserve">
+    <value>Search Up</value>
+  </data>
+  <data name="SearchDown" xml:space="preserve">
+    <value>Search Down</value>
+  </data>
+  <data name="RealTimeTxt" xml:space="preserve">
+    <value>RealTimeTxt</value>
+  </data>
+  <data name="SiteInformation" xml:space="preserve">
+    <value>Site Information</value>
+  </data>
+  <data name="Site" xml:space="preserve">
+    <value>Site</value>
+  </data>
 </root>

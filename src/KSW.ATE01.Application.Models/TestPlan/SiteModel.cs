@@ -12,6 +12,11 @@ namespace KSW.ATE01.Application.Models.TestPlan
     public class SiteModel
     {
         /// <summary>
+        /// 站点头Id
+        /// </summary>
+        public Guid SiteHeaderId { get; set; }
+
+        /// <summary>
         /// 站点名称
         /// </summary>
         public string SiteName { get; set; }

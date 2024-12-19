@@ -12,6 +12,11 @@ namespace KSW.ATE01.Application.Models.TestPlan
     public class TestPlanModel
     {
         /// <summary>
+        /// 站点头
+        /// </summary>
+        public List<SiteHeaderModel> SiteHeaders { get; set; }
+
+        /// <summary>
         /// 通道
         /// </summary>
         public List<ChannelModel> Channel { get; set; }

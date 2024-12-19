@@ -357,4 +357,104 @@
     <value>File does not exist</value>
     <comment>文件不存在</comment>
   </data>
+  <data name="File" xml:space="preserve">
+    <value>File</value>
+    <comment>文件</comment>
+  </data>
+  <data name="Open File" xml:space="preserve">
+    <value>Open File</value>
+    <comment>打开文件</comment>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+    <comment>关闭</comment>
+  </data>
+  <data name="Always on top" xml:space="preserve">
+    <value>Always on top</value>
+    <comment>始终位于顶部</comment>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Exit</value>
+    <comment>退出</comment>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+    <comment>编辑</comment>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+    <comment>复制</comment>
+  </data>
+  <data name="ClearAll" xml:space="preserve">
+    <value>Clear All</value>
+    <comment>全部清除</comment>
+  </data>
+  <data name="Find" xml:space="preserve">
+    <value>Find</value>
+    <comment>查找</comment>
+  </data>
+  <data name="GotoPreviousHighlight" xml:space="preserve">
+    <value>Goto Previous Highlight</value>
+    <comment>转到上一个高亮点</comment>
+  </data>
+  <data name="GotoNextHighlight" xml:space="preserve">
+    <value>Goto Next Highlight</value>
+    <comment>转到下一个高亮点</comment>
+  </data>
+  <data name="PauseWindow" xml:space="preserve">
+    <value>Pause Window</value>
+    <comment>暂停窗口</comment>
+  </data>
+  <data name="ViewOptions" xml:space="preserve">
+    <value>View Options</value>
+    <comment>查看选项</comment>
+  </data>
+  <data name="OpenContainingFolder" xml:space="preserve">
+    <value>Open Containing Folder</value>
+    <comment>打开包含文件夹</comment>
+  </data>
+  <data name="Copyaspath" xml:space="preserve">
+    <value>Copy as path</value>
+    <comment>复制路径</comment>
+  </data>
+  <data name="ReopenFile" xml:space="preserve">
+    <value>Reopen File</value>
+    <comment>重新打开文件</comment>
+  </data>
+  <data name="Bookmarks" xml:space="preserve">
+    <value>Bookmarks</value>
+    <comment>书签</comment>
+  </data>
+  <data name="WholeWordMatch" xml:space="preserve">
+    <value>Whole Word Match</value>
+    <comment>全词匹配</comment>
+  </data>
+  <data name="LoopSearch" xml:space="preserve">
+    <value>Loop Search</value>
+    <comment>循环查找</comment>
+  </data>
+  <data name="FindTarget" xml:space="preserve">
+    <value>Find Target</value>
+    <comment>查找目标</comment>
+  </data>
+  <data name="SearchUp" xml:space="preserve">
+    <value>Search Up</value>
+    <comment>向上查找</comment>
+  </data>
+  <data name="SearchDown" xml:space="preserve">
+    <value>Search Down</value>
+    <comment>向下查找</comment>
+  </data>
+  <data name="RealTimeTxt" xml:space="preserve">
+    <value>RealTimeTxt</value>
+    <comment>实时文本</comment>
+  </data>
+  <data name="SiteInformation" xml:space="preserve">
+    <value>Site Information</value>
+    <comment>站点信息</comment>
+  </data>
+  <data name="Site" xml:space="preserve">
+    <value>Site</value>
+    <comment>站点</comment>
+  </data>
 </root>

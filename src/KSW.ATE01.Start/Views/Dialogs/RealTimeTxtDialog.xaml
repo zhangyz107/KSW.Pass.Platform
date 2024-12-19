@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="KSW.ATE01.Start.Views.Dialogs.RealTimeTxtDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KSW.ATE01.Start.Views.Dialogs"
+        xmlns:language="clr-namespace:KSW.ATE01.Start"
+        xmlns:converter="clr-namespace:KSW.ATE01.Start.Converter"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        x:Name="realTimeTxtDialog"
+        >
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="WindowStyle" Value="ThreeDBorderWindow"></Setter>
+            <Setter Property="Height" Value="450"></Setter>
+            <Setter Property="Width" Value="800"></Setter>
+            <Setter Property="ResizeMode" Value="CanResize"></Setter>
+            <Setter Property="ShowInTaskbar" Value="False"></Setter>
+        </Style>
+    </prism:Dialog.WindowStyle>
+
+    <UserControl.Resources>
+        <converter:StringConcatenateConverter x:Key="StringConcatenateConverter"></converter:StringConcatenateConverter>
+    </UserControl.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <RichTextBox x:Name="richTB" Margin="4" Padding="4" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Style="{StaticResource MaterialDesignOutlinedRichTextBox}">
+            <RichTextBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{language:L Copy}" Command="ApplicationCommands.Copy"></MenuItem>
+                    <MenuItem Header="{language:L ClearAll}"></MenuItem>
+                    <MenuItem Header="{language:L Find,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}" InputGestureText="Ctrl+F" Command="{Binding FindCommand}"></MenuItem>
+                    <MenuItem Header="{language:L GotoPreviousHighlight}"></MenuItem>
+                    <MenuItem Header="{language:L GotoNextHighlight}"></MenuItem>
+                    <MenuItem Header="{language:L PauseWindow}"></MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Header="{language:L ViewOptions,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}"></MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Header="{language:L OpenContainingFolder}"></MenuItem>
+                    <MenuItem Header="{language:L Copyaspath}"></MenuItem>
+                    <MenuItem Header="{language:L ReopenFile}"></MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Header="{language:L Bookmarks}"></MenuItem>
+                </ContextMenu>
+            </RichTextBox.ContextMenu>
+        </RichTextBox>
+    </Grid>
+</UserControl>
