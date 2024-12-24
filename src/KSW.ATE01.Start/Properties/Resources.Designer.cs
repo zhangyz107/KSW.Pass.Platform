@@ -115,6 +115,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Clear Bookmarks 的本地化字符串。
+        /// </summary>
+        internal static string ClearBookmarks {
+            get {
+                return ResourceManager.GetString("ClearBookmarks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Close 的本地化字符串。
         /// </summary>
         internal static string Close {
@@ -403,6 +412,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Next Bookmark 的本地化字符串。
+        /// </summary>
+        internal static string NextBookmark {
+            get {
+                return ResourceManager.GetString("NextBookmark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Not found 的本地化字符串。
         /// </summary>
         internal static string NotFound {
@@ -480,6 +498,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string PauseWindow {
             get {
                 return ResourceManager.GetString("PauseWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Previous Bookmark 的本地化字符串。
+        /// </summary>
+        internal static string PreviousBookmark {
+            get {
+                return ResourceManager.GetString("PreviousBookmark", resourceCulture);
             }
         }
         
@@ -795,6 +822,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string TestPlanType {
             get {
                 return ResourceManager.GetString("TestPlanType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Toggle Bookmark 的本地化字符串。
+        /// </summary>
+        internal static string ToggleBookmark {
+            get {
+                return ResourceManager.GetString("ToggleBookmark", resourceCulture);
             }
         }
         

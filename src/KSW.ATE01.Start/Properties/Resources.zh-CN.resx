@@ -372,4 +372,16 @@
   <data name="Site" xml:space="preserve">
     <value>站点</value>
   </data>
+  <data name="ToggleBookmark" xml:space="preserve">
+    <value>记录书签</value>
+  </data>
+  <data name="NextBookmark" xml:space="preserve">
+    <value>下一个书签</value>
+  </data>
+  <data name="PreviousBookmark" xml:space="preserve">
+    <value>上一个书签</value>
+  </data>
+  <data name="ClearBookmarks" xml:space="preserve">
+    <value>清除书签</value>
+  </data>
 </root>

@@ -372,4 +372,16 @@
   <data name="Site" xml:space="preserve">
     <value>Site</value>
   </data>
+  <data name="ToggleBookmark" xml:space="preserve">
+    <value>Toggle Bookmark</value>
+  </data>
+  <data name="NextBookmark" xml:space="preserve">
+    <value>Next Bookmark</value>
+  </data>
+  <data name="PreviousBookmark" xml:space="preserve">
+    <value>Previous Bookmark</value>
+  </data>
+  <data name="ClearBookmarks" xml:space="preserve">
+    <value>Clear Bookmarks</value>
+  </data>
 </root>

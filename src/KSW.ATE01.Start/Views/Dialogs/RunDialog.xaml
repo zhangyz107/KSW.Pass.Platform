@@ -7,14 +7,15 @@
              xmlns:language="clr-namespace:KSW.ATE01.Start"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" SizeChanged="UserControl_SizeChanged">
 
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="WindowStyle" Value="ThreeDBorderWindow"></Setter>
             <Setter Property="Height" Value="870"></Setter>
-            <Setter Property="Width" Value="600"></Setter>
+            <Setter Property="Width" Value="1200"></Setter>
             <Setter Property="ShowInTaskbar" Value="False"></Setter>
         </Style>
     </prism:Dialog.WindowStyle>
@@ -44,175 +45,198 @@
         </Style>
     </UserControl.Resources>
 
-
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
     <Grid Margin="6">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="auto" ></ColumnDefinition>
+        </Grid.ColumnDefinitions>
         <FrameworkElement x:Name="DataContextProxy" DataContext="{Binding}" />
-        <GroupBox Margin="0,0,0,6" Header="{language:L Datalog}">
+        <Border HorizontalAlignment="Stretch">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <CheckBox Margin="0,0,0,6" Content="RealTime TXT" IsChecked="{Binding ProjectInfo.SaveRealTimeText}"></CheckBox>
-                <CheckBox Margin="0,0,0,6" Grid.Column="1" Content="CSV" IsChecked="{Binding ProjectInfo.SaveCsv}"></CheckBox>
-                <CheckBox Margin="0,0,0,6" Grid.Column="2"  Content="Summary" IsChecked="{Binding ProjectInfo.SaveSummary}"></CheckBox>
-                <CheckBox Margin="0,0,0,6" Grid.Column="3"  Content="STDF" IsChecked="{Binding ProjectInfo.SaveSTDF}"></CheckBox>
+                <GroupBox Margin="0,0,0,6" Header="{language:L Datalog}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Margin="0,0,0,6" Content="RealTime TXT" IsChecked="{Binding ProjectInfo.SaveRealTimeText}"></CheckBox>
+                        <CheckBox Margin="0,0,0,6" Grid.Column="1" Content="CSV" IsChecked="{Binding ProjectInfo.SaveCsv}"></CheckBox>
+                        <CheckBox Margin="0,0,0,6" Grid.Column="2"  Content="Summary" IsChecked="{Binding ProjectInfo.SaveSummary}"></CheckBox>
+                        <CheckBox Margin="0,0,0,6" Grid.Column="3"  Content="STDF" IsChecked="{Binding ProjectInfo.SaveSTDF}"></CheckBox>
 
-                <Grid Grid.Row="1" Grid.ColumnSpan="4">
+                        <Grid Grid.Row="1" Grid.ColumnSpan="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Label VerticalAlignment="Center" Content="{language:L LogPath}"></Label>
+                            <TextBox Margin="0,0,0,6" Grid.Column="1" IsReadOnly="True" Style="{StaticResource BrowseTextBlock}" Text="{Binding ProjectInfo.DatalogPath}"></TextBox>
+                        </Grid>
+                    </Grid>
+                </GroupBox>
+                <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Label VerticalAlignment="Center" Content="{language:L LogPath}"></Label>
-                    <TextBox Margin="0,0,0,6" Grid.Column="1" IsReadOnly="True" Style="{StaticResource BrowseTextBlock}" Text="{Binding ProjectInfo.DatalogPath}"></TextBox>
-                </Grid>
-            </Grid>
-        </GroupBox>
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-            </Grid.RowDefinitions>
-
-            <GroupBox Padding="0" Grid.RowSpan="4" Margin="0,0,6,0" Header="{language:L TestItem}">
-                <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding TestPlan.Flow}" CanUserResizeRows="False">
-                    <DataGrid.Columns>
-                        <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
-                            <DataGridCheckBoxColumn.Header>
-                                <Border
-          Background="Transparent">
-                                    <CheckBox
-            IsChecked="{Binding DataContext.IsAllItemsSelected, Source={x:Reference DataContextProxy}}"/>
-                                </Border>
-                            </DataGridCheckBoxColumn.Header>
-                            <DataGridCheckBoxColumn.HeaderStyle>
-                                <Style
-                                    TargetType="{x:Type DataGridColumnHeader}"
-                                    BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
-                                    <Setter
-                                    Property="HorizontalContentAlignment"
-                                    Value="Center" />
-                                </Style>
-                            </DataGridCheckBoxColumn.HeaderStyle>
-                        </DataGridCheckBoxColumn>
-                        <DataGridTextColumn Width="*" Header="{language:L TestItem}" CanUserReorder="False" Binding="{Binding TestItemName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding TestItemName}">
-                        </DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>
-
-            <GroupBox Margin="0,0,0,6" Grid.Column="1" Header="{language:L Option}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <CheckBox Content="DoAll" IsChecked="{Binding ProjectInfo.IsDoAll}"></CheckBox>
-                    <CheckBox Grid.Column="1" Content="{language:L PrintTime}" IsChecked="{Binding ProjectInfo.IsPrintTime}"></CheckBox>
-                    <CheckBox Grid.Column="2" Content="{language:L OfflineMode}" IsChecked="{Binding ProjectInfo.IsOffLine}"></CheckBox>
-                </Grid>
-            </GroupBox>
-
-            <GroupBox Margin="0,0,0,6" Padding="0"  Grid.Column="1" Grid.Row="1" Header="{language:L SiteInformation}">
-                <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding TestPlan.SiteHeaders}" CanUserResizeRows="False">
-                    <DataGrid.Columns>
-                        <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
-                            <DataGridCheckBoxColumn.Header>
-                                <Border
-Background="Transparent">
-                                    <CheckBox
-  IsChecked="{Binding DataContext.IsAllSitesSelected, Source={x:Reference DataContextProxy}}"/>
-                                </Border>
-                            </DataGridCheckBoxColumn.Header>
-                            <DataGridCheckBoxColumn.HeaderStyle>
-                                <Style
-                          TargetType="{x:Type DataGridColumnHeader}"
-                          BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
-                                    <Setter
-                          Property="HorizontalContentAlignment"
-                          Value="Center" />
-                                </Style>
-                            </DataGridCheckBoxColumn.HeaderStyle>
-                        </DataGridCheckBoxColumn>
-                        <DataGridTextColumn Width="*" Header="{language:L Site}" CanUserReorder="False" Binding="{Binding SiteHeaderName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding SiteHeaderName}">
-                        </DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>
-
-            <GroupBox Margin="0,0,0,6" Grid.Column="1" Grid.Row="2" Header="{language:L Looping}">
-                <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"></RowDefinition>
-                        <RowDefinition Height="auto"></RowDefinition>
                         <RowDefinition Height="auto"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                         <RowDefinition Height="auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Label Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopCount}"></Label>
-                    <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="1" BorderThickness="1" Text="{Binding ProjectInfo.LoopCount,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
-
-                    <Label Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopsExecuted}"></Label>
-                    <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="3" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding LoopExecuted}"></TextBox>
-
-                    <Label Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L DelayBetweenLoops}"></Label>
-                    <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="1" Text="{Binding ProjectInfo.DelayBetweenLoops,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
-
-                    <Label Grid.Row="1" Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L FailCount}"></Label>
-                    <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="3" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsReadOnly="True" Text="{Binding FailCount}"></TextBox>
-
-                    <Label Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,6" Content="s（max 300s）"></Label>
-
-                    <CheckBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,0,0,6" VerticalContentAlignment="Center" Content="{language:L StopOnFail}" IsChecked="{Binding ProjectInfo.StopOnFail}"></CheckBox>
-
-                    <Button Grid.Row="4" Grid.ColumnSpan="2" Margin="0,0,6,0" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Looping}"></Button>
-
-                    <Button Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Stop}"></Button>
-                </Grid>
-            </GroupBox>
-
-            <GroupBox Grid.Column="1" Grid.Row="3" Header="{language:L Operate}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"></RowDefinition>
                         <RowDefinition Height="auto"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Button Margin="0,0,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L LoadTestPlan}" Command="{Binding LoadTestPlanCommand}"></Button>
 
-                    <Button Margin="0,0,0,6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L SetTestItem}" Command="{Binding SetTestItemCommand}"></Button>
+                    <GroupBox Padding="0" Grid.RowSpan="4" Margin="0,0,6,0" Header="{language:L TestItem}">
+                        <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding TestPlan.Flow}" CanUserResizeRows="False">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
+                                    <DataGridCheckBoxColumn.Header>
+                                        <Border
+          Background="Transparent">
+                                            <CheckBox
+            IsChecked="{Binding DataContext.IsAllItemsSelected, Source={x:Reference DataContextProxy}}"/>
+                                        </Border>
+                                    </DataGridCheckBoxColumn.Header>
+                                    <DataGridCheckBoxColumn.HeaderStyle>
+                                        <Style
+                                    TargetType="{x:Type DataGridColumnHeader}"
+                                    BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                            <Setter
+                                    Property="HorizontalContentAlignment"
+                                    Value="Center" />
+                                        </Style>
+                                    </DataGridCheckBoxColumn.HeaderStyle>
+                                </DataGridCheckBoxColumn>
+                                <DataGridTextColumn Width="*" Header="{language:L TestItem}" CanUserReorder="False" Binding="{Binding TestItemName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding TestItemName}">
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
 
-                    <Button Margin="0,0,6,0" Grid.Row="1" Content="{language:L StartTest}" Command="{Binding StartTestCommand}"></Button>
+                    <GroupBox Margin="0,0,0,6" Grid.Column="1" Header="{language:L Option}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Content="DoAll" IsChecked="{Binding ProjectInfo.IsDoAll}"></CheckBox>
+                            <CheckBox Grid.Column="1" Content="{language:L PrintTime}" IsChecked="{Binding ProjectInfo.IsPrintTime}"></CheckBox>
+                            <CheckBox Grid.Column="2" Content="{language:L OfflineMode}" IsChecked="{Binding ProjectInfo.IsOffLine}"></CheckBox>
+                        </Grid>
+                    </GroupBox>
 
-                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L EndTest}" Command="{Binding EndTestCommand}"></Button>
+                    <GroupBox Margin="0,0,0,6" Padding="0"  Grid.Column="1" Grid.Row="1" Header="{language:L SiteInformation}">
+                        <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding TestPlan.SiteHeaders}" CanUserResizeRows="False">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
+                                    <DataGridCheckBoxColumn.Header>
+                                        <Border
+Background="Transparent">
+                                            <CheckBox
+  IsChecked="{Binding DataContext.IsAllSitesSelected, Source={x:Reference DataContextProxy}}"/>
+                                        </Border>
+                                    </DataGridCheckBoxColumn.Header>
+                                    <DataGridCheckBoxColumn.HeaderStyle>
+                                        <Style
+                          TargetType="{x:Type DataGridColumnHeader}"
+                          BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                            <Setter
+                          Property="HorizontalContentAlignment"
+                          Value="Center" />
+                                        </Style>
+                                    </DataGridCheckBoxColumn.HeaderStyle>
+                                </DataGridCheckBoxColumn>
+                                <DataGridTextColumn Width="*" Header="{language:L Site}" CanUserReorder="False" Binding="{Binding SiteHeaderName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding SiteHeaderName}">
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+
+                    <GroupBox Margin="0,0,0,6" Grid.Column="1" Grid.Row="2" Header="{language:L Looping}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                                <RowDefinition Height="auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Label Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopCount}"></Label>
+                            <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="1" BorderThickness="1" Text="{Binding ProjectInfo.LoopCount,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+
+                            <Label Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopsExecuted}"></Label>
+                            <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="3" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding LoopExecuted}"></TextBox>
+
+                            <Label Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L DelayBetweenLoops}"></Label>
+                            <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="1" Text="{Binding ProjectInfo.DelayBetweenLoops,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+
+                            <Label Grid.Row="1" Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L FailCount}"></Label>
+                            <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="3" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsReadOnly="True" Text="{Binding FailCount}"></TextBox>
+
+                            <Label Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,6" Content="s（max 300s）"></Label>
+
+                            <CheckBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,0,0,6" VerticalContentAlignment="Center" Content="{language:L StopOnFail}" IsChecked="{Binding ProjectInfo.StopOnFail}"></CheckBox>
+
+                            <Button Grid.Row="4" Grid.ColumnSpan="2" Margin="0,0,6,0" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Looping}"></Button>
+
+                            <Button Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Stop}"></Button>
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Grid.Column="1" Grid.Row="3" Header="{language:L Operate}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button Margin="0,0,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L LoadTestPlan}" Command="{Binding LoadTestPlanCommand}"></Button>
+
+                            <Button Margin="0,0,0,6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L SetTestItem}" Command="{Binding SetTestItemCommand}"></Button>
+
+                            <Button Margin="0,0,6,0" Grid.Row="1" Content="{language:L StartTest}" Command="{Binding StartTestCommand}"></Button>
+
+                            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L EndTest}" Command="{Binding EndTestCommand}"></Button>
+                        </Grid>
+                    </GroupBox>
                 </Grid>
-            </GroupBox>
-        </Grid>
+            </Grid>
+        </Border>
+
+        <Expander Margin="6,0,0,0" Grid.Column="1" ExpandDirection="Left" Padding="0"  materialDesign:ExpanderAssist.HeaderBackground="#0074B0" Foreground="White">
+            <Expander.Header>
+                <TextBlock Width="15" RenderTransformOrigin=".5,.5"
+        Text="{language:L RealTimeTxt}" TextWrapping="Wrap" Foreground="White">
+                </TextBlock>
+            </Expander.Header>
+            <ContentControl x:Name="expandContent"  Content="{Binding RealTimeTxtView}"></ContentControl>
+        </Expander>
+
     </Grid>
 </UserControl>

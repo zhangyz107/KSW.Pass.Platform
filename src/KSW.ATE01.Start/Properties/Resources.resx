@@ -457,4 +457,20 @@
     <value>Site</value>
     <comment>站点</comment>
   </data>
+  <data name="ToggleBookmark" xml:space="preserve">
+    <value>Toggle Bookmark</value>
+    <comment>记录书签</comment>
+  </data>
+  <data name="NextBookmark" xml:space="preserve">
+    <value>Next Bookmark</value>
+    <comment>下一个书签</comment>
+  </data>
+  <data name="PreviousBookmark" xml:space="preserve">
+    <value>Previous Bookmark</value>
+    <comment>上一个书签</comment>
+  </data>
+  <data name="ClearBookmarks" xml:space="preserve">
+    <value>Clear Bookmarks</value>
+    <comment>清除书签</comment>
+  </data>
 </root>

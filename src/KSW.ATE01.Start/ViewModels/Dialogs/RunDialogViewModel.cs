@@ -16,12 +16,11 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlan;
-using KSW.Exceptions;
+using KSW.ATE01.Start.Views;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
-using Prism.Dialogs;
-using System.Collections.ObjectModel;
+using Prism.Ioc;
 using System.IO;
 using System.Windows;
 
@@ -40,6 +39,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private int _loopExecuted;
         private int _failCount;
         private TestPlanModel _testPlan;
+        private RealTimeTxtView _realTimeTxtView;
 
         #endregion
 
@@ -112,9 +112,21 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             get => _testPlan;
             set => SetProperty(ref _testPlan, value);
         }
+
+
+        public RealTimeTxtView RealTimeTxtView
+        {
+            get => _realTimeTxtView;
+            set => SetProperty(ref _realTimeTxtView, value);
+        }
+
         #endregion
 
         #region Command
+        private DelegateCommand _loadingCommand;
+        public DelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommand));
+
         private DelegateCommand _openFolderCommand;
         public DelegateCommand OpenFolderCommand =>
             _openFolderCommand ?? (_openFolderCommand = new DelegateCommand(ExecuteOpenFolderCommand));
@@ -157,6 +169,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _eventAggregator = eventAggregator;
             _projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
             _testPlanBLL = ContainerProvider?.Resolve<ITestPlanBLL>();
+        }
+
+        private void ExecuteLoadingCommand()
+        {
+            RealTimeTxtView = ContainerProvider.Resolve<RealTimeTxtView>();
         }
 
         public bool CanCloseDialog()

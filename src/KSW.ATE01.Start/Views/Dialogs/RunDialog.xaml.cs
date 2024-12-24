@@ -25,5 +25,11 @@ namespace KSW.ATE01.Start.Views.Dialogs
         {
             InitializeComponent();
         }
+
+        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var width = this.ActualWidth;
+            this.expandContent.Width = width / 2.0;
+        }
     }
 }

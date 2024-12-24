@@ -118,8 +118,7 @@ namespace KSW.ATE01.Start.ViewModels
                 await DialogService.ShowMessageDialog("未打开项目!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 return;
             }
-            DialogService.Show(nameof(RealTimeTxtDialog));
-            DialogService.Show(nameof(RunDialog));
+            DialogService.ShowDialog(nameof(RunDialog));
         }
 
         private void ExecuteReleaseCommand()
