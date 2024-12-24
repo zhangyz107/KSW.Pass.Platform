@@ -16,6 +16,7 @@ using KSW.Helpers;
 using KSW.Ui;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -104,7 +105,16 @@ namespace KSW.ATE01.Start.ViewModels
             {
                 _richTextBox = richTB;
                 _richTextBox.MouseRightButtonUp += RichTextBox_MouseRightButtonUp;
+                _richTextBox.SelectionChanged += RichTextBox_SelectionChanged;
                 LoadTextFile(richTB, _logFilePath);
+            }
+        }
+
+        private void RichTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is RichTextBox richTextBox)
+            {
+                _lastTextRange = new TextRange(richTextBox.Selection.Start, richTextBox.Selection.End);
             }
         }
 
@@ -174,22 +184,23 @@ namespace KSW.ATE01.Start.ViewModels
             var findResult = false;
             string pattern = $@"\b{System.Text.RegularExpressions.Regex.Escape(SearchContent)}\b"; // \b是单词边界
             var regex = new System.Text.RegularExpressions.Regex(pattern, RegexOptions.IgnoreCase);
+            var documentRange = new TextRange(_richTextBox.Document.ContentStart, _richTextBox.Document.ContentEnd);
+            var startPos = _lastTextRange?.Start;
+            var endPos = _lastTextRange?.End;
 
             if (bool.TryParse(isUpSearch.ToString(), out bool searchType) && !SearchContent.IsEmpty())
             {
                 if (searchType)
                 {
-                    var pos = new Point(10, 10);
-                    var currentBeginPointer = _richTextBox.GetPositionFromPoint(pos, true);
-                    var documentRange = new TextRange(_richTextBox.Document.ContentStart, currentBeginPointer);
+                    if (startPos != null)
+                        documentRange = new TextRange(_richTextBox.Document.ContentStart, startPos);
                     var textToSearch = documentRange.Text;
                     findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
                 }
                 else
                 {
-                    var pos = new Point(_richTextBox.ActualWidth, _richTextBox.ActualHeight);
-                    var currentEndPointer = _richTextBox.GetPositionFromPoint(pos, true);
-                    var documentRange = new TextRange(currentEndPointer, _richTextBox.Document.ContentEnd);
+                    if (endPos != null)
+                        documentRange = new TextRange(endPos, _richTextBox.Document.ContentEnd);
                     var textToSearch = documentRange.Text;
                     findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
                 }
@@ -198,7 +209,7 @@ namespace KSW.ATE01.Start.ViewModels
                 {
                     if (IsLoopSearch)
                     {
-                        var documentRange = new TextRange(_richTextBox.Document.ContentStart, _richTextBox.Document.ContentEnd);
+                        documentRange = new TextRange(_richTextBox.Document.ContentStart, _richTextBox.Document.ContentEnd);
                         var textToSearch = documentRange.Text;
                         findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
                     }
@@ -206,6 +217,8 @@ namespace KSW.ATE01.Start.ViewModels
                         await DialogService.ShowMessageDialog(L["MatchFailed"], MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
+
+            _richTextBox.Focus();
         }
 
         private bool SearchTarget(bool isSearchUp, System.Text.RegularExpressions.Regex regex, TextRange documentRange, string textToSearch)
@@ -231,14 +244,13 @@ namespace KSW.ATE01.Start.ViewModels
                         // 找到匹配的关键字，选择文本并滚动
                         TextPointer startPointer = pointer.GetPositionAtOffset(index);
                         TextPointer endPointer = startPointer.GetPositionAtOffset(SearchContent.Length);
-
                         ScrollToSelection(startPointer, endPointer);
-
+                        _richTextBox.Selection.Select(startPointer, endPointer);
                         findResult = true;
                         break;
                     }
                     // 移动到下一个 TextPointer
-                    pointer = pointer.GetPositionAtOffset(1);
+                    pointer = pointer.GetNextContextPosition(LogicalDirection.Forward);
                 }
             }
 
@@ -360,8 +372,8 @@ namespace KSW.ATE01.Start.ViewModels
                 // 获取 RichTextBox 内部的 ScrollViewer 控件
                 ScrollViewer scrollViewer = GetScrollViewer(_richTextBox);
 
-                    // 滚动到选中文本的位置，使其位于视窗的中间
-                    scrollViewer.ScrollToVerticalOffset(selectionStartRect.Top + scrollViewer.VerticalOffset - (selectionHeight / 2));
+                // 滚动到选中文本的位置，使其位于视窗的中间
+                scrollViewer.ScrollToVerticalOffset(selectionStartRect.Top + scrollViewer.VerticalOffset - (selectionHeight / 2));
             }
         }
 
