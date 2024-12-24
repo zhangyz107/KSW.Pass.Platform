@@ -11,21 +11,15 @@
 //
 //------------------------------------------------------------*/
 
-using DryIoc.ImTools;
-using KSW.ATE01.Application.Events.RealTimeTxts;
 using KSW.ATE01.Application.Helpers;
-using KSW.ATE01.Application.Models.RealTimeTxt;
-using KSW.ATE01.Start.Views.Dialogs;
+using KSW.Helpers;
 using KSW.Ui;
-using SixLabors.ImageSharp.ColorSpaces;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels
@@ -33,14 +27,14 @@ namespace KSW.ATE01.Start.ViewModels
     public class RealTimeTxtViewModel : ViewModelBase
     {
         #region Fields
-        private readonly IEventAggregator _eventAggregator;
         private readonly string _logFilePath = "C:\\Users\\zhang\\Desktop\\1663tch.txt";
-        private FlowDocument _flowDocument;
         private string _searchContent;
         private bool _isWholeWordMatch;
         private bool _isLoopSearch;
         private RichTextBox _richTextBox;
         private TextPointer _currentPointer;
+        private TextRange _lastTextRange;
+        private int _lastSearchIndex;
         #endregion
 
         #region Properties
@@ -64,12 +58,6 @@ namespace KSW.ATE01.Start.ViewModels
             set => SetProperty(ref _isLoopSearch, value);
         }
 
-        public FlowDocument FlowDocument
-        {
-            get => _flowDocument;
-            set => SetProperty(ref _flowDocument, value);
-        }
-
         #endregion
 
         #region Command
@@ -77,9 +65,9 @@ namespace KSW.ATE01.Start.ViewModels
         public DelegateCommand<object> LoadingCommand =>
             _loadingCommand ?? (_loadingCommand = new DelegateCommand<object>(ExecuteLoadingCommand));
 
-        private DelegateCommand<object> _searchCommand;
-        public DelegateCommand<object> SearchCommand =>
-            _searchCommand ?? (_searchCommand = new DelegateCommand<object>(ExecuteSearchCommand));
+        private AsyncDelegateCommand<object> _searchCommand;
+        public AsyncDelegateCommand<object> SearchCommand =>
+            _searchCommand ?? (_searchCommand = new AsyncDelegateCommand<object>(ExecuteSearchCommand));
 
         private DelegateCommand _clearAllCommand;
         public DelegateCommand ClearAllCommand =>
@@ -104,10 +92,9 @@ namespace KSW.ATE01.Start.ViewModels
         #endregion
 
         public RealTimeTxtViewModel(
-            IContainerProvider containerProvider,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IContainerProvider containerProvider) : base(containerProvider)
         {
-            _eventAggregator = eventAggregator;
+
         }
 
 
@@ -149,26 +136,44 @@ namespace KSW.ATE01.Start.ViewModels
             if (msgList.IsEmpty())
                 return;
 
+            var bookmarks = BookmarkManagerHelper.BookmarkModels;
+
             Paragraph para = new Paragraph();
+            var index = 0;
             foreach (var msg in msgList)
             {
                 var hasMarker = false;
                 if (msg.Contains("condition"))  //当出现标识字符时
                     hasMarker = true;
                 Run r = new Run(msg);
-                r.Name = $"run{msgList.IndexOf(msg)}";
-                if (hasMarker)
-                    r.Foreground = Brushes.Red;
+                r.Name = $"run{index++}";
+                var hasBookmark = bookmarks.Any(x => x.RunName.Equals(r.Name));
+
+                //标记书签
+                if (hasBookmark)
+                {
+                    r.Foreground = Brushes.Yellow;
+                    r.Background = Brushes.Green;
+                }
                 else
-                    r.Foreground = Brushes.Black;
+                {
+                    //进行标记
+                    if (hasMarker)
+                        r.Foreground = Brushes.Red;
+                    else
+                        r.Foreground = Brushes.Black;
+                }
+
                 para.Inlines.Add(r);
             }
             richTB.Document.Blocks.Add(para);
         }
 
-        private void ExecuteSearchCommand(object isUpSearch)
+        private async Task ExecuteSearchCommand(object isUpSearch)
         {
             var findResult = false;
+            string pattern = $@"\b{System.Text.RegularExpressions.Regex.Escape(SearchContent)}\b"; // \b是单词边界
+            var regex = new System.Text.RegularExpressions.Regex(pattern, RegexOptions.IgnoreCase);
 
             if (bool.TryParse(isUpSearch.ToString(), out bool searchType) && !SearchContent.IsEmpty())
             {
@@ -178,82 +183,66 @@ namespace KSW.ATE01.Start.ViewModels
                     var currentBeginPointer = _richTextBox.GetPositionFromPoint(pos, true);
                     var documentRange = new TextRange(_richTextBox.Document.ContentStart, currentBeginPointer);
                     var textToSearch = documentRange.Text;
-
-                    // 在当前范围内搜索指定的文本
-                    int index = textToSearch.LastIndexOf(SearchContent);
-                    // 如果找到匹配的文本
-                    if (index != -1)
-                    {
-                        TextPointer pointer = documentRange.Start.GetPositionAtOffset(index);
-
-                        while (pointer != null && pointer.CompareTo(_richTextBox.Document.ContentEnd) < 0)
-                        {
-                            // 获取当前 TextPointer 指向的位置的字符
-                            string currentText = pointer.GetTextInRun(LogicalDirection.Forward);
-
-                            // 查找关键字
-                            index = currentText.IndexOf(SearchContent, StringComparison.OrdinalIgnoreCase);
-                            if (index > 0)
-                            {
-                                var run = pointer.Parent as Run;
-                                // 找到匹配的关键字，选择文本并滚动
-                                TextPointer startPointer = pointer.GetPositionAtOffset(index);
-                                TextPointer endPointer = startPointer.GetPositionAtOffset(SearchContent.Length);
-
-                                ScrollToSelection(startPointer, endPointer);
-
-                                findResult = true;
-                                break;
-                            }
-                            // 移动到下一个 TextPointer
-                            pointer = pointer.GetPositionAtOffset(1);
-                        }
-                    }
+                    findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
                 }
                 else
                 {
                     var pos = new Point(_richTextBox.ActualWidth, _richTextBox.ActualHeight);
-                    TextPointer currentBeginPointer = _richTextBox.GetPositionFromPoint(pos, true);
-                    var documentRange = new TextRange(currentBeginPointer, _richTextBox.Document.ContentEnd);
+                    var currentEndPointer = _richTextBox.GetPositionFromPoint(pos, true);
+                    var documentRange = new TextRange(currentEndPointer, _richTextBox.Document.ContentEnd);
                     var textToSearch = documentRange.Text;
-
-                    // 在当前范围内搜索指定的文本
-                    int index = textToSearch.IndexOf(SearchContent);
-                    // 如果找到匹配的文本
-                    if (index != -1)
-                    {
-                        TextPointer pointer = documentRange.Start.GetPositionAtOffset(index);
-
-                        while (pointer != null && pointer.CompareTo(_richTextBox.Document.ContentEnd) < 0)
-                        {
-                            // 获取当前 TextPointer 指向的位置的字符
-                            string currentText = pointer.GetTextInRun(LogicalDirection.Forward);
-
-                            // 查找关键字
-                            index = currentText.IndexOf(SearchContent, StringComparison.OrdinalIgnoreCase);
-                            if (index > 0)
-                            {
-                                var run = pointer.Parent as Run;
-                                // 找到匹配的关键字，选择文本并滚动
-                                TextPointer startPointer = pointer.GetPositionAtOffset(index);
-                                TextPointer endPointer = startPointer.GetPositionAtOffset(SearchContent.Length);
-
-                                ScrollToSelection(startPointer, endPointer);
-
-                                findResult = true;
-                                break;
-                            }
-                            // 移动到下一个 TextPointer
-                            pointer = pointer.GetPositionAtOffset(1);
-                        }
-                    }
+                    findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
                 }
-              
+
                 if (!findResult)
                 {
-                    MessageBox.Show("没有更多匹配的关键字。");
+                    if (IsLoopSearch)
+                    {
+                        var documentRange = new TextRange(_richTextBox.Document.ContentStart, _richTextBox.Document.ContentEnd);
+                        var textToSearch = documentRange.Text;
+                        findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
+                    }
+                    else
+                        await DialogService.ShowMessageDialog(L["MatchFailed"], MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
+        }
+
+        private bool SearchTarget(bool isSearchUp, System.Text.RegularExpressions.Regex regex, TextRange documentRange, string textToSearch)
+        {
+            var findResult = false;
+            var flag = IsWholeWordMatch ? regex.IsMatch(textToSearch) : true;
+            // 在当前范围内搜索指定的文本
+            int index = isSearchUp ? textToSearch.LastIndexOf(SearchContent) : textToSearch.IndexOf(SearchContent);
+            // 如果找到匹配的文本
+            if (index != -1 && flag)
+            {
+                TextPointer pointer = documentRange.Start.GetPositionAtOffset(index);
+
+                while (pointer != null && pointer.CompareTo(_richTextBox.Document.ContentEnd) < 0)
+                {
+                    // 获取当前 TextPointer 指向的位置的字符
+                    string currentText = pointer.GetTextInRun(LogicalDirection.Forward);
+                    // 查找关键字
+                    index = currentText.IndexOf(SearchContent, StringComparison.OrdinalIgnoreCase);
+                    if (index > 0)
+                    {
+                        var run = pointer.Parent as Run;
+                        // 找到匹配的关键字，选择文本并滚动
+                        TextPointer startPointer = pointer.GetPositionAtOffset(index);
+                        TextPointer endPointer = startPointer.GetPositionAtOffset(SearchContent.Length);
+
+                        ScrollToSelection(startPointer, endPointer);
+
+                        findResult = true;
+                        break;
+                    }
+                    // 移动到下一个 TextPointer
+                    pointer = pointer.GetPositionAtOffset(1);
+                }
+            }
+
+            return findResult;
         }
 
         private void ExecuteClearAllCommand()
@@ -295,7 +284,7 @@ namespace KSW.ATE01.Start.ViewModels
                         run.Foreground = Brushes.Yellow;
                         run.Background = Brushes.Green;
                         var runName = run.Name;
-                        BookmarkManagerHelper.AddBookmark(runName, run.ContentStart, run.ContentEnd);
+                        BookmarkManagerHelper.AddBookmark(runName);
                     }
                 }
                 else
@@ -306,7 +295,7 @@ namespace KSW.ATE01.Start.ViewModels
                     _richTextBox.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green);
                     var run = startPointer.Parent as Run;
                     var runName = run.Name;
-                    BookmarkManagerHelper.AddBookmark(runName, selection.Start, selection.End);
+                    BookmarkManagerHelper.AddBookmark(runName);
                 }
             }
         }
@@ -324,8 +313,18 @@ namespace KSW.ATE01.Start.ViewModels
                 var bookmarkPosition = BookmarkManagerHelper.GotoBookmark(runName, isNext);
                 if (bookmarkPosition != null)
                 {
-                    TextPointer selectionStart = bookmarkPosition.Start;
-                    TextPointer selectionEnd = bookmarkPosition.End;
+                    // 获取 RichTextBox 中的所有 TextElements
+                    var targetRun = _richTextBox.Document.Blocks
+                                    .OfType<Paragraph>()
+                                    .SelectMany(p => p.Inlines.OfType<Run>())
+                                    .Where(run => run.Name.Equals(bookmarkPosition.RunName))
+                                    .FirstOrDefault();
+
+                    TextPointer selectionStart = targetRun?.ContentStart;
+                    TextPointer selectionEnd = targetRun?.ContentEnd;
+
+                    if (selectionStart == null || selectionEnd == null)
+                        return;
 
                     ScrollToSelection(selectionStart, selectionEnd);
                 }
@@ -361,8 +360,8 @@ namespace KSW.ATE01.Start.ViewModels
                 // 获取 RichTextBox 内部的 ScrollViewer 控件
                 ScrollViewer scrollViewer = GetScrollViewer(_richTextBox);
 
-                // 滚动到选中文本的位置，使其位于视窗的中间
-                scrollViewer.ScrollToVerticalOffset(selectionStartRect.Top + scrollViewer.VerticalOffset - (selectionHeight / 2));
+                    // 滚动到选中文本的位置，使其位于视窗的中间
+                    scrollViewer.ScrollToVerticalOffset(selectionStartRect.Top + scrollViewer.VerticalOffset - (selectionHeight / 2));
             }
         }
 

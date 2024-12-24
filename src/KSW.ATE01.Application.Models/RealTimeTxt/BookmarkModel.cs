@@ -16,15 +16,6 @@ namespace KSW.ATE01.Application.Models.RealTimeTxt
         /// </summary>
         public string RunName { get; set; }
 
-        /// <summary>
-        /// 区域起点
-        /// </summary>
-        public TextPointer Start { get; set; }
-        /// <summary>
-        /// 选择区域
-        /// </summary>
-        public TextPointer End { get; set; }
-
         public int CompareTo(BookmarkModel? other)
         {
             var result = 0;

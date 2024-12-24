@@ -12,21 +12,21 @@ namespace KSW.ATE01.Application.Helpers
     {
         private static List<BookmarkModel> _bookmarkModels = new List<BookmarkModel>();
 
-        public static void AddBookmark(string runName, TextPointer start, TextPointer end)
+        public static List<BookmarkModel> BookmarkModels => _bookmarkModels;
+
+        public static void AddBookmark(string runName)
         {
-            var hasAdded = _bookmarkModels.Where(x => x.RunName.Equals(runName)).Any();
-            if (hasAdded)
+            if (runName.IsEmpty())
                 return;
 
-            if (start == null || end == null)
+            var hasAdded = _bookmarkModels.Where(x => x.RunName.Equals(runName)).Any();
+            if (hasAdded)
                 return;
 
             _bookmarkModels.Add(new BookmarkModel()
             {
                 BookmarkId = Guid.NewGuid(),
                 RunName = runName,
-                Start = start,
-                End = end,
             });
             _bookmarkModels.Sort((x, y) => x.CompareTo(y));
         }

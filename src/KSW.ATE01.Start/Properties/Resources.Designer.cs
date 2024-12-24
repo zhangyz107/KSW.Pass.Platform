@@ -403,6 +403,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 No more matching keywords 的本地化字符串。
+        /// </summary>
+        internal static string MatchFailed {
+            get {
+                return ResourceManager.GetString("MatchFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 New Project 的本地化字符串。
         /// </summary>
         internal static string NewProject {

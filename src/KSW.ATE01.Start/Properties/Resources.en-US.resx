@@ -384,4 +384,7 @@
   <data name="ClearBookmarks" xml:space="preserve">
     <value>Clear Bookmarks</value>
   </data>
+  <data name="MatchFailed" xml:space="preserve">
+    <value>No more matching keywords</value>
+  </data>
 </root>

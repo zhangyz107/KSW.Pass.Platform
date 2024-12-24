@@ -473,4 +473,8 @@
     <value>Clear Bookmarks</value>
     <comment>清除书签</comment>
   </data>
+  <data name="MatchFailed" xml:space="preserve">
+    <value>No more matching keywords</value>
+    <comment>没有更多匹配的关键字</comment>
+  </data>
 </root>

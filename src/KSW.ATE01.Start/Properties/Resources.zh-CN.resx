@@ -384,4 +384,7 @@
   <data name="ClearBookmarks" xml:space="preserve">
     <value>清除书签</value>
   </data>
+  <data name="MatchFailed" xml:space="preserve">
+    <value>没有更多匹配的关键字</value>
+  </data>
 </root>
