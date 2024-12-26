@@ -387,4 +387,43 @@
   <data name="MatchFailed" xml:space="preserve">
     <value>没有更多匹配的关键字</value>
   </data>
+  <data name="FileChangeCheckInterval" xml:space="preserve">
+    <value>文件更改检查间隔</value>
+  </data>
+  <data name="FileReopenCheckInterval" xml:space="preserve">
+    <value>文件重新打开检查间隔</value>
+  </data>
+  <data name="FileEncoding" xml:space="preserve">
+    <value>文件编码</value>
+  </data>
+  <data name="LogFile" xml:space="preserve">
+    <value>日志文件</value>
+  </data>
+  <data name="SaveConfigure" xml:space="preserve">
+    <value>保存配置</value>
+  </data>
+  <data name="KeywordHighlight" xml:space="preserve">
+    <value>关键字高亮</value>
+  </data>
+  <data name="Configure" xml:space="preserve">
+    <value>配置</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="Keyword" xml:space="preserve">
+    <value>关键字</value>
+  </data>
+  <data name="TextColor" xml:space="preserve">
+    <value>字体颜色</value>
+  </data>
+  <data name="AlertHighlight" xml:space="preserve">
+    <value>触发高亮</value>
+  </data>
+  <data name="Index" xml:space="preserve">
+    <value>序号</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
 </root>

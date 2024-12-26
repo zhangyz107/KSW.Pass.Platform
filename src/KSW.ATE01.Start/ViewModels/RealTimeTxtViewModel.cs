@@ -11,12 +11,14 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.ATE01.Application.BLLs.Abstractions.RealTimeTxt;
 using KSW.ATE01.Application.Helpers;
+using KSW.ATE01.Application.Models.RealTimeTxt;
+using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Helpers;
 using KSW.Ui;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,7 +30,9 @@ namespace KSW.ATE01.Start.ViewModels
     public class RealTimeTxtViewModel : ViewModelBase
     {
         #region Fields
+        private readonly IConfigureFileBLL _configureFileBLL;
         private readonly string _logFilePath = "C:\\Users\\zhang\\Desktop\\1663tch.txt";
+        private ConfigureFileModel _configureFileModel;
         private string _searchContent;
         private bool _isWholeWordMatch;
         private bool _isLoopSearch;
@@ -74,6 +78,10 @@ namespace KSW.ATE01.Start.ViewModels
         public DelegateCommand ClearAllCommand =>
             _clearAllCommand ?? (_clearAllCommand = new DelegateCommand(ExecuteClearAllCommand));
 
+        private DelegateCommand _viewOptionsCommand;
+        public DelegateCommand ViewOptionsCommand =>
+            _viewOptionsCommand ?? (_viewOptionsCommand = new DelegateCommand(ExecuteViewOptionsCommand));
+
         private DelegateCommand _reopenFileCommand;
         public DelegateCommand ReopenFileCommand =>
             _reopenFileCommand ?? (_reopenFileCommand = new DelegateCommand(ExecuteReopenFileCommand));
@@ -93,9 +101,10 @@ namespace KSW.ATE01.Start.ViewModels
         #endregion
 
         public RealTimeTxtViewModel(
-            IContainerProvider containerProvider) : base(containerProvider)
+            IContainerProvider containerProvider,
+            IConfigureFileBLL configureFileBLL) : base(containerProvider)
         {
-
+            _configureFileBLL = configureFileBLL;
         }
 
 
@@ -106,6 +115,7 @@ namespace KSW.ATE01.Start.ViewModels
                 _richTextBox = richTB;
                 _richTextBox.MouseRightButtonUp += RichTextBox_MouseRightButtonUp;
                 _richTextBox.SelectionChanged += RichTextBox_SelectionChanged;
+                _configureFileModel = _configureFileBLL.GetConfigureFile();
                 LoadTextFile(richTB, _logFilePath);
             }
         }
@@ -185,6 +195,7 @@ namespace KSW.ATE01.Start.ViewModels
             string pattern = $@"\b{System.Text.RegularExpressions.Regex.Escape(SearchContent)}\b"; // \b是单词边界
             var regex = new System.Text.RegularExpressions.Regex(pattern, RegexOptions.IgnoreCase);
             var documentRange = new TextRange(_richTextBox.Document.ContentStart, _richTextBox.Document.ContentEnd);
+            //获取上次选择区域起止点
             var startPos = _lastTextRange?.Start;
             var endPos = _lastTextRange?.End;
 
@@ -271,6 +282,11 @@ namespace KSW.ATE01.Start.ViewModels
 
                 _richTextBox.Document.Blocks.Clear();
             }
+        }
+
+        private void ExecuteViewOptionsCommand()
+        {
+            DialogService.ShowDialog(nameof(ConfigureDialog));
         }
 
         private void ExecuteReopenFileCommand()

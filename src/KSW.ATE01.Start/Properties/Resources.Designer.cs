@@ -61,6 +61,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Add 的本地化字符串。
+        /// </summary>
+        internal static string Add {
+            get {
+                return ResourceManager.GetString("Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Alert Highlight 的本地化字符串。
+        /// </summary>
+        internal static string AlertHighlight {
+            get {
+                return ResourceManager.GetString("AlertHighlight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Always on top 的本地化字符串。
         /// </summary>
         internal static string Always_on_top {
@@ -142,6 +160,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Configure 的本地化字符串。
+        /// </summary>
+        internal static string Configure {
+            get {
+                return ResourceManager.GetString("Configure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Copy 的本地化字符串。
         /// </summary>
         internal static string Copy {
@@ -192,6 +219,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string DelayBetweenLoops {
             get {
                 return ResourceManager.GetString("DelayBetweenLoops", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Delete 的本地化字符串。
+        /// </summary>
+        internal static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
             }
         }
         
@@ -259,6 +295,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 File Change Check Interval 的本地化字符串。
+        /// </summary>
+        internal static string FileChangeCheckInterval {
+            get {
+                return ResourceManager.GetString("FileChangeCheckInterval", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 File Copy Failed 的本地化字符串。
         /// </summary>
         internal static string FileCopyFailed {
@@ -277,11 +322,29 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 File Encoding 的本地化字符串。
+        /// </summary>
+        internal static string FileEncoding {
+            get {
+                return ResourceManager.GetString("FileEncoding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 File Path 的本地化字符串。
         /// </summary>
         internal static string FilePath {
             get {
                 return ResourceManager.GetString("FilePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 File Reopen Check Interval 的本地化字符串。
+        /// </summary>
+        internal static string FileReopenCheckInterval {
+            get {
+                return ResourceManager.GetString("FileReopenCheckInterval", resourceCulture);
             }
         }
         
@@ -331,11 +394,38 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Index 的本地化字符串。
+        /// </summary>
+        internal static string Index {
+            get {
+                return ResourceManager.GetString("Index", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 is empty 的本地化字符串。
         /// </summary>
         internal static string IsEmpty {
             get {
                 return ResourceManager.GetString("IsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Keyword 的本地化字符串。
+        /// </summary>
+        internal static string Keyword {
+            get {
+                return ResourceManager.GetString("Keyword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Keyword Highlight 的本地化字符串。
+        /// </summary>
+        internal static string KeywordHighlight {
+            get {
+                return ResourceManager.GetString("KeywordHighlight", resourceCulture);
             }
         }
         
@@ -354,6 +444,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string LoadTestPlan {
             get {
                 return ResourceManager.GetString("LoadTestPlan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Log File 的本地化字符串。
+        /// </summary>
+        internal static string LogFile {
+            get {
+                return ResourceManager.GetString("LogFile", resourceCulture);
             }
         }
         
@@ -700,6 +799,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Save Configure 的本地化字符串。
+        /// </summary>
+        internal static string SaveConfigure {
+            get {
+                return ResourceManager.GetString("SaveConfigure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Search Down 的本地化字符串。
         /// </summary>
         internal static string SearchDown {
@@ -831,6 +939,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string TestPlanType {
             get {
                 return ResourceManager.GetString("TestPlanType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Text Color 的本地化字符串。
+        /// </summary>
+        internal static string TextColor {
+            get {
+                return ResourceManager.GetString("TextColor", resourceCulture);
             }
         }
         

@@ -75,7 +75,7 @@
                     <MenuItem Header="{language:L GotoNextHighlight}"></MenuItem>
                     <MenuItem Header="{language:L PauseWindow}"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Header="{language:L ViewOptions,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}"></MenuItem>
+                    <MenuItem Header="{language:L ViewOptions,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}" Command="{Binding ViewOptionsCommand}"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="{language:L ReopenFile}" Command="{Binding ReopenFileCommand}"></MenuItem>
                     <Separator></Separator>

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\KSW.ATE01.Domain.RealTimeTxt\KSW.ATE01.Domain.RealTimeTxt.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Application.Events\KSW.ATE01.Application.Events.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Data\KSW.ATE01.Data.csproj" />

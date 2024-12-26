@@ -11,6 +11,7 @@
 	<ItemGroup>
 		<PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+		<PackageReference Include="PixiEditor.ColorPicker" Version="3.4.1" />
 		<PackageReference Include="Prism.DryIoc" Version="$(PrismVersion)" />
 		<PackageReference Include="MaterialDesignThemes" Version="$(MaterialDesignVersion)" />
 		<PackageReference Include="Serilog" Version="4.0.1" />

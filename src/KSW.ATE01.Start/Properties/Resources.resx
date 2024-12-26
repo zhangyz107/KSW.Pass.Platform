@@ -477,4 +477,56 @@
     <value>No more matching keywords</value>
     <comment>没有更多匹配的关键字</comment>
   </data>
+  <data name="FileChangeCheckInterval" xml:space="preserve">
+    <value>File Change Check Interval</value>
+    <comment>文件更改检查间隔</comment>
+  </data>
+  <data name="FileReopenCheckInterval" xml:space="preserve">
+    <value>File Reopen Check Interval</value>
+    <comment>文件重新打开检查间隔</comment>
+  </data>
+  <data name="FileEncoding" xml:space="preserve">
+    <value>File Encoding</value>
+    <comment>文件编码</comment>
+  </data>
+  <data name="LogFile" xml:space="preserve">
+    <value>Log File</value>
+    <comment>日志文件</comment>
+  </data>
+  <data name="SaveConfigure" xml:space="preserve">
+    <value>Save Configure</value>
+    <comment>保存配置</comment>
+  </data>
+  <data name="KeywordHighlight" xml:space="preserve">
+    <value>Keyword Highlight</value>
+    <comment>关键字高亮</comment>
+  </data>
+  <data name="Configure" xml:space="preserve">
+    <value>Configure</value>
+    <comment>配置</comment>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+    <comment>新增</comment>
+  </data>
+  <data name="Keyword" xml:space="preserve">
+    <value>Keyword</value>
+    <comment>关键字</comment>
+  </data>
+  <data name="TextColor" xml:space="preserve">
+    <value>Text Color</value>
+    <comment>字体颜色</comment>
+  </data>
+  <data name="AlertHighlight" xml:space="preserve">
+    <value>Alert Highlight</value>
+    <comment>触发高亮</comment>
+  </data>
+  <data name="Index" xml:space="preserve">
+    <value>Index</value>
+    <comment>序号</comment>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+    <comment>删除</comment>
+  </data>
 </root>

@@ -4,7 +4,9 @@
              xmlns:local="clr-namespace:KSW.ATE01.Platform"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+             xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+                         >
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -12,7 +14,10 @@
 
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ProgressBar.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ObsoleteBrushes.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <!--<SolidColorBrush x:Key="MaterialDesign.Brush.Primary" Color="#FF6E6E6E" po:Freeze="True" />
             <SolidColorBrush x:Key="MaterialDesign.Brush.Primary.Dark" Color="#FF8D8D8D" po:Freeze="True" />
