@@ -33,7 +33,13 @@ namespace KSW.ATE01.Application.Models.RealTimeTxt
         public int FileChangeInterval
         {
             get => _fileChangeInterval;
-            set => SetProperty(ref _fileChangeInterval, value);
+            set
+            {
+                if (value > 0)
+                {
+                    SetProperty(ref _fileChangeInterval, value);
+                }
+            }
         }
 
         /// <summary>
@@ -42,7 +48,14 @@ namespace KSW.ATE01.Application.Models.RealTimeTxt
         public int FileReopenInterval
         {
             get => _fileReopenInterval;
-            set => SetProperty(ref _fileReopenInterval, value);
+            set
+            {
+                if (value > 0)
+                {
+                    SetProperty(ref _fileReopenInterval, value);
+                }
+            }
+
         }
 
         /// <summary>

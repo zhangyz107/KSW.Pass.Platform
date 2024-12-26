@@ -9,7 +9,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        prism:ViewModelLocator.AutoWireViewModel="True" >
+        prism:ViewModelLocator.AutoWireViewModel="True">
 
     <!--<prism:Dialog.WindowStyle>
         <Style TargetType="Window">
@@ -24,6 +24,12 @@
     <UserControl.Resources>
         <converter:StringConcatenateConverter x:Key="StringConcatenateConverter"></converter:StringConcatenateConverter>
     </UserControl.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}" CommandParameter="{Binding ElementName=richTB}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -73,7 +79,7 @@
                     <MenuItem Header="{language:L ClearAll}" InputGestureText="Ctrl+D" Command="{Binding ClearAllCommand}"></MenuItem>
                     <MenuItem Header="{language:L GotoPreviousHighlight}"></MenuItem>
                     <MenuItem Header="{language:L GotoNextHighlight}"></MenuItem>
-                    <MenuItem Header="{language:L PauseWindow}"></MenuItem>
+                    <MenuItem Header="{language:L PauseWindow}" Command="{Binding PauseCommand}" IsCheckable="True" IsChecked="{Binding IsPauseWindow}"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="{language:L ViewOptions,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}" Command="{Binding ViewOptionsCommand}"></MenuItem>
                     <Separator></Separator>

@@ -426,4 +426,7 @@
   <data name="Delete" xml:space="preserve">
     <value>删除</value>
   </data>
+  <data name="IsDelete" xml:space="preserve">
+    <value>是否删除</value>
+  </data>
 </root>

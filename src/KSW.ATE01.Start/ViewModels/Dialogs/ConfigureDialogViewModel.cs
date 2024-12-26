@@ -1,5 +1,7 @@
 ﻿using KSW.ATE01.Application.BLLs.Abstractions.RealTimeTxt;
+using KSW.ATE01.Application.Events.RealTimeTxts;
 using KSW.ATE01.Application.Models.RealTimeTxt;
+using KSW.Helpers;
 using KSW.Ui;
 using NPOI.SS.Formula.Functions;
 using System.Collections.ObjectModel;
@@ -12,6 +14,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     {
         #region Fields
         private readonly IConfigureFileBLL _configureFileBLL;
+        private readonly IEventAggregator _eventAggregator;
         private ConfigureFileModel _configureFileModel;
         private bool _isDrawerOpen;
         private KeywordModel _selectedKeyword;
@@ -62,6 +65,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public DelegateCommand<object> SetForegroundCommand =>
             _setForegroundCommand ?? (_setForegroundCommand = new DelegateCommand<object>(ExecuteSetForegroundCommand));
 
+        private AsyncDelegateCommand<object> _deleteCommand;
+        public AsyncDelegateCommand<object> DeleteCommand =>
+            _deleteCommand ?? (_deleteCommand = new AsyncDelegateCommand<object>(ExecuteDeleteCommand));
+
         private DelegateCommand _saveCommand;
         public DelegateCommand SaveCommand =>
             _saveCommand ?? (_saveCommand = new DelegateCommand(ExecuteSaveCommand));
@@ -77,9 +84,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public ConfigureDialogViewModel(
             IContainerProvider containerProvider,
-            IConfigureFileBLL configureFileBLL) : base(containerProvider)
+            IConfigureFileBLL configureFileBLL,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
             _configureFileBLL = configureFileBLL;
+            _eventAggregator = eventAggregator;
         }
 
         private void KeywordList_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -146,16 +155,31 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
         }
 
+        private async Task ExecuteDeleteCommand(object obj)
+        {
+            if (obj is KeywordModel keyword)
+            {
+                if ((await DialogService.ShowMessageDialog(L["IsDelete"], System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question))?.Result == ButtonResult.Yes)
+                {
+                    KeywordList.Remove(keyword);
+                }
+            }
+        }
+
+
         private void ExecuteSaveCommand()
         {
             _configureFileModel.Keywords = KeywordList.ToList();
             _configureFileBLL.SaveConfigureFileToDisk(_configureFileModel);
+            _eventAggregator.GetEvent<ConfigureFileUpdateEvent>().Publish();
         }
 
         private void ExecuteOKCommand()
         {
             _configureFileModel.Keywords = KeywordList.ToList();
             _configureFileBLL.SaveConfigureFile(_configureFileModel);
+            _eventAggregator.GetEvent<ConfigureFileUpdateEvent>().Publish();
+
             RaiseRequestClose(new DialogResult(ButtonResult.OK));
         }
 

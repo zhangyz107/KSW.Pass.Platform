@@ -403,6 +403,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 IsDelete 的本地化字符串。
+        /// </summary>
+        internal static string IsDelete {
+            get {
+                return ResourceManager.GetString("IsDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 is empty 的本地化字符串。
         /// </summary>
         internal static string IsEmpty {

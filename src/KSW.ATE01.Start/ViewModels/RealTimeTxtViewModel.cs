@@ -11,7 +11,9 @@
 //
 //------------------------------------------------------------*/
 
+using DryIoc.ImTools;
 using KSW.ATE01.Application.BLLs.Abstractions.RealTimeTxt;
+using KSW.ATE01.Application.Events.RealTimeTxts;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.RealTimeTxt;
 using KSW.ATE01.Start.Views.Dialogs;
@@ -31,15 +33,17 @@ namespace KSW.ATE01.Start.ViewModels
     {
         #region Fields
         private readonly IConfigureFileBLL _configureFileBLL;
+        private readonly IEventAggregator _eventAggregator;
         private readonly string _logFilePath = "C:\\Users\\zhang\\Desktop\\1663tch.txt";
         private ConfigureFileModel _configureFileModel;
         private string _searchContent;
         private bool _isWholeWordMatch;
         private bool _isLoopSearch;
+        private bool _isPauseWindow = false;
         private RichTextBox _richTextBox;
         private TextPointer _currentPointer;
         private TextRange _lastTextRange;
-        private int _lastSearchIndex;
+        private FileSystemWatcher _watcher;
         #endregion
 
         #region Properties
@@ -63,12 +67,21 @@ namespace KSW.ATE01.Start.ViewModels
             set => SetProperty(ref _isLoopSearch, value);
         }
 
+        public bool IsPauseWindow
+        {
+            get => _isPauseWindow;
+            set => SetProperty(ref _isPauseWindow, value);
+        }
         #endregion
 
         #region Command
         private DelegateCommand<object> _loadingCommand;
         public DelegateCommand<object> LoadingCommand =>
             _loadingCommand ?? (_loadingCommand = new DelegateCommand<object>(ExecuteLoadingCommand));
+
+        private DelegateCommand _unloadingCommand;
+        public DelegateCommand UnloadingCommand =>
+            _unloadingCommand ?? (_unloadingCommand = new DelegateCommand(ExecuteUnloadingCommand));
 
         private AsyncDelegateCommand<object> _searchCommand;
         public AsyncDelegateCommand<object> SearchCommand =>
@@ -77,6 +90,10 @@ namespace KSW.ATE01.Start.ViewModels
         private DelegateCommand _clearAllCommand;
         public DelegateCommand ClearAllCommand =>
             _clearAllCommand ?? (_clearAllCommand = new DelegateCommand(ExecuteClearAllCommand));
+
+        private DelegateCommand _pauseCommand;
+        public DelegateCommand PauseCommand =>
+            _pauseCommand ?? (_pauseCommand = new DelegateCommand(ExecutePauseCommand));
 
         private DelegateCommand _viewOptionsCommand;
         public DelegateCommand ViewOptionsCommand =>
@@ -97,16 +114,23 @@ namespace KSW.ATE01.Start.ViewModels
         private DelegateCommand _clearBookmarkCommand;
         public DelegateCommand ClearBookmarkCommand =>
             _clearBookmarkCommand ?? (_clearBookmarkCommand = new DelegateCommand(ExecuteClearBookmarkCommand));
-
         #endregion
 
         public RealTimeTxtViewModel(
             IContainerProvider containerProvider,
-            IConfigureFileBLL configureFileBLL) : base(containerProvider)
+            IConfigureFileBLL configureFileBLL,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
             _configureFileBLL = configureFileBLL;
+            _eventAggregator = eventAggregator;
+
+            _eventAggregator.GetEvent<ConfigureFileUpdateEvent>().Subscribe(ConfigureFileUpdate);
         }
 
+        private void ConfigureFileUpdate()
+        {
+            _configureFileModel = _configureFileBLL.GetConfigureFile();
+        }
 
         private void ExecuteLoadingCommand(object richTextBox)
         {
@@ -116,8 +140,42 @@ namespace KSW.ATE01.Start.ViewModels
                 _richTextBox.MouseRightButtonUp += RichTextBox_MouseRightButtonUp;
                 _richTextBox.SelectionChanged += RichTextBox_SelectionChanged;
                 _configureFileModel = _configureFileBLL.GetConfigureFile();
+
                 LoadTextFile(richTB, _logFilePath);
+
+                _watcher = new FileSystemWatcher();
+                _watcher.Path = Path.GetDirectoryName(_logFilePath);
+                _watcher.Filter = Path.GetFileName(_logFilePath);
+                _watcher.NotifyFilter = NotifyFilters.Attributes
+                | NotifyFilters.CreationTime
+                | NotifyFilters.DirectoryName
+                | NotifyFilters.FileName
+                | NotifyFilters.LastAccess
+                | NotifyFilters.LastWrite
+                | NotifyFilters.Security
+                | NotifyFilters.Size;
+                _watcher.Changed += Watcher_Changed;
+                _watcher.EnableRaisingEvents = true;
             }
+        }
+
+        private async void Watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            if (e.FullPath.Equals(_logFilePath))
+            {
+                await Task.Delay(_configureFileModel.FileChangeInterval);
+
+                await System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, () =>
+                {
+                    LoadTextFile(_richTextBox, _logFilePath);
+                });
+            }
+        }
+
+        private void ExecuteUnloadingCommand()
+        {
+            if (_watcher != null)
+                _watcher.EnableRaisingEvents = false;
         }
 
         private void RichTextBox_SelectionChanged(object sender, RoutedEventArgs e)
@@ -138,8 +196,6 @@ namespace KSW.ATE01.Start.ViewModels
                 {
                     _currentPointer = textPointer;
                     var run = textPointer.Parent as Run;
-                    Debug.WriteLine(run?.Name);
-                    Debug.WriteLine(run?.Text);
                 }
             }
         }
@@ -152,7 +208,7 @@ namespace KSW.ATE01.Start.ViewModels
             richTB.Document.Blocks.Clear();
             // 打开文件并读取其内容
             var text = File.ReadAllText(filePath);
-            var msgList = text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            var msgList = text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
             if (msgList.IsEmpty())
                 return;
 
@@ -162,10 +218,12 @@ namespace KSW.ATE01.Start.ViewModels
             var index = 0;
             foreach (var msg in msgList)
             {
-                var hasMarker = false;
-                if (msg.Contains("condition"))  //当出现标识字符时
-                    hasMarker = true;
-                Run r = new Run(msg);
+                //var hasMarker = false;
+                //if (msg.Contains("condition"))  //当出现标识字符时
+                //    hasMarker = true;
+
+                var rowMsg = msg + "\r\n";
+                Run r = new Run(rowMsg);
                 r.Name = $"run{index++}";
                 var hasBookmark = bookmarks.Any(x => x.RunName.Equals(r.Name));
 
@@ -178,15 +236,19 @@ namespace KSW.ATE01.Start.ViewModels
                 else
                 {
                     //进行标记
-                    if (hasMarker)
-                        r.Foreground = Brushes.Red;
-                    else
-                        r.Foreground = Brushes.Black;
+                    //if (hasMarker)
+                    //    r.Foreground = Brushes.Red;
+                    //else
+                    //    r.Foreground = Brushes.Black;
+
+                    r.Foreground = Brushes.Black;
                 }
 
                 para.Inlines.Add(r);
             }
             richTB.Document.Blocks.Add(para);
+            if (!_isPauseWindow)
+                richTB.ScrollToEnd();
         }
 
         private async Task ExecuteSearchCommand(object isUpSearch)
@@ -237,7 +299,7 @@ namespace KSW.ATE01.Start.ViewModels
             var findResult = false;
             var flag = IsWholeWordMatch ? regex.IsMatch(textToSearch) : true;
             // 在当前范围内搜索指定的文本
-            int index = isSearchUp ? textToSearch.LastIndexOf(SearchContent) : textToSearch.IndexOf(SearchContent);
+            int index = isSearchUp ? textToSearch.LastIndexOf(SearchContent, StringComparison.OrdinalIgnoreCase) : textToSearch.IndexOf(SearchContent, StringComparison.OrdinalIgnoreCase);
             // 如果找到匹配的文本
             if (index != -1 && flag)
             {
@@ -249,7 +311,7 @@ namespace KSW.ATE01.Start.ViewModels
                     string currentText = pointer.GetTextInRun(LogicalDirection.Forward);
                     // 查找关键字
                     index = currentText.IndexOf(SearchContent, StringComparison.OrdinalIgnoreCase);
-                    if (index > 0)
+                    if (index >= 0)
                     {
                         var run = pointer.Parent as Run;
                         // 找到匹配的关键字，选择文本并滚动
@@ -282,6 +344,12 @@ namespace KSW.ATE01.Start.ViewModels
 
                 _richTextBox.Document.Blocks.Clear();
             }
+        }
+
+
+        private void ExecutePauseCommand()
+        {
+            _watcher.EnableRaisingEvents = !_isPauseWindow;
         }
 
         private void ExecuteViewOptionsCommand()

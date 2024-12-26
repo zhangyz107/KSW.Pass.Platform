@@ -27,10 +27,11 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
+
         <Border Margin="0,0,0,6" BorderThickness="1" BorderBrush="Gray" CornerRadius="2.5">
             <TabControl  HorizontalContentAlignment="Left" Style="{StaticResource MaterialDesignFilledTabControl}">
                 <TabItem Header="{language:L LogFile}">
-                    <Grid  Margin="4" TextElement.FontSize="14">
+                    <Grid  Margin="4,8" TextElement.FontSize="14">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"></RowDefinition>
                             <RowDefinition Height="auto"></RowDefinition>
@@ -41,14 +42,14 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Margin="0,0,6,6" VerticalAlignment="Center" Text="{language:L FileEncoding}"></TextBlock>
-                        <ComboBox Margin="0,0,0,6" Padding="4" Grid.Column="1" ItemsSource="{Binding EncodingDic}" SelectedValue="{Binding ConfigureFileModel.FileEncoding}" Style="{StaticResource MaterialDesignOutlinedComboBox}"></ComboBox>
+                        <!--<TextBlock Margin="0,0,6,6" VerticalAlignment="Center" Text="{language:L FileEncoding}"></TextBlock>
+                        <ComboBox Margin="0,0,0,6" Padding="4" Grid.Column="1" ItemsSource="{Binding EncodingDic}" SelectedValue="{Binding ConfigureFileModel.FileEncoding}" Style="{StaticResource MaterialDesignOutlinedComboBox}"></ComboBox>-->
 
-                        <TextBlock Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Text="{language:L FileReopenCheckInterval}"></TextBlock>
-                        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,6" Padding="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding ConfigureFileModel.FileReopenInterval}" materialDesign:TextFieldAssist.SuffixText="secs"></TextBox>
+                        <TextBlock Margin="0,0,6,6" VerticalAlignment="Center" Text="{language:L FileReopenCheckInterval}"></TextBlock>
+                        <TextBox Grid.Column="1" Margin="0,0,0,6" Padding="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding ConfigureFileModel.FileReopenInterval}" materialDesign:TextFieldAssist.SuffixText="secs"></TextBox>
 
-                        <TextBlock Grid.Row="2" Margin="0,0,6,6" VerticalAlignment="Center" Text="{language:L FileChangeCheckInterval}"></TextBlock>
-                        <TextBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,6" Padding="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding ConfigureFileModel.FileChangeInterval}" materialDesign:TextFieldAssist.SuffixText="msecs"></TextBox>
+                        <TextBlock Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Text="{language:L FileChangeCheckInterval}"></TextBlock>
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,6" Padding="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding ConfigureFileModel.FileChangeInterval}" materialDesign:TextFieldAssist.SuffixText="msecs"></TextBox>
                     </Grid>
                 </TabItem>
 
@@ -112,7 +113,7 @@
                                     <DataGridTemplateColumn Width="0.5*" Header="{language:L Operate}">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Content="{language:L Delete}" Style="{StaticResource MaterialDesignFlatButton}"></Button>
+                                                <Button Content="{language:L Delete}" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding DataContext.DeleteCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}" CommandParameter="{Binding }"></Button>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>

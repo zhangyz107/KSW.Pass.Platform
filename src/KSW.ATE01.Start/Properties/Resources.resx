@@ -529,4 +529,8 @@
     <value>Delete</value>
     <comment>删除</comment>
   </data>
+  <data name="IsDelete" xml:space="preserve">
+    <value>IsDelete</value>
+    <comment>是否删除</comment>
+  </data>
 </root>
