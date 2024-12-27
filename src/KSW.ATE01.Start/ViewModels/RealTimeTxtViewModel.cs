@@ -15,11 +15,13 @@ using KSW.ATE01.Application.BLLs.Abstractions.RealTimeTxt;
 using KSW.ATE01.Application.Events.RealTimeTxts;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.RealTimeTxt;
+using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Helpers;
 using KSW.Properties;
 using KSW.Ui;
 using System.IO;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,6 +33,8 @@ namespace KSW.ATE01.Start.ViewModels
     public class RealTimeTxtViewModel : ViewModelBase
     {
         #region Fields
+        private static bool _isRefrash = false;
+        private static object _lock = new object();
         private readonly IConfigureFileBLL _configureFileBLL;
         private readonly IEventAggregator _eventAggregator;
         private readonly string _logFilePath = "C:\\Users\\zhang\\Desktop\\1663tch.txt";
@@ -40,7 +44,7 @@ namespace KSW.ATE01.Start.ViewModels
         private bool _isWholeWordMatch;
         private bool _isLoopSearch;
         private bool _isPauseWindow = false;
-        private RichTextBox _richTextBox;
+        private RealTimeTxtView _view;
         private TextPointer _currentPointer;
         private TextRange _lastTextRange;
         private FileSystemWatcher _watcher;
@@ -52,7 +56,11 @@ namespace KSW.ATE01.Start.ViewModels
         public string SearchContent
         {
             get => _searchContent;
-            set => SetProperty(ref _searchContent, value);
+            set
+            {
+                if (SetProperty(ref _searchContent, value))
+                    SearchCommand.RaiseCanExecuteChanged();
+            }
         }
 
         public bool IsWholeWordMatch
@@ -83,9 +91,13 @@ namespace KSW.ATE01.Start.ViewModels
         public DelegateCommand UnloadingCommand =>
             _unloadingCommand ?? (_unloadingCommand = new DelegateCommand(ExecuteUnloadingCommand));
 
+        private DelegateCommand _focusFindCommand;
+        public DelegateCommand FocusFindCommand =>
+            _focusFindCommand ?? (_focusFindCommand = new DelegateCommand(ExecuteFocusFindCommand));
+
         private AsyncDelegateCommand<object> _searchCommand;
         public AsyncDelegateCommand<object> SearchCommand =>
-            _searchCommand ?? (_searchCommand = new AsyncDelegateCommand<object>(ExecuteSearchCommand));
+            _searchCommand ?? (_searchCommand = new AsyncDelegateCommand<object>(ExecuteSearchCommand, (x) => SearchContent.IsEmpty() == false));
 
         private DelegateCommand _clearAllCommand;
         public DelegateCommand ClearAllCommand =>
@@ -135,19 +147,22 @@ namespace KSW.ATE01.Start.ViewModels
         {
             _configureFileModel = _configureFileBLL.GetConfigureFile();
 
-            LoadTextFile(_richTextBox, _logFilePath);
+            LoadTextFile(_view?.richTB, _logFilePath);
         }
 
         private void ExecuteLoadingCommand(object richTextBox)
         {
-            if (richTextBox is RichTextBox richTB)
+            if (richTextBox is RealTimeTxtView view)
             {
-                _richTextBox = richTB;
-                _richTextBox.MouseRightButtonUp += RichTextBox_MouseRightButtonUp;
-                _richTextBox.SelectionChanged += RichTextBox_SelectionChanged;
+                _view = view;
+                var richTb = _view.richTB;
                 _configureFileModel = _configureFileBLL.GetConfigureFile();
-
-                LoadTextFile(richTB, _logFilePath);
+                if (richTb != null)
+                {
+                    richTb.MouseRightButtonUp += RichTextBox_MouseRightButtonUp;
+                    richTb.SelectionChanged += RichTextBox_SelectionChanged;
+                    LoadTextFile(richTb, _logFilePath);
+                }
 
                 _watcher = new FileSystemWatcher();
                 _watcher.Path = Path.GetDirectoryName(_logFilePath);
@@ -174,7 +189,7 @@ namespace KSW.ATE01.Start.ViewModels
 
                 await System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, () =>
                 {
-                    LoadTextFile(_richTextBox, _logFilePath);
+                    LoadTextFile(_view?.richTB, _logFilePath);
                 });
             }
         }
@@ -219,44 +234,57 @@ namespace KSW.ATE01.Start.ViewModels
             if (msgList.IsEmpty())
                 return;
 
-            var bookmarks = BookmarkManagerHelper.Bookmarks;
-            HighlightManagerHelper.ClearHighlight();
-
-            Paragraph para = new Paragraph();
-            var index = 0;
-            foreach (var msg in msgList)
+            if (!_isRefrash)
             {
-                //处理高亮字符串
-                var hasMarker = IsContainKeyword(msg, out bool addHighlight, out Color foreground);
-
-                var rowMsg = msg + "\r\n";
-                Run r = new Run(rowMsg);
-                r.Name = $"{_prefixRun}{index++}";
-                var hasBookmark = bookmarks.Any(x => x.RunName.Equals(r.Name));
-
-                //标记书签
-                if (hasBookmark)
+                lock (_lock)
                 {
-                    r.Foreground = Brushes.Yellow;
-                    r.Background = Brushes.Green;
-                }
-                else
-                {
-                    //进行标记
-                    if (hasMarker)
-                        r.Foreground = new SolidColorBrush(foreground);
-                    else
-                        r.Foreground = Brushes.Black;
-                }
+                    if (!_isRefrash)
+                    {
+                        _isRefrash = true;
 
-                if (hasBookmark || addHighlight)
-                    HighlightManagerHelper.AddHighlight(_prefixRun, r.Name);
+                        var bookmarks = BookmarkManagerHelper.Bookmarks;
+                        HighlightManagerHelper.ClearHighlight();
 
-                para.Inlines.Add(r);
+                        Paragraph para = new Paragraph();
+                        var index = 0;
+                        foreach (var msg in msgList)
+                        {
+                            //处理高亮字符串
+                            var hasMarker = IsContainKeyword(msg, out bool addHighlight, out Color foreground);
+
+                            var rowMsg = msg + "\r\n";
+                            Run r = new Run(rowMsg);
+                            r.Name = $"{_prefixRun}{index++}";
+                            var hasBookmark = bookmarks.Any(x => x.RunName.Equals(r.Name));
+
+                            //标记书签
+                            if (hasBookmark)
+                            {
+                                r.Foreground = Brushes.Yellow;
+                                r.Background = Brushes.Green;
+                            }
+                            else
+                            {
+                                //进行标记
+                                if (hasMarker)
+                                    r.Foreground = new SolidColorBrush(foreground);
+                                else
+                                    r.Foreground = Brushes.Black;
+                            }
+
+                            if (hasBookmark || addHighlight)
+                                HighlightManagerHelper.AddHighlight(_prefixRun, r.Name);
+
+                            para.Inlines.Add(r);
+                        }
+                        richTB.Document.Blocks.Add(para);
+                        if (!_isPauseWindow)
+                            richTB.ScrollToEnd();
+
+                        _isRefrash = false;
+                    }
+                }
             }
-            richTB.Document.Blocks.Add(para);
-            if (!_isPauseWindow)
-                richTB.ScrollToEnd();
         }
 
         private bool IsContainKeyword(string msg, out bool addHighlight, out Color foreground)
@@ -286,12 +314,17 @@ namespace KSW.ATE01.Start.ViewModels
             return result;
         }
 
+        private void ExecuteFocusFindCommand()
+        {
+            _view?.findTb?.Focus();
+        }
+
         private async Task ExecuteSearchCommand(object isUpSearch)
         {
             var findResult = false;
             string pattern = $@"\b{System.Text.RegularExpressions.Regex.Escape(SearchContent)}\b"; // \b是单词边界
             var regex = new System.Text.RegularExpressions.Regex(pattern, RegexOptions.IgnoreCase);
-            var documentRange = new TextRange(_richTextBox.Document.ContentStart, _richTextBox.Document.ContentEnd);
+            var documentRange = new TextRange(_view?.richTB?.Document?.ContentStart, _view?.richTB?.Document?.ContentEnd);
             //获取上次选择区域起止点
             var startPos = _lastTextRange?.Start;
             var endPos = _lastTextRange?.End;
@@ -301,14 +334,14 @@ namespace KSW.ATE01.Start.ViewModels
                 if (searchType)
                 {
                     if (startPos != null)
-                        documentRange = new TextRange(_richTextBox.Document.ContentStart, startPos);
+                        documentRange = new TextRange(_view?.richTB?.Document?.ContentStart, startPos);
                     var textToSearch = documentRange.Text;
                     findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
                 }
                 else
                 {
                     if (endPos != null)
-                        documentRange = new TextRange(endPos, _richTextBox.Document.ContentEnd);
+                        documentRange = new TextRange(endPos, _view?.richTB?.Document?.ContentEnd);
                     var textToSearch = documentRange.Text;
                     findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
                 }
@@ -317,7 +350,7 @@ namespace KSW.ATE01.Start.ViewModels
                 {
                     if (IsLoopSearch)
                     {
-                        documentRange = new TextRange(_richTextBox.Document.ContentStart, _richTextBox.Document.ContentEnd);
+                        documentRange = new TextRange(_view?.richTB?.Document?.ContentStart, _view?.richTB?.Document?.ContentEnd);
                         var textToSearch = documentRange.Text;
                         findResult = SearchTarget(searchType, regex, documentRange, textToSearch);
                     }
@@ -326,7 +359,7 @@ namespace KSW.ATE01.Start.ViewModels
                 }
             }
 
-            _richTextBox.Focus();
+            _view?.richTB?.Focus();
         }
 
         private bool SearchTarget(bool isSearchUp, System.Text.RegularExpressions.Regex regex, TextRange documentRange, string textToSearch)
@@ -340,7 +373,7 @@ namespace KSW.ATE01.Start.ViewModels
             {
                 TextPointer pointer = documentRange.Start.GetPositionAtOffset(index);
 
-                while (pointer != null && pointer.CompareTo(_richTextBox.Document.ContentEnd) < 0)
+                while (pointer != null && pointer.CompareTo(_view?.richTB?.Document?.ContentEnd) < 0)
                 {
                     // 获取当前 TextPointer 指向的位置的字符
                     string currentText = pointer.GetTextInRun(LogicalDirection.Forward);
@@ -353,7 +386,7 @@ namespace KSW.ATE01.Start.ViewModels
                         TextPointer startPointer = pointer.GetPositionAtOffset(index);
                         TextPointer endPointer = startPointer.GetPositionAtOffset(SearchContent.Length);
                         ScrollToSelection(startPointer, endPointer);
-                        _richTextBox.Selection.Select(startPointer, endPointer);
+                        _view?.richTB?.Selection?.Select(startPointer, endPointer);
                         findResult = true;
                         break;
                     }
@@ -367,7 +400,7 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ExecuteClearAllCommand()
         {
-            if (_richTextBox != null)
+            if (_view?.richTB != null)
             {
                 if (!File.Exists(_logFilePath))
                     return;
@@ -377,7 +410,7 @@ namespace KSW.ATE01.Start.ViewModels
                 stream.SetLength(0);
                 stream.Close();
 
-                _richTextBox.Document.Blocks.Clear();
+                _view?.richTB?.Document.Blocks.Clear();
             }
         }
 
@@ -387,7 +420,7 @@ namespace KSW.ATE01.Start.ViewModels
             var isNext = true;
             bool.TryParse(obj.ToString(), out isNext);
 
-            if (_richTextBox != null && _currentPointer != null)
+            if (_view?.richTB != null && _currentPointer != null)
             {
                 var run = _currentPointer.Parent as Run;
                 var runName = run.Name;
@@ -396,7 +429,7 @@ namespace KSW.ATE01.Start.ViewModels
                 if (highlightPosition != null)
                 {
                     // 获取 RichTextBox 中的所有 TextElements
-                    var targetRun = _richTextBox.Document.Blocks
+                    var targetRun = _view?.richTB?.Document?.Blocks
                                     .OfType<Paragraph>()
                                     .SelectMany(p => p.Inlines.OfType<Run>())
                                     .Where(run => run.Name.Equals(highlightPosition.RunName))
@@ -409,6 +442,8 @@ namespace KSW.ATE01.Start.ViewModels
                         return;
 
                     ScrollToSelection(selectionStart, selectionEnd);
+                    _view?.richTB?.Selection?.Select(selectionStart, selectionEnd);
+                    _currentPointer = isNext ? selectionEnd : selectionStart;
                 }
             }
         }
@@ -426,17 +461,17 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ExecuteReopenFileCommand()
         {
-            if (_richTextBox != null)
+            if (_view?.richTB != null)
             {
-                LoadTextFile(_richTextBox, _logFilePath);
+                LoadTextFile(_view?.richTB, _logFilePath);
             }
         }
 
         private void ExecuteToggleBookmarkCommand(object obj)
         {
-            if (_richTextBox != null)
+            if (_view?.richTB != null)
             {
-                var selection = _richTextBox.Selection;
+                var selection = _view?.richTB?.Selection;
                 // 获取选中内容的起始位置
                 TextPointer startPointer = selection.Start;
                 if (selection.IsEmpty)
@@ -455,8 +490,8 @@ namespace KSW.ATE01.Start.ViewModels
                 {
                     // 获取选中内容的段落
                     Paragraph selectedParagraph = startPointer.Paragraph;
-                    _richTextBox.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Yellow);
-                    _richTextBox.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green);
+                    _view?.richTB?.Selection?.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Yellow);
+                    _view?.richTB?.Selection?.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green);
                     var run = startPointer.Parent as Run;
                     var runName = run.Name;
                     BookmarkManagerHelper.AddBookmark(_prefixRun, runName);
@@ -470,7 +505,7 @@ namespace KSW.ATE01.Start.ViewModels
             var isNext = true;
             bool.TryParse(obj.ToString(), out isNext);
 
-            if (_richTextBox != null && _currentPointer != null)
+            if (_view?.richTB != null && _currentPointer != null)
             {
                 var run = _currentPointer.Parent as Run;
                 var runName = run.Name;
@@ -479,7 +514,7 @@ namespace KSW.ATE01.Start.ViewModels
                 if (bookmarkPosition != null)
                 {
                     // 获取 RichTextBox 中的所有 TextElements
-                    var targetRun = _richTextBox.Document.Blocks
+                    var targetRun = _view?.richTB?.Document?.Blocks
                                     .OfType<Paragraph>()
                                     .SelectMany(p => p.Inlines.OfType<Run>())
                                     .Where(run => run.Name.Equals(bookmarkPosition.RunName))
@@ -513,7 +548,7 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ScrollToSelection(TextPointer selectionStart, TextPointer selectionEnd)
         {
-            if (_richTextBox != null)
+            if (_view?.richTB != null)
             {
                 // 获取选中文本起始和结束位置的物理区域
                 Rect selectionStartRect = selectionStart.GetCharacterRect(LogicalDirection.Forward);
@@ -523,7 +558,7 @@ namespace KSW.ATE01.Start.ViewModels
                 double selectionHeight = selectionEndRect.Bottom - selectionStartRect.Top;
 
                 // 获取 RichTextBox 内部的 ScrollViewer 控件
-                ScrollViewer scrollViewer = GetScrollViewer(_richTextBox);
+                ScrollViewer scrollViewer = GetScrollViewer(_view?.richTB);
 
                 // 滚动到选中文本的位置，使其位于视窗的中间
                 scrollViewer.ScrollToVerticalOffset(selectionStartRect.Top + scrollViewer.VerticalOffset - (selectionHeight / 2));
@@ -533,9 +568,9 @@ namespace KSW.ATE01.Start.ViewModels
         private void ExecuteClearBookmarkCommand()
         {
             BookmarkManagerHelper.ClearBookmark();
-            if (_richTextBox != null)
+            if (_view?.richTB != null)
             {
-                LoadTextFile(_richTextBox, _logFilePath);
+                LoadTextFile(_view?.richTB, _logFilePath);
             }
         }
     }

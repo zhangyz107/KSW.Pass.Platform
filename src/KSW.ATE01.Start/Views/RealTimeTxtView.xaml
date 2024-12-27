@@ -9,7 +9,8 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        prism:ViewModelLocator.AutoWireViewModel="True">
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        x:Name="view">
 
     <!--<prism:Dialog.WindowStyle>
         <Style TargetType="Window">
@@ -25,9 +26,20 @@
         <converter:StringConcatenateConverter x:Key="StringConcatenateConverter"></converter:StringConcatenateConverter>
     </UserControl.Resources>
 
+    <UserControl.InputBindings>
+        <KeyBinding  Command="{Binding ClearAllCommand}" Key="D" Modifiers="Ctrl"></KeyBinding>
+        <KeyBinding  Command="{Binding GoToHighlightCommand}" CommandParameter="False" Key="Up" Modifiers="Alt"></KeyBinding>
+        <KeyBinding  Command="{Binding GoToHighlightCommand}" CommandParameter="True" Key="Down" Modifiers="Alt"></KeyBinding>
+        <KeyBinding  Command="{Binding ReopenFileCommand}" Key="R" Modifiers="Ctrl"></KeyBinding>
+        <KeyBinding  Command="{Binding FocusFindCommand}" Key="F" Modifiers="Ctrl"></KeyBinding>
+    </UserControl.InputBindings>
+
     <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}" CommandParameter="{Binding ElementName=view}"/>
+        </i:EventTrigger>
         <i:EventTrigger EventName="Unloaded">
-            <i:InvokeCommandAction Command="{Binding LoadingCommand}" CommandParameter="{Binding ElementName=richTB}"/>
+            <i:InvokeCommandAction Command="{Binding UnloadingCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
@@ -49,7 +61,7 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <TextBlock Margin="8" Text="{language:L FindTarget,Converter={StaticResource StringConcatenateConverter},ConverterParameter=(F)}" VerticalAlignment="Center" Foreground="Black"></TextBlock>
-                <TextBox Grid.Column="1" Padding="4,0,0,0" Text="{Binding SearchContent,UpdateSourceTrigger=LostFocus}" Style="{StaticResource MaterialDesignOutlinedTextBox}" Foreground="Black"></TextBox>
+                <TextBox x:Name="findTb" Grid.Column="1" Padding="4,0,0,0" Text="{Binding SearchContent,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignOutlinedTextBox}" Foreground="Black"></TextBox>
             </Grid>
 
             <Grid Grid.Row="2">
@@ -68,16 +80,18 @@
         </Grid>
 
         <RichTextBox Grid.Row="1" x:Name="richTB" Margin="4" Padding="4" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Style="{StaticResource MaterialDesignOutlinedRichTextBox}">
-            <i:Interaction.Triggers>
+            <!--<i:Interaction.Triggers>
                 <i:EventTrigger EventName="Loaded">
                     <i:InvokeCommandAction Command="{Binding LoadingCommand}" CommandParameter="{Binding ElementName=richTB}"/>
                 </i:EventTrigger>
-            </i:Interaction.Triggers>
+            </i:Interaction.Triggers>-->
             <RichTextBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="{language:L Copy}" Command="ApplicationCommands.Copy"></MenuItem>
-                    <MenuItem Header="{language:L ClearAll}" InputGestureText="Ctrl+D" Command="{Binding ClearAllCommand}"></MenuItem>
-                    <MenuItem Header="{language:L GotoPreviousHighlight}" Command="{Binding GoToHighlightCommand}" CommandParameter="False" InputGestureText="Alt+Up"></MenuItem>
+                    <MenuItem Header="{language:L ClearAll}" InputGestureText="Ctrl+D" Command="{Binding ClearAllCommand}">
+                    </MenuItem>
+                    <MenuItem Header="{language:L GotoPreviousHighlight}" Command="{Binding GoToHighlightCommand}" CommandParameter="False" InputGestureText="Alt+Up">
+                    </MenuItem>
                     <MenuItem Header="{language:L GotoNextHighlight}"  Command="{Binding GoToHighlightCommand}" CommandParameter="True" InputGestureText="Alt+Down"></MenuItem>
                     <MenuItem Header="{language:L PauseWindow}" Command="{Binding PauseCommand}" IsCheckable="True" IsChecked="{Binding IsPauseWindow}"></MenuItem>
                     <Separator></Separator>

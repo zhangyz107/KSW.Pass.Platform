@@ -45,6 +45,7 @@ namespace KSW.ATE01.Application.Helpers
         {
             HighlightModel result = null;
             var otherIndex = runName.Replace(prefix, "");
+            var hasNext = false;
             if (_highlights.Any())
             {
                 foreach (var highlight in _highlights)
@@ -63,7 +64,10 @@ namespace KSW.ATE01.Application.Helpers
                         if (compareIndex > 0)
                         {
                             if (isNext)
+                            {
+                                hasNext = true;
                                 result = highlight;
+                            }
                             break;
                         }
                         else if (compareIndex < 0)
@@ -74,6 +78,8 @@ namespace KSW.ATE01.Application.Helpers
                 }
             }
 
+            if (isNext && !hasNext)
+                result = null;
             return result;
         }
 
