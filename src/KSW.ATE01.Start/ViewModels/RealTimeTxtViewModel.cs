@@ -11,15 +11,14 @@
 //
 //------------------------------------------------------------*/
 
-using DryIoc.ImTools;
 using KSW.ATE01.Application.BLLs.Abstractions.RealTimeTxt;
 using KSW.ATE01.Application.Events.RealTimeTxts;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.RealTimeTxt;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Helpers;
+using KSW.Properties;
 using KSW.Ui;
-using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -35,6 +34,7 @@ namespace KSW.ATE01.Start.ViewModels
         private readonly IConfigureFileBLL _configureFileBLL;
         private readonly IEventAggregator _eventAggregator;
         private readonly string _logFilePath = "C:\\Users\\zhang\\Desktop\\1663tch.txt";
+        private readonly string _prefixRun = "run";
         private ConfigureFileModel _configureFileModel;
         private string _searchContent;
         private bool _isWholeWordMatch;
@@ -91,6 +91,10 @@ namespace KSW.ATE01.Start.ViewModels
         public DelegateCommand ClearAllCommand =>
             _clearAllCommand ?? (_clearAllCommand = new DelegateCommand(ExecuteClearAllCommand));
 
+        private DelegateCommand<object> _goToHighlightCommand;
+        public DelegateCommand<object> GoToHighlightCommand =>
+            _goToHighlightCommand ?? (_goToHighlightCommand = new DelegateCommand<object>(ExecuteGoToHighlightCommand));
+
         private DelegateCommand _pauseCommand;
         public DelegateCommand PauseCommand =>
             _pauseCommand ?? (_pauseCommand = new DelegateCommand(ExecutePauseCommand));
@@ -124,12 +128,14 @@ namespace KSW.ATE01.Start.ViewModels
             _configureFileBLL = configureFileBLL;
             _eventAggregator = eventAggregator;
 
-            _eventAggregator.GetEvent<ConfigureFileUpdateEvent>().Subscribe(ConfigureFileUpdate);
+            _eventAggregator.GetEvent<ConfigureFileUpdateEvent>().Subscribe(ConfigureFileUpdate, ThreadOption.UIThread);
         }
 
         private void ConfigureFileUpdate()
         {
             _configureFileModel = _configureFileBLL.GetConfigureFile();
+
+            LoadTextFile(_richTextBox, _logFilePath);
         }
 
         private void ExecuteLoadingCommand(object richTextBox)
@@ -146,6 +152,7 @@ namespace KSW.ATE01.Start.ViewModels
                 _watcher = new FileSystemWatcher();
                 _watcher.Path = Path.GetDirectoryName(_logFilePath);
                 _watcher.Filter = Path.GetFileName(_logFilePath);
+                _watcher.InternalBufferSize = 64 * 1024; // 设置为 64 KB
                 _watcher.NotifyFilter = NotifyFilters.Attributes
                 | NotifyFilters.CreationTime
                 | NotifyFilters.DirectoryName
@@ -212,19 +219,19 @@ namespace KSW.ATE01.Start.ViewModels
             if (msgList.IsEmpty())
                 return;
 
-            var bookmarks = BookmarkManagerHelper.BookmarkModels;
+            var bookmarks = BookmarkManagerHelper.Bookmarks;
+            HighlightManagerHelper.ClearHighlight();
 
             Paragraph para = new Paragraph();
             var index = 0;
             foreach (var msg in msgList)
             {
-                //var hasMarker = false;
-                //if (msg.Contains("condition"))  //当出现标识字符时
-                //    hasMarker = true;
+                //处理高亮字符串
+                var hasMarker = IsContainKeyword(msg, out bool addHighlight, out Color foreground);
 
                 var rowMsg = msg + "\r\n";
                 Run r = new Run(rowMsg);
-                r.Name = $"run{index++}";
+                r.Name = $"{_prefixRun}{index++}";
                 var hasBookmark = bookmarks.Any(x => x.RunName.Equals(r.Name));
 
                 //标记书签
@@ -236,19 +243,47 @@ namespace KSW.ATE01.Start.ViewModels
                 else
                 {
                     //进行标记
-                    //if (hasMarker)
-                    //    r.Foreground = Brushes.Red;
-                    //else
-                    //    r.Foreground = Brushes.Black;
-
-                    r.Foreground = Brushes.Black;
+                    if (hasMarker)
+                        r.Foreground = new SolidColorBrush(foreground);
+                    else
+                        r.Foreground = Brushes.Black;
                 }
+
+                if (hasBookmark || addHighlight)
+                    HighlightManagerHelper.AddHighlight(_prefixRun, r.Name);
 
                 para.Inlines.Add(r);
             }
             richTB.Document.Blocks.Add(para);
             if (!_isPauseWindow)
                 richTB.ScrollToEnd();
+        }
+
+        private bool IsContainKeyword(string msg, out bool addHighlight, out Color foreground)
+        {
+            var result = false;
+            addHighlight = false;
+            foreground = Colors.Red;
+
+            if (_configureFileModel.Keywords.IsEmpty())
+                return result;
+
+            foreach (var keyword in _configureFileModel.Keywords)
+            {
+                var isContain = msg.IndexOf(keyword.Keyword, StringComparison.OrdinalIgnoreCase);
+                if (isContain >= 0)
+                {
+                    result = true;
+                    addHighlight = keyword.IsHighlight == true;
+                    if (addHighlight)
+                        foreground = keyword.Foreground ?? Colors.Red;
+                }
+
+                if (result && addHighlight)
+                    break;
+            }
+
+            return result;
         }
 
         private async Task ExecuteSearchCommand(object isUpSearch)
@@ -347,6 +382,38 @@ namespace KSW.ATE01.Start.ViewModels
         }
 
 
+        private void ExecuteGoToHighlightCommand(object obj)
+        {
+            var isNext = true;
+            bool.TryParse(obj.ToString(), out isNext);
+
+            if (_richTextBox != null && _currentPointer != null)
+            {
+                var run = _currentPointer.Parent as Run;
+                var runName = run.Name;
+
+                var highlightPosition = HighlightManagerHelper.GotoHighlight(_prefixRun, runName, isNext);
+                if (highlightPosition != null)
+                {
+                    // 获取 RichTextBox 中的所有 TextElements
+                    var targetRun = _richTextBox.Document.Blocks
+                                    .OfType<Paragraph>()
+                                    .SelectMany(p => p.Inlines.OfType<Run>())
+                                    .Where(run => run.Name.Equals(highlightPosition.RunName))
+                                    .FirstOrDefault();
+
+                    TextPointer selectionStart = targetRun?.ContentStart;
+                    TextPointer selectionEnd = targetRun?.ContentEnd;
+
+                    if (selectionStart == null || selectionEnd == null)
+                        return;
+
+                    ScrollToSelection(selectionStart, selectionEnd);
+                }
+            }
+        }
+
+
         private void ExecutePauseCommand()
         {
             _watcher.EnableRaisingEvents = !_isPauseWindow;
@@ -380,7 +447,8 @@ namespace KSW.ATE01.Start.ViewModels
                         run.Foreground = Brushes.Yellow;
                         run.Background = Brushes.Green;
                         var runName = run.Name;
-                        BookmarkManagerHelper.AddBookmark(runName);
+                        BookmarkManagerHelper.AddBookmark(_prefixRun, runName);
+                        HighlightManagerHelper.AddHighlight(_prefixRun, runName);
                     }
                 }
                 else
@@ -391,7 +459,8 @@ namespace KSW.ATE01.Start.ViewModels
                     _richTextBox.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green);
                     var run = startPointer.Parent as Run;
                     var runName = run.Name;
-                    BookmarkManagerHelper.AddBookmark(runName);
+                    BookmarkManagerHelper.AddBookmark(_prefixRun, runName);
+                    HighlightManagerHelper.AddHighlight(_prefixRun, runName);
                 }
             }
         }
@@ -406,7 +475,7 @@ namespace KSW.ATE01.Start.ViewModels
                 var run = _currentPointer.Parent as Run;
                 var runName = run.Name;
 
-                var bookmarkPosition = BookmarkManagerHelper.GotoBookmark(runName, isNext);
+                var bookmarkPosition = BookmarkManagerHelper.GotoBookmark(_prefixRun, runName, isNext);
                 if (bookmarkPosition != null)
                 {
                     // 获取 RichTextBox 中的所有 TextElements

@@ -77,13 +77,13 @@
                 <ContextMenu>
                     <MenuItem Header="{language:L Copy}" Command="ApplicationCommands.Copy"></MenuItem>
                     <MenuItem Header="{language:L ClearAll}" InputGestureText="Ctrl+D" Command="{Binding ClearAllCommand}"></MenuItem>
-                    <MenuItem Header="{language:L GotoPreviousHighlight}"></MenuItem>
-                    <MenuItem Header="{language:L GotoNextHighlight}"></MenuItem>
+                    <MenuItem Header="{language:L GotoPreviousHighlight}" Command="{Binding GoToHighlightCommand}" CommandParameter="False" InputGestureText="Alt+Up"></MenuItem>
+                    <MenuItem Header="{language:L GotoNextHighlight}"  Command="{Binding GoToHighlightCommand}" CommandParameter="True" InputGestureText="Alt+Down"></MenuItem>
                     <MenuItem Header="{language:L PauseWindow}" Command="{Binding PauseCommand}" IsCheckable="True" IsChecked="{Binding IsPauseWindow}"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="{language:L ViewOptions,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}" Command="{Binding ViewOptionsCommand}"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Header="{language:L ReopenFile}" Command="{Binding ReopenFileCommand}"></MenuItem>
+                    <MenuItem Header="{language:L ReopenFile}" Command="{Binding ReopenFileCommand}" InputGestureText="Ctrl+R"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="{language:L Bookmarks}">
                         <MenuItem Header="{language:L ToggleBookmark}" Command="{Binding ToggleBookmarkCommand}"></MenuItem>

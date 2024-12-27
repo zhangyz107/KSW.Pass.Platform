@@ -7,8 +7,15 @@ using System.Windows.Documents;
 
 namespace KSW.ATE01.Application.Models.RealTimeTxt
 {
-    public class BookmarkModel : IComparable<BookmarkModel>
+    public class HighlightModel : IComparable<HighlightModel>
     {
+        private readonly string _prefix;
+
+        public HighlightModel(string prefix)
+        {
+            _prefix = prefix;
+        }
+
         public Guid BookmarkId { get; set; }
 
         /// <summary>
@@ -16,11 +23,16 @@ namespace KSW.ATE01.Application.Models.RealTimeTxt
         /// </summary>
         public string RunName { get; set; }
 
-        public int CompareTo(BookmarkModel? other)
+        /// <summary>
+        /// Run前缀
+        /// </summary>
+        public string Prefix { get; set; }
+
+        public int CompareTo(HighlightModel? other)
         {
             var result = 0;
-            var runIndex = RunName.Replace("run", "");
-            var otherIndex = other.RunName.Replace("run", "");
+            var runIndex = RunName.Replace(_prefix, "");
+            var otherIndex = other.RunName.Replace(_prefix, "");
             if (int.TryParse(runIndex, out int currentIndex) && int.TryParse(otherIndex, out int index))
             {
                 if (currentIndex > index)

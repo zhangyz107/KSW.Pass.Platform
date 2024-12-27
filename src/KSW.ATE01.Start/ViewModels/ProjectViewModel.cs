@@ -17,8 +17,6 @@ using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Extensions.Logging;
-using Prism.Dialogs;
-using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels
 {

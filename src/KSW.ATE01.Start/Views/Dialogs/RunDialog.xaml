@@ -50,7 +50,7 @@
             <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    
+
     <Grid Margin="6">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
