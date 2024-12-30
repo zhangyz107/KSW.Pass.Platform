@@ -12,7 +12,6 @@
 //------------------------------------------------------------*/
 
 
-using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Start.Views;
 using KSW.Ui;
 using MaterialDesignColors;

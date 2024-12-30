@@ -18,7 +18,6 @@ using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Ui;
-using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;

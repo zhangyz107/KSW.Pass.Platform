@@ -1,15 +1,29 @@
-﻿using KSW.ATE01.Application.BLLs.Abstractions.RealTimeTxt;
+﻿/*--------------------------------------------------------------
+// Copyright (C) KSW-Tech
+// 版权所有。
+//
+// 文件名称：ConfigureDialogViewModel.cs
+// 功能描述：配置对话框视图模型
+//
+// 作者：zhangyingzhong
+// 日期：2024/12/26 09:41
+// 修改记录(Revision History)
+//
+//------------------------------------------------------------*/
+
+using KSW.ATE01.Application.BLLs.Abstractions.RealTimeTxt;
 using KSW.ATE01.Application.Events.RealTimeTxts;
 using KSW.ATE01.Application.Models.RealTimeTxt;
 using KSW.Helpers;
 using KSW.Ui;
-using NPOI.SS.Formula.Functions;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
+    /// <summary>
+    /// 配置对话框视图模型
+    /// </summary>
     public class ConfigureDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields

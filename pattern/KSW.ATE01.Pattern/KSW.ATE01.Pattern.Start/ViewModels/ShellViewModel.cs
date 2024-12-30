@@ -26,6 +26,10 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         private DelegateCommand _loadingCommand;
         public DelegateCommand LoadingCommand =>
             _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommand));
+
+        private DelegateCommand _openCommand;
+        public DelegateCommand OpenCommand =>
+            _openCommand ?? (_openCommand = new DelegateCommand(ExecuteOpenCommand));
         #endregion
 
         public ShellViewModel(IContainerProvider containerProvider, IEventAggregator eventAggregator) : base(containerProvider)
@@ -56,6 +60,11 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             var pattern = PatternInfos.FirstOrDefault();
 
             _eventAggregator?.GetEvent<PatternColInfoUpdateEvent>().Publish(pattern);
+        }
+
+        private void ExecuteOpenCommand()
+        {
+
         }
 
         private List<PinInfoModel> GetPinInfos()

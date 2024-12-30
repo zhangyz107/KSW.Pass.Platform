@@ -149,7 +149,7 @@
         <Border Grid.Row="1" Background="#3B3B3B">
             <Menu Foreground="White" materialDesign:MenuAssist.TopLevelMenuItemHeight="25">
                 <MenuItem Header="File" Background="#3B3B3B">
-                    <MenuItem Header="Open"></MenuItem>
+                    <MenuItem Header="Open" Command=""></MenuItem>
                     <MenuItem Header="Save"></MenuItem>
                     <MenuItem Header="SaveAs..."></MenuItem>
                     <MenuItem Header="Export LVM..."></MenuItem>
