@@ -1,9 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>$(NetTargetFramework)</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.OleDb" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\src-platform\KSW.Application\KSW.Application.csproj" />
+    <ProjectReference Include="..\KSW.ATE01.Pattern.Application.Models\KSW.ATE01.Pattern.Application.Models.csproj" />
+    <ProjectReference Include="..\KSW.ATE01.Pattern.Domain.Projects\KSW.ATE01.Pattern.Domain.Projects.csproj" />
+  </ItemGroup>
 
 </Project>

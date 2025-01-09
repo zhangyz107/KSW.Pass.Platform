@@ -1,20 +1,19 @@
-﻿using KSW.ATE01.Pattern.Application.Events;
+﻿using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
+using KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns;
+using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Models.Projects;
 using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
-using KSW.ATE01.Pattern.Start.Views;
 using KSW.Ui;
-using System;
-using System.Collections.Generic;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace KSW.ATE01.Pattern.Start.ViewModels
 {
     public class ShellViewModel : ViewModelBase
     {
         #region Fields
+        private readonly IPatternCompilerBLL _patternCompilerBLL;
         private readonly IEventAggregator _eventAggregator;
         #endregion
 
@@ -32,8 +31,12 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             _openCommand ?? (_openCommand = new DelegateCommand(ExecuteOpenCommand));
         #endregion
 
-        public ShellViewModel(IContainerProvider containerProvider, IEventAggregator eventAggregator) : base(containerProvider)
+        public ShellViewModel(
+            IContainerProvider containerProvider,
+            IPatternCompilerBLL patternCompilerBLL,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
+            _patternCompilerBLL = patternCompilerBLL;
             _eventAggregator = eventAggregator;
         }
 
@@ -64,7 +67,29 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
 
         private void ExecuteOpenCommand()
         {
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "atp files(*.atp)|*.atp";
+            openFileDialog.Multiselect = false;
+            if (openFileDialog.ShowDialog() == true)
+            {
+                var file = openFileDialog.FileName;
+                var fileName = Path.GetFileNameWithoutExtension(file);
+                var patternsDir = Path.GetDirectoryName(file);
+                var binFileName = Path.Combine(patternsDir, $"{fileName}.bin");
 
+                var releaseDir = Path.GetDirectoryName(patternsDir);
+                var xlsms = Directory.GetFiles(releaseDir, "*.xlsm");
+                var testPlanFilePath = string.Empty;
+                if (!xlsms.IsEmpty())
+                {
+                    testPlanFilePath = xlsms.FirstOrDefault();
+                }
+                var testPlanSheetName = "Channel";
+
+                _patternCompilerBLL.SetCompilerPath(file, testPlanFilePath, testPlanSheetName, binFileName);
+
+                _patternCompilerBLL.CompilePattern();
+            }
         }
 
         private List<PinInfoModel> GetPinInfos()
