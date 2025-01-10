@@ -8,6 +8,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:enums="clr-namespace:KSW.ATE01.Pattern.Domain.Projects.Core.Enums;assembly=KSW.ATE01.Pattern.Domain.Projects.Core"
+        xmlns:language="clr-namespace:KSW.ATE01.Pattern.Start.Language"
         mc:Ignorable="d"
         WindowStyle="None"
         Height="450"
@@ -88,7 +89,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Window}">
-                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}"  >
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="5" >
                             <AdornerDecorator >
                                 <ContentPresenter x:Name="win_content" />
                             </AdornerDecorator>
@@ -107,9 +108,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
 
         <Border Background="#3B3B3B">
@@ -125,6 +124,12 @@
                 <TextBlock Grid.Column="1" Text="{Binding Path=Title,RelativeSource={RelativeSource AncestorType=Window} }"></TextBlock>
 
                 <StackPanel Margin="6,0" Grid.Column="4" Orientation="Horizontal">
+                    <Button Style="{StaticResource MaterialDesignToolButton}" WindowChrome.IsHitTestVisibleInChrome="True" Command="{Binding OpenMessageCommand}" CommandParameter="{Binding ElementName=drawerHost}">
+                        <Button.Content>
+                            <materialDesign:PackIcon Kind="MessageBulleted" />
+                        </Button.Content>
+                    </Button>
+
                     <Button Style="{StaticResource MaterialDesignToolButton}" WindowChrome.IsHitTestVisibleInChrome="True"  Click="MinimizeBtn_Click">
                         <Button.Content>
                             <materialDesign:PackIcon Kind="WindowMinimize" />
@@ -146,74 +151,56 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="1" Background="#3B3B3B">
-            <Menu Foreground="White" materialDesign:MenuAssist.TopLevelMenuItemHeight="25">
-                <MenuItem Header="File" Background="#3B3B3B">
-                    <MenuItem Header="Open" Command="{Binding OpenCommand}"></MenuItem>
-                    <MenuItem Header="Save"></MenuItem>
-                    <MenuItem Header="SaveAs..."></MenuItem>
-                    <MenuItem Header="Export LVM..."></MenuItem>
-                    <MenuItem Header="Export atp..."></MenuItem>
-                </MenuItem>
-
-                <MenuItem Header="Edit" Background="#3B3B3B">
-                    <MenuItem Header="Insert Vector"></MenuItem>
-                    <MenuItem Header="Delete Vector"></MenuItem>
-                </MenuItem>
-            </Menu>
-        </Border>
-
-        <Grid Grid.Row="2" Margin="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-
-            <Button VerticalAlignment="Top" Style="{StaticResource MaterialDesignToolButton}">
-                <Button.Content>
-                    <materialDesign:PackIcon Kind="ArrowLeftCircle" />
-                </Button.Content>
-            </Button>
-
-            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                <Grid>
+        <materialDesign:DrawerHost x:Name="drawerHost" Grid.Row="1">
+            <materialDesign:DrawerHost.RightDrawerContent>
+                <Grid Width="200">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock VerticalAlignment="Center" Text="Pin Explorer" TextElement.FontWeight="Bold"></TextBlock>
-                    <Button VerticalContentAlignment="Center" Foreground="LightSkyBlue" Grid.Column="1" Style="{StaticResource MaterialDesignToolButton}">
-                        <Button.Content>
-                            <materialDesign:PackIcon  Kind="Refresh" />
-                        </Button.Content>
-                    </Button>
 
-                    <ListView Grid.Row="1" Grid.ColumnSpan="2">
-                        <ListViewItem Content="A1"></ListViewItem>
-                        <ListViewItem Content="A2"></ListViewItem>
-                    </ListView>
+                    <Border Background="#3B3B3B">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button Foreground="White" Style="{StaticResource MaterialDesignIconButton}" Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}" CommandParameter="{x:Static Dock.Right}">
+                                <Button.Content>
+                                    <materialDesign:PackIcon Kind="ArrowRight" />
+                                </Button.Content>
+                            </Button>
+                            <TextBlock Foreground="White" Grid.Column="1" Text="{language:L Message}" VerticalAlignment="Center" FontSize="14"></TextBlock>
+
+                            <Button Background="#535E74" Style="{StaticResource MaterialDesignRaisedButton}" Margin="4,8" Padding="16,0" Grid.Row="1" Grid.Column="2" Content="{language:L Clear}" materialDesign:ButtonAssist.CornerRadius="15"></Button>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" materialDesign:DataGridAssist.CellPadding="6">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{language:L Time}" IsReadOnly="True" Binding="{Binding Time}" Width="auto"></DataGridTextColumn>
+                            <DataGridTextColumn Header="{language:L Message}" IsReadOnly="True" Binding="{Binding Message}" Width="*"></DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
                 </Grid>
-            </Border>
+            </materialDesign:DrawerHost.RightDrawerContent>
 
-            <DataGrid x:Name="dataGrid" Margin="6,0,0,0" Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding PatternInfos}" materialDesign:DataGridAssist.CellPadding="6">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Verctor" IsReadOnly="True" Binding="{Binding Vector}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Label" IsReadOnly="True" Binding="{Binding Label}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Command" IsReadOnly="True" Binding="{Binding Command.TypeDescription}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Instrument" IsReadOnly="True" Binding="{Binding Instrument}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Timing Name" IsReadOnly="True" Binding="{Binding TimingName}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Comment" IsReadOnly="True" Binding="{Binding Comment}" Width="auto"></DataGridTextColumn>
-                </DataGrid.Columns>
-            </DataGrid>
-        </Grid>
-
-        <Border Grid.Row="4" Background="#3B3B3B">
-
-        </Border>
+            <TabControl TabStripPlacement="Left" Style="{StaticResource MaterialDesignFilledTabControl}" >
+                <TabItem Header="{language:L PatternCompiler}">
+                    <ContentControl Content="{Binding PatternCompilerView}"></ContentControl>
+                </TabItem>
+                <TabItem Header="{language:L PatternEditor}">
+                    <ContentControl Content="{Binding PatternEditorView}"></ContentControl>
+                </TabItem>
+            </TabControl>
+        </materialDesign:DrawerHost>
     </Grid>
+
+
 </Window>

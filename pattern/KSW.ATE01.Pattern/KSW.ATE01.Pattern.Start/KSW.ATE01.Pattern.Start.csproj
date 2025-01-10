@@ -9,6 +9,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resource\Images\reduce.png" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
 		<PackageReference Include="MaterialDesignThemes" Version="$(MaterialDesignVersion)" />
@@ -38,6 +42,10 @@
 	    <Generator>ResXFileCodeGenerator</Generator>
 	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Resource\Images\reduce.png" />
 	</ItemGroup>
 
 </Project>

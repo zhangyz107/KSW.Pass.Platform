@@ -1,12 +1,19 @@
 ﻿using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
-using KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Models.Projects;
 using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
+using KSW.ATE01.Pattern.Start.Views;
 using KSW.Ui;
+using MaterialDesignColors;
+using MaterialDesignColors.ColorManipulation;
+using MaterialDesignColors.Recommended;
+using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace KSW.ATE01.Pattern.Start.ViewModels
 {
@@ -14,11 +21,25 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
     {
         #region Fields
         private readonly IPatternCompilerBLL _patternCompilerBLL;
-        private readonly IEventAggregator _eventAggregator;
+        private readonly PaletteHelper _paletteHelper = new();
+        private PatternCompilerView _patternCompilerView;
+        private PatternEditorView _patternEditorView;
         #endregion
 
         #region Properties
-        public ObservableCollection<PatternInfoModel> PatternInfos { get; private set; } = new ObservableCollection<PatternInfoModel>();
+        public PatternCompilerView PatternCompilerView
+        {
+            get => _patternCompilerView;
+            set => SetProperty(ref _patternCompilerView, value);
+        }
+
+
+        public PatternEditorView PatternEditorView
+        {
+            get => _patternEditorView;
+            set => SetProperty(ref _patternEditorView, value);
+        }
+
         #endregion
 
         #region Command
@@ -29,6 +50,10 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         private DelegateCommand _openCommand;
         public DelegateCommand OpenCommand =>
             _openCommand ?? (_openCommand = new DelegateCommand(ExecuteOpenCommand));
+
+        private DelegateCommand<object> _openMessageCommand;
+        public DelegateCommand<object> OpenMessageCommand =>
+            _openMessageCommand ?? (_openMessageCommand = new DelegateCommand<object>(ExecuteOpenMessageCommand));
         #endregion
 
         public ShellViewModel(
@@ -37,32 +62,28 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             IEventAggregator eventAggregator) : base(containerProvider)
         {
             _patternCompilerBLL = patternCompilerBLL;
-            _eventAggregator = eventAggregator;
-        }
 
+            _patternCompilerView = containerProvider.Resolve<PatternCompilerView>();
+            _patternEditorView = containerProvider.Resolve<PatternEditorView>();
+
+            Theme theme = _paletteHelper.GetTheme();
+        }
 
         private void ExecuteLoadingCommand()
         {
-            var length = 10;
-            for (int i = 0; i < length; i++)
-            {
-                var tempPattern = new PatternInfoModel();
-                tempPattern.Vector = i + 1;
-                tempPattern.Label = $"Label{i}";
-                tempPattern.Command = new CommandInfoModel()
-                {
-                    Type = CommandType.repeat,
-                };
-                tempPattern.Instrument = $"Instrument{i}";
-                tempPattern.TimingName = "time_fun";
-                tempPattern.PinInfos = GetPinInfos();
+            
+            ChangePrimaryColor(Color.FromRgb(59, 59, 59));
+        }
 
-                PatternInfos.Add(tempPattern);
-            }
+        private void ChangePrimaryColor(Color color)
+        {
+            Theme theme = _paletteHelper.GetTheme();
 
-            var pattern = PatternInfos.FirstOrDefault();
-
-            _eventAggregator?.GetEvent<PatternColInfoUpdateEvent>().Publish(pattern);
+            theme.PrimaryLight = new ColorPair(color.Lighten());
+            theme.PrimaryMid = new ColorPair(color);
+            theme.PrimaryDark = new ColorPair(color.Darken());
+            theme.SetPrimaryColor(color);
+            _paletteHelper.SetTheme(theme);
         }
 
         private void ExecuteOpenCommand()
@@ -92,21 +113,10 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             }
         }
 
-        private List<PinInfoModel> GetPinInfos()
+        private void ExecuteOpenMessageCommand(object obj)
         {
-            var result = new List<PinInfoModel>();
-            var length = 16;
-            for (int i = 0; i < length; i++)
-            {
-                var pinInfo = new PinInfoModel()
-                {
-                    PinName = $"A{i + 1}",
-                    VectorValue = VectorValueType.X
-                };
-                result.Add(pinInfo);
-            }
-
-            return result;
+            if (obj is DrawerHost drawerHost)
+                DrawerHost.OpenDrawerCommand.Execute(Dock.Right, drawerHost);
         }
     }
 }

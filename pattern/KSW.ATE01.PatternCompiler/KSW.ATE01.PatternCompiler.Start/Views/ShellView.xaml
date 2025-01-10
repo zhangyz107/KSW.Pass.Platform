@@ -1,0 +1,76 @@
+﻿<Window x:Class="KSW.ATE01.PatternCompiler.Start.Views.ShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:KSW.ATE01.PatternCompiler.Start"
+        xmlns:language="clr-namespace:KSW.ATE01.PatternCompiler.Start.Language"
+        xmlns:converter="clr-namespace:KSW.ATE01.PatternCompiler.Start.Converter"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="MainWindow" Height="500" Width="800">
+
+    <Window.Resources>
+        <converter:StringConcatenateConverter x:Key="StringConcatenateConverter"></converter:StringConcatenateConverter>
+    </Window.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border Margin="4,8,4,0" BorderThickness="1" BorderBrush="Black" CornerRadius="2.5">
+            <Grid Margin="0,8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Margin="16,0" VerticalAlignment="Center" FontSize="14" Text="{language:L PatternFile,Converter={StaticResource StringConcatenateConverter},ConverterParameter=:}"></TextBlock>
+                <TextBox Padding="4,0" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+                <CheckBox Margin="8,0,0,0" Grid.Column="2" Padding="0" Content="{language:L Folder}" VerticalContentAlignment="Center"></CheckBox>
+                <Button Margin="0,0,8,0" Grid.Column="3" Content="{language:L Browse,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}" Style="{StaticResource MaterialDesignOutlinedButton}"></Button>
+
+                <TextBlock Grid.Row="1" Margin="16,6,16,0" VerticalAlignment="Center" FontSize="14" Text="{language:L TestPlan,Converter={StaticResource StringConcatenateConverter},ConverterParameter=:}"></TextBlock>
+                <TextBox Grid.Row="1" Margin="0,6,0,0" Padding="4,0" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+                <CheckBox Grid.Row="1" Margin="8,6,0,0" Grid.Column="2" Padding="0" Content="{language:L Folder}" VerticalContentAlignment="Center"></CheckBox>
+                <Button Grid.Row="1" Margin="0,6,8,0" Grid.Column="3" Content="{language:L Browse,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}" Style="{StaticResource MaterialDesignOutlinedButton}"></Button>
+
+                <TextBlock Grid.Row="2"  Margin="16,6,16,0" VerticalAlignment="Center" FontSize="14" Text="{language:L ChannelSheet,Converter={StaticResource StringConcatenateConverter},ConverterParameter=:}"></TextBlock>
+                <TextBox Grid.Row="2" Margin="0,6,0,0" Padding="4,6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+
+                <TextBlock Grid.Row="3" Margin="16,6,16,0" VerticalAlignment="Center" FontSize="14" Text="{language:L BinFolder,Converter={StaticResource StringConcatenateConverter},ConverterParameter=:}"></TextBlock>
+                <TextBox Grid.Row="3" Margin="0,6,0,0" Padding="4,0" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+                <Button Grid.Row="3" Margin="0,6,8,0" Grid.Column="3" Content="{language:L Browse,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}" Style="{StaticResource MaterialDesignOutlinedButton}"></Button>
+
+                <GridSplitter Margin="0,8" Grid.Row="4" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" Height="2"></GridSplitter>
+
+                <Button Grid.Row="5" Margin="0,6,8,0" Grid.Column="3" Content="{language:L Compile}"></Button>
+            </Grid>
+        </Border>
+
+        <GroupBox Margin="4,8" Grid.Row="1" Header="{language:L Output}">
+            
+        </GroupBox>
+    </Grid>
+
+</Window>

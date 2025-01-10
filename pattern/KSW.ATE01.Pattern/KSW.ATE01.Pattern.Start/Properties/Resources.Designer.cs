@@ -59,5 +59,248 @@ namespace KSW.ATE01.Pattern.Start.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   查找类似 Add Vector 的本地化字符串。
+        /// </summary>
+        internal static string AddVector {
+            get {
+                return ResourceManager.GetString("AddVector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Bin Folder 的本地化字符串。
+        /// </summary>
+        internal static string BinFolder {
+            get {
+                return ResourceManager.GetString("BinFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Browse 的本地化字符串。
+        /// </summary>
+        internal static string Browse {
+            get {
+                return ResourceManager.GetString("Browse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Channel Sheet 的本地化字符串。
+        /// </summary>
+        internal static string ChannelSheet {
+            get {
+                return ResourceManager.GetString("ChannelSheet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Clear 的本地化字符串。
+        /// </summary>
+        internal static string Clear {
+            get {
+                return ResourceManager.GetString("Clear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Command 的本地化字符串。
+        /// </summary>
+        internal static string Command {
+            get {
+                return ResourceManager.GetString("Command", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Comment 的本地化字符串。
+        /// </summary>
+        internal static string Comment {
+            get {
+                return ResourceManager.GetString("Comment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Compile 的本地化字符串。
+        /// </summary>
+        internal static string Compile {
+            get {
+                return ResourceManager.GetString("Compile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Delete Vector 的本地化字符串。
+        /// </summary>
+        internal static string DeleteVector {
+            get {
+                return ResourceManager.GetString("DeleteVector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Export atp 的本地化字符串。
+        /// </summary>
+        internal static string ExportAtp {
+            get {
+                return ResourceManager.GetString("ExportAtp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Folder 的本地化字符串。
+        /// </summary>
+        internal static string Folder {
+            get {
+                return ResourceManager.GetString("Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Insert Vector 的本地化字符串。
+        /// </summary>
+        internal static string InsertVector {
+            get {
+                return ResourceManager.GetString("InsertVector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Instrument 的本地化字符串。
+        /// </summary>
+        internal static string Instrument {
+            get {
+                return ResourceManager.GetString("Instrument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Label 的本地化字符串。
+        /// </summary>
+        internal static string Label {
+            get {
+                return ResourceManager.GetString("Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Message 的本地化字符串。
+        /// </summary>
+        internal static string Message {
+            get {
+                return ResourceManager.GetString("Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Open 的本地化字符串。
+        /// </summary>
+        internal static string Open {
+            get {
+                return ResourceManager.GetString("Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Output 的本地化字符串。
+        /// </summary>
+        internal static string Output {
+            get {
+                return ResourceManager.GetString("Output", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pattern Compiler 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompiler {
+            get {
+                return ResourceManager.GetString("PatternCompiler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pattern Editor 的本地化字符串。
+        /// </summary>
+        internal static string PatternEditor {
+            get {
+                return ResourceManager.GetString("PatternEditor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pattern File 的本地化字符串。
+        /// </summary>
+        internal static string PatternFile {
+            get {
+                return ResourceManager.GetString("PatternFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pin Overview 的本地化字符串。
+        /// </summary>
+        internal static string PinOverview {
+            get {
+                return ResourceManager.GetString("PinOverview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Save 的本地化字符串。
+        /// </summary>
+        internal static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 SaveAs 的本地化字符串。
+        /// </summary>
+        internal static string SaveAs {
+            get {
+                return ResourceManager.GetString("SaveAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Test Plan 的本地化字符串。
+        /// </summary>
+        internal static string TestPlan {
+            get {
+                return ResourceManager.GetString("TestPlan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Time 的本地化字符串。
+        /// </summary>
+        internal static string Time {
+            get {
+                return ResourceManager.GetString("Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Timing Name 的本地化字符串。
+        /// </summary>
+        internal static string TimingName {
+            get {
+                return ResourceManager.GetString("TimingName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Vector 的本地化字符串。
+        /// </summary>
+        internal static string Vector {
+            get {
+                return ResourceManager.GetString("Vector", resourceCulture);
+            }
+        }
     }
 }

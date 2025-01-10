@@ -1,0 +1,175 @@
+﻿<UserControl x:Class="KSW.ATE01.Pattern.Start.Views.PatternEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KSW.ATE01.Pattern.Start.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:language="clr-namespace:KSW.ATE01.Pattern.Start.Language"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Margin="6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Right}">
+                <Button.Content >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="FolderOpenOutline" />
+                        <TextBlock Grid.Column="1" Text="{language:L Open}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="1" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="ContentSaveEditOutline" />
+                        <TextBlock Grid.Column="1" Text="{language:L Save}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="2" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="ContentSaveAllOutline" />
+                        <TextBlock Grid.Column="1" Text="{language:L SaveAs}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="3" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="Export" />
+                        <TextBlock Grid.Column="1" Text="{language:L ExportAtp}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="5" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding AddVectorCommand}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="Plus" />
+                        <TextBlock Grid.Column="1" Text="{language:L AddVector}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="6" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding DeleteVectorCommand}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Image Margin="0,0,4,0" Source="pack://application:,,,/KSW.ATE01.Pattern.Start;component/Resource/Images/reduce.png" Width="16" Height="16" ></Image>
+                        <TextBlock Grid.Column="1" Text="{language:L DeleteVector}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Button VerticalAlignment="Top" Style="{StaticResource MaterialDesignToolButton}">
+                <Button.Content>
+                    <materialDesign:PackIcon Kind="ArrowLeftCircle" />
+                </Button.Content>
+            </Button>
+
+            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="{language:L PinOverview}" TextElement.FontWeight="Bold"></TextBlock>
+                    <Button VerticalContentAlignment="Center" Foreground="LightSkyBlue" Grid.Column="1" Style="{StaticResource MaterialDesignToolButton}">
+                        <Button.Content>
+                            <materialDesign:PackIcon  Kind="Refresh" />
+                        </Button.Content>
+                    </Button>
+
+                    <ListView Grid.Row="1" Grid.ColumnSpan="2">
+                        <ListViewItem Content="A1"></ListViewItem>
+                        <ListViewItem Content="A2"></ListViewItem>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <DataGrid x:Name="dataGrid" Margin="6,0,0,0" Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding PatternInfos}" materialDesign:DataGridAssist.CellPadding="6" SelectedItem="{Binding PatternItem}">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{language:L InsertVector}" Command="{Binding InsertVectorCommand}" CommandParameter="{Binding PlacementTarget.SelectedItem,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}, Mode=FindAncestor}}"></MenuItem>
+                        <MenuItem Header="{language:L DeleteVector}" Command="{Binding DeleteVectorCommand}" CommandParameter="{Binding PlacementTarget.SelectedItem,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}, Mode=FindAncestor}}"></MenuItem>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Verctor" IsReadOnly="True" Binding="{Binding Vector}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Label" IsReadOnly="True" Binding="{Binding Label}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Command" IsReadOnly="True" Binding="{Binding Command.TypeDescription}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Instrument" IsReadOnly="True" Binding="{Binding Instrument}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Timing Name" IsReadOnly="True" Binding="{Binding TimingName}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Comment" IsReadOnly="True" Binding="{Binding Comment}" Width="auto"></DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <Border Grid.Row="2" Background="#3B3B3B">
+
+        </Border>
+    </Grid>
+</UserControl>
