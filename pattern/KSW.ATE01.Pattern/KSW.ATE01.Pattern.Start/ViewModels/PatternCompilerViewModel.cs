@@ -11,6 +11,7 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.ATE01.Pattern.Application.Events;
 using KSW.Ui;
 using Microsoft.Win32;
 using System.IO;
@@ -23,6 +24,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
     public class PatternCompilerViewModel : ViewModelBase
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private string _patternFilePath;
         private bool _patternFileIsDir;
         private string[] _patternFiles;
@@ -87,11 +89,17 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         private DelegateCommand _outputBrowseCommand;
         public DelegateCommand OutputBrowseCommand =>
             _outputBrowseCommand ?? (_outputBrowseCommand = new DelegateCommand(ExecuteOutputBrowseCommand));
+
+        private DelegateCommand _compilerCommand;
+        public DelegateCommand CompilerCommand =>
+            _compilerCommand ?? (_compilerCommand = new DelegateCommand(ExecuteCompilerCommand));
         #endregion
 
-        public PatternCompilerViewModel(IContainerProvider containerProvider) : base(containerProvider)
+        public PatternCompilerViewModel(
+            IContainerProvider containerProvider,
+             IEventAggregator eventAggregator) : base(containerProvider)
         {
-
+            _eventAggregator = eventAggregator;
         }
 
         private void ClearPatternFile()
@@ -155,12 +163,16 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             }
         }
 
-
         private void ExecuteOutputBrowseCommand()
         {
             var openDirDialog = new OpenFolderDialog();
             if (openDirDialog.ShowDialog() == true)
                 OutputDir = openDirDialog.FolderName;
+        }
+
+        private void ExecuteCompilerCommand()
+        {
+            _eventAggregator.GetEvent<MessageOpenEvent>().Publish();
         }
     }
 }

@@ -1,16 +1,11 @@
 ﻿using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
-using KSW.ATE01.Pattern.Application.Models.Projects;
-using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
 using KSW.ATE01.Pattern.Start.Views;
 using KSW.Ui;
 using MaterialDesignColors;
 using MaterialDesignColors.ColorManipulation;
-using MaterialDesignColors.Recommended;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
-using System;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -24,6 +19,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         private readonly PaletteHelper _paletteHelper = new();
         private PatternCompilerView _patternCompilerView;
         private PatternEditorView _patternEditorView;
+        private ShellView _view;
         #endregion
 
         #region Properties
@@ -33,19 +29,17 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             set => SetProperty(ref _patternCompilerView, value);
         }
 
-
         public PatternEditorView PatternEditorView
         {
             get => _patternEditorView;
             set => SetProperty(ref _patternEditorView, value);
         }
-
         #endregion
 
         #region Command
-        private DelegateCommand _loadingCommand;
-        public DelegateCommand LoadingCommand =>
-            _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommand));
+        private DelegateCommand<object> _loadingCommand;
+        public DelegateCommand<object> LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new DelegateCommand<object>(ExecuteLoadingCommand));
 
         private DelegateCommand _openCommand;
         public DelegateCommand OpenCommand =>
@@ -67,11 +61,19 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             _patternEditorView = containerProvider.Resolve<PatternEditorView>();
 
             Theme theme = _paletteHelper.GetTheme();
+            eventAggregator.GetEvent<MessageOpenEvent>().Subscribe(MessageOpen);
         }
 
-        private void ExecuteLoadingCommand()
+        private void MessageOpen()
         {
-            
+            if(_view?.drawerHost != null)
+                DrawerHost.OpenDrawerCommand.Execute(Dock.Right, _view?.drawerHost);
+        }
+
+        private void ExecuteLoadingCommand(object shellView)
+        {
+            if (shellView is ShellView view)
+                _view = view;
             ChangePrimaryColor(Color.FromRgb(59, 59, 59));
         }
 

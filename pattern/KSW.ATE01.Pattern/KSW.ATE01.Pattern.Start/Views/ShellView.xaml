@@ -16,11 +16,12 @@
         ResizeMode="CanResize"
         BorderThickness="1"
         prism:ViewModelLocator.AutoWireViewModel="True"
+        x:Name="view"
         >
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}" CommandParameter="{Binding ElementName=view}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
