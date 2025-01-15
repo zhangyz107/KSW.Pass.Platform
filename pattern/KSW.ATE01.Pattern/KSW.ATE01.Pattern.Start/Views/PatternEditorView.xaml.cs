@@ -41,27 +41,31 @@ namespace KSW.ATE01.Pattern.Start.Views
             _eventAggregator.GetEvent<PatternColInfoUpdateEvent>().Subscribe(RefreshDataGrid);
         }
 
-        private void RefreshDataGrid(PatternInfoModel model)
+        private void RefreshDataGrid(PatternModel model)
         {
             if (model == null)
                 return;
 
-            if (model.PinInfos.IsEmpty())
+            if (model.PatternVectors.IsEmpty())
+                return;
+
+            var vectorRow = model.PatternVectors.FirstOrDefault();
+            if (vectorRow?.Pins?.IsEmpty() == true)
                 return;
 
             CleanUpDynamicColumns();
 
             var lastHeaderName = _dynamicColumnHeader;
-            foreach (var pinInfo in model.PinInfos)
+            foreach (var pinInfo in vectorRow?.Pins)
             {
-                var index = model.PinInfos.IndexOf(pinInfo);
+                var index = vectorRow?.Pins.IndexOf(pinInfo);
                 InsertColumnAfter(lastHeaderName, new DataGridComboBoxColumn()
                 {
                     Header = pinInfo.PinName,
                     ItemsSource = VectorValueDic,
                     SelectedValuePath = "Key",
                     DisplayMemberPath = "Value",
-                    SelectedValueBinding = new Binding($"PinInfos[{index}].VectorValue") { Mode = BindingMode.TwoWay, UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged },
+                    SelectedValueBinding = new Binding($"Pins[{index}].VectorValue") { Mode = BindingMode.TwoWay, UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged },
                     HeaderStyle = FindResource("VerticalColHeader") as Style,
                     ElementStyle = FindResource("DiscolorationCombobox") as Style,
                     EditingElementStyle = FindResource("DiscolorationEditCombobox") as Style,

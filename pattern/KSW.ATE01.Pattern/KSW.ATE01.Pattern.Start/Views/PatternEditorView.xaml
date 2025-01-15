@@ -12,12 +12,6 @@
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True">
 
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -137,20 +131,18 @@
                         <ColumnDefinition Width="auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="{language:L PinOverview}" TextElement.FontWeight="Bold"></TextBlock>
-                    <Button VerticalContentAlignment="Center" Foreground="LightSkyBlue" Grid.Column="1" Style="{StaticResource MaterialDesignToolButton}">
+                    <Button VerticalContentAlignment="Center" Foreground="LightSkyBlue" Grid.Column="1" Style="{StaticResource MaterialDesignToolButton}" Command="{Binding RefreshCommand}">
                         <Button.Content>
                             <materialDesign:PackIcon  Kind="Refresh" />
                         </Button.Content>
                     </Button>
 
-                    <ListView Grid.Row="1" Grid.ColumnSpan="2">
-                        <ListViewItem Content="A1"></ListViewItem>
-                        <ListViewItem Content="A2"></ListViewItem>
+                    <ListView Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding PinCols}" DisplayMemberPath="PinName">
                     </ListView>
                 </Grid>
             </Border>
 
-            <DataGrid x:Name="dataGrid" Margin="6,0,0,0" Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding PatternInfos}" materialDesign:DataGridAssist.CellPadding="6" SelectedItem="{Binding PatternItem}">
+            <DataGrid x:Name="dataGrid" Margin="6,0,0,0" Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding VectorInfos}" materialDesign:DataGridAssist.CellPadding="6" SelectedItem="{Binding VectorRow}" VirtualizingPanel.IsContainerVirtualizable="True">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="{language:L InsertVector}" Command="{Binding InsertVectorCommand}" CommandParameter="{Binding PlacementTarget.SelectedItem,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}, Mode=FindAncestor}}"></MenuItem>
@@ -158,8 +150,8 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Verctor" IsReadOnly="True" Binding="{Binding Vector}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Label" IsReadOnly="True" Binding="{Binding Label}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Verctor" IsReadOnly="True" Binding="{Binding Label.IndexInVectors}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Label" IsReadOnly="True" Binding="{Binding Label.LabelFullContent}" Width="auto"></DataGridTextColumn>
                     <DataGridTextColumn Header="Command" IsReadOnly="True" Binding="{Binding Command.TypeDescription}" Width="auto"></DataGridTextColumn>
                     <DataGridTextColumn Header="Instrument" IsReadOnly="True" Binding="{Binding Instrument}" Width="auto"></DataGridTextColumn>
                     <DataGridTextColumn Header="Timing Name" IsReadOnly="True" Binding="{Binding TimingName}" Width="auto"></DataGridTextColumn>

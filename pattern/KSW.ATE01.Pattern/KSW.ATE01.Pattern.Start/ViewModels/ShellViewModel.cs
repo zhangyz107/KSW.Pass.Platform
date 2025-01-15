@@ -15,7 +15,6 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
     public class ShellViewModel : ViewModelBase
     {
         #region Fields
-        private readonly IPatternCompilerBLL _patternCompilerBLL;
         private readonly PaletteHelper _paletteHelper = new();
         private PatternCompilerView _patternCompilerView;
         private PatternEditorView _patternEditorView;
@@ -55,8 +54,6 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             IPatternCompilerBLL patternCompilerBLL,
             IEventAggregator eventAggregator) : base(containerProvider)
         {
-            _patternCompilerBLL = patternCompilerBLL;
-
             _patternCompilerView = containerProvider.Resolve<PatternCompilerView>();
             _patternEditorView = containerProvider.Resolve<PatternEditorView>();
 
@@ -109,9 +106,9 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                 }
                 var testPlanSheetName = "Channel";
 
-                _patternCompilerBLL.SetCompilerPath(file, testPlanFilePath, testPlanSheetName, binFileName);
+                //_patternCompilerBLL.SetCompilerPath(file, testPlanFilePath, testPlanSheetName, binFileName);
 
-                _patternCompilerBLL.CompilePattern();
+                //_patternCompilerBLL.CompilePattern();
             }
         }
 

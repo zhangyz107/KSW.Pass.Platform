@@ -11,7 +11,10 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
+using KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
+using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.Ui;
 using Microsoft.Win32;
 using System.IO;
@@ -25,6 +28,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
     {
         #region Fields
         private readonly IEventAggregator _eventAggregator;
+        private readonly IPatternCompilerBLL _patternCompilerBLL;
         private string _patternFilePath;
         private bool _patternFileIsDir;
         private string[] _patternFiles;
@@ -97,9 +101,11 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
 
         public PatternCompilerViewModel(
             IContainerProvider containerProvider,
-             IEventAggregator eventAggregator) : base(containerProvider)
+             IEventAggregator eventAggregator,
+             IPatternCompilerBLL patternCompilerBLL) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
+            _patternCompilerBLL = patternCompilerBLL;
         }
 
         private void ClearPatternFile()
@@ -172,6 +178,22 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
 
         private void ExecuteCompilerCommand()
         {
+            if (_patternFiles.IsEmpty())
+                return;
+
+            if (_patternFileIsDir)
+            {
+
+            }
+            else
+            {
+                var patternFile = _patternFiles.FirstOrDefault();
+                if (!patternFile.IsEmpty() && File.Exists(patternFile))
+                {
+                    var patternModel = _patternCompilerBLL.AnalysisPattern(patternFile);
+                    _eventAggregator.GetEvent<PatternModelUpdateEvent>().Publish(patternModel);
+                }
+            }
             _eventAggregator.GetEvent<MessageOpenEvent>().Publish();
         }
     }

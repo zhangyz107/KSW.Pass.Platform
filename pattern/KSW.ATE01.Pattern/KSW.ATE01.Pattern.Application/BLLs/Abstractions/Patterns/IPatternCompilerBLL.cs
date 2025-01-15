@@ -1,4 +1,5 @@
 ﻿using KSW.Application;
+using KSW.ATE01.Pattern.Application.Models.Projects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,9 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns
     /// </summary>
     public interface IPatternCompilerBLL : IService
     {
-        void SetCompilerPath(string patternFilePath, string testPlanFilePath, string testPlanSheetName, string outputBinFilePath, bool saveComment = true);
-
-        int CompilePattern(string tempFolder = "");
+        /// <summary>
+        /// 解析向量文件
+        /// </summary>
+        PatternModel AnalysisPattern(string patternFilePath);
     }
 }

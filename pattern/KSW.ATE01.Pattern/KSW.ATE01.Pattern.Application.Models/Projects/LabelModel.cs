@@ -1,4 +1,5 @@
 ﻿using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
+using KSW.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,38 +8,37 @@ using System.Threading.Tasks;
 
 namespace KSW.ATE01.Pattern.Application.Models.Projects
 {
-    public class LabelModel
+    public class LabelModel : DtoBase
     {
-        private string _labelName;
-
         private long _indexInVectors;
-
         private LabelCommandType _labelType;
-
         private string _labelFullContent;
 
-        public string LabelName
-        {
-            get => _labelName;
-            set => _labelName = value;
-        }
-
+        /// <summary>
+        /// 向量序号
+        /// </summary>
         public long IndexInVectors
         {
             get => _indexInVectors;
-            set => _indexInVectors = value;
+            set => SetProperty(ref _indexInVectors, value);
         }
 
+        /// <summary>
+        /// 标签类型
+        /// </summary>
         public LabelCommandType LabelType
         {
             get => _labelType;
-            set => _labelType = value;
+            set => SetProperty(ref _labelType, value);
         }
 
+        /// <summary>
+        /// 标签全内容
+        /// </summary>
         public string LabelFullContent
         {
             get => _labelFullContent;
-            set => _labelFullContent = value;
+            set => SetProperty(ref _labelFullContent, value);
         }
     }
 }

@@ -198,4 +198,118 @@
   <data name="Output" xml:space="preserve">
     <value>输出</value>
   </data>
+  <data name="PatternCompileErr001" xml:space="preserve">
+    <value>error001：找不到时间设置信息。请检查atp文件中的关键字'import tset'，并且它必须是';'在最后。</value>
+  </data>
+  <data name="PatternCompileErr003" xml:space="preserve">
+    <value>error003: TimingSet 列表包含相同的名称 </value>
+  </data>
+  <data name="PatternCompileErr002" xml:space="preserve">
+    <value>error002：找不到 Pin 图信息。请检查 atp 文件中的关键字“$tset,”，并使用英文“,”分隔元素。</value>
+  </data>
+  <data name="PatternCompileErr004" xml:space="preserve">
+    <value>error004：无法识别的模块类型</value>
+  </data>
+  <data name="PatternCompileErr005" xml:space="preserve">
+    <value>error005：无法识别 Instruments 字符串“{0}”中的符号“{{”和“}}”，无法将其格式化为 Instrument 对象。</value>
+  </data>
+  <data name="PatternCompileErr006" xml:space="preserve">
+    <value>error006：未找到与仪器模块匹配的符号“}”。</value>
+  </data>
+  <data name="PatternCompileInfo001" xml:space="preserve">
+    <value>Info001：atp 中不存在“instruments”。</value>
+  </data>
+  <data name="PatternCompileErr007" xml:space="preserve">
+    <value>error007：仪器模块中“{0}”中的元素数量不正确。请检查一下。</value>
+  </data>
+  <data name="PatternCompileErr008" xml:space="preserve">
+    <value>error008：无法识别仪器宽度值“{0}”，它应该是数字。</value>
+  </data>
+  <data name="PatternCompileErr009" xml:space="preserve">
+    <value>error009：仪器宽度范围为 1 到 32。当前仪器宽度为 {0}。</value>
+  </data>
+  <data name="PatternCompileErr010" xml:space="preserve">
+    <value>error010：当仪器模式为并行时，仪器宽度必须为 1。当前仪器宽度为 {0}</value>
+  </data>
+  <data name="PatternCompileErr011" xml:space="preserve">
+    <value>第{0}行 - error011：伪指令和参数的数量大于2。</value>
+  </data>
+  <data name="PatternCompileErr012" xml:space="preserve">
+    <value>第{0}行 - error012：无法识别标签信息 {1}。</value>
+  </data>
+  <data name="PatternCompileErr013" xml:space="preserve">
+    <value>第{0}行 - error013：无法识别标签类型 {1}。</value>
+  </data>
+  <data name="PatternCompileErr014" xml:space="preserve">
+    <value>第{0}行 - error014：矢量引脚计数与 atp 文件中定义的引脚计数不匹配。</value>
+  </data>
+  <data name="PatternCompileErr015" xml:space="preserve">
+    <value>第{0}行 - error015：向量中未定义元素“{array[i].ToString()}”。</value>
+  </data>
+  <data name="PatternCompileErr016" xml:space="preserve">
+    <value>第{0}行 - error016：伪指令“{1}”后不允许有任何参数。</value>
+  </data>
+  <data name="PatternCompileErr017" xml:space="preserve">
+    <value>第{0}行 - error017：atp 文件中未定义伪指令“{1}”。</value>
+  </data>
+  <data name="PatternCompileErr018" xml:space="preserve">
+    <value>第{0}行 - error018：不支持伪指令 {1}。</value>
+  </data>
+  <data name="PatternCompileErr019" xml:space="preserve">
+    <value>第{0}行 - error019：伪指令“{1}”后面必须跟一个参数。</value>
+  </data>
+  <data name="PatternCompileErr020" xml:space="preserve">
+    <value>第{0}行 - error020: PseudoInstruction 后面的数字“{1}”必须在 {2} 到 {3} 的范围内。</value>
+  </data>
+  <data name="PatternCompileErr021" xml:space="preserve">
+    <value>第{0}行 - error021：PseudoInstruction 后的内容“{1}”不是有效值。它应该在 {2} 到 {3} 范围内或在列表 {4} 中。</value>
+  </data>
+  <data name="PatternCompileErr022" xml:space="preserve">
+    <value>第{0}行 - error022：伪指令“{1}”后面必须跟一个参数。</value>
+  </data>
+  <data name="PatternCompileErr023" xml:space="preserve">
+    <value>第{0}行 - error023：伪指令“{2}”后的数字“{1}”必须在 {3} 到 {4} 的范围内。</value>
+  </data>
+  <data name="PatternCompileErr024" xml:space="preserve">
+    <value>第{0}行 - error024: PseudoInstruction 后面的数字“{1}”必须在 {3} 到 {4} 的范围内。</value>
+  </data>
+  <data name="PatternCompileErr025" xml:space="preserve">
+    <value>第{0}行 - error025：atp 文件中未定义 TimeSet“{1}”。</value>
+  </data>
+  <data name="PatternCompileErr026" xml:space="preserve">
+    <value>第{0}行 - error026：无法识别伪指令参数信息“{1}”。</value>
+  </data>
+  <data name="PatternCompileErr027" xml:space="preserve">
+    <value>第{0}行 - error027：无法识别的矢量内容。不能包含多个伪值。</value>
+  </data>
+  <data name="PatternCompileErr028" xml:space="preserve">
+    <value>第{0}行 - error028：单个矢量线不能包含多个标签。</value>
+  </data>
+  <data name="PatternCompileErr029" xml:space="preserve">
+    <value>error029: 此 atp 文件“{0}”中的向量行号小于最小值“{1}”。</value>
+  </data>
+  <data name="PatternCompileErr030" xml:space="preserve">
+    <value>第{0}行 - error030：伪指令和参数的数量大于 2。内容为 {1}</value>
+  </data>
+  <data name="PatternCompileErr031" xml:space="preserve">
+    <value>第{0}行 - error031：注释应以“//”开头。</value>
+  </data>
+  <data name="PatternCompileErr032" xml:space="preserve">
+    <value>第{0}行 - error032：V/D 字符出现在未定义的仪器中。</value>
+  </data>
+  <data name="PatternCompileErr033" xml:space="preserve">
+    <value>第{0}行 - warn033：“Start”伪指令不应包含该行中的“D”。该行将被忽略，并且不会计入包含 D 的行数中。</value>
+  </data>
+  <data name="PatternCompileErr034" xml:space="preserve">
+    <value>第{0}行 - warn034：“Trig”伪指令不应包含该行中的“V”。该行将被忽略，并且不会计入包含 V 的行数中。</value>
+  </data>
+  <data name="PatternCompileErr035" xml:space="preserve">
+    <value>第{0}行 - error035：无法将重复参数“{1}”转换为数字。</value>
+  </data>
+  <data name="PatternCompileErr036" xml:space="preserve">
+    <value>第{0}行 - error036：无法将循环参数“{1}”转换为数字。</value>
+  </data>
+  <data name="PatternCompileErr037" xml:space="preserve">
+    <value>第{0}行 - error037：当前仪器中的所有引脚必须同时为“{1}”。</value>
+  </data>
 </root>

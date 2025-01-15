@@ -205,4 +205,156 @@
     <value>Output</value>
     <comment>输出</comment>
   </data>
+  <data name="PatternCompileErr001" xml:space="preserve">
+    <value>error001: Can not find TimeSet info. Please check keyword 'import tset' in atp file, And it must be ';' At the end.</value>
+    <comment>error001：找不到时间设置信息。请检查atp文件中的关键字'import tset'，并且它必须是';'在最后。</comment>
+  </data>
+  <data name="PatternCompileErr003" xml:space="preserve">
+    <value>error003: The TimingSet list contains the same name </value>
+    <comment>error003: TimingSet 列表包含相同的名称</comment>
+  </data>
+  <data name="PatternCompileErr002" xml:space="preserve">
+    <value>error002：Can not find Pins info. Please check keyword '$tset,' in atp file,and use english ',' to separate elements.</value>
+    <comment>error002：找不到 Pin 图信息。请检查 atp 文件中的关键字“$tset,”，并使用英文“,”分隔元素。</comment>
+  </data>
+  <data name="PatternCompileErr004" xml:space="preserve">
+    <value>error004：Unrecognized module type</value>
+    <comment>error004：无法识别的模块类型</comment>
+  </data>
+  <data name="PatternCompileErr005" xml:space="preserve">
+    <value>error005：Cannot recognize symbol '{{' and '}}' in the Instruments string '{0}', cannot format it to Instrument object.</value>
+    <comment>error005：无法识别 Instruments 字符串“{0}”中的符号“{{”和“}}”，无法将其格式化为 Instrument 对象。</comment>
+  </data>
+  <data name="PatternCompileErr006" xml:space="preserve">
+    <value>error006：No symbol '}' was found to match instruments module.</value>
+    <comment>error006：未找到与仪器模块匹配的符号“}”。</comment>
+  </data>
+  <data name="PatternCompileInfo001" xml:space="preserve">
+    <value>Info001：'instruments' doesn't exist in atp.</value>
+    <comment>Info001：atp 中不存在“instruments”。</comment>
+  </data>
+  <data name="PatternCompileErr007" xml:space="preserve">
+    <value>error007：The number of elements in the '{0}' in Instruments module is incorrec. Please check it.</value>
+    <comment>error007：仪器模块中“{0}”中的元素数量不正确。请检查一下。</comment>
+  </data>
+  <data name="PatternCompileErr008" xml:space="preserve">
+    <value>error008：Unable to identify the Instrument Width value '{0}', it should be the number.</value>
+    <comment>error008：无法识别仪器宽度值“{0}”，它应该是数字。</comment>
+  </data>
+  <data name="PatternCompileErr009" xml:space="preserve">
+    <value>error009：The Instrument Width ranges from 1 to 32. Current instrument width is {0}.</value>
+    <comment>error009：仪器宽度范围为 1 到 32。当前仪器宽度为 {0}。</comment>
+  </data>
+  <data name="PatternCompileErr010" xml:space="preserve">
+    <value>error010：Instrument width must be 1 when the Instrument mode is Parallel. Current instrument width is {0}</value>
+    <comment>error010：当仪器模式为并行时，仪器宽度必须为 1。当前仪器宽度为 {0}</comment>
+  </data>
+  <data name="PatternCompileErr011" xml:space="preserve">
+    <value>line {0} - error011：The number of pseudo instructions and parameters is greater than 2.</value>
+    <comment>第{0}行 - error011：伪指令和参数的数量大于2。</comment>
+  </data>
+  <data name="PatternCompileErr012" xml:space="preserve">
+    <value>line {0} - error012: Unrecognized label information {1}.</value>
+    <comment>第{0}行 - error012：无法识别标签信息 {1}。</comment>
+  </data>
+  <data name="PatternCompileErr013" xml:space="preserve">
+    <value>line {0} - error013: Unrecognized label type {1}.</value>
+    <comment>第{0}行 - error013：无法识别标签类型 {1}。</comment>
+  </data>
+  <data name="PatternCompileErr014" xml:space="preserve">
+    <value>line {0} - error014: Vector pins count is not match defined pins count in atp file.</value>
+    <comment>第{0}行 - error014：矢量引脚计数与 atp 文件中定义的引脚计数不匹配。</comment>
+  </data>
+  <data name="PatternCompileErr015" xml:space="preserve">
+    <value>line {0} - error015: Undefined element '{array[i].ToString()}' in Vector.</value>
+    <comment>第{0}行 - error015：向量中未定义元素“{array[i].ToString()}”。</comment>
+  </data>
+  <data name="PatternCompileErr016" xml:space="preserve">
+    <value>line {0} - error016: No parameter is allowed after PseudoInstruction '{1}'.</value>
+    <comment>第{0}行 - error016：伪指令“{1}”后不允许有任何参数。</comment>
+  </data>
+  <data name="PatternCompileErr017" xml:space="preserve">
+    <value>line {0} - error017: Undefined PseudoInstruction '{1}' in atp file.</value>
+    <comment>第{0}行 - error017：atp 文件中未定义伪指令“{1}”。</comment>
+  </data>
+  <data name="PatternCompileErr018" xml:space="preserve">
+    <value>line {0} - error018: nonsupport PseudoInstruction {1}.</value>
+    <comment>第{0}行 - error018：不支持伪指令 {1}。</comment>
+  </data>
+  <data name="PatternCompileErr019" xml:space="preserve">
+    <value>line {0} - error019: The pseudoInstruction '{1}' must be followed by an argument.</value>
+    <comment>第{0}行 - error019：伪指令“{1}”后面必须跟一个参数。</comment>
+  </data>
+  <data name="PatternCompileErr020" xml:space="preserve">
+    <value>line {0} - error020: The number '{1}' after PseudoInstruction must be in the range of {2} to {3}.</value>
+    <comment>第{0}行 - error020: PseudoInstruction 后面的数字“{1}”必须在 {2} 到 {3} 的范围内。</comment>
+  </data>
+  <data name="PatternCompileErr021" xml:space="preserve">
+    <value>line {0} - error021: Content '{1}' after PseudoInstruction is not a valid value. It should be in the range {2} to {3} or in the list {4}.</value>
+    <comment>第{0}行 - error021：PseudoInstruction 后的内容“{1}”不是有效值。它应该在 {2} 到 {3} 范围内或在列表 {4} 中。</comment>
+  </data>
+  <data name="PatternCompileErr022" xml:space="preserve">
+    <value>line {0} - error022: The pseudoInstruction '{1}' must be followed by an argument.</value>
+    <comment>第{0}行 - error022：伪指令“{1}”后面必须跟一个参数。</comment>
+  </data>
+  <data name="PatternCompileErr023" xml:space="preserve">
+    <value>line {0} - error023: The number '{1}' after PseudoInstruction '{2}' must be in the range of {3} to {4}.</value>
+    <comment>第{0}行 - error023：伪指令“{2}”后的数字“{1}”必须在 {3} 到 {4} 的范围内。</comment>
+  </data>
+  <data name="PatternCompileErr024" xml:space="preserve">
+    <value>line {0} - error024: The number '{1}' after PseudoInstruction must be in the range of {3} to {4}.</value>
+    <comment>第{0}行 - error024: PseudoInstruction 后面的数字“{1}”必须在 {3} 到 {4} 的范围内。</comment>
+  </data>
+  <data name="PatternCompileErr025" xml:space="preserve">
+    <value>line {0} - error025: Undefined TimeSet '{1}' in atp file.</value>
+    <comment>第{0}行 - error025：atp 文件中未定义 TimeSet“{1}”。</comment>
+  </data>
+  <data name="PatternCompileErr026" xml:space="preserve">
+    <value>line {0} - error026: Unrecognized PseudoInstruction parameter information '{1}'.</value>
+    <comment>第{0}行 - error026：无法识别伪指令参数信息“{1}”。</comment>
+  </data>
+  <data name="PatternCompileErr027" xml:space="preserve">
+    <value>line {0} - error027: Unrecognized vector content. Cannot contain mutli pseudo.</value>
+    <comment>第{0}行 - error027：无法识别的矢量内容。不能包含多个伪值。</comment>
+  </data>
+  <data name="PatternCompileErr028" xml:space="preserve">
+    <value>line {0} - error028: A single vector line cannot contain more than one label.</value>
+    <comment>第{0}行 - error028：单个矢量线不能包含多个标签。</comment>
+  </data>
+  <data name="PatternCompileErr029" xml:space="preserve">
+    <value>error029: The vector row number in this atp file '{0}' is less than the minimum value '{1}'.</value>
+    <comment>error029: 此 atp 文件“{0}”中的向量行号小于最小值“{1}”。</comment>
+  </data>
+  <data name="PatternCompileErr030" xml:space="preserve">
+    <value>line {0} - error030: The number of pseudo instructions and parameters is greater than 2. Content is {1}</value>
+    <comment>第{0}行 - error030：伪指令和参数的数量大于 2。内容为 {1}</comment>
+  </data>
+  <data name="PatternCompileErr031" xml:space="preserve">
+    <value>line {0} - error031: Comment should start with '//'.</value>
+    <comment>第{0}行 - error031：注释应以“//”开头。</comment>
+  </data>
+  <data name="PatternCompileErr032" xml:space="preserve">
+    <value>line {0} - error032: The V/D character appears in undefined Instrument.</value>
+    <comment>第{0}行 - error032：V/D 字符出现在未定义的仪器中。</comment>
+  </data>
+  <data name="PatternCompileErr033" xml:space="preserve">
+    <value>line {0} - warn033: The 'Start' pseudoinstruction should not contain the 'D' on the line. This row will be ignored and will not be counted in the number of rows containing D.</value>
+    <comment>第{0}行 - warn033：“Start”伪指令不应包含该行中的“D”。该行将被忽略，并且不会计入包含 D 的行数中。</comment>
+  </data>
+  <data name="PatternCompileErr034" xml:space="preserve">
+    <value>line {0} - warn034: The 'Trig' pseudoinstruction should not contain the 'V' on the line. This row will be ignored and will not be counted in the number of rows containing V.</value>
+    <comment>第{0}行 - warn034：“Trig”伪指令不应包含该行中的“V”。该行将被忽略，并且不会计入包含 V 的行数中。</comment>
+  </data>
+  <data name="PatternCompileErr035" xml:space="preserve">
+    <value>line {0} - error035: Can't convert repeat parameter '{1}' to a number.</value>
+    <comment>第{0}行 - error035：无法将重复参数“{1}”转换为数字。</comment>
+  </data>
+  <data name="PatternCompileErr036" xml:space="preserve">
+    <value>line {0} - error036: Can't convert loop parameter '{1}' to a number.</value>
+    <comment>第{0}行 - error036：无法将循环参数“{1}”转换为数字。</comment>
+  </data>
+  <data name="PatternCompileErr037" xml:space="preserve">
+    <value>line {0} - error037: All pins in current instrument must be '{1}' at the same time.</value>
+    <comment>第{0}行 - error037：当前仪器中的所有引脚必须同时为“{1}”。</comment>
+  </data>
 </root>

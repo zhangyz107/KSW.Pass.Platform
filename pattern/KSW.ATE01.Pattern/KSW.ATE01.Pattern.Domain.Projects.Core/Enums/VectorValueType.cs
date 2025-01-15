@@ -39,7 +39,7 @@ namespace KSW.ATE01.Pattern.Domain.Projects.Core.Enums
         /// <summary>
         /// M
         /// </summary>
-        [Description(" M")]
+        [Description("M")]
         M = 5,
 
         /// <summary>
@@ -59,5 +59,41 @@ namespace KSW.ATE01.Pattern.Domain.Projects.Core.Enums
         /// </summary>
         [Description("-")]
         None =8,
+
+        /// <summary>
+        /// 0L
+        /// </summary>
+        [Description("0L")]
+        ZeroL,
+
+        /// <summary>
+        /// 0H
+        /// </summary>
+        [Description("0H")]
+        ZeroH,
+
+        /// <summary>
+        /// 1L
+        /// </summary>
+        [Description("1L")]
+        OneL,
+
+        /// <summary>
+        /// 1H
+        /// </summary>
+        [Description("1H")]
+        OneH,
+
+        /// <summary>
+        /// D
+        /// </summary>
+        [Description("D")]
+        D,
+
+        /// <summary>
+        /// C
+        /// </summary>
+        [Description("C")]
+        C,
     }
 }

@@ -11,7 +11,7 @@ namespace KSW.ATE01.Pattern.Application.Models.Projects
     /// <summary>
     /// 引脚信息模型
     /// </summary>
-    public class PinInfoModel : DtoBase
+    public class PinModel : DtoBase
     {
         private string _pinName;
         private VectorValueType _vectorValue;

@@ -144,4 +144,24 @@ public static class Enum {
         }
         return result;
     }
+
+    public static TEnum GetEnumValueFromDescription<TEnum>(string description) where TEnum : System.Enum 
+    {
+        // 获取枚举类型
+        Type type = typeof(TEnum);
+
+        // 遍历所有枚举值
+        foreach (var field in type.GetFields())
+        {
+            // 查找DescriptionAttribute特性
+            var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
+            if (attribute != null && attribute.Description == description)
+            {
+                return (TEnum)field.GetValue(null);
+            }
+        }
+
+        // 如果未找到匹配的描述，抛出异常
+        throw new ArgumentException($"No enum value found for description '{description}'", nameof(description));
+    }
 }
