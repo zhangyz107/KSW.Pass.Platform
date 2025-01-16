@@ -8,9 +8,20 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:language="clr-namespace:KSW.ATE01.Pattern.Start.Language"
+             xmlns:converter="clr-namespace:KSW.ATE01.Pattern.Start.Converter"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <UserControl.Resources>
+        <converter:NegBooleanToVisibilityConverter x:Key="NegBooleanToVisibilityConverter"></converter:NegBooleanToVisibilityConverter>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -28,7 +39,7 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Button Margin="6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Right}">
+            <Button Margin="6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding OpenCommand}">
                 <Button.Content >
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -41,7 +52,7 @@
                 </Button.Content>
             </Button>
 
-            <Button Grid.Column="1" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}">
+            <Button Grid.Column="1" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding SaveCommand}">
                 <Button.Content>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -54,7 +65,7 @@
                 </Button.Content>
             </Button>
 
-            <Button Grid.Column="2" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}">
+            <Button Grid.Column="2" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding SaveAsCommand}">
                 <Button.Content>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -67,17 +78,23 @@
                 </Button.Content>
             </Button>
 
-            <Button Grid.Column="3" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}">
+            <Button x:Name="btnExport" Grid.Column="3" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Initialized="Export_Initialized" Click="Export_Click">
                 <Button.Content>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <materialDesign:PackIcon Margin="0,0,4,0" Kind="Export" />
-                        <TextBlock Grid.Column="1" Text="{language:L ExportAtp}"></TextBlock>
+                        <TextBlock Grid.Column="1" Text="{language:L Export}"></TextBlock>
                     </Grid>
                 </Button.Content>
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="btnContextMenu">
+                        <MenuItem Header="{language:L ExportAtp}" Command="{Binding ExportAtpCommand}"></MenuItem>
+                    </ContextMenu>
+                </Button.ContextMenu>
             </Button>
 
             <Button Grid.Column="5" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding AddVectorCommand}">
@@ -114,13 +131,16 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <Button VerticalAlignment="Top" Style="{StaticResource MaterialDesignToolButton}">
+            <Button VerticalAlignment="Top" Style="{StaticResource MaterialDesignToolButton}" Command="{Binding PinOverviewVisibleCommand}">
                 <Button.Content>
-                    <materialDesign:PackIcon Kind="ArrowLeftCircle" />
+                    <Grid>
+                        <materialDesign:PackIcon Kind="ArrowLeftCircle" Visibility="{Binding ShowPinOverview,Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <materialDesign:PackIcon Kind="ArrowRightCircle" Visibility="{Binding ShowPinOverview,Converter={StaticResource NegBooleanToVisibilityConverter}}"/>
+                    </Grid>
                 </Button.Content>
             </Button>
 
-            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1" Visibility="{Binding ShowPinOverview,Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"></RowDefinition>
@@ -150,12 +170,12 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Verctor" IsReadOnly="True" Binding="{Binding Label.IndexInVectors}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Label" IsReadOnly="True" Binding="{Binding Label.LabelFullContent}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Command" IsReadOnly="True" Binding="{Binding Command.TypeDescription}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Instrument" IsReadOnly="True" Binding="{Binding Instrument}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Timing Name" IsReadOnly="True" Binding="{Binding TimingName}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Comment" IsReadOnly="True" Binding="{Binding Comment}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Vector}" IsReadOnly="True" Binding="{Binding Label.IndexInVectors}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Label}" IsReadOnly="True" Binding="{Binding Label.LabelFullContent}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Command}" IsReadOnly="True" Binding="{Binding Command.TypeDescription}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Instrument}" IsReadOnly="True" Binding="{Binding Instrument}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L TimingName}" IsReadOnly="True" Binding="{Binding TimingSet}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Comment}" IsReadOnly="True" Binding="{Binding Comment}" Width="auto"></DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

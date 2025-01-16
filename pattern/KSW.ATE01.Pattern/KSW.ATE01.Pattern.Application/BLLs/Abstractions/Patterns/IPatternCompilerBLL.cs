@@ -17,5 +17,10 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns
         /// 解析向量文件
         /// </summary>
         PatternModel AnalysisPattern(string patternFilePath);
+
+        /// <summary>
+        /// 导出atp文件
+        /// </summary>
+        void ExportPattern(PatternModel patternModel);
     }
 }

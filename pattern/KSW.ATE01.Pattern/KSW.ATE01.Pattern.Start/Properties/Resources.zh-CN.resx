@@ -312,4 +312,7 @@
   <data name="PatternCompileErr037" xml:space="preserve">
     <value>第{0}行 - error037：当前仪器中的所有引脚必须同时为“{1}”。</value>
   </data>
+  <data name="Export" xml:space="preserve">
+    <value>导出</value>
+  </data>
 </root>

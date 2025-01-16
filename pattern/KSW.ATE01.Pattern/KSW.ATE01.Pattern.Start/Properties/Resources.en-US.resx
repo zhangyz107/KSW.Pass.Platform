@@ -312,4 +312,7 @@
   <data name="PatternCompileErr037" xml:space="preserve">
     <value>line {0} - error037: All pins in current instrument must be '{1}' at the same time.</value>
   </data>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
 </root>

@@ -142,6 +142,15 @@ namespace KSW.ATE01.Pattern.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Export 的本地化字符串。
+        /// </summary>
+        internal static string Export {
+            get {
+                return ResourceManager.GetString("Export", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Export atp 的本地化字符串。
         /// </summary>
         internal static string ExportAtp {

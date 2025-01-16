@@ -1,6 +1,8 @@
 ﻿using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Models.Projects;
 using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
+using KSW.Localization;
+using Prism.Ioc;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -13,9 +15,11 @@ namespace KSW.ATE01.Pattern.Start.Views
     public partial class PatternEditorView : UserControl
     {
         #region Fields
+        private readonly IContainerProvider _containerProvider;
         private readonly IEventAggregator _eventAggregator;
+        private readonly ILanguageManager _language;
         private List<DataGridColumn> insertColumns = new List<DataGridColumn>();
-        private const string _dynamicColumnHeader = "Timing Name";
+        private string _dynamicColumnHeader;
         #endregion
 
         #region Properties
@@ -33,11 +37,20 @@ namespace KSW.ATE01.Pattern.Start.Views
 
         #endregion
 
-        public PatternEditorView(IEventAggregator eventAggregator)
+        public PatternEditorView(
+            IContainerProvider containerProvider,
+            IEventAggregator eventAggregator)
         {
             InitializeComponent();
 
+            _containerProvider = containerProvider;
             _eventAggregator = eventAggregator;
+            _language = containerProvider.IsRegistered<ILanguageManager>() == true ? containerProvider.Resolve<ILanguageManager>() : null;
+
+            if (_language != null)
+            {
+                _dynamicColumnHeader = _language["TimingName"];
+            }
             _eventAggregator.GetEvent<PatternColInfoUpdateEvent>().Subscribe(RefreshDataGrid);
         }
 
@@ -103,6 +116,18 @@ namespace KSW.ATE01.Pattern.Start.Views
 
             insertColumns.Clear();
 
+        }
+
+        private void Export_Initialized(object sender, EventArgs e)
+        {
+            this.btnExport.ContextMenu = null;
+        }
+
+        private void Export_Click(object sender, RoutedEventArgs e)
+        {
+            this.btnContextMenu.PlacementTarget = this.btnExport;
+            this.btnContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            this.btnContextMenu.IsOpen = true;
         }
     }
 }

@@ -11,6 +11,8 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
+using KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.ATE01.Pattern.Application.Models.Projects;
@@ -26,8 +28,10 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
     {
         #region Fields
         private readonly IEventAggregator _eventAggregator;
+        private readonly IPatternCompilerBLL _patternCompilerBLL;
         private PatternModel _patternModel;
         private PatternVectorModel _vectorRow;
+        private bool _showPinOverview = true;
         #endregion
 
         #region Properties
@@ -38,36 +42,86 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         public PatternVectorModel VectorRow
         {
             get => _vectorRow;
-            set => SetProperty(ref _vectorRow, value);
+            set
+            {
+                if (SetProperty(ref _vectorRow, value))
+                {
+                    DeleteVectorCommand.RaiseCanExecuteChanged();
+                }
+
+            }
         }
+
+        public bool ShowPinOverview
+        {
+            get => _showPinOverview;
+            set => SetProperty(ref _showPinOverview, value);
+        }
+
         #endregion
 
         #region Command
+        private DelegateCommand _loadingCommand;
+        public DelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommand));
+
         private DelegateCommand _addVectorCommand;
         public DelegateCommand AddVectorCommand =>
-            _addVectorCommand ?? (_addVectorCommand = new DelegateCommand(ExecuteAddVectorCommand));
+            _addVectorCommand ?? (_addVectorCommand = new DelegateCommand(ExecuteAddVectorCommand, () => { return _patternModel != null; }));
+
+        private DelegateCommand _openCommand;
+        public DelegateCommand OpenCommand =>
+             _openCommand ?? (_openCommand = new DelegateCommand(ExecuteOpenCommand));
+
+        private DelegateCommand _saveCommand;
+        public DelegateCommand SaveCommand =>
+             _saveCommand ?? (_saveCommand = new DelegateCommand(ExecuteSaveCommand, () => { return _patternModel != null; }));
+
+        private DelegateCommand _saveAsCommand;
+        public DelegateCommand SaveAsCommand =>
+             _saveAsCommand ?? (_saveAsCommand = new DelegateCommand(ExecuteSaveAsCommand, () => { return _patternModel != null; }));
+
+        private DelegateCommand _exportAtpCommand;
+        public DelegateCommand ExportAtpCommand =>
+             _exportAtpCommand ?? (_exportAtpCommand = new DelegateCommand(ExecuteExportAtpCommand, () => { return _patternModel != null; }));
 
         private DelegateCommand _refreshCommand;
         public DelegateCommand RefreshCommand =>
             _refreshCommand ?? (_refreshCommand = new DelegateCommand(ExecuteRefreshCommand));
 
+        private DelegateCommand _pinOverviewVisibleCommand;
+        public DelegateCommand PinOverviewVisibleCommand =>
+            _pinOverviewVisibleCommand ?? (_pinOverviewVisibleCommand = new DelegateCommand(ExecutePinOverviewVisibleCommand));
+
         private DelegateCommand<object> _insertVectorCommand;
         public DelegateCommand<object> InsertVectorCommand =>
-            _insertVectorCommand ?? (_insertVectorCommand = new DelegateCommand<object>(ExecuteInsertVectorCommand));
+            _insertVectorCommand ?? (_insertVectorCommand = new DelegateCommand<object>(ExecuteInsertVectorCommand, (x) => { return _patternModel != null; }));
 
         private DelegateCommand<object> _deleteVectorCommand;
         public DelegateCommand<object> DeleteVectorCommand =>
-            _deleteVectorCommand ?? (_deleteVectorCommand = new DelegateCommand<object>(ExecuteDeleteVectorCommand));
+            _deleteVectorCommand ?? (_deleteVectorCommand = new DelegateCommand<object>(ExecuteDeleteVectorCommand, (x) => { return _vectorRow != null; }));
         #endregion
 
         public PatternEditorViewModel(
             IContainerProvider containerProvider,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IEventAggregator eventAggregator,
+            IPatternCompilerBLL patternCompilerBLL) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
+            _patternCompilerBLL = patternCompilerBLL;
 
             eventAggregator.GetEvent<PatternModelUpdateEvent>().Subscribe(PatternModelUpdate, ThreadOption.UIThread);
             VectorInfos.CollectionChanged += PatternInfos_CollectionChanged;
+        }
+
+        private void ExecuteLoadingCommand()
+        {
+            AddVectorCommand.RaiseCanExecuteChanged();
+            SaveCommand.RaiseCanExecuteChanged();
+            SaveAsCommand.RaiseCanExecuteChanged();
+            ExportAtpCommand.RaiseCanExecuteChanged();
+            InsertVectorCommand.RaiseCanExecuteChanged();
+            DeleteVectorCommand.RaiseCanExecuteChanged();
         }
 
         private void PatternModelUpdate(PatternModel model)
@@ -113,7 +167,31 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
 
         private void ExecuteAddVectorCommand()
         {
-            VectorInfos.Add(new PatternVectorModel());
+            VectorInfos.Add(new PatternVectorModel()
+            {
+                Label = new LabelModel(),
+                Command = new CommandModel()
+            });
+        }
+
+        private void ExecuteOpenCommand()
+        {
+
+        }
+
+        private void ExecuteSaveCommand()
+        {
+
+        }
+
+        private void ExecuteSaveAsCommand()
+        {
+
+        }
+
+        private void ExecuteExportAtpCommand()
+        {
+
         }
 
         private void ExecuteRefreshCommand()
@@ -130,6 +208,11 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             foreach (var item in tempRow.Pins)
                 PinCols.Add(item);
 
+        }
+
+        private void ExecutePinOverviewVisibleCommand()
+        {
+            ShowPinOverview = !_showPinOverview;
         }
 
         private void ExecuteInsertVectorCommand(object obj)

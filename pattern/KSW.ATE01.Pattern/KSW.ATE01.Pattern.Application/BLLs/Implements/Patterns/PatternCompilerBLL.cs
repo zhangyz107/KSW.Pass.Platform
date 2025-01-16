@@ -13,17 +13,11 @@
 
 using KSW.Application;
 using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
-using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.ATE01.Pattern.Application.Extensions;
 using KSW.ATE01.Pattern.Application.Models.Projects;
 using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
-using KSW.ATE01.Pattern.Domain.Projects.Patterns;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Documents;
-using System.Windows.Interop;
 
 namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
 {
@@ -205,6 +199,7 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             _eventAggregator = eventAggregator;
         }
 
+        #region Public
         public PatternModel AnalysisPattern(string patternFilePath)
         {
             _compileError = false;
@@ -226,6 +221,13 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             return result;
         }
 
+        public void ExportPattern(PatternModel patternModel)
+        {
+
+        }
+        #endregion
+
+        #region Private
         private void AnalysisPatternTimeSet(string pathPattern, PatternModel patternResult)
         {
             using StreamReader streamReader = new StreamReader(pathPattern);
@@ -1397,5 +1399,6 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             }
             return true;
         }
+        #endregion
     }
 }

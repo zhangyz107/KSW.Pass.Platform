@@ -357,4 +357,8 @@
     <value>line {0} - error037: All pins in current instrument must be '{1}' at the same time.</value>
     <comment>第{0}行 - error037：当前仪器中的所有引脚必须同时为“{1}”。</comment>
   </data>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
+    <comment>导出</comment>
+  </data>
 </root>
