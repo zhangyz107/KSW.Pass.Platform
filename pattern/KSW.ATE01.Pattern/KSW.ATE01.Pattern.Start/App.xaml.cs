@@ -1,4 +1,5 @@
 ﻿using DryIoc.Microsoft.DependencyInjection;
+using KSW.ATE01.Pattern.Application;
 using KSW.ATE01.Pattern.Start.Language;
 using KSW.ATE01.Pattern.Start.Views;
 using KSW.Infrastructure;
@@ -96,8 +97,7 @@ namespace KSW.ATE01.Pattern
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
-            //添加Sqlite模块
-            //moduleCatalog.AddModule<SqliteModule>();
+            moduleCatalog.AddModule<ApplicationModule>();
         }
 
 

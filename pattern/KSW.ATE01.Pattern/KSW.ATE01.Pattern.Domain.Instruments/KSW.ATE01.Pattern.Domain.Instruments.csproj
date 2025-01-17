@@ -7,9 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\src-platform\KSW.Core\KSW.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\src-platform\KSW.Domain\KSW.Domain.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Pattern.Domain.Instruments.Core\KSW.ATE01.Pattern.Domain.Instruments.Core.csproj" />
-    <ProjectReference Include="..\KSW.ATE01.Pattern.Domain.Projects.Core\KSW.ATE01.Pattern.Domain.Projects.Core.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Entities/InstrumentInfo.*.cs">
+			<DependentUpon>InstrumentInfo.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 </Project>

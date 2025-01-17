@@ -9,7 +9,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resource\Images\cross.png" />
+	  <None Remove="Resource\Images\help.png" />
 	  <None Remove="Resource\Images\reduce.png" />
+	  <None Remove="Resource\Images\tick.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,7 +48,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Include="Resource\Images\cross.png" />
+	  <Resource Include="Resource\Images\help.png" />
 	  <Resource Include="Resource\Images\reduce.png" />
+	  <Resource Include="Resource\Images\tick.png" />
 	</ItemGroup>
 
 </Project>

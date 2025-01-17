@@ -14,12 +14,8 @@
     <ProjectReference Include="..\..\..\src\src-platform\KSW.Application\KSW.Application.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Pattern.Application.Events\KSW.ATE01.Pattern.Application.Events.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Pattern.Application.Models\KSW.ATE01.Pattern.Application.Models.csproj" />
+    <ProjectReference Include="..\KSW.ATE01.Pattern.Domain.Instruments\KSW.ATE01.Pattern.Domain.Instruments.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Pattern.Domain.Projects\KSW.ATE01.Pattern.Domain.Projects.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="BLLs\Abstractions\Instruments\" />
-    <Folder Include="BLLs\Implements\Instruments\" />
   </ItemGroup>
 
 </Project>

@@ -16,12 +16,14 @@ using KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.ATE01.Pattern.Application.Models.Projects;
+using KSW.ATE01.Pattern.Start.Views;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
+using System.Net;
 
 namespace KSW.ATE01.Pattern.Start.ViewModels
 {
@@ -37,6 +39,8 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         private PatternVectorModel _vectorRow;
         private bool _showPinOverview = true;
         private bool _showDebug;
+        private InstrumentManageView _instrumentManageView;
+
         #endregion
 
         #region Properties
@@ -69,6 +73,11 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             set => SetProperty(ref _showDebug, value);
         }
 
+        public InstrumentManageView InstrumentManageView
+        {
+            get => _instrumentManageView;
+            set => SetProperty(ref _instrumentManageView, value);
+        }
 
         #endregion
 
@@ -124,6 +133,8 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
 
             var equipmentDebugStr = ConfigurationManager.AppSettings["EquipmentDebug"];
             bool.TryParse(equipmentDebugStr, out _showDebug);
+
+            _instrumentManageView = containerProvider.Resolve<InstrumentManageView>();
 
             eventAggregator.GetEvent<PatternModelUpdateEvent>().Subscribe(PatternModelUpdate, ThreadOption.UIThread);
             VectorInfos.CollectionChanged += PatternInfos_CollectionChanged;

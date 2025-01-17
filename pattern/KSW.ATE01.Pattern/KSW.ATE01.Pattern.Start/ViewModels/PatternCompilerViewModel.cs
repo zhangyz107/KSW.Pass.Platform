@@ -12,7 +12,6 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
-using KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.Ui;
