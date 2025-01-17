@@ -26,10 +26,35 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid>
+
+        <GroupBox Margin="8,4" Header="网口设定" Visibility="{Binding ShowDebug,Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="IP地址:" VerticalAlignment="Center"></Label>
+                <TextBlock Grid.Column="1"  VerticalAlignment="Center" Text="{Binding Path=IpAddress}" TextAlignment="Left"></TextBlock>
+                <Label Content="设备端口号:" Grid.Column="2" VerticalAlignment="Center"></Label>
+                <TextBlock Grid.Column="3" Text="{Binding Path=Port}" VerticalAlignment="Center" TextAlignment="Left"></TextBlock>
+                <Label Content="本地端口号:" Grid.Column="4" VerticalAlignment="Center"></Label>
+                <TextBlock Grid.Column="5" Text="{Binding Path=LocalPort}" VerticalAlignment="Center" TextAlignment="Left"></TextBlock>
+                <Button Grid.Column="6" Content="{language:L Connect}" Style="{StaticResource MaterialDesignOutlinedButton}"></Button>
+                <Button Margin="8,0,0,0" Grid.Column="7" Content="{language:L Send}" Style="{StaticResource MaterialDesignOutlinedButton}"></Button>
+            </Grid>
+        </GroupBox>
+
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -124,7 +149,7 @@
             </Button>
         </Grid>
 
-        <Grid Grid.Row="1" Margin="4">
+        <Grid Grid.Row="2" Margin="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -180,7 +205,7 @@
             </DataGrid>
         </Grid>
 
-        <Border Grid.Row="2" Background="#3B3B3B">
+        <Border Grid.Row="3" Background="#3B3B3B">
 
         </Border>
     </Grid>

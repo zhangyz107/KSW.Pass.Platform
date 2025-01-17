@@ -315,4 +315,13 @@
   <data name="Export" xml:space="preserve">
     <value>Export</value>
   </data>
+  <data name="FileAlreadyExists" xml:space="preserve">
+    <value>The file already exists, whether to overwrite it</value>
+  </data>
+  <data name="Connect" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
 </root>

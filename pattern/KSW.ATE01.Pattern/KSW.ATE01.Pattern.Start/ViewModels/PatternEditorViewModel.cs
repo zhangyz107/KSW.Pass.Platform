@@ -16,8 +16,12 @@ using KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.ATE01.Pattern.Application.Models.Projects;
+using KSW.Helpers;
 using KSW.Ui;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.Configuration;
+using System.IO;
 
 namespace KSW.ATE01.Pattern.Start.ViewModels
 {
@@ -32,6 +36,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         private PatternModel _patternModel;
         private PatternVectorModel _vectorRow;
         private bool _showPinOverview = true;
+        private bool _showDebug;
         #endregion
 
         #region Properties
@@ -58,6 +63,13 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             set => SetProperty(ref _showPinOverview, value);
         }
 
+        public bool ShowDebug
+        {
+            get => _showDebug;
+            set => SetProperty(ref _showDebug, value);
+        }
+
+
         #endregion
 
         #region Command
@@ -81,9 +93,9 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         public DelegateCommand SaveAsCommand =>
              _saveAsCommand ?? (_saveAsCommand = new DelegateCommand(ExecuteSaveAsCommand, () => { return _patternModel != null; }));
 
-        private DelegateCommand _exportAtpCommand;
-        public DelegateCommand ExportAtpCommand =>
-             _exportAtpCommand ?? (_exportAtpCommand = new DelegateCommand(ExecuteExportAtpCommand, () => { return _patternModel != null; }));
+        private AsyncDelegateCommand _exportAtpCommand;
+        public AsyncDelegateCommand ExportAtpCommand =>
+             _exportAtpCommand ?? (_exportAtpCommand = new AsyncDelegateCommand(ExecuteExportAtpCommand, () => { return _patternModel != null; }));
 
         private DelegateCommand _refreshCommand;
         public DelegateCommand RefreshCommand =>
@@ -109,6 +121,9 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         {
             _eventAggregator = eventAggregator;
             _patternCompilerBLL = patternCompilerBLL;
+
+            var equipmentDebugStr = ConfigurationManager.AppSettings["EquipmentDebug"];
+            bool.TryParse(equipmentDebugStr, out _showDebug);
 
             eventAggregator.GetEvent<PatternModelUpdateEvent>().Subscribe(PatternModelUpdate, ThreadOption.UIThread);
             VectorInfos.CollectionChanged += PatternInfos_CollectionChanged;
@@ -189,9 +204,15 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
 
         }
 
-        private void ExecuteExportAtpCommand()
+        private async Task ExecuteExportAtpCommand()
         {
-
+            var fileSaveDialog = new SaveFileDialog();
+            fileSaveDialog.Filter = ".atp文件|*.atp";
+            if (fileSaveDialog.ShowDialog() == true)
+            {
+                var filePath = fileSaveDialog.FileName;
+                await _patternCompilerBLL.ExportPattern(_patternModel, filePath);
+            }
         }
 
         private void ExecuteRefreshCommand()

@@ -221,10 +221,25 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             return result;
         }
 
-        public void ExportPattern(PatternModel patternModel)
+        public async Task ExportPattern(PatternModel patternModel, string exportFilePath)
         {
+            if (patternModel == null)
+                return;
 
+            switch (patternModel.ModuleType)
+            {
+                case ModuleType.VM_Vector:
+                case ModuleType.LVM_Vector:
+                    await ExportLvmPattern(patternModel, exportFilePath);
+                    break;
+                case ModuleType.SRM_Vector:
+                    ExportSrmPattern(patternModel, exportFilePath);
+                    break;
+                default:
+                    break;
+            }
         }
+
         #endregion
 
         #region Private
@@ -1398,6 +1413,126 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                 }
             }
             return true;
+        }
+
+        private async Task ExportLvmPattern(PatternModel patternModel, string exportFilePath)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(exportFilePath);
+            var pattern = patternModel.PatternVectors.FirstOrDefault();
+            using (var fs = new FileStream(exportFilePath, FileMode.Create, FileAccess.Write))
+            {
+                using (var sw = new StreamWriter(fs))
+                {
+                    //time set行
+                    var timeSet = $"import tset {string.Join(",", patternModel.TimingSets)};";
+                    sw.WriteLine(timeSet);
+
+                    if (!patternModel.InstrumentName.IsEmpty())
+                    {
+                        //digital
+                        var digital = $"digital_ins={patternModel.InstrumentName};";
+                        sw.WriteLine(digital);
+                    }
+
+                    if (!patternModel.InstrumentInfo.StrInstrument.IsEmpty())
+                    {
+                        //instrument
+                        sw.WriteLine("instruments = {");
+                        sw.WriteLine($"{patternModel.InstrumentInfo.StrInstrument};");
+                        sw.WriteLine("}");
+                    }
+
+                    //moduleType
+                    sw.WriteLine(patternModel.ModuleType.Description());
+
+                    //pattern header
+                    var patternHeader = GetPatternHeader(pattern);
+                    sw.WriteLine($"{fileName}\t($tset,\t {patternHeader})");
+
+                    //pattern vector
+                    sw.WriteLine("{");
+                    var colHeaderLength = $"{fileName}\t\t\t".Length;
+                    foreach (var vector in patternModel.PatternVectors)
+                    {
+                        var timingSetAndVector = GetTimingSetAndVector(vector, colHeaderLength);
+                        sw.WriteLine(timingSetAndVector);
+                    }
+                    sw.WriteLine("}");
+
+                    sw.Flush();
+                }
+            }
+
+        }
+
+        private string GetPatternHeader(PatternVectorModel pattern)
+        {
+            var patternHeader = string.Empty;
+            if (pattern == null || pattern.Pins.IsEmpty())
+                return patternHeader;
+
+            int index = 0;
+            foreach (var pin in pattern.Pins)
+            {
+                patternHeader += pin.PinName;
+
+                if (pattern.Pins.IndexOf(pin) != pattern.Pins.Count - 1)
+                    patternHeader += ",";
+
+                if (index == 7)
+                {
+                    patternHeader += "\t";
+                    index = 0;
+                }
+                else
+                    index++;
+            }
+
+            return patternHeader;
+        }
+
+        private string GetTimingSetAndVector(PatternVectorModel vector, int colHeaderLength)
+        {
+            var result = string.Empty;
+            if (!vector.Label.LabelFullContent.IsEmpty())
+                result += vector.Label.LabelFullContent;
+
+            if (!vector.Command.CommandFullContent.IsEmpty())
+            {
+                if (result.IsEmpty())
+                    result += vector.Command.CommandFullContent;
+                else
+                    result += $",{vector.Command.CommandFullContent}";
+            }
+
+            // 固定字符串宽度
+            result = result.PadRight(colHeaderLength);
+
+            // TimingSet填写
+            result += $"> {vector.TimingSet}\t";
+
+            int index = 0;
+            foreach (var pin in vector.Pins)
+            {
+                result += $"{pin.VectorValue.Description()} ";
+                if (vector.Pins.IndexOf(pin) == vector.Pins.Count - 1)
+                    result += ";";
+
+                if (index == 7)
+                {
+                    result += "\t";
+                    index = 0;
+                }
+                else
+                    index++;
+            }
+
+            return result;
+        }
+
+        private void ExportSrmPattern(PatternModel patternModel, string exportFilePath)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

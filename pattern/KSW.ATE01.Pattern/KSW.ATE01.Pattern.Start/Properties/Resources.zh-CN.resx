@@ -315,4 +315,13 @@
   <data name="Export" xml:space="preserve">
     <value>导出</value>
   </data>
+  <data name="FileAlreadyExists" xml:space="preserve">
+    <value>文件已存在，是否覆盖</value>
+  </data>
+  <data name="Connect" xml:space="preserve">
+    <value>连接</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>发送</value>
+  </data>
 </root>

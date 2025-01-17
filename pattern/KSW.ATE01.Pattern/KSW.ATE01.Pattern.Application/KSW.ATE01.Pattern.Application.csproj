@@ -17,4 +17,9 @@
     <ProjectReference Include="..\KSW.ATE01.Pattern.Domain.Projects\KSW.ATE01.Pattern.Domain.Projects.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="BLLs\Abstractions\Instruments\" />
+    <Folder Include="BLLs\Implements\Instruments\" />
+  </ItemGroup>
+
 </Project>

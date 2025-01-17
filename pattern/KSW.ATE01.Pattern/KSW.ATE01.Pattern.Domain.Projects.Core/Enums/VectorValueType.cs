@@ -16,49 +16,49 @@ namespace KSW.ATE01.Pattern.Domain.Projects.Core.Enums
         /// 0
         /// </summary>
         [Description("0")]
-        Zero = 1,
+        Zero = 0,
 
         /// <summary>
         /// 1
         /// </summary>
         [Description("1")]
-        One = 2,
+        One = 1,
 
         /// <summary>
         /// L
         /// </summary>
         [Description("L")]
-        L = 3,
+        L = 2,
 
         /// <summary>
         /// H
         /// </summary>
         [Description("H")]
-        H = 4,
+        H = 3,
 
         /// <summary>
         /// M
         /// </summary>
         [Description("M")]
-        M = 5,
+        M = 4,
 
         /// <summary>
         /// X
         /// </summary>
         [Description("X")]
-        X = 6,
+        X = 5,
 
         /// <summary>
         /// V
         /// </summary>
         [Description("V")]
-        V = 7,
+        V = 6,
 
         /// <summary>
         /// -
         /// </summary>
         [Description("-")]
-        None =8,
+        None =7,
 
         /// <summary>
         /// 0L

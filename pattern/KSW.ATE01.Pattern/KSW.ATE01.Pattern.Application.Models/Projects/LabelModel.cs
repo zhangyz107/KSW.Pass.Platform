@@ -13,6 +13,7 @@ namespace KSW.ATE01.Pattern.Application.Models.Projects
         private long _indexInVectors;
         private LabelCommandType _labelType;
         private string _labelFullContent;
+        private object _labelParamter;
 
         /// <summary>
         /// 向量序号
@@ -40,5 +41,15 @@ namespace KSW.ATE01.Pattern.Application.Models.Projects
             get => _labelFullContent;
             set => SetProperty(ref _labelFullContent, value);
         }
+
+        /// <summary>
+        /// 标签参数
+        /// </summary>
+        public object LabelParamter
+        {
+            get => _labelParamter;
+            set => SetProperty(ref _labelParamter, value);
+        }
+
     }
 }

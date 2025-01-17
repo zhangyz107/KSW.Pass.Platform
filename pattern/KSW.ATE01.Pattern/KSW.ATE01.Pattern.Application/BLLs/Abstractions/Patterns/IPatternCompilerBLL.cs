@@ -21,6 +21,8 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns
         /// <summary>
         /// 导出atp文件
         /// </summary>
-        void ExportPattern(PatternModel patternModel);
+        /// <param name="patternModel">向量模型</param>
+        /// <param name="exportFilePath">导出文件路径</param>
+        Task ExportPattern(PatternModel patternModel, string exportFilePath);
     }
 }

@@ -361,4 +361,16 @@
     <value>Export</value>
     <comment>导出</comment>
   </data>
+  <data name="FileAlreadyExists" xml:space="preserve">
+    <value>The file already exists, whether to overwrite it</value>
+    <comment>文件已存在，是否覆盖</comment>
+  </data>
+  <data name="Connect" xml:space="preserve">
+    <value>Connect</value>
+    <comment>连接</comment>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Send</value>
+    <comment>发送</comment>
+  </data>
 </root>

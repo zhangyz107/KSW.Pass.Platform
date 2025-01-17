@@ -133,6 +133,15 @@ namespace KSW.ATE01.Pattern.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Connect 的本地化字符串。
+        /// </summary>
+        internal static string Connect {
+            get {
+                return ResourceManager.GetString("Connect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Delete Vector 的本地化字符串。
         /// </summary>
         internal static string DeleteVector {
@@ -156,6 +165,15 @@ namespace KSW.ATE01.Pattern.Start.Properties {
         internal static string ExportAtp {
             get {
                 return ResourceManager.GetString("ExportAtp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The file already exists, whether to overwrite it 的本地化字符串。
+        /// </summary>
+        internal static string FileAlreadyExists {
+            get {
+                return ResourceManager.GetString("FileAlreadyExists", resourceCulture);
             }
         }
         
@@ -615,6 +633,15 @@ namespace KSW.ATE01.Pattern.Start.Properties {
         internal static string SaveAs {
             get {
                 return ResourceManager.GetString("SaveAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Send 的本地化字符串。
+        /// </summary>
+        internal static string Send {
+            get {
+                return ResourceManager.GetString("Send", resourceCulture);
             }
         }
         
