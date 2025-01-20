@@ -1,4 +1,5 @@
 ﻿using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Instruments;
+using KSW.ATE01.Pattern.Application.Events.Instruments;
 using KSW.ATE01.Pattern.Application.Models.Instruments;
 using KSW.ATE01.Pattern.Domain.Instruments.Core.Enums;
 using KSW.Helpers;
@@ -12,6 +13,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
     public class InstrumentManageViewModel : ViewModelBase
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private string _ipAddress;
         private int? _port;
         private int? _localPort;
@@ -106,20 +108,24 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         #endregion
 
         #region Command
-        private DelegateCommand _connectCommand;
+        private DelegateCommand _loadingCommand;
+        public DelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommandAsync));
 
+        private DelegateCommand _connectCommand;
         public DelegateCommand ConnectCommand =>
             _connectCommand ?? (_connectCommand = new DelegateCommand(ExecuteConnectCommand));
 
-        private DelegateCommand _loadingCommand;
-
-        public DelegateCommand LoadingCommand =>
-            _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommandAsync));
+        private DelegateCommand _sendCommand;
+        public DelegateCommand SendCommand =>
+            _sendCommand ?? (_sendCommand = new DelegateCommand(ExecuteSendCommand));
         #endregion
 
-        public InstrumentManageViewModel(IContainerProvider containerProvider) : base(containerProvider)
+        public InstrumentManageViewModel(
+            IContainerProvider containerProvider,
+            IEventAggregator eventAggregator) : base(containerProvider)
         {
-
+            _eventAggregator = eventAggregator;
         }
 
         private async void ExecuteLoadingCommandAsync()
@@ -163,6 +169,11 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                 await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
                 Log.LogError(e, e.Message);
             }
+        }
+
+        private void ExecuteSendCommand()
+        {
+            _eventAggregator.GetEvent<InstrumentSendEvent>().Publish(_instrumentInfo);
         }
     }
 }

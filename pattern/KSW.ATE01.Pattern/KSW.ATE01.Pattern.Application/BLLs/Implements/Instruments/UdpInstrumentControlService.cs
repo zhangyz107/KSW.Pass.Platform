@@ -1,5 +1,7 @@
 ﻿using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Instruments;
+using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Models.Instruments;
+using KSW.ATE01.Pattern.Domain.Instruments.Core.Extensions;
 using KSW.Exceptions;
 using KSW.Helpers;
 using Microsoft.Extensions.Logging;
@@ -210,7 +212,7 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Instruments
                 udpClient.Client.SendTimeout = timeOut;
                 udpClient.Client.Send(data);
 
-                //_eventAggregator?.GetEvent<SendMessageEvent>().Publish(new SendMessageModel { Address = address, Message = data });
+                _eventAggregator?.GetEvent<SendMessageEvent>().Publish(new SendMessageModel { Address = address, Message = data });
             }
             catch
             {
@@ -238,11 +240,11 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Instruments
                                 Log.LogInformation($"接收时间:{msg.RecordTime},内容为:{msg.RecordMessage}被剔除接收消息队列");
                             }
 
-                            //_eventAggregator?.GetEvent<RecordMessageEvent>().Publish(new RecordMessageModel
-                            //{
-                            //    RecordTime = DateTime.Now,
-                            //    RecordMessage = $"接收数据:{result.Buffer.ToAppendString()}"
-                            //});
+                            _eventAggregator?.GetEvent<RecordMessageEvent>().Publish(new RecordMessageModel
+                            {
+                                RecordTime = DateTime.Now,
+                                RecordMessage = $"接收数据:{result.Buffer.ToAppendString()}"
+                            });
                         }
                     }
                     catch (Exception)

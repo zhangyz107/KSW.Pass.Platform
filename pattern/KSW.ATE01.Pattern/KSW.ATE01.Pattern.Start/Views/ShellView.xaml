@@ -154,7 +154,7 @@
 
         <materialDesign:DrawerHost x:Name="drawerHost" Grid.Row="1">
             <materialDesign:DrawerHost.RightDrawerContent>
-                <Grid Width="200">
+                <Grid Width="300">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
@@ -178,14 +178,14 @@
                             </Button>
                             <TextBlock Foreground="White" Grid.Column="1" Text="{language:L Message}" VerticalAlignment="Center" FontSize="14"></TextBlock>
 
-                            <Button Background="#535E74" Style="{StaticResource MaterialDesignRaisedButton}" Margin="4,8" Padding="16,0" Grid.Row="1" Grid.Column="2" Content="{language:L Clear}" materialDesign:ButtonAssist.CornerRadius="15"></Button>
+                            <Button Background="#535E74" Style="{StaticResource MaterialDesignRaisedButton}" Margin="4,8" Padding="16,0" Grid.Row="1" Grid.Column="2" Content="{language:L Clear}" materialDesign:ButtonAssist.CornerRadius="15" Command="{Binding ClearMessageCommand}"></Button>
                         </Grid>
                     </Border>
 
-                    <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" materialDesign:DataGridAssist.CellPadding="6">
+                    <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" materialDesign:DataGridAssist.CellPadding="6" ItemsSource="{Binding RecordMessages}" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="{language:L Time}" IsReadOnly="True" Binding="{Binding Time}" Width="auto"></DataGridTextColumn>
-                            <DataGridTextColumn Header="{language:L Message}" IsReadOnly="True" Binding="{Binding Message}" Width="*"></DataGridTextColumn>
+                            <DataGridTextColumn Header="{language:L Time}" IsReadOnly="True" Binding="{Binding RecordTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="auto"></DataGridTextColumn>
+                            <DataGridTextColumn Header="{language:L Message}" IsReadOnly="True" Binding="{Binding RecordMessage}" Width="auto"></DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 

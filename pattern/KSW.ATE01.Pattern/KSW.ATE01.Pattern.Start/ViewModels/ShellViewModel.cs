@@ -1,11 +1,15 @@
 ﻿using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
+using KSW.ATE01.Pattern.Application.Models.Instruments;
+using KSW.ATE01.Pattern.Application.Models.Projects;
+using KSW.ATE01.Pattern.Domain.Instruments.Core.Extensions;
 using KSW.ATE01.Pattern.Start.Views;
 using KSW.Ui;
 using MaterialDesignColors;
 using MaterialDesignColors.ColorManipulation;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -33,6 +37,8 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             get => _patternEditorView;
             set => SetProperty(ref _patternEditorView, value);
         }
+
+        public ObservableCollection<RecordMessageModel> RecordMessages { get; set; } = new ObservableCollection<RecordMessageModel>();
         #endregion
 
         #region Command
@@ -47,6 +53,11 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         private DelegateCommand<object> _openMessageCommand;
         public DelegateCommand<object> OpenMessageCommand =>
             _openMessageCommand ?? (_openMessageCommand = new DelegateCommand<object>(ExecuteOpenMessageCommand));
+
+        private DelegateCommand _clearMessageCommand;
+        public DelegateCommand ClearMessageCommand =>
+            _clearMessageCommand ?? (_clearMessageCommand = new DelegateCommand(ExecuteClearMessageCommand));
+
         #endregion
 
         public ShellViewModel(
@@ -59,12 +70,36 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
 
             Theme theme = _paletteHelper.GetTheme();
             eventAggregator.GetEvent<MessageOpenEvent>().Subscribe(MessageOpen);
+            eventAggregator.GetEvent<RecordMessageEvent>().Subscribe(AppendWriteLine, ThreadOption.UIThread);
+            eventAggregator.GetEvent<SendMessageEvent>().Subscribe(AppendWriteLine, ThreadOption.UIThread);
         }
 
         private void MessageOpen()
         {
-            if(_view?.drawerHost != null)
+            if (_view?.drawerHost != null)
                 DrawerHost.OpenDrawerCommand.Execute(Dock.Right, _view?.drawerHost);
+        }
+
+        private void AppendWriteLine(RecordMessageModel model)
+        {
+            RecordMessages.Add(model);
+        }
+
+        private void AppendWriteLine(SendMessageModel model)
+        {
+            try
+            {
+                RecordMessages.Add(new RecordMessageModel()
+                {
+                    RecordTime = DateTime.Now,
+                    RecordMessage = $"发送消息:{model.Message?.ToAppendString()}"
+                });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         private void ExecuteLoadingCommand(object shellView)
@@ -116,6 +151,11 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         {
             if (obj is DrawerHost drawerHost)
                 DrawerHost.OpenDrawerCommand.Execute(Dock.Right, drawerHost);
+        }
+
+        private void ExecuteClearMessageCommand()
+        {
+            RecordMessages.Clear();
         }
     }
 }

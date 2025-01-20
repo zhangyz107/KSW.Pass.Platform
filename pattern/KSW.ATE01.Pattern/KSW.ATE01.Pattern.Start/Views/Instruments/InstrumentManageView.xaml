@@ -60,7 +60,7 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <Button Content="连接" Grid.Column="0" Command="{Binding Path=ConnectCommand}" Style="{StaticResource MaterialDesignOutlinedButton}"></Button>
-                <Button Margin="8,0,0,0" Content="发送" Grid.Column="1" Command="{Binding Path=ConnectCommand}"></Button>
+                <Button Margin="8,0,0,0" Content="发送" Grid.Column="1" Command="{Binding Path=SendCommand}"></Button>
                 <Label Grid.Column="2" Content="{Binding Path=Address}" Foreground="{Binding Path=ColorState}" VerticalContentAlignment="Center"/>
                 <Label Grid.Column="3" Content="{Binding Path=IsConnected}" Foreground="{Binding Path=ColorState}" VerticalContentAlignment="Center"/>
                 <Image Grid.Column="4" Height="20" Source="{Binding Path=ConnectState,Converter={StaticResource StateConver},Mode=OneWay}"/>
