@@ -18,13 +18,17 @@ using KSW.ATE01.Pattern.Application.Events.Instruments;
 using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.ATE01.Pattern.Application.Models.Instruments;
 using KSW.ATE01.Pattern.Application.Models.Projects;
+using KSW.ATE01.Pattern.Domain.Instruments.Core.Enums;
 using KSW.ATE01.Pattern.Domain.Instruments.Entities;
 using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
 using KSW.ATE01.Pattern.Start.Views;
+using KSW.Helpers;
 using KSW.Ui;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Configuration;
+using System.Windows;
 
 namespace KSW.ATE01.Pattern.Start.ViewModels
 {
@@ -36,18 +40,19 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         #region Fields
         private readonly IEventAggregator _eventAggregator;
         private readonly IPatternCompilerBLL _patternCompilerBLL;
+        private readonly ICommandBLL _commandBLL;
         private PatternModel _patternModel;
         private PatternVectorModel _vectorRow;
         private bool _showPinOverview = true;
         private bool _showDebug;
         private InstrumentManageView _instrumentManageView;
         private const double _timeResolution = 6.25e-10;
-        private const double _timeSet = 1e-6;
+        private const double _timeSet = 1e-8;
         private const WaveformType _waveformType = WaveformType.NR;
         private const StrobeType _strobeType = StrobeType.Edge;
         private const long _mbByte = 128 * 1024 * 1024L;
         private const int _channelGroups = 32;
-        private const long _vectorUnit = 4 * 1024;
+        private const long _vectorUnit = 4 * 1024 + 8;
         #endregion
 
         #region Properties
@@ -133,10 +138,12 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         public PatternEditorViewModel(
             IContainerProvider containerProvider,
             IEventAggregator eventAggregator,
-            IPatternCompilerBLL patternCompilerBLL) : base(containerProvider)
+            IPatternCompilerBLL patternCompilerBLL,
+            ICommandBLL commandBLL) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
             _patternCompilerBLL = patternCompilerBLL;
+            _commandBLL = commandBLL;
 
             var equipmentDebugStr = ConfigurationManager.AppSettings["EquipmentDebug"];
             bool.TryParse(equipmentDebugStr, out _showDebug);
@@ -176,7 +183,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                 VectorInfos.Add(item);
         }
 
-        private void InstrumentSend(InstrumentInfoModel instrumentInfo)
+        private async void InstrumentSend(InstrumentInfoModel instrumentInfo)
         {
             if (_patternModel == null)
                 return;
@@ -193,19 +200,41 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             if (control == null && control?.IsConnected(instrumentInfo) == false)
                 return;
 
-            var period = Convert.ToInt32(_timeSet / _timeResolution);
-            var periodBytes = BitConverter.GetBytes(period);
-            var formatByte = Convert.ToByte(_waveformType);
-            var strobeByte = Convert.ToByte(_strobeType);
+            var period = System.Convert.ToInt32(_timeSet / _timeResolution);
+            var periodBytes = BitConverter.GetBytes(period).Reverse();
+            var formatByte = System.Convert.ToByte(_waveformType);
+            var strobeByte = System.Convert.ToByte(_strobeType);
             var dBytes = new byte[4];
             var twoBytes = new byte[2];
             var sizeBytes = BitConverter.GetBytes(_mbByte);
 
+            double vil = 0;
+            var vilValue = GetUshortValue(vil);
+            var vilBytes = BitConverter.GetBytes(vilValue).Reverse();
+            double vih = 4;
+            var vihValue = GetUshortValue(vih);
+            var vihBytes = BitConverter.GetBytes(vihValue).Reverse();
+            double vol = 1.2;
+            var volValue = GetUshortValue(vol);
+            var volBytes = BitConverter.GetBytes(volValue).Reverse();
+            double voh = 2;
+            var vohValue = GetUshortValue(voh);
+            var vohBytes = BitConverter.GetBytes(vohValue).Reverse();
+            double vt = 1.6;
+            var vtValue = GetUshortValue(vt);
+            var vtBytes = BitConverter.GetBytes(vtValue).Reverse();
+            double iol = 4;
+            var iolByte = GetByteValue(iol);
+            double ioh = 0;
+            var iohByte = GetByteValue(ioh);
+
 
             foreach (var item in pins)
             {
+                var commands = new List<CommandInfoModel>();
+
                 var index = pins.IndexOf(item);
-                var chNum = Convert.ToByte(index);
+                var chNum = System.Convert.ToByte(index);
                 var patternStartAddress = index * _mbByte;
                 var patternEndAddress = (index + 1) * _mbByte;
                 var channelGroup = index / _channelGroups + 1;
@@ -226,50 +255,177 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                 Array.Copy(receiveStartBytes, receiveStartAddressBytes, receiveStartAddressBytes.Length);
                 Array.Copy(receiveStopBytes, receiveStopAddressBytes, receiveStopAddressBytes.Length);
 
-                // 发送PinType
-                control.Send(instrumentInfo,
-                [
-                    chNum,2
-                ]);
+                // 发送PE-Driver+Comparator
+                var driverByteList = new List<byte>();
+                driverByteList.Add(chNum);
+                driverByteList.AddRange(vilBytes);  //vil
+                driverByteList.AddRange(vihBytes);  //vih
+                driverByteList.AddRange(volBytes);  //vol
+                driverByteList.AddRange(vohBytes);  //voh
+                driverByteList.AddRange(vtBytes);  //vt
+                driverByteList.Add(iolByte);  //iol
+                driverByteList.Add(iohByte);  //ioh
+                driverByteList.Add(1);  //Active Load开关，0:off，1:on
+                driverByteList.Add(1);  //Hiz模式，0:hiz，1:vt
+                driverByteList.Add(0);  //DPC
+                var commandDriver = new CommandInfoModel()
+                {
+                    CommandCode = "0x0100",
+                    CommandContent = driverByteList.ToArray(),
+                };
+                commands.Add(commandDriver);
+                //var message = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commands);
 
+                //try
+                //{
+                //    if (control != null && control?.IsConnected(instrumentInfo) == true)
+                //    {
+                //        control?.Send(instrumentInfo, message);
+                //    }
+                //    else
+                //    {
+                //        //todo:记录日志 
+                //        await DialogService?.ShowMessageDialog("请确保设备已经连接", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //        return;
+                //    }
+                //}
+                //catch (Exception e)
+                //{
+                //    //todo:记录日志 
+                //    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+                //    Log.LogError(e, e.Message);
+
+                //}
+
+                //commands.Clear();
+                // 发送PinType
+                var command1 = new CommandInfoModel()
+                {
+                    CommandCode = "0x0108",
+                    CommandContent = new List<byte>()
+                    {
+                        chNum,
+                        2
+                    }.ToArray(),
+                };
+                commands.Add(command1);
+                //message = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commands);
+
+                //try
+                //{
+                //    if (control != null && control?.IsConnected(instrumentInfo) == true)
+                //    {
+                //        control?.Send(instrumentInfo, message);
+                //    }
+                //    else
+                //    {
+                //        //todo:记录日志 
+                //        await DialogService?.ShowMessageDialog("请确保设备已经连接", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //        return;
+                //    }
+                //}
+                //catch (Exception e)
+                //{
+                //    //todo:记录日志 
+                //    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+                //    Log.LogError(e, e.Message);
+
+                //}
+
+                //commands.Clear();
                 // 发送Timing
                 var timingByteList = new List<byte>();
                 timingByteList.Add(chNum);
                 timingByteList.AddRange(periodBytes);
                 timingByteList.Add(formatByte);
                 timingByteList.Add(strobeByte);
-                timingByteList.AddRange(dBytes); //D0
-                timingByteList.AddRange(dBytes); //D1
-                timingByteList.AddRange(dBytes); //D2
-                timingByteList.AddRange(dBytes); //D3
-                timingByteList.AddRange(dBytes); //R0
-                timingByteList.AddRange(dBytes); //R1
+                timingByteList.AddRange(dBytes); //D0顺序取反
+                timingByteList.AddRange(dBytes); //D1顺序取反
+                timingByteList.AddRange(dBytes); //D2顺序取反
+                timingByteList.AddRange(dBytes); //D3顺序取反
+                timingByteList.AddRange(dBytes); //R0顺序取反
+                timingByteList.AddRange(dBytes); //R1顺序取反
                 timingByteList.Add((byte)0);  //  PWA_EN
                 timingByteList.Add((byte)0);  //  CD_EN
-                timingByteList.AddRange(twoBytes);  //  FD_EN(2字节)
+                timingByteList.AddRange(twoBytes);  //  FD_EN(2字节)顺序取反
                 timingByteList.Add((byte)0);  //  PWA_D
                 timingByteList.Add((byte)0);  //  CD_D
-                timingByteList.AddRange(twoBytes);   // FD_D(2字节)
+                timingByteList.AddRange(twoBytes);   // FD_D(2字节)顺序取反
                 timingByteList.Add((byte)0);  //  PWA_CA
                 timingByteList.Add((byte)0);  //  CD_CA
-                timingByteList.AddRange(twoBytes);  //  FD_CA(2字节)
+                timingByteList.AddRange(twoBytes);  //  FD_CA(2字节)顺序取反
                 timingByteList.Add((byte)0);  //  PWA_CB
                 timingByteList.Add((byte)0);  //  CD_CB
-                timingByteList.AddRange(twoBytes);  //  FD_CB(2字节)
-                control.Send(instrumentInfo, timingByteList.ToArray());
+                timingByteList.AddRange(twoBytes);  //  FD_CB(2字节)顺序取反
+                var command2 = new CommandInfoModel()
+                {
+                    CommandCode = "0x010A",
+                    CommandContent = timingByteList.ToArray(),
+                };
+                commands.Add(command2);
+                //message = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commands);
 
+                //try
+                //{
+                //    if (control != null && control?.IsConnected(instrumentInfo) == true)
+                //    {
+                //        control?.Send(instrumentInfo, message);
+                //    }
+                //    else
+                //    {
+                //        //todo:记录日志 
+                //        await DialogService?.ShowMessageDialog("请确保设备已经连接", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //        return;
+                //    }
+                //}
+                //catch (Exception e)
+                //{
+                //    //todo:记录日志 
+                //    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+                //    Log.LogError(e, e.Message);
 
+                //}
+
+                //commands.Clear();
                 // 发送Pattern参数
                 var patternParamByteList = new List<byte>();
                 patternParamByteList.Add(chNum);
                 patternParamByteList.Add(1);
-                patternParamByteList.AddRange(patternStartAddressBytes);
-                patternParamByteList.AddRange(patternStopAddressBytes);
-                patternParamByteList.AddRange(receiveStartAddressBytes);
-                patternParamByteList.AddRange(receiveStopAddressBytes);
+                patternParamByteList.AddRange(patternStartAddressBytes.Reverse());
+                patternParamByteList.AddRange(patternStopAddressBytes.Reverse());
+                patternParamByteList.AddRange(receiveStartAddressBytes.Reverse());
+                patternParamByteList.AddRange(receiveStopAddressBytes.Reverse());
                 patternParamByteList.Add(0);    //  接收数据存入DDR
                 patternParamByteList.Add(4);    //  比特数
-                control.Send(instrumentInfo, patternParamByteList.ToArray());
+                var command3 = new CommandInfoModel()
+                {
+                    CommandCode = "0x010B",
+                    CommandContent = patternParamByteList.ToArray(),
+                };
+                commands.Add(command3);
+
+                var message = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commands);
+
+                try
+                {
+                    if (control != null && control?.IsConnected(instrumentInfo) == true)
+                    {
+                        control?.Send(instrumentInfo, message);
+                    }
+                    else
+                    {
+                        //todo:记录日志 
+                        await DialogService?.ShowMessageDialog("请确保设备已经连接", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+                catch (Exception e)
+                {
+                    //todo:记录日志 
+                    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+                    Log.LogError(e, e.Message);
+
+                }
             }
 
             #region 发送Pattern文件
@@ -323,7 +479,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                 var lastRow = _patternModel.PatternVectors[_patternModel.PatternVectors.Count - 1];
                 for (int j = 0; j < pins.Count; j++)
                 {
-                    var pinByte = Convert.ToByte(lastRow.Pins[j].VectorValue);
+                    var pinByte = System.Convert.ToByte(lastRow.Pins[j].VectorValue);
                     if (dicVectors.ContainsKey(j))
                     {
                         dicVectors[j].Add(pinByte);
@@ -346,17 +502,66 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                     var tempPatternByte = new byte[_vectorUnit];
                     tempPatternByte[i] = (byte)vector.Key;
                     var addr = vector.Key * _mbByte + i * _vectorUnit;
-                    var addrBytes = BitConverter.GetBytes(addr);
+                    var addrBytes = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                     Array.Copy(addrBytes, 0, tempPatternByte, 1, 5);
-                    var unitBytes = BitConverter.GetBytes(_vectorUnit);
+                    var unitBytes = BitConverter.GetBytes(_vectorUnit).Reverse().Skip(6).ToArray();
                     Array.Copy(unitBytes, 0, tempPatternByte, 6, 2);
 
                     GetVectorPattern(tempPatternByte, 8, vector.Value.ToArray(), vectorUnitByte);
-                    control.Send(instrumentInfo, tempPatternByte);
+                    var command = new CommandInfoModel()
+                    {
+                        CommandCode = "0x010C",
+                        CommandContent = tempPatternByte.ToArray(),
+                    };
+                    var message = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
+                    
+                    //var receiveBytes = new List<byte>();
+                    //receiveBytes.Add((byte)vector.Key);
+                    //receiveBytes.AddRange(addrBytes);
+                    //receiveBytes.AddRange(unitBytes);
+                    //var receiveCommand = new CommandInfoModel()
+                    //{
+                    //    CommandCode = "0x010C",
+                    //    CommandContent = receiveBytes.ToArray(),
+                    //};
+                    //var receiveMsg = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, new List<CommandInfoModel>() { receiveCommand });
+                    try
+                    {
+                        if (control != null && control?.IsConnected(instrumentInfo) == true)
+                        {
+                            control?.Send(instrumentInfo, message);
+                            //control?.Send(instrumentInfo, receiveMsg);
+                        }
+                        else
+                        {
+                            //todo:记录日志 
+                            await DialogService?.ShowMessageDialog("请确保设备已经连接", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //todo:记录日志 
+                        await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+                        Log.LogError(e, e.Message);
+
+                    }
                 }
             }
             #endregion
 
+        }
+
+        private ushort GetUshortValue(double v)
+        {
+            var tempValue = (v + 2.56) / 132 * 1000000;
+            return System.Convert.ToUInt16(Math.Floor(tempValue));
+        }
+
+        private byte GetByteValue(double v)
+        {
+            var tempValue = v / 0.1;
+            return System.Convert.ToByte(Math.Floor(tempValue));
         }
 
         private void GetVectorPattern(byte[] tempPatternByte, int startIndex, byte[] vectors, int unitLength)
@@ -364,16 +569,18 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             var unitCount = vectors.Count() / unitLength + 1;
             for (int i = 0; i < unitCount; i++)
             {
-                tempPatternByte[startIndex++] = (byte)unitLength;
-                tempPatternByte[startIndex++] = 0;
                 if (i != unitCount - 1)
                 {
+                    tempPatternByte[startIndex++] = (byte)(unitLength * 2);
+                    tempPatternByte[startIndex++] = 0;
                     Array.Copy(vectors, i * unitLength, tempPatternByte, startIndex, unitLength);
                     startIndex += unitLength;
                 }
                 else
                 {
                     var lastCount = vectors.Count() - (i * unitLength);
+                    tempPatternByte[startIndex++] = (byte)(lastCount * 2);
+                    tempPatternByte[startIndex++] = 0;
                     Array.Copy(vectors, i * unitLength, tempPatternByte, startIndex, lastCount);
                 }
             }
