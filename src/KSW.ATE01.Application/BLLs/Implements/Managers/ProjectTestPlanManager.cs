@@ -5,6 +5,8 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
+using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models.Projects;
 using KSW.Exceptions;
 using KSW.Helpers;
 using System.Configuration;
@@ -68,6 +70,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
                     ChangeTestPlanType(testPlanType, targetDir, saveAsName);
 
                     //另存为TestPlan类型值
+                    var testPlanPath = Path.Combine(currentProjectInfo?.ReleasePath, currentProjectInfo?.ProjectName + currentProjectInfo?.TestPlanExtension);
+
                     var testPlan = await _testPlanBLL?.LoadTestPlanAsync(currentProjectInfo);
 
                     //拷贝测试计划

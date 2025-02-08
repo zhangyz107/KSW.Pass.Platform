@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Dtos;
+using System.Configuration;
 
 namespace KSW.ATE01.Application.Models.Projects
 {
@@ -25,6 +26,12 @@ namespace KSW.ATE01.Application.Models.Projects
         private int _delayBetweenLoops;
         private bool _stopOnFail;
         private string _releasePath;
+        private readonly string _excelExtension;
+
+        public ProjectInfoModel()
+        {
+            _excelExtension =  ConfigurationManager.AppSettings["ExcelExtension"] ?? throw new ArgumentNullException("ExcelExtension");
+        }
 
         /// <summary>
         /// 项目名称
@@ -76,7 +83,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 测试计划扩展名
         /// </summary>
-        public string TestPlanExtension => _testPlanType == TestPlanType.Excel ? ".xlsx" : ".csv";
+        public string TestPlanExtension => _testPlanType == TestPlanType.Excel ? _excelExtension : ".csv";
 
         /// <summary>
         /// 配置文件扩展名

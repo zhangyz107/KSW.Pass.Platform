@@ -1,7 +1,8 @@
 ﻿using KSW.Application;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.ATE01.Application.Models.TestPlan;
+using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.Projects.Core.Enums;
+using KSW.ATE01.Project.Base.Models.TestPlans;
 
 namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
 {
@@ -18,7 +19,7 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         /// <summary>
         /// 设置测试计划Flow
         /// </summary>
-        bool SetTestPlanFlow(TestPlanModel testPlan, ProjectInfoModel projectInfo);
+        bool SetTestPlanFlow(IList<FlowInfoModel> flows, ProjectInfoModel projectInfo);
 
         /// <summary>
         /// 另存为测试计划
@@ -27,7 +28,7 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         /// <param name="testPlanType">测试计划类型</param>
         /// <param name="saveAsDir">另存为文件夹</param>
         /// <param name="fileName">文件名</param>
-        bool SaveAsTestPlan(TestPlanModel testPlan, TestPlanType testPlanType,string saveAsDir,string fileName);
+        bool SaveAsTestPlan(TestPlanModel testPlan, TestPlanType testPlanType, string saveAsDir, string fileName);
 
     }
 }

@@ -22,4 +22,13 @@
 	  <None Remove="Release\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Reference Include="KSW.ATE01.Instrument.IO">
+	    <HintPath>D:\Src\KSW.ATE01.Platform\lib\KSW.ATE01.Instrument.IO\bin\Debug\net8.0\KSW.ATE01.Instrument.IO.dll</HintPath>
+	  </Reference>
+	  <Reference Include="KSW.ATE01.Project.Base">
+	    <HintPath>D:\Src\KSW.ATE01.Platform\lib\KSW.ATE01.Instrument.IO\bin\Debug\net8.0\KSW.ATE01.Project.Base.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
 </Project>

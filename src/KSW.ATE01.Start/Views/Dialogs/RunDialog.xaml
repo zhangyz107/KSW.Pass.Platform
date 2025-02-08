@@ -103,7 +103,7 @@
                     </Grid.RowDefinitions>
 
                     <GroupBox Padding="0" Grid.RowSpan="4" Margin="0,0,6,0" Header="{language:L TestItem}">
-                        <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding TestPlan.Flow}" CanUserResizeRows="False">
+                        <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding FlowList}" CanUserResizeRows="False">
                             <DataGrid.Columns>
                                 <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
                                     <DataGridCheckBoxColumn.Header>
@@ -143,7 +143,7 @@
                     </GroupBox>
 
                     <GroupBox Margin="0,0,0,6" Padding="0"  Grid.Column="1" Grid.Row="1" Header="{language:L SiteInformation}">
-                        <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding TestPlan.SiteHeaders}" CanUserResizeRows="False">
+                        <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding SiteList}" CanUserResizeRows="False">
                             <DataGrid.Columns>
                                 <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
                                     <DataGridCheckBoxColumn.Header>
@@ -163,7 +163,7 @@ Background="Transparent">
                                         </Style>
                                     </DataGridCheckBoxColumn.HeaderStyle>
                                 </DataGridCheckBoxColumn>
-                                <DataGridTextColumn Width="*" Header="{language:L Site}" CanUserReorder="False" Binding="{Binding SiteHeaderName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding SiteHeaderName}">
+                                <DataGridTextColumn Width="*" Header="{language:L Site}" CanUserReorder="False" Binding="{Binding SiteName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding SiteName}">
                                 </DataGridTextColumn>
                             </DataGrid.Columns>
                         </DataGrid>

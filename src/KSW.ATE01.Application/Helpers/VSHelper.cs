@@ -49,7 +49,7 @@ namespace KSW.ATE01.Application.Helpers
                 {
                     dte.Solution.Open(slnPath);
 
-                    var project = dte.Solution.Projects.Cast<Project>().FirstOrDefault(x => x.Name == oldProjectName);
+                    var project = dte.Solution.Projects.Cast<EnvDTE.Project>().FirstOrDefault(x => x.Name == oldProjectName);
 
                     if (project != null)
                     {
@@ -99,7 +99,7 @@ namespace KSW.ATE01.Application.Helpers
                  {
                      dte.Solution.Open(slnPath);
 
-                     var project = dte.Solution.Projects.Cast<Project>().FirstOrDefault(x => x.Name.ToLower().Equals(oldProjectName.ToLower()));
+                     var project = dte.Solution.Projects.Cast<EnvDTE.Project>().FirstOrDefault(x => x.Name.ToLower().Equals(oldProjectName.ToLower()));
 
                      if (project != null)
                      {

@@ -15,12 +15,14 @@ using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.ATE01.Application.Models.TestPlan;
+using KSW.ATE01.Application.Models.TestPlans;
+using KSW.ATE01.Project.Base.Models;
+using KSW.ATE01.Project.Base.Models.TestPlans;
 using KSW.ATE01.Start.Views;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
-using Prism.Ioc;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 
@@ -39,6 +41,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private int _loopExecuted;
         private int _failCount;
         private TestPlanModel _testPlan;
+        private ObservableCollection<FlowInfoModel> _flowList = new ObservableCollection<FlowInfoModel>();
+        private ObservableCollection<SiteInfoModel> _siteList = new ObservableCollection<SiteInfoModel>();
         private RealTimeTxtView _realTimeTxtView;
 
         #endregion
@@ -53,7 +57,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             get
             {
                 bool? result = false;
-                var selected = _testPlan?.Flow?.Select(item => item.IsSelected)?.Distinct()?.ToList();
+                var selected = _flowList?.Select(item => item.IsSelected)?.Distinct()?.ToList();
                 if (selected != null)
                     result = selected.Count == 1 ? selected.Single() : (bool?)null;
                 return result;
@@ -73,7 +77,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             get
             {
                 bool? result = false;
-                var selected = _testPlan?.SiteHeaders?.Select(item => item.IsSelected)?.Distinct()?.ToList();
+                var selected = _siteList?.Select(item => item.IsSelected)?.Distinct()?.ToList();
                 if (selected != null)
                     result = selected.Count == 1 ? selected.Single() : (bool?)null;
                 return result;
@@ -106,13 +110,17 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             set => SetProperty(ref _failCount, value);
         }
 
-
-        public TestPlanModel TestPlan
+        public ObservableCollection<FlowInfoModel> FlowList
         {
-            get => _testPlan;
-            set => SetProperty(ref _testPlan, value);
+            get => _flowList;
+            set => SetProperty(ref _flowList, value);
         }
 
+        public ObservableCollection<SiteInfoModel> SiteList
+        {
+            get => _siteList;
+            set => SetProperty(ref _siteList, value);
+        }
 
         public RealTimeTxtView RealTimeTxtView
         {
@@ -227,40 +235,53 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             await ExecuteWithExceptionHandling(async () =>
             {
-                TestPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
-                if (TestPlan?.Flow?.IsEmpty() == false)
+                _testPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
+                if (_testPlan?.Flow?.IsEmpty() == false)
                 {
-                    foreach (var flow in TestPlan?.Flow)
+                    FlowList.Clear();
+                    foreach (var flow in _testPlan?.Flow)
                     {
-                        flow.PropertyChanged += (sender, args) =>
+                        var flowInfo = flow.MapTo<FlowInfoModel>();
+                        flowInfo.PropertyChanged += (sender, args) =>
                         {
                             if (args.PropertyName.Equals(nameof(FlowModel.IsSelected)))
                             {
-                                if (sender is FlowModel model)
+                                if (sender is FlowInfoModel model)
                                 {
                                     model.Enable = model.IsSelected ? null : "False";
                                 }
                                 RaisePropertyChanged(nameof(IsAllItemsSelected));
                             }
                         };
+                        FlowList.Add(flowInfo);
                     }
                     RaisePropertyChanged(nameof(IsAllItemsSelected));
                 }
 
-                if (TestPlan?.SiteHeaders?.IsEmpty() == false)
+                if (_testPlan?.Channel?.IsEmpty() == false)
                 {
-                    foreach (var siteHeader in TestPlan?.SiteHeaders)
+                    SiteList.Clear();
+                    foreach (var channel in _testPlan?.Channel)
                     {
-                        siteHeader.PropertyChanged += (sender, args) =>
+                        foreach (var site in channel.Sites)
                         {
-                            if (args.PropertyName.Equals(nameof(SiteHeaderModel.IsSelected)))
+                            if (!SiteList.Any(x => site.SiteName.Equals(x.SiteName)))
                             {
-                                RaisePropertyChanged(nameof(IsAllSitesSelected));
+                                var siteInfo = site.MapTo<SiteInfoModel>();
+                                SiteList.Add(siteInfo);
+                                siteInfo.PropertyChanged += (sender, args) =>
+                                {
+                                    if (args.PropertyName.Equals(nameof(SiteInfoModel.IsSelected)))
+                                    {
+                                        RaisePropertyChanged(nameof(IsAllSitesSelected));
+                                    }
+                                };
                             }
-                        };
+                        }
                     }
                     RaisePropertyChanged(nameof(IsAllSitesSelected));
                 }
+
             }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
 
         }
@@ -269,7 +290,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             await ExecuteWithExceptionHandling(() =>
               {
-                  var result = _testPlanBLL?.SetTestPlanFlow(_testPlan, _projectInfo);
+                  var result = _testPlanBLL?.SetTestPlanFlow(FlowList, _projectInfo);
               }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
 
         }
@@ -279,11 +300,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             await ExecuteWithExceptionHandling(async () =>
             {
                 //todo 先保证生成dll
-                if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
-                {
+                //if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
+                //{
+                    CommonData.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
+                    CommonData.TestPlan = await _testPlanBLL.LoadTestPlanAsync(_projectInfo);
+
                     _projectBLL?.StartTestPlan(_projectInfo);
 
-                }
+                //}
 
             }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
@@ -306,13 +330,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private void SelectAllItems(bool select)
         {
-            if (_testPlan == null)
+            if (FlowList.IsEmpty())
                 return;
 
-            if (_testPlan.Flow.IsEmpty())
-                return;
-
-            foreach (var flow in _testPlan.Flow)
+            foreach (var flow in FlowList)
             {
                 flow.IsSelected = select;
             }
@@ -320,13 +341,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private void SelectAllSites(bool select)
         {
-            if (_testPlan == null)
+            if (SiteList.IsEmpty())
                 return;
 
-            if (_testPlan.SiteHeaders.IsEmpty())
-                return;
-
-            foreach (var flow in _testPlan.SiteHeaders)
+            foreach (var flow in SiteList)
             {
                 flow.IsSelected = select;
             }

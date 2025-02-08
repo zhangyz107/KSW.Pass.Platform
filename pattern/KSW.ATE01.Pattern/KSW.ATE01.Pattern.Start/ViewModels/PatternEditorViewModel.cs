@@ -19,7 +19,6 @@ using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.ATE01.Pattern.Application.Models.Instruments;
 using KSW.ATE01.Pattern.Application.Models.Projects;
 using KSW.ATE01.Pattern.Domain.Instruments.Core.Enums;
-using KSW.ATE01.Pattern.Domain.Instruments.Entities;
 using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
 using KSW.ATE01.Pattern.Start.Views;
 using KSW.Helpers;
@@ -185,13 +184,10 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
 
         private async void InstrumentSend(InstrumentInfoModel instrumentInfo)
         {
-            if (_patternModel == null)
+            if (VectorInfos.IsEmpty())
                 return;
 
-            if (_patternModel.PatternVectors.IsEmpty())
-                return;
-
-            var pins = _patternModel.PatternVectors.FirstOrDefault()?.Pins;
+            var pins = VectorInfos.FirstOrDefault()?.Pins;
             if (pins.IsEmpty())
                 return;
 
@@ -274,30 +270,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                     CommandContent = driverByteList.ToArray(),
                 };
                 commands.Add(commandDriver);
-                //var message = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commands);
 
-                //try
-                //{
-                //    if (control != null && control?.IsConnected(instrumentInfo) == true)
-                //    {
-                //        control?.Send(instrumentInfo, message);
-                //    }
-                //    else
-                //    {
-                //        //todo:记录日志 
-                //        await DialogService?.ShowMessageDialog("请确保设备已经连接", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //        return;
-                //    }
-                //}
-                //catch (Exception e)
-                //{
-                //    //todo:记录日志 
-                //    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
-                //    Log.LogError(e, e.Message);
-
-                //}
-
-                //commands.Clear();
                 // 发送PinType
                 var command1 = new CommandInfoModel()
                 {
@@ -309,30 +282,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                     }.ToArray(),
                 };
                 commands.Add(command1);
-                //message = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commands);
-
-                //try
-                //{
-                //    if (control != null && control?.IsConnected(instrumentInfo) == true)
-                //    {
-                //        control?.Send(instrumentInfo, message);
-                //    }
-                //    else
-                //    {
-                //        //todo:记录日志 
-                //        await DialogService?.ShowMessageDialog("请确保设备已经连接", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //        return;
-                //    }
-                //}
-                //catch (Exception e)
-                //{
-                //    //todo:记录日志 
-                //    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
-                //    Log.LogError(e, e.Message);
-
-                //}
-
-                //commands.Clear();
+               
                 // 发送Timing
                 var timingByteList = new List<byte>();
                 timingByteList.Add(chNum);
@@ -363,30 +313,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                     CommandContent = timingByteList.ToArray(),
                 };
                 commands.Add(command2);
-                //message = _commandBLL?.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commands);
 
-                //try
-                //{
-                //    if (control != null && control?.IsConnected(instrumentInfo) == true)
-                //    {
-                //        control?.Send(instrumentInfo, message);
-                //    }
-                //    else
-                //    {
-                //        //todo:记录日志 
-                //        await DialogService?.ShowMessageDialog("请确保设备已经连接", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //        return;
-                //    }
-                //}
-                //catch (Exception e)
-                //{
-                //    //todo:记录日志 
-                //    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
-                //    Log.LogError(e, e.Message);
-
-                //}
-
-                //commands.Clear();
                 // 发送Pattern参数
                 var patternParamByteList = new List<byte>();
                 patternParamByteList.Add(chNum);
@@ -429,15 +356,15 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             }
 
             #region 发送Pattern文件
-            bool isEven = (_patternModel.PatternVectors.Count % 2 == 0);
+            bool isEven = (VectorInfos.Count % 2 == 0);
             var dicVectors = new Dictionary<int, List<byte>>();
             int vectorLength = 0;
             if (isEven)
             {
-                for (int i = 0; i < _patternModel.PatternVectors.Count; i += 2)
+                for (int i = 0; i < VectorInfos.Count; i += 2)
                 {
-                    var row1 = _patternModel.PatternVectors[i];
-                    var row2 = _patternModel.PatternVectors[i + 1];
+                    var row1 = VectorInfos[i];
+                    var row2 = VectorInfos[i + 1];
                     for (int j = 0; j < pins.Count; j++)
                     {
                         var pinByte = (byte)(row2.Pins[j].VectorValue.Value() << 4 | row1.Pins[j].VectorValue.Value());
@@ -456,10 +383,10 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             }
             else
             {
-                for (int i = 0; i < _patternModel.PatternVectors.Count - 1; i += 2)
+                for (int i = 0; i < VectorInfos.Count - 1; i += 2)
                 {
-                    var row1 = _patternModel.PatternVectors[i];
-                    var row2 = _patternModel.PatternVectors[i + 1];
+                    var row1 = VectorInfos[i];
+                    var row2 = VectorInfos[i + 1];
                     for (int j = 0; j < pins.Count; j++)
                     {
                         var pinByte = (byte)(row2.Pins[j].VectorValue.Value() << 4 | row1.Pins[j].VectorValue.Value());
@@ -476,7 +403,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                     vectorLength++;
                 }
 
-                var lastRow = _patternModel.PatternVectors[_patternModel.PatternVectors.Count - 1];
+                var lastRow = VectorInfos[VectorInfos.Count - 1];
                 for (int j = 0; j < pins.Count; j++)
                 {
                     var pinByte = System.Convert.ToByte(lastRow.Pins[j].VectorValue);
@@ -500,7 +427,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                 for (int i = 0; i < groups; i++)
                 {
                     var tempPatternByte = new byte[_vectorUnit];
-                    tempPatternByte[i] = (byte)vector.Key;
+                    tempPatternByte[0] = (byte)vector.Key;
                     var addr = vector.Key * _mbByte + i * _vectorUnit;
                     var addrBytes = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                     Array.Copy(addrBytes, 0, tempPatternByte, 1, 5);

@@ -17,6 +17,8 @@ using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
+using KSW.ATE01.Project.Base.Enums.Results;
+using KSW.ATE01.Project.Base.Models;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Reflections;
@@ -25,7 +27,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
-using System.Xml;
 
 namespace KSW.ATE01.Application.BLLs.Implements.Projects
 {
@@ -41,6 +42,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly string _releaseDirName = "Release";
         private readonly string _csprojExt = ".csproj";
         private readonly string _slnExt = ".sln";
+        private readonly string _excelExtension;
+        private readonly bool _alreadyStartLot = false;
 
         public ProjectBLL(
             IContainerProvider containerProvider,
@@ -49,6 +52,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
+
+            _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
         }
 
         public async Task<bool> CreateProjectAsync(ProjectInfoModel projectInfo)
@@ -266,6 +271,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
                 var testItemName = ConfigurationManager.AppSettings["TestItemName"] ?? throw new ArgumentNullException("TestItemName");
                 var startTestMethod = ConfigurationManager.AppSettings["StartTestMethod"] ?? throw new ArgumentNullException("StartTestMethod");
+                var endTestMethod = ConfigurationManager.AppSettings["EndTestMethod"] ?? throw new ArgumentNullException("EndTestMethod");
 
                 var dllPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.ExecuteExtension);
                 var loadContext = new PluginLoadContext(Path.GetDirectoryName(dllPath));
@@ -276,15 +282,41 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 {
                     // 创建类的实例
                     object instance = Activator.CreateInstance(classType);
-
-                    // 调用接口方法
-                    MethodInfo methodInfo = classType.GetMethod(startTestMethod);
-                    if (methodInfo != null)
+                    if (!_alreadyStartLot)
                     {
-                        var result = methodInfo.Invoke(instance, null); // 调用方法
-                    }
-                }
+                        try
+                        {
+                            //运行TestStart
+                            var flag = ExecuteFunction(instance, classType, startTestMethod, null);
 
+                            if (flag)   //运行FlowStart
+                                flag = ExecuteTestItemsInFlow(instance, classType);
+                        }
+                        catch (Exception)
+                        {
+
+                            throw;
+                        }
+                        finally
+                        {
+                            //运行TestEnd
+                            var flag = ExecuteFunction(instance, classType, endTestMethod, null);
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            //运行FlowStart
+                            var flag = ExecuteTestItemsInFlow(instance, classType);
+                        }
+                        finally
+                        {
+
+                        }
+                    }
+
+                }
                 // 释放加载的上下文和程序集
                 loadContext.Unload();
 
@@ -308,12 +340,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
             if (!Directory.Exists(testPlanPath))
                 throw new Warning("");
-
-            var excelFiles = Directory.GetFiles(testPlanPath, "*.xlsx");
+            var suffix = $"*{_excelExtension}";
+            var excelFiles = Directory.GetFiles(testPlanPath, suffix);
             if (!excelFiles.IsEmpty())
                 foreach (var file in excelFiles)
                 {
-                    var targetPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + ".xlsx");
+                    var targetPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + _excelExtension);
                     if (!Directory.Exists(projectInfo.ReleasePath))
                         Directory.CreateDirectory(projectInfo.ReleasePath);
                     File.Copy(file, targetPath);
@@ -370,6 +402,67 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
                 throw;
             }
+        }
+
+        private bool ExecuteFunction(object? classInstance, Type classType, string methodName, object?[]? parameters)
+        {
+            var result = false;
+            if (classInstance == null)
+                return result;
+
+            if (methodName.IsEmpty())
+                return result;
+
+            try
+            {
+                var method = classType.GetMethod(methodName);
+                // 调用接口方法
+                if (method == null)
+                    return result;
+
+                var obj = method.Invoke(classInstance, parameters);
+
+                if (obj != null && obj.GetType().IsEnum)
+                    result = (Test)obj == Test.Pass;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return result;
+        }
+
+        private bool ExecuteTestItemsInFlow(object? instance, Type classType)
+        {
+            var result = false;
+
+            var startFlowMethod = ConfigurationManager.AppSettings["StartFlowMethod"] ?? throw new ArgumentNullException("StartFlowMethod");
+            var endFlowMethod = ConfigurationManager.AppSettings["EndFlowMethod"] ?? throw new ArgumentNullException("EndFlowMethod");
+            var testPlan = CommonData.TestPlan;
+            try
+            {
+                result = ExecuteFunction(instance, classType, startFlowMethod, null);
+                var flowIds = testPlan.Flow.Where(x => x.Enable.IsEmpty()).Select(x => x.TestItemId);
+                var functionNames = testPlan.TestItem.Where(x => flowIds.Contains(x.Id.ToGuid())).Select(x => x.FunctionName);
+                foreach (var function in functionNames)
+                {
+                    result = ExecuteFunction(instance, classType, function, null);
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            finally
+            {
+                result = ExecuteFunction(instance, classType, endFlowMethod, null);
+            }
+
+            return result;
         }
 
     }
