@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Patterns;
 using KSW.ATE01.Instrument.IO.Helpers;
@@ -21,14 +22,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             if (string.IsNullOrEmpty(pinList))
                 throw new ArgumentNullException(nameof(pinList));
 
-            _instance.Value.GetPinList(pinList);
+            Instance.GetPinList(pinList);
 
-            return _instance.Value;
+            return Instance;
         }
 
         public void SetPinType(PinIOType pinIOType)
         {
-            if (_pinList == null || !_pinList.Any())
+            if (PinList == null || !PinList.Any())
                 return;
 
             try
@@ -36,9 +37,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 //  组装数据包
                 var commandList = new List<CommandInfoModel>();
 
-                foreach (var pin in _pinList)
+                foreach (var pin in PinList)
                 {
-                    var index = _pinList.IndexOf(pin);
+                    var index = PinList.IndexOf(pin);
                     var byteList = new List<byte>();
                     byteList.Add((byte)index);        //暂时按顺序下发通道（后续需要映射站点信息）
                     byteList.Add(System.Convert.ToByte(pinIOType));    //Type
@@ -54,8 +55,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 if (commandList.Any())
                 {
                     var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (_controlService != null && message.Any())
-                        _controlService.Send(_pe131, message);
+                    if (ControlService != null && message.Any())
+                        ControlService.Send(PE131, message);
                 }
             }
             catch (Exception)
@@ -67,7 +68,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
         public void SetPinInit(PinInitVoltageType pinInitVoltageType)
         {
-            if (_pinList == null || !_pinList.Any())
+            if (PinList == null || !PinList.Any())
                 return;
 
             try
@@ -75,9 +76,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 //  组装数据包
                 var commandList = new List<CommandInfoModel>();
 
-                foreach (var pin in _pinList)
+                foreach (var pin in PinList)
                 {
-                    var index = _pinList.IndexOf(pin);
+                    var index = PinList.IndexOf(pin);
                     var byteList = new List<byte>();
                     byteList.Add((byte)index);              //暂时按顺序下发通道（后续需要映射站点信息）
                     byteList.Add(System.Convert.ToByte(pinInitVoltageType)); //Type
@@ -93,8 +94,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 if (commandList.Any())
                 {
                     var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (_controlService != null && message.Any())
-                        _controlService.Send(_pe131, message);
+                    if (ControlService != null && message.Any())
+                        ControlService.Send(PE131, message);
                 }
 
             }
@@ -107,7 +108,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
         public void SetTiming(double patternPeriod, WaveformType waveformType, StrobeType strobeType, double d0, double d1, double d2, double d3, double r0, double r1, sbyte pwa_en, byte cd_en, ushort fd_en, sbyte pwa_d, byte cd_d, ushort fd_d, sbyte pwa_ca, byte cd_ca, ushort fd_ca, sbyte pwa_cb, byte cd_cb, ushort fd_cb)
         {
-            if (_pinList == null || !_pinList.Any())
+            if (PinList == null || !PinList.Any())
                 return;
 
             try
@@ -181,9 +182,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 //  组装数据包
                 var commandList = new List<CommandInfoModel>();
 
-                foreach (var pin in _pinList)
+                foreach (var pin in PinList)
                 {
-                    var index = _pinList.IndexOf(pin);
+                    var index = PinList.IndexOf(pin);
                     var byteList = new List<byte>();
                     byteList.Add((byte)index);              //暂时按顺序下发通道（后续需要映射站点信息）
                     byteList.AddRange(periodBytes);
@@ -218,8 +219,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 if (commandList.Any())
                 {
                     var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (_controlService != null && message.Any())
-                        _controlService.Send(_pe131, message);
+                    if (ControlService != null && message.Any())
+                        ControlService.Send(PE131, message);
                 }
             }
             catch (Exception)
@@ -231,16 +232,16 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
         public void SetPatternParam()
         {
-            if (_pinList == null || !_pinList.Any())
+            if (PinList == null || !PinList.Any())
                 return;
 
             try
             {
                 //  组装数据包
                 var commandList = new List<CommandInfoModel>();
-                foreach (var pin in _pinList)
+                foreach (var pin in PinList)
                 {
-                    var index = _pinList.IndexOf(pin);
+                    var index = PinList.IndexOf(pin);
                     var patternStartAddress = index * _mbByte;
                     var patternEndAddress = (index + 1) * _mbByte;
                     var channelGroup = index / _maxChannelNum + 1;
@@ -282,8 +283,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 if (commandList.Any())
                 {
                     var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (_controlService != null && message.Any())
-                        _controlService.Send(_pe131, message);
+                    if (ControlService != null && message.Any())
+                        ControlService.Send(PE131, message);
                 }
             }
             catch (Exception)
@@ -298,50 +299,66 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             if (patternFiles == null || !patternFiles.Any())
                 return;
 
-            foreach (string patternFile in patternFiles)
+            try
             {
-                if (!File.Exists(patternFile)) continue;
-                var pattern = PatternHelper.AnalysisPattern(patternFile);
-                if (pattern != null)
+                foreach (string patternFile in patternFiles)
                 {
-                    var package = PatternHelper.ConversionPatternModel(pattern);
-                    if (package != null && package.Any())
-                        SendPatternPackageToInstrument(package);
+                    if (!File.Exists(patternFile)) continue;
+                    var pattern = PatternHelper.AnalysisPattern(patternFile);
+                    if (pattern != null)
+                    {
+                        var package = PatternHelper.ConversionPatternModel(pattern);
+                        if (package != null && package.Any())
+                            SendPatternPackageToInstrument(package);
+                    }
                 }
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
         private static void SendPatternPackageToInstrument(List<PatternPackageModel> packages)
         {
-            foreach (var package in packages)
+            try
             {
-                var contentBytes = new byte[package.Length + _packageAdditionalLength];
-                contentBytes[0] = (byte)package.ChannelNum;
-                Array.Copy(package.Address, 0, contentBytes, 1, package.Address.Length);
-                Array.Copy(package.LengthBytes, 0, contentBytes, 1 + package.Address.Length, package.LengthBytes.Length);
-                var index = 1 + package.Address.Length + package.LengthBytes.Length;
-                foreach (var unit in package.PatternGroups)
+                foreach (var package in packages)
                 {
-                    contentBytes[index++] = (byte)unit.VectorNumber;
-                    contentBytes[index++] = (byte)unit.Instruction;
-                    if (unit.Parameter.Any())
+                    var contentBytes = new byte[package.Length + _packageAdditionalLength];
+                    contentBytes[0] = (byte)package.ChannelNum;
+                    Array.Copy(package.Address, 0, contentBytes, 1, package.Address.Length);
+                    Array.Copy(package.LengthBytes, 0, contentBytes, 1 + package.Address.Length, package.LengthBytes.Length);
+                    var index = 1 + package.Address.Length + package.LengthBytes.Length;
+                    foreach (var unit in package.PatternGroups)
                     {
-                        Array.Copy(unit.Parameter.ToArray(), 0, contentBytes, index, unit.Parameter.Count);
-                        index += unit.Parameter.Count;
+                        contentBytes[index++] = (byte)unit.VectorNumber;
+                        contentBytes[index++] = (byte)unit.Instruction;
+                        if (unit.Parameter.Any())
+                        {
+                            Array.Copy(unit.Parameter.ToArray(), 0, contentBytes, index, unit.Parameter.Count);
+                            index += unit.Parameter.Count;
+                        }
+                        Array.Copy(unit.Vectors.ToArray(), 0, contentBytes, index, unit.Vectors.Count);
+                        index += unit.Vectors.Count;
                     }
-                    Array.Copy(unit.Vectors.ToArray(), 0, contentBytes, index, unit.Vectors.Count);
-                    index += unit.Vectors.Count;
+
+                    var command = new CommandInfoModel()
+                    {
+                        CommandCode = "0x010C",
+                        CommandContent = contentBytes.ToArray(),
+                    };
+
+                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
+                    if (Instance?.ControlService != null && Instance?.PE131 != null && message.Any())
+                        Instance?.ControlService.Send(Instance?.PE131, message);
                 }
+            }
+            catch (Exception)
+            {
 
-                var command = new CommandInfoModel()
-                {
-                    CommandCode = "0x010C",
-                    CommandContent = contentBytes.ToArray(),
-                };
-
-                var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
-                if (_instance.Value?._controlService != null && _instance.Value?._pe131 != null && message.Any())
-                    _instance.Value?._controlService.Send(_instance.Value?._pe131, message);
+                throw;
             }
         }
     }

@@ -26,6 +26,7 @@ using Microsoft.Extensions.Logging;
 using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Windows;
 
 namespace KSW.ATE01.Application.BLLs.Implements.Projects
@@ -44,7 +45,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly string _slnExt = ".sln";
         private readonly string _excelExtension;
         private readonly bool _alreadyStartLot = false;
-
         public ProjectBLL(
             IContainerProvider containerProvider,
             IDialogService dialogService,
@@ -52,7 +52,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
-
             _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
         }
 
@@ -272,9 +271,10 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 var testItemName = ConfigurationManager.AppSettings["TestItemName"] ?? throw new ArgumentNullException("TestItemName");
                 var startTestMethod = ConfigurationManager.AppSettings["StartTestMethod"] ?? throw new ArgumentNullException("StartTestMethod");
                 var endTestMethod = ConfigurationManager.AppSettings["EndTestMethod"] ?? throw new ArgumentNullException("EndTestMethod");
-
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 var dllPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.ExecuteExtension);
-                var loadContext = new PluginLoadContext(Path.GetDirectoryName(dllPath));
+
+                var loadContext = new PluginLoadContext(Path.GetDirectoryName(dllPath), assemblies);
                 var assem = loadContext.LoadFromAssemblyPath(dllPath);
                 var classType = assem.GetType(testItemName);
                 // 获取实现该接口的类型
@@ -440,7 +440,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
             var startFlowMethod = ConfigurationManager.AppSettings["StartFlowMethod"] ?? throw new ArgumentNullException("StartFlowMethod");
             var endFlowMethod = ConfigurationManager.AppSettings["EndFlowMethod"] ?? throw new ArgumentNullException("EndFlowMethod");
-            var testPlan = CommonData.TestPlan;
+            var commonData = CommonData.Instance;
+            var testPlan = commonData?.TestPlan;
             try
             {
                 result = ExecuteFunction(instance, classType, startFlowMethod, null);

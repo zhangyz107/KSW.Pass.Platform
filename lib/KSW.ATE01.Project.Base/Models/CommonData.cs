@@ -11,16 +11,36 @@ namespace KSW.ATE01.Project.Base.Models
     /// <summary>
     /// 通用数据
     /// </summary>
-    public static class CommonData
+    public class CommonData : MarshalByRefObject
     {
+        private static object _lock = new object();
+        private static CommonData _instance;
+
+        private CommonData() { }
+
+        public static CommonData Instance
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = new CommonData();
+                    }
+                    return _instance;
+                }
+            }
+        }
+
         /// <summary>
         /// 项目信息
         /// </summary>
-        public static ProjectInfo ProjectInfo { get; set; }
+        public ProjectInfo ProjectInfo { get; set; }
 
         /// <summary>
         /// 测试计划
         /// </summary>
-        public static TestPlanModel TestPlan { get; set; }
+        public TestPlanModel TestPlan { get; set; }
     }
 }

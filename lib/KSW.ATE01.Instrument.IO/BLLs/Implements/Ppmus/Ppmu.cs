@@ -4,6 +4,7 @@ using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Ppmus;
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
+using KSW.ATE01.Project.Base.Language;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 {
@@ -14,14 +15,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             if (string.IsNullOrEmpty(pinList))
                 throw new ArgumentNullException(nameof(pinList));
 
-            _instance.Value.GetPinList(pinList);
+            Instance.GetPinList(pinList);
 
-            return _instance.Value;
+            return Instance;
         }
 
         public void SetDriverAndComparator(double vil, double vih, double vol, double voh, double vt, double iol, double ioh, bool activeLoad, HizType hiz, byte dpc)
         {
-            if (_pinList == null || !_pinList.Any())
+            if (PinList == null || !PinList.Any())
                 return;
 
             try
@@ -63,9 +64,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                 //  组装数据包
                 var commandList = new List<CommandInfoModel>();
-                foreach (var pin in _pinList)
+                foreach (var pin in PinList)
                 {
-                    var index = _pinList.IndexOf(pin);
+                    var index = PinList.IndexOf(pin);
                     var byteList = new List<byte>();
                     byteList.Add((byte)index);    //暂时按顺序下发通道（后续需要映射站点信息）
                     byteList.AddRange(vilBytes);  //vil
@@ -90,8 +91,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 if (commandList.Any())
                 {
                     var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (_controlService != null && message.Any())
-                        _controlService.Send(_pe131, message);
+                    if (ControlService != null && message.Any())
+                        ControlService.Send(PE131, message);
                 }
             }
             catch (Exception)
@@ -115,7 +116,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
         public void SetFIMV(IMType iMType, double iforce, double vcl, double vch)
         {
-            if (_pinList == null || !_pinList.Any())
+            if (PinList == null || !PinList.Any())
                 return;
 
             try
@@ -135,9 +136,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                 //  组装数据包
                 var commandList = new List<CommandInfoModel>();
-                foreach (var pin in _pinList)
+                foreach (var pin in PinList)
                 {
-                    var index = _pinList.IndexOf(pin);
+                    var index = PinList.IndexOf(pin);
                     var byteList = new List<byte>();
                     byteList.Add((byte)index);       //暂时按顺序下发通道（后续需要映射站点信息）
                     byteList.Add((byte)iMType);      //IM
@@ -156,8 +157,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 if (commandList.Any())
                 {
                     var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (_controlService != null && message.Any())
-                        _controlService.Send(_pe131, message);
+                    if (ControlService != null && message.Any())
+                        ControlService.Send(PE131, message);
                 }
             }
             catch (Exception)
@@ -205,7 +206,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
         public void SetFVMI(MIType mIType, double vforce, double icl, double ich)
         {
-            if (_pinList == null || !_pinList.Any())
+            if (PinList == null || !PinList.Any())
                 return;
 
             try
@@ -222,9 +223,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                 //  组装数据包
                 var commandList = new List<CommandInfoModel>();
-                foreach (var pin in _pinList)
+                foreach (var pin in PinList)
                 {
-                    var index = _pinList.IndexOf(pin);
+                    var index = PinList.IndexOf(pin);
                     var byteList = new List<byte>();
                     byteList.Add((byte)index);       //暂时按顺序下发通道（后续需要映射站点信息）
                     byteList.Add((byte)mIType);      //MI
@@ -243,8 +244,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 if (commandList.Any())
                 {
                     var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (_controlService != null && message.Any())
-                        _controlService.Send(_pe131, message);
+                    if (ControlService != null && message.Any())
+                        ControlService.Send(PE131, message);
                 }
             }
             catch (Exception)

@@ -23,6 +23,7 @@ using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
@@ -300,14 +301,20 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             await ExecuteWithExceptionHandling(async () =>
             {
                 //todo 先保证生成dll
-                //if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
-                //{
-                    CommonData.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
-                    CommonData.TestPlan = await _testPlanBLL.LoadTestPlanAsync(_projectInfo);
+                if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
+                {
+                    var commonData = CommonData.Instance;
+                    if (commonData != null)
+                    {
+                        commonData.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
+                        Debug.WriteLine($"赋值{nameof(CommonData.ProjectInfo)}");
+                        commonData.TestPlan = await _testPlanBLL.LoadTestPlanAsync(_projectInfo);
+                        Debug.WriteLine($"赋值{nameof(CommonData.TestPlan)}");
+                    }
 
                     _projectBLL?.StartTestPlan(_projectInfo);
 
-                //}
+                }
 
             }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
