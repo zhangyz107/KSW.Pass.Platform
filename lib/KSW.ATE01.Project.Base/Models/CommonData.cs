@@ -42,5 +42,55 @@ namespace KSW.ATE01.Project.Base.Models
         /// 测试计划
         /// </summary>
         public TestPlanModel TestPlan { get; set; }
+
+        /// <summary>
+        /// 将要执行的方法名
+        /// </summary>
+        public string FunctionName { get; set; }
+
+        /// <summary>
+        /// 激励
+        /// </summary>
+        public double Force { get; set; }
+
+        /// <summary>
+        /// 引脚名
+        /// </summary>
+        public string Pins { get; set; }
+
+        /// <summary>
+        /// 将要执行的测试项
+        /// </summary>
+        public string TestItemName { get; set; }
+
+        /// <summary>
+        /// 测试计划Timing Sheet名
+        /// </summary>
+        public string Timing { get; set; }
+
+        /// <summary>
+        /// 测试计划Level Sheet名
+        /// </summary>
+        public string Level { get; set; }
+
+        /// <summary>
+        /// 测试项参数
+        /// </summary>
+        public List<TestItemParamModel> TestItemArgs { get; set; }
+
+        /// <summary>
+        /// 测试项门限
+        /// </summary>
+        public LimitsModel TestItemLimit { get; set; }
+
+        /// <summary>
+        /// 电压下限
+        /// </summary>
+        public decimal? LowLimit { get => TestItemLimit?.LowLimit; }
+
+        /// <summary>
+        /// 电压上限
+        /// </summary>
+        public decimal? HighLimit { get => TestItemLimit?.HighLimit; }
     }
 }

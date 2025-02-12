@@ -4,7 +4,6 @@ using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Ppmus;
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
-using KSW.ATE01.Project.Base.Language;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 {

@@ -8,6 +8,11 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
     public class PatternModel
     {
         /// <summary>
+        /// 向量文件名
+        /// </summary>
+        public string PatternFileName { get; set; }
+
+        /// <summary>
         /// 时钟设置
         /// </summary>
         public List<string> TimingSets { get; set; } = new List<string>();

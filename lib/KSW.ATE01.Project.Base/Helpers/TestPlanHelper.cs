@@ -1464,8 +1464,8 @@ namespace KSW.ATE01.Project.Base.Helpers
                         timingModel.PinSetup = cols[colIndex];
                     colIndex++;
 
-                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]))
-                        timingModel.Fmt = cols[colIndex];
+                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && Enum.TryParse(cols[colIndex], out Timingformat format))
+                        timingModel.Fmt = format;
                     colIndex++;
 
                     if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]))
@@ -1482,6 +1482,23 @@ namespace KSW.ATE01.Project.Base.Helpers
 
                     if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]))
                         timingModel.DriveD = cols[colIndex];
+                    colIndex++;
+
+                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && Enum.TryParse(cols[colIndex], out StrobeModeType strobe))
+                        timingModel.StrobeMode = strobe;
+                    colIndex++;
+
+                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && int.TryParse(cols[colIndex], out int strobeA))
+                        timingModel.StrobeA = strobeA;
+                    colIndex++;
+
+                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && int.TryParse(cols[colIndex], out int strobeB))
+                        timingModel.StrobeB = strobeB;
+                    colIndex++;
+
+                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]))
+                        timingModel.Comment = cols[colIndex];
+                    colIndex++;
 
                     timings.Add(timingModel);
                 }

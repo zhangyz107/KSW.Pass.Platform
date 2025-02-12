@@ -185,7 +185,8 @@ namespace KSW.ATE01.Project.Base.Helpers
         {
             _compileError = false;
             var result = new PatternModel();
-
+            var patternFileName = Path.GetFileNameWithoutExtension(patternFilePath);
+            result.PatternFileName = patternFileName;
             AnalysisPatternTimeSet(patternFilePath, result);
             var instrumentInfo = AnalysisPatternDigitalInstrument(patternFilePath);
             result.InstrumentName = instrumentInfo;

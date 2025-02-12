@@ -39,7 +39,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
         /// <summary>
         /// 波形格式
         /// </summary>
-        public string Fmt { get; set; }
+        public Timingformat Fmt { get; set; }
 
         /// <summary>
         /// DriveA

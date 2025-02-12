@@ -13,12 +13,12 @@ namespace KSW.ATE01.Project.Base.Enums.TestPlans
         /// OFF
         /// </summary>
         [Description("OFF")]
-        OFF = 1,
+        OFF = 0,
 
         /// <summary>
         /// Edge
         /// </summary>
         [Description("Edge")]
-        Edge = 2
+        Edge = 1
     }
 }

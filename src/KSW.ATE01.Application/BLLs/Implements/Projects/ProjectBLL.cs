@@ -19,14 +19,13 @@ using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
 using KSW.ATE01.Project.Base.Enums.Results;
 using KSW.ATE01.Project.Base.Models;
+using KSW.ATE01.Project.Base.Models.TestPlans;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Reflections;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
 using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.Loader;
 using System.Windows;
 
 namespace KSW.ATE01.Application.BLLs.Implements.Projects
@@ -446,10 +445,11 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             {
                 result = ExecuteFunction(instance, classType, startFlowMethod, null);
                 var flowIds = testPlan.Flow.Where(x => x.Enable.IsEmpty()).Select(x => x.TestItemId);
-                var functionNames = testPlan.TestItem.Where(x => flowIds.Contains(x.Id.ToGuid())).Select(x => x.FunctionName);
-                foreach (var function in functionNames)
+                var testItems = testPlan.TestItem.Where(x => flowIds.Contains(x.Id.ToGuid())).Select(x => x);
+                foreach (var testItem in testItems)
                 {
-                    result = ExecuteFunction(instance, classType, function, null);
+                    SetCommonData(testItem);
+                    result = ExecuteFunction(instance, classType, testItem.FunctionName, null);
                 }
 
             }
@@ -466,5 +466,22 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return result;
         }
 
+        private void SetCommonData(TestItemModel testItem)
+        {
+            var commonData = CommonData.Instance;
+            if (commonData != null)
+            {
+                var limits = commonData.TestPlan.Limits;
+
+                commonData.FunctionName = testItem.FunctionName;
+                commonData.TestItemName = testItem.TestItemName;
+                commonData.Force = System.Convert.ToDouble(testItem.Force);
+                commonData.Pins = testItem.Pins;
+                commonData.Level = testItem.Level;
+                commonData.Timing = testItem.Timing;
+                commonData.TestItemArgs = testItem.Args;
+                commonData.TestItemLimit = limits.IsEmpty() ? null : limits.FirstOrDefault(x => x.TestItemId.Equals(testItem.Id.ToGuid()));
+            }
+        }
     }
 }

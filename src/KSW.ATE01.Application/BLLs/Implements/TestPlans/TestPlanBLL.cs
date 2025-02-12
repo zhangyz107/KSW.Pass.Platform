@@ -674,7 +674,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                         row.CreateCell(col++).SetCellValue(timing.PinSetup);
 
                     if (timing.Fmt != null)
-                        row.CreateCell(col++).SetCellValue(timing.Fmt);
+                        row.CreateCell(col++).SetCellValue(timing.Fmt.Description());
 
                     if (timing.DriveA != null)
                         row.CreateCell(col++).SetCellValue(timing.DriveA);
@@ -687,6 +687,18 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
                     if (timing.DriveD != null)
                         row.CreateCell(col++).SetCellValue(timing.DriveD);
+
+                    if (timing.StrobeMode != null)
+                        row.CreateCell(col++).SetCellValue(timing.StrobeMode.Description());
+
+                    if (timing.StrobeA != null)
+                        row.CreateCell(col++).SetCellValue(timing.StrobeA);
+
+                    if (timing.StrobeB != null)
+                        row.CreateCell(col++).SetCellValue(timing.StrobeB);
+
+                    if (timing.Comment != null)
+                        row.CreateCell(col++).SetCellValue(timing.Comment);
 
                 }
             }
@@ -1151,7 +1163,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                         timingData.Add(pinName);
                         var pinSetup = timing.PinSetup.IsEmpty() ? "" : timing.PinSetup;
                         timingData.Add(pinSetup);
-                        var fmt = timing.Fmt.IsEmpty() ? "" : timing.Fmt;
+                        var fmt = timing.Fmt.Description();
                         timingData.Add(fmt);
                         var driveA = timing.DriveA.IsEmpty() ? "" : timing.DriveA;
                         timingData.Add(driveA);
@@ -1161,6 +1173,14 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                         timingData.Add(driveC);
                         var driveD = timing.DriveD.IsEmpty() ? "" : timing.DriveD;
                         timingData.Add(driveD);
+                        var strobeMode = timing.StrobeMode.Description();
+                        timingData.Add(strobeMode);
+                        var strobeA = timing.StrobeA.ToString().IsEmpty() ? "" : timing.StrobeA.ToString();
+                        timingData.Add(strobeA);
+                        var strobeB = timing.StrobeB.ToString().IsEmpty() ? "" : timing.StrobeB.ToString();
+                        timingData.Add(strobeB);
+                        var comment = timing.Comment.IsEmpty() ? "" : timing.Comment;
+                        timingData.Add(comment);
 
                         writer.WriteLine(string.Join(",", timingData.ToArray()));
                     }

@@ -157,13 +157,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                     //创建项目
                     var result = await _projectBLL.CreateProjectAsync(_projectInfo);
 
-                    //生成Release文件夹
-                    result = await _projectBLL?.ReleaseSolutionAsync(_projectInfo, false);
-
-                    //拷贝测试计划
-                    result = await _projectBLL?.CopyTestPlanAsync(_projectInfo);
                     if (result)
                     {
+                        //生成Release文件夹
+                        result = await _projectBLL?.ReleaseSolutionAsync(_projectInfo, false);
+
+                        //拷贝测试计划
+                        result = await _projectBLL?.CopyTestPlanAsync(_projectInfo);
+
                         _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
                         RaiseRequestClose(new DialogResult(ButtonResult.OK));
                     }
