@@ -129,4 +129,88 @@
   <data name="PatternCompileErr004" xml:space="preserve">
     <value>error004：无法识别的模块类型</value>
   </data>
+  <data name="PatternCompileErr005" xml:space="preserve">
+    <value>error005: 无法识别 Instruments 字符串“{0}”中的符号“{{”和“}}”，无法将其格式化为 Instrument 对象。</value>
+  </data>
+  <data name="PatternCompileErr006" xml:space="preserve">
+    <value>error006: 未找到与仪器模块匹配的符号“}”。</value>
+  </data>
+  <data name="PatternCompileErr007" xml:space="preserve">
+    <value>error007: 仪器模块中“{0}”中的元素数量不正确。请检查一下。</value>
+  </data>
+  <data name="PatternCompileErr008" xml:space="preserve">
+    <value>error008:无法识别仪器宽度值“{0}”，它应该是数字。</value>
+  </data>
+  <data name="PatternCompileErr009" xml:space="preserve">
+    <value>error009: 仪器宽度范围为 1 到 32。当前仪器宽度为 {0}。</value>
+  </data>
+  <data name="PatternCompileErr010" xml:space="preserve">
+    <value>error010: 当仪器模式为并行时，仪器宽度必须为 1。当前仪器宽度为 {0}</value>
+  </data>
+  <data name="PatternCompileErr011" xml:space="preserve">
+    <value>行{0}-error011: 伪指令和参数数量大于2.</value>
+  </data>
+  <data name="PatternCompileErr012" xml:space="preserve">
+    <value>行{0}-error012:无法识别的标签信息 {1}.</value>
+  </data>
+  <data name="PatternCompileErr013" xml:space="preserve">
+    <value>行{0}-error013: 矢量引脚数与 atp 文件中定义的引脚数不匹配.</value>
+  </data>
+  <data name="PatternCompileErr014" xml:space="preserve">
+    <value>行{0}-error014:Vector 中未定义的元素“{1}”.</value>
+  </data>
+  <data name="PatternCompileErr015" xml:space="preserve">
+    <value>行{0}-error015：atp 文件中未定义伪指令“{1}”.</value>
+  </data>
+  <data name="PatternCompileErr017" xml:space="preserve">
+    <value>行{0}-error017: 不支持伪指令 {1}.</value>
+  </data>
+  <data name="PatternCompileErr018" xml:space="preserve">
+    <value>行{0}-error018: 伪指令“{1}”后面必须跟一个参数.</value>
+  </data>
+  <data name="PatternCompileErr016" xml:space="preserve">
+    <value>行{0}-error016: 伪指令后不允许有任何参数 '{1}'.</value>
+  </data>
+  <data name="PatternCompileErr019" xml:space="preserve">
+    <value>行{0}-error019：伪指令后面的数字“{1}”必须在 {2} 到 {3} 的范围内。</value>
+  </data>
+  <data name="PatternCompileErr021" xml:space="preserve">
+    <value>行{0}-error021: 伪指令“{2}”后的数字“{1}”必须在 {3} 到 {4} 范围内.</value>
+  </data>
+  <data name="PatternCompileErr022" xml:space="preserve">
+    <value>行{0}-error022：伪指令后的内容“{1}”不是有效值。它应该在 {2} 到 {3} 范围内或在列表 {4} 中。</value>
+  </data>
+  <data name="PatternCompileErr023" xml:space="preserve">
+    <value>行{0}-error023：无法识别伪指令参数信息“{1}”.</value>
+  </data>
+  <data name="PatternCompileErr020" xml:space="preserve">
+    <value>行{0}-error020：无法识别的矢量内容。不能包含多个伪值。</value>
+  </data>
+  <data name="PatternCompileErr024" xml:space="preserve">
+    <value>行{0}-error024：单个矢量线不能包含多个标签。</value>
+  </data>
+  <data name="PatternCompileErr025" xml:space="preserve">
+    <value>Error025: 此 atp 文件“{0}”中的向量行号小于最小值“{1}”。</value>
+  </data>
+  <data name="PatternCompileErr026" xml:space="preserve">
+    <value>行{0}-error026：伪指令和参数的数量大于 2。内容为 {1}.</value>
+  </data>
+  <data name="PatternCompileErr027" xml:space="preserve">
+    <value>行{0}-error027：注释应以“//”开头。</value>
+  </data>
+  <data name="PatternCompileErr028" xml:space="preserve">
+    <value>行{0}-error028：V/D 字符出现在未定义的仪器中。</value>
+  </data>
+  <data name="PatternCompileWarn001" xml:space="preserve">
+    <value>行{0}-warn001：“Start”伪指令不应包含该行中的“D”。该行将被忽略，并且不会计入包含 D 的行数中。</value>
+  </data>
+  <data name="PatternCompileWarn002" xml:space="preserve">
+    <value>行{0}-warn002：“Trig”伪指令不应包含该行中的“V”。该行将被忽略，并且不会计入包含 V 的行数中。</value>
+  </data>
+  <data name="PatternCompileErr029" xml:space="preserve">
+    <value>行{0}-error029：无法将重复参数“{1}”转换为数字.</value>
+  </data>
+  <data name="PatternCompileErr030" xml:space="preserve">
+    <value>行{0}-error030：当前仪器中的所有引脚必须同时为“{1}”.</value>
+  </data>
 </root>

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace KSW.ATE01.Template.Base.Properties {
+namespace KSW.ATE01.Project.Base.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace KSW.ATE01.Template.Base.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("KSW.ATE01.Template.Base.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("KSW.ATE01.Project.Base.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -93,6 +93,258 @@ namespace KSW.ATE01.Template.Base.Properties {
         internal static string PatternCompileErr004 {
             get {
                 return ResourceManager.GetString("PatternCompileErr004", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 error005: Cannot recognize symbol &apos;{{&apos; and &apos;}}&apos; in the Instruments string &apos;{0}&apos;, cannot format it to Instrument object. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr005 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr005", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 error006: No symbol &apos;}&apos; was found to match instruments module. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr006 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr006", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 error007: The number of elements in the &apos;{0}&apos; in Instruments module is incorrec. Please check it. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr007 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr007", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 error008: Unable to identify the Instrument Width value &apos;{0}&apos;, it should be the number. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr008 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr008", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 error009: The Instrument Width ranges from 1 to 32. Current instrument width is {0}. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr009 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr009", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 error010: Instrument width must be 1 when the Instrument mode is Parallel. Current instrument width is {0} 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr010 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr010", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error011: The number of pseudo instructions and parameters is greater than 2. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr011 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr011", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error012: Unrecognized label information {1}. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr012 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr012", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error013: Vector pins count is not match defined pins count in atp file. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr013 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr013", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error014: Undefined element &apos;{1}&apos; in Vector. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr014 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr014", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error015: Undefined PseudoInstruction &apos;{1}&apos; in atp file. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr015 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr015", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error016: No parameter is allowed after PseudoInstruction &apos;{1}&apos;. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr016 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr016", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error017 nonsupport PseudoInstruction {1}. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr017 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr017", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error018: The pseudoInstruction &apos;{1}&apos; must be followed by an argument. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr018 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr018", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error019: The number &apos;{1}&apos; after PseudoInstruction must be in the range of {2} to {3}. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr019 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr019", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error020: Unrecognized vector content. Cannot contain mutli pseudo. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr020 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr020", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error021: The number &apos;{1}&apos; after PseudoInstruction &apos;{2}&apos; must be in the range of {3} to {4}. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr021 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr021", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error022: Content &apos;{1}&apos; after PseudoInstruction is not a valid value. It should be in the range {2} to {3} or in the list {4}. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr022 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr022", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error023: Unrecognized PseudoInstruction parameter information &apos;{1}&apos;. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr023 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr023", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error024: A single vector line cannot contain more than one label. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr024 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr024", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Error025: The vector row number in this atp file &apos;{0}&apos; is less than the minimum value &apos;{1}&apos;. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr025 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr025", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error026: The number of pseudo instructions and parameters is greater than 2. Content is {1}. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr026 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr026", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error027: Comment should start with &apos;//&apos;. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr027 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr027", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error028: The V/D character appears in undefined Instrument. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr028 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr028", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error029: Can&apos;t convert repeat parameter &apos;{1}&apos; to a number. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr029 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr029", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - error030: All pins in current instrument must be &apos;{1}&apos; at the same time. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileErr030 {
+            get {
+                return ResourceManager.GetString("PatternCompileErr030", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - warn001: The &apos;Start&apos; pseudoinstruction should not contain the &apos;D&apos; on the line. This row will be ignored and will not be counted in the number of rows containing D. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileWarn001 {
+            get {
+                return ResourceManager.GetString("PatternCompileWarn001", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 line {0} - warn002: The &apos;Trig&apos; pseudoinstruction should not contain the &apos;V&apos; on the line. This row will be ignored and will not be counted in the number of rows containing V. 的本地化字符串。
+        /// </summary>
+        internal static string PatternCompileWarn002 {
+            get {
+                return ResourceManager.GetString("PatternCompileWarn002", resourceCulture);
             }
         }
     }

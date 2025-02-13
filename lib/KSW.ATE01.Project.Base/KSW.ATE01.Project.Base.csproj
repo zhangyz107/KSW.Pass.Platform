@@ -9,8 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />
+    <PackageReference Include="Prism.Events" Version="9.0.537" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="MiniExcel">
-      <HintPath>Lib\MiniExcel.dll</HintPath>
+      <HintPath>..\MiniExcel.dll</HintPath>
     </Reference>
   </ItemGroup>
 

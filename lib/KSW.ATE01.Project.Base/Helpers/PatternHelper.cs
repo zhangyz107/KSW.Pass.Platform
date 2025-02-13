@@ -1,5 +1,7 @@
 ﻿using KSW.ATE01.Project.Base.Enums.Patterns;
+using KSW.ATE01.Project.Base.Events;
 using KSW.ATE01.Project.Base.Extensions;
+using KSW.ATE01.Project.Base.Language;
 using KSW.ATE01.Project.Base.Models.Patterns;
 using System.IO;
 using System.Net.NetworkInformation;
@@ -11,7 +13,14 @@ namespace KSW.ATE01.Project.Base.Helpers
     public class PatternHelper
     {
         private static readonly Lazy<PatternHelper> _instance = new Lazy<PatternHelper>(() => new PatternHelper());
+        private static IEventAggregator _eventAggregator;
+        private static LanguageManager L => LanguageManager.Instance;
 
+        public PatternHelper()
+        {
+            var container = ContainerLocator.Container;
+            _eventAggregator = container?.Resolve<IEventAggregator>() ?? null;
+        }
         #region Fields
         private PatternModel _pattern;
 
@@ -430,7 +439,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     continue;
                 }
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(L["PatternCompileErr001"]);
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr001"]);
                 return;
             } while (!_timeSetRegex.IsMatch(input));
             string[] array = _timeSetRegex.Match(input).Groups[1].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -439,7 +448,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (patternResult.TimingSets.Contains(array[i].Trim()))
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
                 }
                 patternResult.TimingSets.Add(array[i].Trim());
             }
@@ -514,7 +523,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     continue;
                 }
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(L["PatternCompileErr002"]);
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr002"]);
                 return patternPins;
             }
             while (!_atpPinsRegex.IsMatch(empty2));
@@ -530,7 +539,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (patternPins.Contains(text2))
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr03"]}{text2}."));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr03"]}{text2}."));
                 }
                 patternPins.Add(text2);
             }
@@ -538,7 +547,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             {
                 default:
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr04"]}{memoryName}."));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr04"]}{memoryName}."));
                     break;
                 case "srm_vector":
                     patternResult.ModuleType = ModuleType.SRM_Vector;
@@ -596,16 +605,16 @@ namespace KSW.ATE01.Project.Base.Helpers
                         else
                         {
                             _compileError = true;
-                            //var msg = L["PatternCompileErr005"];
-                            //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{msg}", text2));
+                            var msg = L["PatternCompileErr005"];
+                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{msg}", text2));
                         }
                         return;
                     }
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(L["PatternCompileErr006"]);
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr006"]);
                     break;
                 }
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(L["PatternCompileInfo001"]);
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileInfo001"]);
                 break;
             }
             while (!_atpPinsRegex.IsMatch(text));
@@ -618,7 +627,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (array.Length != 6)
             {
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr007"]}", strInstrument));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr007"]}", strInstrument));
                 return result;
             }
             result = new InstrumentModel();
@@ -637,28 +646,24 @@ namespace KSW.ATE01.Project.Base.Helpers
                 //    continue;
                 //}
                 _compileError = true;
-                //if (this.eventPrintCompileInfo != null)
-                //{
-                //    this.eventPrintCompileInfo($"error PCE1015: Can not find Instrument pin '{array2[i]}' in TestPlan.");
-                //}
             }
             result.DigitalMode = array[1];
             if (!int.TryParse(array[2], out var result2))
             {
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr008"]}", array[2]));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr008"]}", array[2]));
             }
             else
             {
                 if (result2 < 1 || result2 > 32)
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr009"]}", result2));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr009"]}", result2));
                 }
                 if (array[3].ToLower() == "parallel" && result2 != 1)
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr010"]}", result2));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr010"]}", result2));
                 }
                 result.InstrumentWidth = result2;
             }
@@ -828,7 +833,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 if (!GetPseudoWithParameterSRM(text, out strPseudo, out strPseudoParameter))
                                 {
                                     _compileError = true;
-                                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr030"]}", rowNumber, text));
+                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr026"]}", rowNumber, text));
                                 }
                                 break;
                             case ModuleType.VM_Vector:
@@ -836,14 +841,14 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 if (!GetPseudoWithParameter(text, out strPseudo, out strPseudoParameter))
                                 {
                                     _compileError = true;
-                                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr030"]}", rowNumber, text));
+                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr026"]}", rowNumber, text));
                                 }
                                 break;
                         }
                         if (value3.Replace(" ", "").Replace("\t", "").Length != 0)
                         {
                             _compileError = true;
-                            //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr031"]}", rowNumber - (listRowVector.Count - 1 - num)));
+                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr027"]}", rowNumber - (listRowVector.Count - 1 - num)));
                         }
                         string[] array = value2.Split(new string[2] { " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
                         if (array.Length != atpPinsPinGroups.Count)
@@ -857,7 +862,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 if (array[normalPinIndex[j]].Contains("D") || array[normalPinIndex[j]].Contains("V"))
                                 {
                                     _compileError = true;
-                                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr032"]}", rowNumber - (listRowVector.Count - 1 - num)));
+                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr028"]}", rowNumber - (listRowVector.Count - 1 - num)));
                                 }
                             }
                         }
@@ -872,7 +877,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             _ignoreCurrentVectorRowStart = true;
                             if (value2.ToUpper().Contains("D"))
                             {
-                                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr033"]}", rowNumber - (listRowVector.Count - 1 - num)));
+                                _eventAggregator.GetEvent<PatternWarnMessageEvent>().Publish(string.Format($"{L["PatternCompileWarn001"]}", rowNumber - (listRowVector.Count - 1 - num)));
                             }
                         }
                         else if (strPseudo.ToLower() == "trig")
@@ -882,7 +887,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             _ignoreCurrentVectorRowTrig = true;
                             if (value2.ToUpper().Contains("V"))
                             {
-                                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr034"]}", rowNumber - (listRowVector.Count - 1 - num)));
+                                _eventAggregator.GetEvent<PatternWarnMessageEvent>().Publish(string.Format($"{L["PatternCompileWarn002"]}", rowNumber - (listRowVector.Count - 1 - num)));
                             }
                         }
                         else if (strPseudo.ToLower() == "repeat")
@@ -890,7 +895,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             if (!int.TryParse(strPseudoParameter, out var result))
                             {
                                 _compileError = true;
-                                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr035"]}", rowNumber - (listRowVector.Count - 1 - num), strPseudoParameter));
+                                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr029"]}", rowNumber - (listRowVector.Count - 1 - num), strPseudoParameter));
                             }
                             num2 = result;
                         }
@@ -899,7 +904,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             if (!int.TryParse(strPseudoParameter, out var result2))
                             {
                                 _compileError = true;
-                                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr036"]}", rowNumber - (listRowVector.Count - 1 - num), strPseudoParameter));
+                                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr029"]}", rowNumber - (listRowVector.Count - 1 - num), strPseudoParameter));
                             }
                             _nestLoopBuffDic.Add(strPseudo.ToLower(), result2);
                             _nestLoopIndex++;
@@ -931,7 +936,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     if (array[pinsIndex[k]].Contains("D"))
                                     {
                                         _compileError = true;
-                                        //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr037"]}", rowNumber - (listRowVector.Count - 1 - num), "D"));
+                                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr030"]}", rowNumber - (listRowVector.Count - 1 - num), "D"));
                                     }
                                 }
                             }
@@ -964,7 +969,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     if (array[pinsIndex2[l]].Contains("V"))
                                     {
                                         _compileError = true;
-                                        //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr037"]}", rowNumber - (listRowVector.Count - 1 - num), "V"));
+                                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr030"]}", rowNumber - (listRowVector.Count - 1 - num), "V"));
 
                                     }
                                 }
@@ -979,15 +984,15 @@ namespace KSW.ATE01.Project.Base.Helpers
                         continue;
                     }
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr027"]}", rowNumber));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr020"]}", rowNumber));
                     return;
                 }
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr028"]}", rowNumber));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", rowNumber));
                 return;
             }
             _compileError = true;
-            //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr014"]}", rowNumber - (listRowVector.Count - 1 - num)));
+            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr013"]}", rowNumber - (listRowVector.Count - 1 - num)));
         }
 
         private static List<int> GetPinsIndex(Dictionary<string, List<string>> dicPinItem, List<string> atpPinsPinGroups)
@@ -1087,7 +1092,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
                                     {
                                         _compileError = true;
-                                        //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
+                                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
                                     }
                                     labelModel = VectorAnalysisLabel(value, num, num2);
                                     pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
@@ -1102,7 +1107,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
                                     {
                                         _compileError = true;
-                                        //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
+                                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
                                     }
                                     labelModel = VectorAnalysisLabel(value, num, num2);
                                     //VectorAnalysisLvmMaskCCWithOpcode(list4, strPseudo, strPseudoParameter, num, num2);
@@ -1151,18 +1156,18 @@ namespace KSW.ATE01.Project.Base.Helpers
                             continue;
                         }
                         _compileError = true;
-                        //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr027"]}", num));
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr020"]}", num));
                         return;
                     }
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr028"]}", num));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", num));
                     return;
                 }
             }
             if (_validVectorLinesCountInPatternFile < 32)
             {
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr029"]}", _validVectorLinesCountInPatternFile, 32));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr025"]}", _validVectorLinesCountInPatternFile, 32));
             }
         }
 
@@ -1198,7 +1203,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (array.Length > 2)
             {
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr012"]}", currentLine, strLabel));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr012"]}", currentLine, strLabel));
             }
             else if (array.Length == 1)
             {
@@ -1235,7 +1240,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                         break;
                     default:
                         _compileError = true;
-                        //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr012"]}", currentLine, array[0]));
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr012"]}", currentLine, array[0]));
                         return result;
                     case "stop_subr":
                         labelCommandType = LabelCommandType.StopSubr;
@@ -1256,7 +1261,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (array.Length != atpPinsPinGroups.Count)
             {
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr014"]}", currentLine));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr013"]}", currentLine));
                 return pinList;
             }
 
@@ -1293,7 +1298,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     continue;
                 }
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr015"]}", array[i].ToString()));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr014"]}", array[i].ToString()));
             }
         }
 
@@ -1308,7 +1313,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (!_pseudoInstruDic.Keys.Contains(pseudoInstru.ToLower()))
             {
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr016"]}", currentLine, pseudoInstru));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr015"]}", currentLine, pseudoInstru));
                 return result;
             }
             switch (pseudoInstru.ToLower())
@@ -1324,7 +1329,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     if (pseudoInstruParameter.Length != 0)
                     {
                         _compileError = true;
-                        //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, pseudoInstru));
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr016"]}", currentLine, pseudoInstru));
                     }
                     else
                     {
@@ -1333,7 +1338,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     break;
                 default:
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr018"]}", currentLine, pseudoInstru));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, pseudoInstru));
                     break;
                 case "start":
                 case "repeat":
@@ -1342,7 +1347,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                         if (pseudoInstruParameter.Length == 0)
                         {
                             _compileError = true;
-                            //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, pseudoInstru));
+                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr018"]}", currentLine, pseudoInstru));
                             break;
                         }
                         int parameter = 0;
@@ -1355,12 +1360,12 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 break;
                             }
                             _compileError = true;
-                            //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr020"]}", currentLine, pseudoInstru, 2, 1048575));
+                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, pseudoInstru, 2, 1048575));
                         }
                         else
                         {
                             _compileError = true;
-                            //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, pseudoInstru));
+                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, pseudoInstruParameter, 2, 1048575, string.Join(",", _dataBlockMarkerParameter)));
                         }
                         break;
                     }
@@ -1382,13 +1387,13 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (strPseudoParameter.Length == 0)
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, strPseudo));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudo));
                     return result;
                 }
                 if (int.TryParse(strPseudoParameter, out var parameter) && (parameter < 0 || parameter > 4095))
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr023"]}", currentLine, strPseudoParameter, strPseudo, 0, 4095));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 0, 4095));
                     return result;
                 }
             }
@@ -1397,13 +1402,13 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (strPseudoParameter.Length == 0)
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, strPseudo));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, strPseudo));
                     return result;
                 }
                 if (int.TryParse(strPseudoParameter, out var parameter) && (parameter < 2 || parameter > 65535))
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr023"]}", currentLine, strPseudoParameter, strPseudo, 2, 65535));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, 65535));
                     return result;
                 }
             }
@@ -1424,12 +1429,12 @@ namespace KSW.ATE01.Project.Base.Helpers
                     return result;
                 }
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", currentLine, strPseudoParameter, num, 65535));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudoParameter, num, 65535));
             }
             else
             {
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, num, 65535, string.Join(",", _dataBlockMarkerParameter)));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, strPseudoParameter, num, 65535, string.Join(",", _dataBlockMarkerParameter)));
             }
 
             return result;
@@ -1455,7 +1460,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             else
             {
                 _compileError = true;
-                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, uCode));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr015"]}", currentLine, uCode));
             }
 
             return result;
@@ -1491,13 +1496,13 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (strPseudoParameter.Length == 0)
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudo));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, strPseudo));
                     return false;
                 }
                 if (int.TryParse(strPseudoParameter, out var result) && (result < 2 || result > 65535))
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr023"]}", currentLine, strPseudoParameter, strPseudo, 2, 65535));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, 65535));
                     return false;
                 }
             }
@@ -1527,7 +1532,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (!GetConditionFlagValue(strPseudo, strPseudoParameter.Split(new string[4] { " ", "\t", "and", "or" }, StringSplitOptions.RemoveEmptyEntries).ToList(), out var value2, out var _))
                 {
                     _compileError = true;
-                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr026"]}", currentLine, strPseudoParameter));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr023"]}", currentLine, strPseudoParameter));
                     return false;
                 }
                 num = value2;

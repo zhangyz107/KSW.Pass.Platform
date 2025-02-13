@@ -6,6 +6,7 @@ using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.Patterns;
+using System.IO;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 {
