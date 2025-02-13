@@ -1,4 +1,7 @@
-﻿using KSW.ATE01.Project.Base.Models.Errors;
+﻿using KSW.ATE01.Project.Base.Enums.Errors;
+using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models.Errors;
+using KSW.ATE01.Project.Base.Services.Loggers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +16,7 @@ namespace KSW.ATE01.Project.Base.Services.Errors
         private static object _lock = new object();
         private static ErrorService _instance;
         private Action<ErrorMessage> _errorNotify;
-        private bool _isPrintToRealTimeTxt;
+        private static bool _isPrintToRealTimeTxt;
         #endregion
 
         #region Properties
@@ -70,23 +73,67 @@ namespace KSW.ATE01.Project.Base.Services.Errors
             _isPrintToRealTimeTxt = false;
         }
 
-        private static void HandleMessage(ErrorMessage message)
+        private static void HandleMessage(ErrorMessage error, string message)
         {
-            switch (message.Behavior)
+            switch (error.Behavior)
             {
                 case Enums.Errors.BehaviorType.None:
+                    if (Instance._errorNotify == null)
+                        return;
+                    Instance._errorNotify(error);
                     break;
                 case Enums.Errors.BehaviorType.Off:
                     break;
                 case Enums.Errors.BehaviorType.Default:
+                    PrintResultLog.Message(GetErrorMessage(error, message, OutputType.RealTimeTxt));
+                    LogHelper.WriteLog(GetErrorMessage(error, message, OutputType.CommonLog));
+                    if (Instance._errorNotify == null)
+                        return;
+                    Instance._errorNotify(error);
                     break;
                 case Enums.Errors.BehaviorType.Continue:
+                    if (_isPrintToRealTimeTxt)
+                    {
+                        PrintResultLog.Message(GetErrorMessage(error, message, OutputType.RealTimeTxt));
+                    }
+                    LogHelper.WriteLog(GetErrorMessage(error, message, OutputType.CommonLog));
+                    if (Instance._errorNotify == null)
+                        return;
+                    Instance._errorNotify(error);
                     break;
                 default:
                     break;
             }
         }
 
+        public static string GetErrorMessage(ErrorMessage error, string message, OutputType outputType)
+        {
+            var result = string.Empty;
+            if (outputType - OutputType.RealTimeTxt > 2)
+            {
+                if (outputType != OutputType.Exception)
+                {
+                    result = message;
+                }
+                else
+                {
+                    result = string.Concat(new string[]
+                    {
+                        "\n",
+                        message,
+                        "\nError Code:0x",
+                        //errorMessage.Number.ToString("X"),
+                        " Location:",
+                        //errorMessage_0.Location
+                    });
+                }
+            }
+            else
+            {
+                result = message;
+            }
+            return result;
+        }
         #region Public
 
         public static void SetPrintLogToRealTimeTxt(bool isPrint)
@@ -94,8 +141,7 @@ namespace KSW.ATE01.Project.Base.Services.Errors
 
         }
 
-        #endregion
-        public string GetErrorInformation()
+        public static string GetErrorInformation()
         {
             var result = string.Empty;
 
@@ -112,9 +158,12 @@ namespace KSW.ATE01.Project.Base.Services.Errors
             return result;
         }
 
-        public void ThrowInternalError()
+        public static void ThrowInternalError()
         {
 
         }
+
+        
+        #endregion
     }
 }

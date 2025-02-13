@@ -1,6 +1,7 @@
 ﻿using KSW.ATE01.Project.Base.Enums.Patterns;
 using KSW.ATE01.Project.Base.Extensions;
 using KSW.ATE01.Project.Base.Models.Patterns;
+using System.IO;
 using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
