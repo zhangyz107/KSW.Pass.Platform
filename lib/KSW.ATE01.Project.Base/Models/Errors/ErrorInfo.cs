@@ -29,6 +29,8 @@ namespace KSW.ATE01.Project.Base.Models.Errors
         /// </summary>
         public BehaviorType Behavior { get; set; }
 
+
+
         /// <summary>
         /// 描述
         /// </summary>

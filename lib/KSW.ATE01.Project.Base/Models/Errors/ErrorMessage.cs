@@ -25,8 +25,18 @@ namespace KSW.ATE01.Project.Base.Models.Errors
         public string ErrorName { get; set; }
 
         /// <summary>
+        /// 错误码
+        /// </summary>
+        public uint Number { get; set; }
+
+        /// <summary>
         /// 错误
         /// </summary>
         public Exception Exception { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Location { get; set; }
     }
 }
