@@ -2,7 +2,8 @@
   "profiles": {
     "SITE Start": {
       "commandName": "Executable",
-      "executablePath": "D:\\Src\\KSW.ATE01.Platform\\src\\KSW.ATE01.Start\\bin\\Debug\\net8.0-windows\\KSW.ATE01.Start.exe"
+      "executablePath": "D:\\Src\\KSW.ATE01.Platform\\src\\KSW.ATE01.Start\\bin\\Debug\\net8.0-windows\\KSW.ATE01.Start.exe",
+      "commandLineArgs": "$(ProjectDir)"
     }
   }
 }
