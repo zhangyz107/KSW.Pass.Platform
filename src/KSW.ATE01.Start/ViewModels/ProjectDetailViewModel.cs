@@ -12,9 +12,12 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.BLLs.Implements.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Ui;
+using System.IO;
 
 namespace KSW.ATE01.Start.ViewModels
 {
@@ -60,13 +63,13 @@ namespace KSW.ATE01.Start.ViewModels
             _eventAggregator = eventAggregator;
 
             _projectBLL = _containerProvider.Resolve<IProjectBLL>();
-
             RegisterEvent();
         }
 
         private void RegisterEvent()
         {
             _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Subscribe(ProjectInfoUpdate);
+            _eventAggregator.GetEvent<LoadProjectFromArgsEvent>().Subscribe(LoadProjectFromArgs);
         }
 
         private void ProjectInfoUpdate()
@@ -74,6 +77,27 @@ namespace KSW.ATE01.Start.ViewModels
             ProjectInfo = _projectBLL.GetCurrentProjectInfo();
             TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
             ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
+        }
+
+        private void LoadProjectFromArgs(string dir)
+        {
+            var folder = new DirectoryInfo(dir);
+            if (folder.Exists)
+            {
+                var cfgs = folder.GetFiles("*.atecfg");
+                if (cfgs.Any())
+                {
+                    var cfgFile = cfgs.FirstOrDefault();
+                    if (cfgFile != null)
+                    {
+                        ProjectInfo = _projectBLL.LoadProjectInfo(cfgFile.FullName);
+                        _projectBLL.SetCurrentProjectInfo(ProjectInfo);
+                        TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
+                        ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
+                        DialogService.ShowDialog(nameof(RunDialog));
+                    }
+                }
+            }
         }
     }
 }

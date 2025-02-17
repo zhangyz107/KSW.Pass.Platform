@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Application.Events.Projects;
 using KSW.Ui;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,11 +19,19 @@ namespace KSW.ATE01.Start.Views
     /// </summary>
     public partial class ShellView : IView
     {
+        private readonly IEventAggregator _eventAggregator;
+
         public ShellView(IEventAggregator eventAggregator)
         {
             InitializeComponent();
-
+            _eventAggregator = eventAggregator;
             eventAggregator.GetEvent<ShellRevealControlEvent>().Subscribe(RevealControl, ThreadOption.UIThread);
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            Show();
         }
 
         private void RevealControl(bool isVisible)
@@ -31,6 +40,11 @@ namespace KSW.ATE01.Start.Views
                 this.Show();
             else
                 this.Hide();
+        }
+
+        public void ExecuteMethodBasedOnArgument(string message)
+        {
+            _eventAggregator.GetEvent<LoadProjectFromArgsEvent>().Publish(message);
         }
     }
 }

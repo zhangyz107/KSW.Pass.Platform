@@ -71,6 +71,8 @@ namespace KSW.ATE01.Start.ViewModels
             {"en-US", "English"}
         };
 
+        public string Title { get => "ATE01"; }
+
         //public LanguageManager L => LanguageManager.Instance;
         #endregion
 

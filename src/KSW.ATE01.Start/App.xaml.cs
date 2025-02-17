@@ -12,9 +12,17 @@ using MaterialDesignThemes.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Configuration;
+using System.Diagnostics;
+using System.IO.Pipes;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using DryIoc;
+using KSW.ATE01.Project.Base.Models.Errors;
 
 namespace KSW.ATE01.Platform
 {
@@ -23,10 +31,68 @@ namespace KSW.ATE01.Platform
     /// </summary>
     public partial class App : PrismApplication
     {
+        private static Mutex mutex;
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        private const string _title = "ATE01";
+        private const int SW_RESTORE = 9;
+        private const int SW_SHOW = 5;
+
         protected override void OnStartup(StartupEventArgs e)
         {
+            bool createNew;
+            mutex = new Mutex(true, "Singleton", out createNew);
             Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
-            base.OnStartup(e);
+            if (!createNew)
+            {
+                MessageBox.Show("软件已启动，不再重复启动。", _title, MessageBoxButton.OK, MessageBoxImage.Asterisk);
+
+                //// 找到已运行的实例并激活
+                //Process currentProcess = Process.GetCurrentProcess();
+                //Process existingProcess = Process.GetProcessesByName(currentProcess.ProcessName)
+                //                               .FirstOrDefault(p => p.Id != currentProcess.Id);
+
+                //if (existingProcess != null)
+                //{
+                //    IntPtr hWnd = existingProcess.MainWindowHandle;
+                //    if (hWnd != IntPtr.Zero)
+                //    {
+                //        ShowWindow(hWnd, SW_RESTORE);
+                //        SetForegroundWindow(hWnd);
+                //    }
+                //    else
+                //    {
+                //        // 这里假设你知道窗口的类名或标题
+                //        hWnd = FindWindow(null, _title);  // 根据窗口标题查找
+                //        if (hWnd != IntPtr.Zero)
+                //        {
+                //            ShowWindow(hWnd, SW_SHOW);
+                //            ShowWindow(hWnd, SW_RESTORE);
+                //            SetForegroundWindow(hWnd);
+                //        }
+                //    }
+                //}
+                Environment.Exit(1);
+            }
+            else
+            {
+                base.OnStartup(e);
+                if (e.Args.Any())
+                {
+                    var mainWindow = Current.MainWindow as ShellView;
+                    mainWindow.ExecuteMethodBasedOnArgument(e.Args.FirstOrDefault());
+                }
+
+            }
+
         }
 
         private void Current_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
