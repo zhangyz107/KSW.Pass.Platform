@@ -288,7 +288,7 @@ namespace KSW.ATE01.Project.Base.Helpers
 
             foreach (var col in row)
             {
-                if (col.Key.ToString()?.StartsWith("Site ") == true)
+                if (col.Key.ToString()?.StartsWith("Site ") == true && col.Value != null)
                     siteList.Add(new SiteModel() { SiteName = col.Key, SiteValue = col.Value?.ToString() });
             }
             tempChannel.Sites = siteList;

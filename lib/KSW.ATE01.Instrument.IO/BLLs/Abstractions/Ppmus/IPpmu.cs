@@ -1,4 +1,5 @@
 ﻿using KSW.ATE01.Instrument.IO.Enums.Ppmus;
+using KSW.ATE01.Instrument.IO.Models.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus
         /// <param name="iforce"></param>
         /// <param name="vcl"></param>
         /// <param name="vch"></param>
-        void SetFIMV(IMType iMType, double iforce, double vcl, double vch);
+        void SetFIMV(double iforce, double vcl, double vch);
 
         /// <summary>
         /// 设置FVMI
@@ -40,6 +41,29 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus
         /// <param name="vforce"></param>
         /// <param name="icl"></param>
         /// <param name="ich"></param>
-        void SetFVMI(MIType mIType, double vforce, double icl, double ich);
+        void SetFVMI(double vforce, double icl, double ich);
+
+        /// <summary>
+        /// 获取驱动器和比较器
+        /// </summary>
+        /// <param name="vil"></param>
+        /// <param name="vih"></param>
+        /// <param name="vol"></param>
+        /// <param name="voh"></param>
+        /// <param name="vt"></param>
+        /// <param name="iol"></param>
+        /// <param name="ioh"></param>
+        /// <param name="activeLoad"></param>
+        List<ChannelResultModel<DriverResultModel>> GetDriverAndComparator();
+
+        /// <summary>
+        /// 获取激励电压
+        /// </summary>
+        List<ChannelResultModel<double>> GetVoltageForce();
+
+        /// <summary>
+        /// 获取激励电流
+        /// </summary>
+        List<ChannelResultModel<double>> GetCurrentForce();
     }
 }

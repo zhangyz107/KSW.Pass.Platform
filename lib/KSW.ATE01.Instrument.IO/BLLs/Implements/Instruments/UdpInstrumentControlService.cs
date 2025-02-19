@@ -15,8 +15,10 @@ using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Extensions;
 using KSW.ATE01.Project.Base.Helpers;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements
 {
@@ -34,6 +36,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
 
         //发送队列最多支持命令数量
         private readonly int _maxSendCount = 100;
+        private readonly int _bufferSize = 8192;
         #endregion
 
         #region Properties
@@ -115,6 +118,27 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
             _sendQueue.Enqueue(sendMessage);
         }
 
+        public override byte[] Query(InstrumentBaseModel instrument, byte[] data)
+        {
+            var receiveData = new byte[_bufferSize];
+            try
+            {
+                var udpClient = _connectionPool[instrument.Address];
+                if (udpClient == null)
+                    throw new ArgumentNullException(nameof(instrument.Address), "无法发送到空设备 (检查设备是否正常连接)！");
+
+                udpClient.Client.SendTimeout = instrument.SendTimeOut;
+                udpClient.Client.Send(data);
+
+                var length = udpClient.Client.Receive(receiveData);
+                return receiveData.AsSpan().Slice(0, length).ToArray();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public override void Send(InstrumentBaseModel instrument, string data)
         {
             if (string.IsNullOrEmpty(data)) { return; }
@@ -134,6 +158,28 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
                 StringEncoder = instrument.StringEncoder,
             };
             _sendQueue.Enqueue(sendMessage);
+        }
+
+        public override byte[] Query(InstrumentBaseModel instrument, string data)
+        {
+            var receiveData = new byte[_bufferSize];
+            try
+            {
+                var udpClient = _connectionPool[instrument.Address];
+                if (udpClient == null)
+                    throw new ArgumentNullException(nameof(instrument.Address), "无法发送到空设备 (检查设备是否正常连接)！");
+
+                var dataBytes = instrument.StringEncoder.GetBytes(data);
+
+                udpClient.Client.Send(dataBytes);
+
+                var length = udpClient.Client.Receive(receiveData);
+                return receiveData.AsSpan().Slice(0, length).ToArray();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public override void SendLine(InstrumentBaseModel instrument, string data)
@@ -170,10 +216,13 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
                 }
                 udpClient.Client.SendBufferSize = int.MaxValue;
                 udpClient.Client.ReceiveBufferSize = int.MaxValue;
+
+                udpClient.Client.SendTimeout = instrument.SendTimeOut;
+                udpClient.Client.ReceiveTimeout = instrument.ReceiveTimeOut;
                 isConnected = true;
 
                 _connectionPool.TryAdd(instrument.Address, udpClient);
-                StartReceiveTask(instrument);
+                //StartReceiveTask(instrument);
             }
             catch (Exception)
             {
@@ -210,18 +259,27 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
             }, TaskCreationOptions.LongRunning);
         }
 
-        private void SendToInstrument(string address, byte[] data, int timeOut)
+        private void SendToInstrument(string address, byte[] data, int timeOut, bool hasAck = true)
         {
             try
             {
+                var receiveData = new byte[_bufferSize];
                 var udpClient = _connectionPool[address];
                 if (udpClient == null)
                     throw new ArgumentNullException(nameof(address), "无法发送到空设备 (检查设备是否正常连接)！");
 
-                udpClient.Client.SendTimeout = timeOut;
                 udpClient.Client.Send(data);
 
                 SendMessageEvent?.Invoke(new SendMessageModel { Address = address, Message = data });
+
+                if (hasAck)
+                {
+                    var size = udpClient.Client.Receive(receiveData);
+                    if (size == data.Length)
+                    {
+                        Debug.WriteLine("数据发送成功！");
+                    }
+                }
             }
             catch
             {
@@ -241,19 +299,28 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
                         var result = await udpClient.ReceiveAsync();
                         if (result.Buffer.Any())
                         {
-                            //var message = Encoding.UTF8.GetString(result.Buffer);
+                            var message = new RecordMessageModel
+                            {
+                                RecordTime = DateTime.Now,
+                                OriginalData = result.Buffer
+                            };
+
                             if (_receiveQueue.Count > instrument.MaxSendCount)
                             {
                                 _receiveQueue.TryDequeue(out RecordMessageModel msg);
                                 //todo:记录被剔除的消息
                                 //Log.LogInformation($"接收时间:{msg.RecordTime},内容为:{msg.RecordMessage}被剔除接收消息队列");
                             }
-
-                            ReceiveMessageEvent?.Invoke(new RecordMessageModel
+                            else
                             {
-                                RecordTime = DateTime.Now,
-                                RecordMessage = $"接收数据:{result.Buffer.ToAppendString()}"
-                            });
+                                _receiveQueue.Enqueue(message);
+                            }
+
+                            ReceiveMessageEvent?.Invoke(message);
+                        }
+                        else
+                        {
+                            await Task.Delay(1);
                         }
                     }
                     catch (Exception)

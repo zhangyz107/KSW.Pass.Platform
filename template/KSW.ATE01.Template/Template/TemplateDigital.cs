@@ -15,10 +15,9 @@ namespace CustomerProgram
         {
             try
             {
-                if (patternFiles == null)
-                {
+                if (patternFiles == null && !patternFiles.Any())
+                    return;
 
-                }
                 var commonData = CommonData.Instance;
                 if (commonData?.ProjectInfo != null && !string.IsNullOrEmpty(commonData?.ProjectInfo?.ReleasePath) && Directory.Exists(commonData?.ProjectInfo?.ReleasePath))
                 {

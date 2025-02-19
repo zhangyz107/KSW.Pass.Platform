@@ -19,6 +19,7 @@ using System.Runtime.InteropServices;
 
 namespace KSW.ATE01.Instrument.IO.Helpers
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     struct FrameStruct
     {
         short header;           //帧头

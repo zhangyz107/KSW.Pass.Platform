@@ -25,7 +25,7 @@ namespace KSW.ATE01.Instrument.IO.Enums.Ppmus
         IR1 = 1,
 
         /// <summary>
-        /// IR2(±4096. µA，Imax=4096. µA)
+        /// IR2(±409.6 µA，Imax=409.6 µA)
         /// </summary>
         [Description("IR2")]
         IR2 = 2,

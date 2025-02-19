@@ -142,36 +142,42 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 
                                 foreach (var pin in pinList)
                                 {
-                                    var index = pinList.IndexOf(pin);
-                                    var byteList = new List<byte>();
-                                    byteList.Add((byte)index);        //暂时按顺序下发通道（后续需要映射站点信息）
-                                    byteList.AddRange(periodBytes);
-                                    byteList.Add(formatByte);
-                                    byteList.Add(strobeByte);
-                                    byteList.AddRange(driveABytes);   //D0
-                                    byteList.AddRange(driveBBytes);   //D1
-                                    byteList.AddRange(driveCBytes);   //D2
-                                    byteList.AddRange(driveDBytes);   //D3
-                                    byteList.AddRange(r0PeriodBytes); //R0
-                                    byteList.AddRange(r1PeriodBytes); //R1
-                                    byteList.Add((byte)pwa_en);       //pwa_en
-                                    byteList.Add(cd_en);              //cd_en
-                                    byteList.AddRange(fd_enBytes);    //fd_en
-                                    byteList.Add((byte)pwa_d);        //pwa_d
-                                    byteList.Add(cd_d);               //cd_d
-                                    byteList.AddRange(fd_dBytes);     //fd_d
-                                    byteList.Add((byte)pwa_ca);       //pwa_ca
-                                    byteList.Add(cd_ca);              //cd_ca
-                                    byteList.AddRange(fd_caBytes);    //fd_ca
-                                    byteList.Add((byte)pwa_cb);       //pwa_cb
-                                    byteList.Add(cd_cb);              //cd_cb
-                                    byteList.AddRange(fd_cbBytes);    //fd_cb
-                                    var command = new CommandInfoModel()
+                                    foreach (var site in pin.Sites)
                                     {
-                                        CommandCode = "0x010A",
-                                        CommandContent = byteList.ToArray(),
-                                    };
-                                    commandList.Add(command);
+                                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                                        if (channelNum > 0)
+                                        {
+                                            var byteList = new List<byte>();
+                                            byteList.Add((byte)channelNum);        //暂时按顺序下发通道（后续需要映射站点信息）
+                                            byteList.AddRange(periodBytes);
+                                            byteList.Add(formatByte);
+                                            byteList.Add(strobeByte);
+                                            byteList.AddRange(driveABytes);   //D0
+                                            byteList.AddRange(driveBBytes);   //D1
+                                            byteList.AddRange(driveCBytes);   //D2
+                                            byteList.AddRange(driveDBytes);   //D3
+                                            byteList.AddRange(r0PeriodBytes); //R0
+                                            byteList.AddRange(r1PeriodBytes); //R1
+                                            byteList.Add((byte)pwa_en);       //pwa_en
+                                            byteList.Add(cd_en);              //cd_en
+                                            byteList.AddRange(fd_enBytes);    //fd_en
+                                            byteList.Add((byte)pwa_d);        //pwa_d
+                                            byteList.Add(cd_d);               //cd_d
+                                            byteList.AddRange(fd_dBytes);     //fd_d
+                                            byteList.Add((byte)pwa_ca);       //pwa_ca
+                                            byteList.Add(cd_ca);              //cd_ca
+                                            byteList.AddRange(fd_caBytes);    //fd_ca
+                                            byteList.Add((byte)pwa_cb);       //pwa_cb
+                                            byteList.Add(cd_cb);              //cd_cb
+                                            byteList.AddRange(fd_cbBytes);    //fd_cb
+                                            var command = new CommandInfoModel()
+                                            {
+                                                CommandCode = "0x010A",
+                                                CommandContent = byteList.ToArray(),
+                                            };
+                                            commandList.Add(command);
+                                        }
+                                    }
                                 }
 
                                 if (commandList.Any())

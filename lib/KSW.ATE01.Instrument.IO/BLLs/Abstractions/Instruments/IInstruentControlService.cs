@@ -31,9 +31,19 @@ namespace KSW.ATE01.Instrument.IO
         void Send(InstrumentBaseModel instrument, byte[] data);
 
         /// <summary>
+        /// 查询数据
+        /// </summary>
+        byte[] Query(InstrumentBaseModel instrument, byte[] data);
+
+        /// <summary>
         /// 发送数据
         /// </summary>
         void Send(InstrumentBaseModel instrument, string data);
+
+        /// <summary>
+        /// 查询数据
+        /// </summary>
+        byte[] Query(InstrumentBaseModel instrument, string data);
 
         /// <summary>
         /// 发送数据
