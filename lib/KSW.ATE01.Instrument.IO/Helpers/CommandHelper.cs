@@ -89,5 +89,44 @@ namespace KSW.ATE01.Instrument.IO.Helpers
 
             return message.ToArray();
         }
+
+        public static List<CommandInfoModel> ConversionBytesToCommands(byte[] data)
+        {
+            var result = new List<CommandInfoModel>();
+            if (!data.Any())
+                return result;
+
+            var startIndex = 8;
+
+            var span = data.AsSpan();
+
+            var commandCountBytes = span.Slice(startIndex, 2).ToArray().Reverse().ToArray();
+            var commandCount = BitConverter.ToInt16(commandCountBytes);
+            startIndex += 2;
+
+            for (var i = 0; i < commandCount; i++)
+            {
+                var commandCodeBytes = span.Slice(startIndex, 2).ToArray();
+                var commandCode = $"0x{BitConverter.ToString(commandCodeBytes).Replace("-", "")}";
+                startIndex += 2;
+
+                var commandLengthBytes = span.Slice(startIndex, 2).ToArray().Reverse().ToArray();
+                var commandLength = BitConverter.ToInt16(commandLengthBytes);
+                startIndex += 2;
+
+                var contentLength = commandLength - 4;
+                var contentBytes = span.Slice(startIndex, contentLength).ToArray();
+                startIndex += contentLength;
+                var command = new CommandInfoModel()
+                {
+                    CommandCode = commandCode,
+                    CommandContent = contentBytes,
+                };
+
+                result.Add(command);
+            }
+
+            return result;
+        }
     }
 }

@@ -25,11 +25,11 @@ namespace KSW.ATE01.Instrument.IO.Models.Results
         /// <summary>
         /// 站点结果
         /// </summary>
-        public List<T> SiteResults  { get; set; }
+        public T SiteResult  { get; set; }
 
         /// <summary>
         /// 站点测试值
         /// </summary>
-        public Dictionary<string, List<T>> SiteTestValues { get; set; }
+        public List<T> SiteTestValues { get; set; }
     }
 }

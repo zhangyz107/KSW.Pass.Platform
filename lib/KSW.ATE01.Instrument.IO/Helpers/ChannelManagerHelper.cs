@@ -63,5 +63,22 @@ namespace KSW.ATE01.Instrument.IO.Helpers
 
             return channelNum;
         }
+
+        /// <summary>
+        /// 通过通道号获取站点信息
+        /// </summary>
+        public static string GetSlotByChannelNum(int channelNum)
+        {
+            var result = string.Empty;
+
+            if (channelNum >= 0 && channelNum <= 127)
+            {
+                var slot = channelNum / 32 + 1;
+                var channel = channelNum % 32;
+                result = $"slot{slot}:ch{channel}";
+            }
+
+            return result;
+        }
     }
 }

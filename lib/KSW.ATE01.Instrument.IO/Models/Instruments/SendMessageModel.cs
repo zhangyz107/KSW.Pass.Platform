@@ -23,5 +23,10 @@ namespace KSW.ATE01.Instrument.IO.Models.Instruments
         /// 编码格式
         /// </summary>
         public Encoding StringEncoder { get; set; }
+
+        /// <summary>
+        /// 是否存在确认值
+        /// </summary>
+        public bool HasAck { get; set; }
     }
 }

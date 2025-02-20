@@ -98,7 +98,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
             return _connectionPool.Keys.Contains(instrument.Address);
         }
 
-        public override void Send(InstrumentBaseModel instrument, byte[] data)
+        public override void Send(InstrumentBaseModel instrument, byte[] data, bool direct = true, bool hasAck = true)
         {
             if (data == null || !data.Any()) { return; }
 
@@ -108,14 +108,22 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
                 //todo:记录被剔除的消息
                 //Log.LogInformation($"向设备{message.Address}发送内容:{message.Message.ToAppendString()}被剔除发送队列");
             }
-            var sendMessage = new SendMessageModel()
+
+            if (direct)
+                SendToInstrument(instrument.Address, data, instrument.SendTimeOut, hasAck);
+            else
             {
-                Address = instrument.Address,
-                Message = data,
-                SendTimeOut = instrument.SendTimeOut,
-                StringEncoder = instrument.StringEncoder,
-            };
-            _sendQueue.Enqueue(sendMessage);
+                var sendMessage = new SendMessageModel()
+                {
+                    Address = instrument.Address,
+                    Message = data,
+                    SendTimeOut = instrument.SendTimeOut,
+                    StringEncoder = instrument.StringEncoder,
+                    HasAck = hasAck
+                };
+                _sendQueue.Enqueue(sendMessage);
+            }
+
         }
 
         public override byte[] Query(InstrumentBaseModel instrument, byte[] data)
@@ -139,7 +147,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
             }
         }
 
-        public override void Send(InstrumentBaseModel instrument, string data)
+        public override void Send(InstrumentBaseModel instrument, string data, bool direct = true, bool hasAck = true)
         {
             if (string.IsNullOrEmpty(data)) { return; }
 
@@ -150,14 +158,20 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
                 //Log.LogInformation($"向设备{message.Address}发送内容:{message.StringEncoder.GetString(message.Message)}被剔除发送队列");
             }
             var dataBytes = instrument.StringEncoder.GetBytes(data);
-            var sendMessage = new SendMessageModel()
+            if (direct)
+                SendToInstrument(instrument.Address, dataBytes, instrument.SendTimeOut, hasAck);
+            else
             {
-                Address = instrument.Address,
-                Message = dataBytes,
-                SendTimeOut = instrument.SendTimeOut,
-                StringEncoder = instrument.StringEncoder,
-            };
-            _sendQueue.Enqueue(sendMessage);
+                var sendMessage = new SendMessageModel()
+                {
+                    Address = instrument.Address,
+                    Message = dataBytes,
+                    SendTimeOut = instrument.SendTimeOut,
+                    StringEncoder = instrument.StringEncoder,
+                    HasAck = hasAck
+                };
+                _sendQueue.Enqueue(sendMessage);
+            }
         }
 
         public override byte[] Query(InstrumentBaseModel instrument, string data)
@@ -182,17 +196,17 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
             }
         }
 
-        public override void SendLine(InstrumentBaseModel instrument, string data)
+        public override void SendLine(InstrumentBaseModel instrument, string data, bool direct = true, bool hasAck = true)
         {
             if (string.IsNullOrEmpty(data)) { return; }
 
             if (!data.EndsWith(instrument.StringEncoder.GetString(instrument.Delimiter)))
             {
-                Send(instrument, data + instrument.StringEncoder.GetString(instrument.Delimiter));
+                Send(instrument, data + instrument.StringEncoder.GetString(instrument.Delimiter), direct, hasAck);
             }
             else
             {
-                Send(instrument, data);
+                Send(instrument, data, direct, hasAck);
             }
         }
 

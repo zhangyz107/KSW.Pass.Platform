@@ -5,6 +5,7 @@ using KSW.ATE01.Instrument.IO.Enums.Ppmus;
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Instrument.IO.Models.Results;
+using KSW.ATE01.Project.Base.Helpers;
 using System.Runtime.Intrinsics.Arm;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
@@ -97,7 +98,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                         if (channelNum > 0)
                         {
                             var byteList = new List<byte>();
-                            byteList.Add((byte)channelNum);    //暂时按顺序下发通道（后续需要映射站点信息）
+                            byteList.Add((byte)channelNum);
                             byteList.AddRange(vilBytes);  //vil
                             byteList.AddRange(vihBytes);  //vih
                             byteList.AddRange(volBytes);  //vol
@@ -427,6 +428,16 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     if (ControlService != null && message.Any())
                     {
                         var queryResult = ControlService.Query(PE131, message);
+                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                        foreach (var command in commands)
+                        {
+                            var tempData = ContentToDriverAndComparator(command.CommandContent);
+                            if (tempData != null)
+                            {
+                                result.Add(tempData);
+                            }
+                        }
                     }
                 }
 
@@ -437,6 +448,72 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                 throw;
             }
+        }
+
+        private ChannelResultModel<DriverResultModel> ContentToDriverAndComparator(byte[] commandContent)
+        {
+            ChannelResultModel<DriverResultModel> result = null;
+
+            try
+            {
+                if (commandContent.Any())
+                {
+                    result = new ChannelResultModel<DriverResultModel>();
+                    var index = 0;
+                    result.ChannelNum = commandContent[index++];
+                    result.OriginalData = commandContent;
+                    result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
+                    result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    result.SiteResult = new DriverResultModel();
+                    var vilBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var vilShort = BitConverter.ToUInt16(vilBytes);
+                    index += 2;
+                    result.SiteResult.Vil = GetDoubleByUshort(vilShort);
+
+                    var vihBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var vihShort = BitConverter.ToUInt16(vihBytes);
+                    index += 2;
+                    result.SiteResult.Vih = GetDoubleByUshort(vihShort);
+
+                    var volBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var volShort = BitConverter.ToUInt16(volBytes);
+                    index += 2;
+                    result.SiteResult.Vol = GetDoubleByUshort(volShort);
+
+                    var vohBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var vohShort = BitConverter.ToUInt16(vohBytes);
+                    index += 2;
+                    result.SiteResult.Voh = GetDoubleByUshort(vohShort);
+
+                    var vtBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var vtShort = BitConverter.ToUInt16(vtBytes);
+                    index += 2;
+                    result.SiteResult.Vt = GetDoubleByUshort(vtShort);
+
+                    result.SiteResult.Iol = GetDoubleByByte(commandContent[index++]);
+                    result.SiteResult.Ioh = GetDoubleByByte(commandContent[index++]);
+                    result.SiteResult.ActiveLoad = System.Convert.ToBoolean(commandContent[index++]);
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return result;
+        }
+
+        private double GetDoubleByUshort(ushort original)
+        {
+            return original * 1.0 / 1000000 * 132 - 2.56;
+        }
+
+        private double GetDoubleByByte(byte v)
+        {
+            return v * 0.1;
         }
 
         public List<ChannelResultModel<double>> GetVoltageForce()
@@ -476,7 +553,16 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     if (ControlService != null && message.Any())
                     {
                         var queryResult = ControlService.Query(PE131, message);
+                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
 
+                        foreach (var command in commands)
+                        {
+                            var tempData = ContentToVoltageForce(command.CommandContent);
+                            if (tempData != null)
+                            {
+                                result.Add(tempData);
+                            }
+                        }
                     }
                 }
 
@@ -487,6 +573,43 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                 throw;
             }
+        }
+
+        private ChannelResultModel<double> ContentToVoltageForce(byte[] commandContent)
+        {
+            ChannelResultModel<double> result = null;
+
+            try
+            {
+                if (commandContent.Any())
+                {
+                    result = new ChannelResultModel<double>();
+                    var index = 0;
+                    result.ChannelNum = commandContent[index++];
+                    result.OriginalData = commandContent;
+                    result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
+                    result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    var imType = (MIType)commandContent[index++];
+                    var vforceBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var vforceShort = BitConverter.ToUInt16(vforceBytes);
+                    var vforce = GetVforceByUshort(vforceShort);
+                    result.SiteResult = vforce;
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return result;
+        }
+
+        private double GetVforceByUshort(ushort v)
+        {
+            return v * 1.0 / 1000000 * 132 - 2.56;
         }
 
         public List<ChannelResultModel<double>> GetCurrentForce()
@@ -526,6 +649,16 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     if (ControlService != null && message.Any())
                     {
                         var queryResult = ControlService.Query(PE131, message);
+                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                        foreach (var command in commands)
+                        {
+                            var tempData = ContentToCurrentForce(command.CommandContent);
+                            if (tempData != null)
+                            {
+                                result.Add(tempData);
+                            }
+                        }
 
                     }
                 }
@@ -537,6 +670,44 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                 throw;
             }
+        }
+
+        private ChannelResultModel<double> ContentToCurrentForce(byte[] commandContent)
+        {
+            ChannelResultModel<double> result = null;
+
+            try
+            {
+                if (commandContent.Any())
+                {
+                    result = new ChannelResultModel<double>();
+                    var index = 0;
+                    result.ChannelNum = commandContent[index++];
+                    result.OriginalData = commandContent;
+                    result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
+                    result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    var imType = (IMType)commandContent[index++];
+                    var iforceBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var iforceShort = BitConverter.ToUInt16(iforceBytes);
+                    var imax = GetImaxFromType(imType);
+                    var iforce = GetIforceByUshort(iforceShort, imax);
+                    result.SiteResult = iforce;
+
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+            return result;
+        }
+
+        private double GetIforceByUshort(ushort i, double imax)
+        {
+            return ((i * 1.0) / 1000000 * 132 - 1.75 - 2.56) / 1.28 * imax;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
         /// <summary>
         /// 发送数据
         /// </summary>
-        public abstract void Send(InstrumentBaseModel instrument, byte[] data);
+        public abstract void Send(InstrumentBaseModel instrument, byte[] data, bool direct = true, bool hasAck = true);
 
         /// <summary>
         /// 查询数据
@@ -43,7 +43,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
         /// <summary>
         /// 发送数据
         /// </summary>
-        public abstract void Send(InstrumentBaseModel instrument, string data);
+        public abstract void Send(InstrumentBaseModel instrument, string data, bool direct = true, bool hasAck = true);
 
         /// <summary>
         /// 查询数据
@@ -53,7 +53,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
         /// <summary>
         /// 发送数据
         /// </summary>
-        public abstract void SendLine(InstrumentBaseModel instrument, string data);
+        public abstract void SendLine(InstrumentBaseModel instrument, string data, bool direct = true, bool hasAck = true);
         /// <summary>
         /// 连接设备
         /// </summary>

@@ -28,7 +28,7 @@ namespace KSW.ATE01.Instrument.IO
         /// <summary>
         /// 发送数据
         /// </summary>
-        void Send(InstrumentBaseModel instrument, byte[] data);
+        void Send(InstrumentBaseModel instrument, byte[] data, bool direct = true, bool hasAck = true);
 
         /// <summary>
         /// 查询数据
@@ -38,7 +38,7 @@ namespace KSW.ATE01.Instrument.IO
         /// <summary>
         /// 发送数据
         /// </summary>
-        void Send(InstrumentBaseModel instrument, string data);
+        void Send(InstrumentBaseModel instrument, string data, bool direct = true, bool hasAck = true);
 
         /// <summary>
         /// 查询数据
@@ -48,6 +48,6 @@ namespace KSW.ATE01.Instrument.IO
         /// <summary>
         /// 发送数据
         /// </summary>
-        void SendLine(InstrumentBaseModel instrument, string data);
+        void SendLine(InstrumentBaseModel instrument, string data, bool direct = true, bool hasAck = true);
     }
 }

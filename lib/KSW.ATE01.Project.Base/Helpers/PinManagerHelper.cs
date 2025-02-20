@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace KSW.ATE01.Project.Base.Helpers
 {
@@ -21,7 +22,6 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (string.IsNullOrEmpty(name))
                 return null;
 
-            var canFind = true;
             var lowerName = name.ToLower();
             var groups = new List<PinGroupModel>();
             //  1、先查组名
@@ -38,6 +38,33 @@ namespace KSW.ATE01.Project.Base.Helpers
 
             //  2、查引脚名
             return pins.Where(x => x.PinName.ToLower().Equals(lowerName)).ToList();
+        }
+
+        public static string GetPinNameBySlotName(List<ChannelModel> pins, string slot)
+        {
+            string result = null;
+            if (pins == null || !pins.Any())
+                return null;
+
+            if (string.IsNullOrEmpty(slot))
+                return null;
+
+            var lowerSlot = slot.ToLower();
+            foreach (var pin in pins)
+            {
+                if (pin.Sites.Any())
+                {
+                    foreach (var site in pin.Sites)
+                    {
+                        if (site.SiteValue.ToLower().Equals(lowerSlot))
+                        {
+                            result = pin.PinName;
+                            return result;
+                        }
+                    }
+                }
+            }
+            return result;
         }
     }
 }
