@@ -15,11 +15,11 @@ namespace KSW.ATE01.Project.Base.Enums.Errors
         [Description("None")]
         None = 0,
 
-        ///// <summary>
-        ///// ForceFail
-        ///// </summary>
-        //[Description("ForceFail")]
-        //ForceFail = 1,
+        /// <summary>
+        /// ForceFail
+        /// </summary>
+        [Description("ForceFail")]
+        ForceFail = 1,
 
         ///// <summary>
         ///// ForceBin

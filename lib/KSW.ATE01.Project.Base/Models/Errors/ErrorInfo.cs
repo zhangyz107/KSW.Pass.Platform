@@ -10,14 +10,14 @@ namespace KSW.ATE01.Project.Base.Models.Errors
     public class ErrorInfo
     {
         /// <summary>
+        /// 模块名
+        /// </summary>
+        public string ModuleName { get; set; }
+
+        /// <summary>
         /// 是否报警
         /// </summary>
         public bool IsAlarm { get; set; }
-
-        /// <summary>
-        /// 错误号
-        /// </summary>
-        public uint Number { get; set; }
 
         /// <summary>
         /// 错误编码
@@ -29,7 +29,10 @@ namespace KSW.ATE01.Project.Base.Models.Errors
         /// </summary>
         public BehaviorType Behavior { get; set; }
 
-
+        /// <summary>
+        /// 错误内容
+        /// </summary>
+        public string Message { get; set; }
 
         /// <summary>
         /// 描述

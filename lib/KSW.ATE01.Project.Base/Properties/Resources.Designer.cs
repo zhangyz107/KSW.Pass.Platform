@@ -61,6 +61,60 @@ namespace KSW.ATE01.Project.Base.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Driver and comparator parameter {0}, setting value {1} is out of range: {2}~{3} 的本地化字符串。
+        /// </summary>
+        internal static string DriverAndComparatorOutOfRange {
+            get {
+                return ResourceManager.GetString("DriverAndComparatorOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 FIMV parameter {0}, setting value {1} is out of range: {2}~{3} 的本地化字符串。
+        /// </summary>
+        internal static string FIMVOutOfRange {
+            get {
+                return ResourceManager.GetString("FIMVOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 FVMI parameter {0}, setting value {1} is out of range: {2}~{3} 的本地化字符串。
+        /// </summary>
+        internal static string FVMIOutOfRange {
+            get {
+                return ResourceManager.GetString("FVMIOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Parameter configuration failed 的本地化字符串。
+        /// </summary>
+        internal static string IOConfigurationFailed {
+            get {
+                return ResourceManager.GetString("IOConfigurationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Invalid query command 的本地化字符串。
+        /// </summary>
+        internal static string IOInvalidQuery {
+            get {
+                return ResourceManager.GetString("IOInvalidQuery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Abnormal result status 的本地化字符串。
+        /// </summary>
+        internal static string IOResultAbnormal {
+            get {
+                return ResourceManager.GetString("IOResultAbnormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 error001: Can not find TimeSet info. Please check keyword &apos;import tset&apos; in atp file, And it must be &apos;;&apos; At the end. 的本地化字符串。
         /// </summary>
         internal static string PatternCompileErr001 {
@@ -345,6 +399,15 @@ namespace KSW.ATE01.Project.Base.Properties {
         internal static string PatternCompileWarn002 {
             get {
                 return ResourceManager.GetString("PatternCompileWarn002", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pin collection is empty 的本地化字符串。
+        /// </summary>
+        internal static string PinListNullOrEmpty {
+            get {
+                return ResourceManager.GetString("PinListNullOrEmpty", resourceCulture);
             }
         }
     }

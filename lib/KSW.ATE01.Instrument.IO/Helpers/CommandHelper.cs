@@ -15,6 +15,7 @@ using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Extensions;
 using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models.Errors;
 using System.Runtime.InteropServices;
 
 namespace KSW.ATE01.Instrument.IO.Helpers
@@ -92,38 +93,57 @@ namespace KSW.ATE01.Instrument.IO.Helpers
 
         public static List<CommandInfoModel> ConversionBytesToCommands(byte[] data)
         {
+
             var result = new List<CommandInfoModel>();
             if (!data.Any())
                 return result;
 
-            var startIndex = 8;
+            var location = nameof(ConversionBytesToCommands);
 
-            var span = data.AsSpan();
-
-            var commandCountBytes = span.Slice(startIndex, 2).ToArray().Reverse().ToArray();
-            var commandCount = BitConverter.ToInt16(commandCountBytes);
-            startIndex += 2;
-
-            for (var i = 0; i < commandCount; i++)
+            try
             {
-                var commandCodeBytes = span.Slice(startIndex, 2).ToArray();
-                var commandCode = $"0x{BitConverter.ToString(commandCodeBytes).Replace("-", "")}";
+                var type = Enum.ToObject(typeof(InstructionType), data[7]) as InstructionType?;
+                if (type == null)
+                    ErrorMessages.IO.IOResultAbnormal();
+                else if (type == InstructionType.ConfigurationFailed)
+                    ErrorMessages.IO.IOConfigurationFailed();
+                else if (type == InstructionType.QueryFailed)
+                    ErrorMessages.IO.IOInvalidQuery();
+
+                var startIndex = 8;
+
+                var span = data.AsSpan();
+
+                var commandCountBytes = span.Slice(startIndex, 2).ToArray().Reverse().ToArray();
+                var commandCount = BitConverter.ToInt16(commandCountBytes);
                 startIndex += 2;
 
-                var commandLengthBytes = span.Slice(startIndex, 2).ToArray().Reverse().ToArray();
-                var commandLength = BitConverter.ToInt16(commandLengthBytes);
-                startIndex += 2;
-
-                var contentLength = commandLength - 4;
-                var contentBytes = span.Slice(startIndex, contentLength).ToArray();
-                startIndex += contentLength;
-                var command = new CommandInfoModel()
+                for (var i = 0; i < commandCount; i++)
                 {
-                    CommandCode = commandCode,
-                    CommandContent = contentBytes,
-                };
+                    var commandCodeBytes = span.Slice(startIndex, 2).ToArray();
+                    var commandCode = $"0x{BitConverter.ToString(commandCodeBytes).Replace("-", "")}";
+                    startIndex += 2;
 
-                result.Add(command);
+                    var commandLengthBytes = span.Slice(startIndex, 2).ToArray().Reverse().ToArray();
+                    var commandLength = BitConverter.ToInt16(commandLengthBytes);
+                    startIndex += 2;
+
+                    var contentLength = commandLength - 4;
+                    var contentBytes = span.Slice(startIndex, contentLength).ToArray();
+                    startIndex += contentLength;
+                    var command = new CommandInfoModel()
+                    {
+                        CommandCode = commandCode,
+                        CommandContent = contentBytes,
+                    };
+
+                    result.Add(command);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
 
             return result;

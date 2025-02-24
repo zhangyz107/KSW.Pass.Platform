@@ -213,4 +213,25 @@
   <data name="PatternCompileErr030" xml:space="preserve">
     <value>line {0} - error030: All pins in current instrument must be '{1}' at the same time.</value>
   </data>
+  <data name="IOConfigurationFailed" xml:space="preserve">
+    <value>Parameter configuration failed</value>
+  </data>
+  <data name="IOInvalidQuery" xml:space="preserve">
+    <value>Invalid query command</value>
+  </data>
+  <data name="IOResultAbnormal" xml:space="preserve">
+    <value>Abnormal result status</value>
+  </data>
+  <data name="DriverAndComparatorOutOfRange" xml:space="preserve">
+    <value>Driver and comparator parameter {0}, setting value {1} is out of range: {2}~{3}</value>
+  </data>
+  <data name="PinListNullOrEmpty" xml:space="preserve">
+    <value>Pin collection is empty</value>
+  </data>
+  <data name="FVMIOutOfRange" xml:space="preserve">
+    <value>FVMI parameter {0}, setting value {1} is out of range: {2}~{3}</value>
+  </data>
+  <data name="FIMVOutOfRange" xml:space="preserve">
+    <value>FIMV parameter {0}, setting value {1} is out of range: {2}~{3}</value>
+  </data>
 </root>

@@ -213,4 +213,25 @@
   <data name="PatternCompileErr030" xml:space="preserve">
     <value>行{0}-error030：当前仪器中的所有引脚必须同时为“{1}”.</value>
   </data>
+  <data name="IOConfigurationFailed" xml:space="preserve">
+    <value>参数配置失败</value>
+  </data>
+  <data name="IOInvalidQuery" xml:space="preserve">
+    <value>查询命令无效</value>
+  </data>
+  <data name="IOResultAbnormal" xml:space="preserve">
+    <value>结果状态异常</value>
+  </data>
+  <data name="DriverAndComparatorOutOfRange" xml:space="preserve">
+    <value>驱动器和比较器参数{0}，设置值{1}超出范围：{2}~{3}</value>
+  </data>
+  <data name="PinListNullOrEmpty" xml:space="preserve">
+    <value>引脚集合为空</value>
+  </data>
+  <data name="FVMIOutOfRange" xml:space="preserve">
+    <value>FVMI参数{0}，设置值{1}超出范围：{2}~{3}</value>
+  </data>
+  <data name="FIMVOutOfRange" xml:space="preserve">
+    <value>FIMV参数{0}，设置值{1}超出范围：{2}~{3}</value>
+  </data>
 </root>

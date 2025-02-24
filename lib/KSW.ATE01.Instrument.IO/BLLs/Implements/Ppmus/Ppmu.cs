@@ -6,6 +6,7 @@ using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Instrument.IO.Models.Results;
 using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models.Errors;
 using System.Runtime.Intrinsics.Arm;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
@@ -39,7 +40,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
         public static IPpmu Pins(string pinList)
         {
             if (string.IsNullOrEmpty(pinList))
-                throw new ArgumentNullException(nameof(pinList));
+                ErrorMessages.DpsPpmu.PinListIsNullOrEmpty();
 
             Instance.GetPinList(pinList);
 
@@ -54,25 +55,25 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             try
             {
                 if (vil < -2.56 || vil > 6.09)
-                    throw new ArgumentOutOfRangeException(nameof(vil), "取值范围:-2.56V~+6.09V");
+                    ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(vil), new object[] { vil, "-2.56V", "6.09V" });
 
                 if (vih < -2.56 || vih > 6.09)
-                    throw new ArgumentOutOfRangeException(nameof(vih), "取值范围:-2.56V~+6.09V");
+                    ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(vih), new object[] { vih, "-2.56V", "6.09V" });
 
                 if (vol < -2.56 || vol > 6.09)
-                    throw new ArgumentOutOfRangeException(nameof(vol), "取值范围:-2.56V~+6.09V");
+                    ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(vol), new object[] { vol, "-2.56V", "6.09V" });
 
                 if (voh < -2.56 || voh > 6.09)
-                    throw new ArgumentOutOfRangeException(nameof(voh), "取值范围:-2.56V~+6.09V");
+                    ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(voh), new object[] { voh, "-2.56V", "6.09V" });
 
                 if (vt < -2.56 || vt > 6.09)
-                    throw new ArgumentOutOfRangeException(nameof(vt), "取值范围:-2.56V~+6.09V");
+                    ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(vt), new object[] { vt, "-2.56V", "6.09V" });
 
                 if (iol < 0 || iol > 25.5)
-                    throw new ArgumentOutOfRangeException(nameof(iol), "取值范围:0mA~25.5mA");
+                    ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(iol), new object[] { iol, "0mA", "25.5mA" });
 
                 if (ioh < 0 || ioh > 25.5)
-                    throw new ArgumentOutOfRangeException(nameof(ioh), "取值范围:0mA~25.5mA");
+                    ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(ioh), new object[] { ioh, "0mA", "25.5mA" });
 
                 // 转换数据格式
                 var vilValue = GetUshortValue(vil);
@@ -153,10 +154,10 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             try
             {
                 if (vcl < -2.56 || vcl > 6.06)
-                    throw new ArgumentOutOfRangeException(nameof(vcl), "取值范围:-2.56V~+6.06V");
+                    ErrorMessages.DpsPpmu.FIMVOutOfRange(nameof(vcl), new object[] { vcl, "-2.56V", "6.06V" });
 
                 if (vch < -2.56 || vch > 6.06)
-                    throw new ArgumentOutOfRangeException(nameof(vch), "取值范围:-2.56V~+6.06V");
+                    ErrorMessages.DpsPpmu.FIMVOutOfRange(nameof(vch), new object[] { vch, "-2.56V", "6.06V" });
 
                 var imax = GetImaxFromType(iMType);
                 var iforceValue = GetIforceUshortValue(iforce, imax);
@@ -285,7 +286,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             try
             {
                 if (vforce < -1 || vforce > 5)
-                    throw new ArgumentOutOfRangeException(nameof(vforce), "取值范围:-1V~+5V");
+                    ErrorMessages.DpsPpmu.FVMIOutOfRange(nameof(vforce), new object[] { vforce, "-1V", "5V" });
 
                 var currentAbsMax = Math.Max(Math.Abs(icl), Math.Abs(ich));
                 // 转换数据格式

@@ -19,6 +19,12 @@ namespace KSW.ATE01.Project.Base.Enums.Errors
         /// DPS
         /// </summary>
         [Description("DPS")]
-        DPS
+        DPS,
+
+        /// <summary>
+        /// IO
+        /// </summary>
+        [Description("IO")]
+        IO
     }
 }

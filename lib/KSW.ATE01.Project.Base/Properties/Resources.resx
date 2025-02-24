@@ -225,4 +225,32 @@
     <value>line {0} - error030: All pins in current instrument must be '{1}' at the same time.</value>
     <comment>行{0}-error030：当前仪器中的所有引脚必须同时为“{1}”.</comment>
   </data>
+  <data name="IOConfigurationFailed" xml:space="preserve">
+    <value>Parameter configuration failed</value>
+    <comment>参数配置失败</comment>
+  </data>
+  <data name="IOInvalidQuery" xml:space="preserve">
+    <value>Invalid query command</value>
+    <comment>查询命令无效</comment>
+  </data>
+  <data name="IOResultAbnormal" xml:space="preserve">
+    <value>Abnormal result status</value>
+    <comment>结果状态异常</comment>
+  </data>
+  <data name="DriverAndComparatorOutOfRange" xml:space="preserve">
+    <value>Driver and comparator parameter {0}, setting value {1} is out of range: {2}~{3}</value>
+    <comment>驱动器和比较器参数{0}，设置值{1}超出范围：{2}~{3}</comment>
+  </data>
+  <data name="PinListNullOrEmpty" xml:space="preserve">
+    <value>Pin collection is empty</value>
+    <comment>引脚集合为空</comment>
+  </data>
+  <data name="FVMIOutOfRange" xml:space="preserve">
+    <value>FVMI parameter {0}, setting value {1} is out of range: {2}~{3}</value>
+    <comment>FVMI参数{0}，设置值{1}超出范围：{2}~{3}</comment>
+  </data>
+  <data name="FIMVOutOfRange" xml:space="preserve">
+    <value>FIMV parameter {0}, setting value {1} is out of range: {2}~{3}</value>
+    <comment>FIMV参数{0}，设置值{1}超出范围：{2}~{3}</comment>
+  </data>
 </root>

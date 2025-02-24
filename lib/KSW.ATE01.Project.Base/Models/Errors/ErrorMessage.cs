@@ -15,6 +15,11 @@ namespace KSW.ATE01.Project.Base.Models.Errors
         public string ModuleName { get; set; }
 
         /// <summary>
+        /// 报警标志
+        /// </summary>
+        public bool AlarmFlag { get; set; }
+
+        /// <summary>
         /// 遇到异常后行为
         /// </summary>
         public BehaviorType Behavior { get; set; }
@@ -28,6 +33,11 @@ namespace KSW.ATE01.Project.Base.Models.Errors
         /// 错误码
         /// </summary>
         public uint Number { get; set; }
+
+        /// <summary>
+        /// 错误信息
+        /// </summary>
+        public string Message { get; set; }
 
         /// <summary>
         /// 错误

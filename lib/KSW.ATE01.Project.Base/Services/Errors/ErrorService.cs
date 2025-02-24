@@ -12,6 +12,7 @@ namespace KSW.ATE01.Project.Base.Services.Errors
         #region Fields
         private static readonly Lazy<ErrorService> _lazy = new Lazy<ErrorService>();
         private static bool _isPrintToRealTimeTxt;
+        private static bool _errorFlag;
         private static IEventAggregator _eventAggregator;
         #endregion
 
@@ -45,42 +46,28 @@ namespace KSW.ATE01.Project.Base.Services.Errors
             _isPrintToRealTimeTxt = isPrint;
         }
 
-        public void ThrowError(ErrorAgent agent, uint number, Exception inner, string location, params object[] parameters)
+        public void ThrowError(ErrorInfo errorInfo, Exception inner, string location)
         {
-            ErrorHandle(agent, number, inner, location, parameters);
+            ErrorHandle(errorInfo, inner, location);
         }
 
-        public string GetErrorInformation(ErrorAgent agent, uint number, out bool isExist, string location, params object[] parameters)
+        public static void AutoResetErrorFlag()
         {
-            isExist = false;
-            var result = string.Empty;
-            ErrorAgentCollection.Instance.TryAddAgent(agent);
-            var errorInfo = agent.TryGetErrorInfo(number);
-            isExist = errorInfo != null;
-            if (errorInfo == null)
-            {
-                return "Information with number 0x" + number.ToString("X") + " was not found.";
-            }
-            var errorMessageByInfo = ErrorAgentCollection.Instance.GetErrorMessageByInfo(errorInfo, null, location, true, parameters);
-
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                result = "Failed to obtain the message. Number:0x" + number.ToString("X") + ". Error information:" + ex.Message;
-            }
-
-            return result;
+            _errorFlag = false;
+            Message.ErrorStatus = ErrorStatus.Normal;
         }
 
-        public void ThrowInternalError(ErrorAgent client, uint number, Exception inner, string location, params object[] parameters)
+        public static void SetErrorFlag()
         {
-            ErrorHandle(client, number, inner, location, parameters);
+            _errorFlag = true;
         }
 
-        private void ErrorHandle(ErrorAgent agent, uint number, Exception exception, string location, object[] parameters)
+        public void ThrowInternalError(ErrorInfo errorInfo, Exception inner, string location)
+        {
+            ErrorHandle(errorInfo, inner, location);
+        }
+
+        private void ErrorHandle(ErrorInfo errorInfo, Exception exception, string location)
         {
             if (exception != null)
             {
@@ -92,13 +79,11 @@ namespace KSW.ATE01.Project.Base.Services.Errors
             }
             else
             {
-                ErrorAgentCollection.Instance.TryAddAgent(agent);
-                var errorInfo = agent.TryGetErrorInfo(number);
                 if (errorInfo.Behavior == BehaviorType.Off)
                     return;
 
-                var errorMessageByInfo = ErrorAgentCollection.Instance.GetErrorMessageByInfo(errorInfo, null, location, false, parameters);
-                errorMessageByInfo.ModuleName = agent.Source;
+                var errorMessageByInfo = GetErrorMessageByInfo(errorInfo, null, location);
+                errorMessageByInfo.ModuleName = errorInfo.ModuleName;
                 try
                 {
                     HandleMessage(errorMessageByInfo, "");
@@ -110,6 +95,19 @@ namespace KSW.ATE01.Project.Base.Services.Errors
             }
         }
 
+        private ErrorMessage GetErrorMessageByInfo(ErrorInfo errorInfo, Exception exception, string location)
+        {
+            return new ErrorMessage()
+            {
+                AlarmFlag = errorInfo.IsAlarm,
+                Behavior = errorInfo.Behavior,
+                ErrorName = errorInfo.Code,
+                Exception = exception,
+                Message = errorInfo.Message,
+                Location = location,
+            };
+        }
+
         private static void HandleMessage(ErrorMessage error, string message)
         {
             switch (error.Behavior)
@@ -117,6 +115,13 @@ namespace KSW.ATE01.Project.Base.Services.Errors
                 case BehaviorType.None:
                     _eventAggregator?.GetEvent<ErrorNotifyEvent>().Publish(error);
                     break;
+                case BehaviorType.ForceFail:
+                    _eventAggregator?.GetEvent<ErrorNotifyEvent>().Publish(error);
+                    if (_errorFlag)
+                    {
+                        Message.ErrorStatus = ErrorStatus.Error;
+                    }
+                    throw new ATEException(GetErrorMessage(error, message, OutputType.Exception));
                 case BehaviorType.Off:
                     break;
                 case BehaviorType.Default:
