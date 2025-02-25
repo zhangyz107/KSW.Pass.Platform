@@ -10,7 +10,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 {
     public class Digital : PE131CommandBase<Digital>, IDigital
     {
-        private const double _periodResolution = 6.25e-12;
+        private const double _periodResolution = 6.25e-10;
         private const double _ns = 1e-9;
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                     foreach (var site in pin.Sites)
                                     {
                                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
-                                        if (channelNum > 0)
+                                        if (channelNum >= 0)
                                         {
                                             var byteList = new List<byte>();
                                             byteList.Add((byte)channelNum);        //暂时按顺序下发通道（后续需要映射站点信息）

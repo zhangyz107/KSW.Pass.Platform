@@ -12,9 +12,9 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
     public class PatternPackageModel
     {
         /// <summary>
-        /// 通道号
+        /// 引脚名
         /// </summary>
-        public int ChannelNum { get; set; }
+        public string PinName { get; set; }
 
         /// <summary>
         /// 起始地址

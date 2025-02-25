@@ -272,14 +272,16 @@ namespace KSW.ATE01.Project.Base.Helpers
                         var row2 = groupVectors.Value[i + 1];
 
                         var length = row1.Pins.Count > row2.Pins.Count ? row2.Pins.Count : row1.Pins.Count;
+                        var pinList = row1.Pins.Count > row2.Pins.Count ? row1.Pins : row2.Pins;
 
                         for (int j = 0; j < length; j++)
                         {
                             PatternPackageModel lastPackageModel = null;
+                            var pinName = pinList[j].PinName;
                             if (isInit)
                             {
                                 lastPackageModel = new PatternPackageModel();
-                                lastPackageModel.ChannelNum = j;
+                                lastPackageModel.PinName = pinName;
                                 var addr = j * _mbByte + groupCount * _vectorLength;
                                 lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                                 lastPackageModel.Length = _vectorLength;
@@ -311,7 +313,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     else
                                     {
                                         lastPackageModel = new PatternPackageModel();
-                                        lastPackageModel.ChannelNum = j;
+                                        lastPackageModel.PinName = pinName;
                                         var addr = j * _mbByte + groupCount++ * _vectorLength;
                                         lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                                         lastPackageModel.Length = _vectorLength;
@@ -353,14 +355,16 @@ namespace KSW.ATE01.Project.Base.Helpers
                             row2 = groupVectors.Value[i + 1];
 
                         var length = row2 != null ? row1.Pins.Count > row2.Pins.Count ? row1.Pins.Count : row2.Pins.Count : row1.Pins.Count;
+                        var pinList = row1.Pins.Count > row2.Pins.Count ? row1.Pins : row2.Pins;
 
                         for (int j = 0; j < length; j++)
                         {
                             PatternPackageModel lastPackageModel = null;
+                            var pinName = pinList[j].PinName;
                             if (isInit)
                             {
                                 lastPackageModel = new PatternPackageModel();
-                                lastPackageModel.ChannelNum = j;
+                                lastPackageModel.PinName = pinName;
                                 var addr = j * _mbByte + groupCount * _vectorLength;
                                 lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                                 lastPackageModel.Length = _vectorLength;
@@ -392,7 +396,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     else
                                     {
                                         lastPackageModel = new PatternPackageModel();
-                                        lastPackageModel.ChannelNum = j;
+                                        lastPackageModel.PinName = pinName;
                                         var addr = j * _mbByte + groupCount++ * _vectorLength;
                                         lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                                         lastPackageModel.Length = _vectorLength;

@@ -14,6 +14,33 @@ namespace KSW.ATE01.Project.Base.Helpers
     /// </summary>
     public class PinManagerHelper
     {
+        public static int GetPinIndexByPinName(List<ChannelModel> pins, string name)
+        {
+            var result = -1;
+            if (pins == null || !pins.Any())
+                return result;
+
+            if (string.IsNullOrEmpty(name))
+                return result;
+
+            var channel = GetPinsByName(pins, name);
+            return pins.IndexOf(channel);
+        }
+
+        public static ChannelModel GetPinsByName(List<ChannelModel> pins, string name)
+        {
+            if (pins == null || !pins.Any())
+                return null;
+
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            var lowerName = name.ToLower();
+
+            //  查引脚名
+            return pins.Where(x => x.PinName.ToLower().Equals(lowerName)).FirstOrDefault();
+        }
+
         public static List<ChannelModel> GetPinsByNameOrGroupName(List<ChannelModel> pins, string name)
         {
             if (pins == null || !pins.Any())

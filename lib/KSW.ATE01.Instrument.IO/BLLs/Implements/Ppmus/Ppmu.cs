@@ -96,7 +96,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var site in pin.Sites)
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
-                        if (channelNum > 0)
+                        if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
                             byteList.Add((byte)channelNum);
@@ -172,7 +172,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var site in pin.Sites)
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
-                        if (channelNum > 0)
+                        if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
                             byteList.Add((byte)channelNum);       //暂时按顺序下发通道（后续需要映射站点信息）
@@ -324,7 +324,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var site in pin.Sites)
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
-                        if (channelNum > 0)
+                        if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
                             byteList.Add((byte)channelNum);       //暂时按顺序下发通道（后续需要映射站点信息）
@@ -408,7 +408,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var site in pin.Sites)
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
-                        if (channelNum > 0)
+                        if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
                             byteList.Add((byte)channelNum);    //暂时按顺序下发通道（后续需要映射站点信息）
@@ -533,7 +533,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var site in pin.Sites)
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
-                        if (channelNum > 0)
+                        if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
                             byteList.Add((byte)channelNum);       //暂时按顺序下发通道（后续需要映射站点信息）
@@ -629,7 +629,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var site in pin.Sites)
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
-                        if (channelNum > 0)
+                        if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
                             byteList.Add((byte)channelNum);       //暂时按顺序下发通道（后续需要映射站点信息）
