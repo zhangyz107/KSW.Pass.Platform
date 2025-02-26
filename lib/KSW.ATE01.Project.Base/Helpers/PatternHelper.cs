@@ -216,10 +216,10 @@ namespace KSW.ATE01.Project.Base.Helpers
             return result;
         }
 
-        public static List<PatternPackageModel> ConversionPatternModel(PatternModel patternModel)
+        public static List<PatternPackageModel> ConversionPatternModel(PatternModel patternModel, ref long dataStartAddress, out int patternDataLength)
         {
             var result = new List<PatternPackageModel>();
-
+            patternDataLength = 0;
             if (patternModel == null)
                 return result;
 
@@ -252,7 +252,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (currentGroup != null)
                     currentGroup.Add(vector);
             }
-
+            patternDataLength = (groupIndex + 1) * (int)_vectorLength;
             var packageModelDic = new Dictionary<int, PatternPackageModel>();
             var groupCount = 0;
             int vectorUnitByte = 62;
@@ -282,7 +282,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             {
                                 lastPackageModel = new PatternPackageModel();
                                 lastPackageModel.PinName = pinName;
-                                var addr = j * _mbByte + groupCount * _vectorLength;
+                                var addr = dataStartAddress;
                                 lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                                 lastPackageModel.Length = _vectorLength;
                                 lastPackageModel.LengthBytes = lengthBytes;
@@ -290,6 +290,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 lastPackageModel.PatternGroups.Add(new PatternGroupModel());
                                 packageModelDic.Add(j, lastPackageModel);
                                 result.Add(lastPackageModel);
+                                dataStartAddress += _vectorLength;
                             }
                             else
                             {
@@ -314,7 +315,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     {
                                         lastPackageModel = new PatternPackageModel();
                                         lastPackageModel.PinName = pinName;
-                                        var addr = j * _mbByte + groupCount++ * _vectorLength;
+                                        var addr = dataStartAddress;
                                         lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                                         lastPackageModel.Length = _vectorLength;
                                         lastPackageModel.LengthBytes = lengthBytes;
@@ -328,6 +329,7 @@ namespace KSW.ATE01.Project.Base.Helpers
 
                                         lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
                                         lastPatternModel.Vectors.Add(pinByte);
+                                        dataStartAddress += _vectorLength;
                                     }
 
                                 }
@@ -365,7 +367,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             {
                                 lastPackageModel = new PatternPackageModel();
                                 lastPackageModel.PinName = pinName;
-                                var addr = j * _mbByte + groupCount * _vectorLength;
+                                var addr = dataStartAddress;
                                 lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                                 lastPackageModel.Length = _vectorLength;
                                 lastPackageModel.LengthBytes = lengthBytes;
@@ -373,6 +375,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 lastPackageModel.PatternGroups.Add(new PatternGroupModel());
                                 packageModelDic.Add(j, lastPackageModel);
                                 result.Add(lastPackageModel);
+                                dataStartAddress += _vectorLength;
                             }
                             else
                             {
@@ -397,7 +400,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     {
                                         lastPackageModel = new PatternPackageModel();
                                         lastPackageModel.PinName = pinName;
-                                        var addr = j * _mbByte + groupCount++ * _vectorLength;
+                                        var addr = dataStartAddress;
                                         lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
                                         lastPackageModel.Length = _vectorLength;
                                         lastPackageModel.LengthBytes = lengthBytes;
@@ -411,6 +414,7 @@ namespace KSW.ATE01.Project.Base.Helpers
 
                                         lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
                                         lastPatternModel.Vectors.Add(pinByte);
+                                        dataStartAddress += _vectorLength;
                                     }
 
                                 }

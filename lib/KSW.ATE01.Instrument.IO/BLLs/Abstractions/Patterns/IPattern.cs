@@ -19,7 +19,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Patterns
         /// <summary>
         /// 设置Pattern参数
         /// </summary>
-        void SetPatternParam();
+        //void SetPatternParam();
 
 #if DEBUG
         /// <summary>
@@ -42,6 +42,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Patterns
         /// 获取首次错误位置
         /// </summary>
         List<ChannelResultModel<int>> GetFailPosition();
+
+        /// <summary>
+        /// 获取向量结果数据存储地址
+        /// </summary>
+        List<ChannelResultModel<PatternStorageAddress>> GetStorageAddress();
 
         /// <summary>
         /// 获取运行结果

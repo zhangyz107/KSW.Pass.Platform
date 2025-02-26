@@ -6,13 +6,9 @@ using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Instrument.IO.Models.Results;
 using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Patterns;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.IO.Packaging;
-using System.Security.Policy;
-using System.Windows.Documents;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 {
@@ -126,25 +122,46 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             }
         }
 
-        public void SetPatternParam()
+        public static void SetPatternParam(string patternName = "")
         {
-            if (PinList == null || !PinList.Any())
+            var commonData = CommonData.Instance;
+            var testItem = commonData.TestPlan?.TestItem?.FirstOrDefault(x => x.TestItemName.Equals(commonData.TestItemName));
+            var args = commonData.TestItemArgs;
+
+            if (args.Any() && string.IsNullOrEmpty(patternName))
+                patternName = args.FirstOrDefault()?.ParamValue;
+
+            if (string.IsNullOrEmpty(patternName))
                 return;
 
             try
             {
+
+                if (string.IsNullOrEmpty(patternName))
+                    return;
+
+                var patternFile = Instance?._patterns.FirstOrDefault(x => x.PatternFileName.ToLower().Equals(patternName));
+                if (patternFile == null)
+                    return;
+
+                var dataStartAddress = patternFile.DataStartAddress;
+                var dataLength = patternFile.PinDataLength;
+                var pinList = patternFile.PatternVectors.FirstOrDefault()?.Pins;
+
                 //  组装数据包
                 var commandList = new List<CommandInfoModel>();
-                foreach (var pin in PinList)
+                foreach (var pin in pinList)
                 {
-                    var pinIndex = PinManagerHelper.GetPinIndexByPinName(TestPlan?.Channel, pin.PinName);
-                    foreach (var site in pin.Sites)
+                    var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, pin.PinName);
+                    var pinIndex = PinManagerHelper.GetPinIndexByPinName(Instance.TestPlan?.Channel, pin.PinName);
+                    var dataEndAddress = dataStartAddress + dataLength;
+                    foreach (var site in channel.Sites)
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
                         if (channelNum >= 0)
                         {
-                            var patternStartAddress = pinIndex * _mbByte;
-                            var patternEndAddress = (pinIndex + 1) * _mbByte;
+                            var patternStartAddress = dataStartAddress;
+                            var patternEndAddress = dataEndAddress;
                             var receiveStartAddress = (_maxChannelNum + pinIndex + 1) * _mbByte;
                             var receiveEndAddress = (_maxChannelNum + pinIndex + 2) * _mbByte;
                             var patternStartBytes = BitConverter.GetBytes(patternStartAddress);
@@ -179,14 +196,102 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                             commandList.Add(command);
                         }
                     }
+                    dataStartAddress = dataEndAddress;
                 }
 
 
                 if (commandList.Any())
                 {
                     var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (ControlService != null && message.Any())
-                        ControlService.Send(PE131, message);
+                    if (Instance?.ControlService != null && Instance?.PE131 != null && message.Any())
+                        Instance?.ControlService.Send(Instance?.PE131, message);
+                }
+            }
+
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public static void SetPatternFile(string[] patternFiles)
+        {
+            if (patternFiles == null || !patternFiles.Any())
+                return;
+
+            try
+            {
+                Instance?._patterns?.Clear();
+                long lastPatternDataEndAddress = 0;
+                foreach (string patternFile in patternFiles)
+                {
+                    if (!File.Exists(patternFile)) continue;
+                    var pattern = PatternHelper.AnalysisPattern(patternFile);
+                    Instance?._patterns.Add(pattern);
+                    if (pattern != null)
+                    {
+                        pattern.DataStartAddress = lastPatternDataEndAddress;
+                        var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress, out int patternDataLength);
+                        pattern.PinDataLength = patternDataLength;
+                        pattern.DataEndAddress = lastPatternDataEndAddress;
+                        if (package != null && package.Any())
+                            SendPatternPackageToInstrument(package);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private static void SendPatternPackageToInstrument(List<PatternPackageModel> packages)
+        {
+            try
+            {
+                foreach (var package in packages)
+                {
+                    var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, package.PinName);
+                    if (channel == null)
+                        continue;
+
+                    foreach (var site in channel.Sites)
+                    {
+                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        if (channelNum >= 0)
+                        {
+                            var contentBytes = new byte[package.Length + _packageAdditionalLength];
+                            contentBytes[0] = (byte)channelNum;
+                            Array.Copy(package.Address, 0, contentBytes, 1, package.Address.Length);
+                            Array.Copy(package.LengthBytes, 0, contentBytes, 1 + package.Address.Length, package.LengthBytes.Length);
+                            var index = 1 + package.Address.Length + package.LengthBytes.Length;
+                            foreach (var unit in package.PatternGroups)
+                            {
+                                contentBytes[index++] = (byte)unit.VectorNumber;
+                                contentBytes[index++] = (byte)unit.Instruction;
+                                if (unit.Parameter.Any())
+                                {
+                                    Array.Copy(unit.Parameter.ToArray(), 0, contentBytes, index, unit.Parameter.Count);
+                                    index += unit.Parameter.Count;
+                                }
+                                Array.Copy(unit.Vectors.ToArray(), 0, contentBytes, index, unit.Vectors.Count);
+                                index += unit.Vectors.Count;
+                            }
+
+                            var command = new CommandInfoModel()
+                            {
+                                CommandCode = "0x010C",
+                                CommandContent = contentBytes.ToArray(),
+                            };
+
+                            var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
+                            if (Instance?.ControlService != null && Instance?.PE131 != null && message.Any())
+                                Instance?.ControlService.Send(Instance?.PE131, message);
+                        }
+
+                    }
                 }
             }
             catch (Exception)
@@ -301,7 +406,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             }
         }
 #endif
-
         public List<PatternRunningStateModel> GetRunningState()
         {
             if (PinList == null || !PinList.Any())
@@ -571,80 +675,75 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             return boolArray;
         }
 
-        public static void SetPatternFile(string[] patternFiles)
+        public List<ChannelResultModel<PatternStorageAddress>> GetStorageAddress()
         {
-            if (patternFiles == null || !patternFiles.Any())
-                return;
+            if (PinList == null || !PinList.Any())
+                return null;
+
+            var result = new List<ChannelResultModel<PatternStorageAddress>>();
 
             try
             {
-                Instance?._patterns?.Clear();
-                foreach (string patternFile in patternFiles)
+                //  组装数据包
+                var commandList = new List<CommandInfoModel>();
+
+
+                foreach (var pin in PinList)
                 {
-                    if (!File.Exists(patternFile)) continue;
-                    var pattern = PatternHelper.AnalysisPattern(patternFile);
-                    Instance?._patterns.Add(pattern);
-                    if (pattern != null)
-                    {
-                        var package = PatternHelper.ConversionPatternModel(pattern);
-                        if (package != null && package.Any())
-                            SendPatternPackageToInstrument(package);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private static void SendPatternPackageToInstrument(List<PatternPackageModel> packages)
-        {
-            try
-            {
-                foreach (var package in packages)
-                {
-                    var channel = PinManagerHelper.GetPinsByName(Instance.TestPlan?.Channel, package.PinName);
-                    if (channel == null)
-                        continue;
-
-                    foreach (var site in channel.Sites)
+                    foreach (var site in pin.Sites)
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
                         if (channelNum >= 0)
                         {
-                            var contentBytes = new byte[package.Length + _packageAdditionalLength];
-                            contentBytes[0] = (byte)channelNum;
-                            Array.Copy(package.Address, 0, contentBytes, 1, package.Address.Length);
-                            Array.Copy(package.LengthBytes, 0, contentBytes, 1 + package.Address.Length, package.LengthBytes.Length);
-                            var index = 1 + package.Address.Length + package.LengthBytes.Length;
-                            foreach (var unit in package.PatternGroups)
-                            {
-                                contentBytes[index++] = (byte)unit.VectorNumber;
-                                contentBytes[index++] = (byte)unit.Instruction;
-                                if (unit.Parameter.Any())
-                                {
-                                    Array.Copy(unit.Parameter.ToArray(), 0, contentBytes, index, unit.Parameter.Count);
-                                    index += unit.Parameter.Count;
-                                }
-                                Array.Copy(unit.Vectors.ToArray(), 0, contentBytes, index, unit.Vectors.Count);
-                                index += unit.Vectors.Count;
-                            }
+                            var byteList = new List<byte>();
+                            byteList.Add((byte)channelNum);
 
                             var command = new CommandInfoModel()
                             {
-                                CommandCode = "0x010C",
-                                CommandContent = contentBytes.ToArray(),
+                                CommandCode = "0x0110",
+                                CommandContent = byteList.ToArray(),
                             };
-
-                            var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
-                            if (Instance?.ControlService != null && Instance?.PE131 != null && message.Any())
-                                Instance?.ControlService.Send(Instance?.PE131, message);
+                            commandList.Add(command);
                         }
-
                     }
                 }
+
+                if (commandList.Any())
+                {
+                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, commandList);
+                    if (ControlService != null && message.Any())
+                    {
+                        var queryResult = ControlService.Query(PE131, message);
+                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                        foreach (var command in commands)
+                        {
+                            if (command.CommnadLength >= 11)
+                            {
+                                var tempData = new ChannelResultModel<PatternStorageAddress>();
+                                tempData.ChannelNum = (int)command.CommandContent[0];
+                                tempData.OriginalData = command.CommandContent;
+                                if (tempData.ChannelNum >= 0)
+                                {
+                                    tempData.Site = ChannelManagerHelper.GetSlotByChannelNum(tempData.ChannelNum);
+                                    tempData.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, tempData.Site);
+                                }
+                                var buffAddressBytes = new byte[8];
+                                tempData.SiteResult = new PatternStorageAddress();
+                                var startAddressBytes = command.CommandContent.AsSpan(1, 5).ToArray().Reverse().ToArray();
+                                Array.Copy(startAddressBytes, buffAddressBytes, 5);
+                                tempData.SiteResult.StartAddress = BitConverter.ToInt64(buffAddressBytes);
+
+                                var endAddressBytes = command.CommandContent.AsSpan(6, 5).ToArray().Reverse().ToArray();
+                                Array.Copy(endAddressBytes, buffAddressBytes, 5);
+                                tempData.SiteResult.EndAddress = BitConverter.ToInt64(buffAddressBytes);
+                                result.Add(tempData);
+                            }
+                        }
+                    }
+                }
+
+                return result;
             }
             catch (Exception)
             {

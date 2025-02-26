@@ -23,11 +23,11 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (string.IsNullOrEmpty(name))
                 return result;
 
-            var channel = GetPinsByName(pins, name);
+            var channel = GetPinByName(pins, name);
             return pins.IndexOf(channel);
         }
 
-        public static ChannelModel GetPinsByName(List<ChannelModel> pins, string name)
+        public static ChannelModel GetPinByName(List<ChannelModel> pins, string name)
         {
             if (pins == null || !pins.Any())
                 return null;

@@ -18,6 +18,21 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
         public List<string> TimingSets { get; set; } = new List<string>();
 
         /// <summary>
+        /// 数据起始地址
+        /// </summary>
+        public long DataStartAddress { get; set; }
+
+        /// <summary>
+        /// 数据结束地址
+        /// </summary>
+        public long DataEndAddress { get; set; }
+
+        /// <summary>
+        /// 引脚数据长度
+        /// </summary>
+        public int PinDataLength { get; set; }
+
+        /// <summary>
         /// 设备名
         /// </summary>
         public string InstrumentName { get; set; }
