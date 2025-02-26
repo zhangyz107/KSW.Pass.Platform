@@ -33,3 +33,5 @@ bld/
 /src/Kyber.Industry.MES.Ui/ClientApp/.nx/cache
 /kyber-industry-core-init
 /publish
+/src/KSW.ATE01.Start/Properties/PublishProfiles/FolderProfile.pubxml
+/lib/KSW.ATE01.Instrument.IO/Properties/PublishProfiles/FolderProfile.pubxml
