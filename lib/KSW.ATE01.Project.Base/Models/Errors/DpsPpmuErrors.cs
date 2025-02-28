@@ -29,7 +29,7 @@ namespace KSW.ATE01.Project.Base.Models.Errors
 
         private void InitError()
         {
-            Instance.ModuleType = ModuleName.DpsPpmu;
+            ModuleType = ModuleName.DpsPpmu;
         }
 
         public void InternalError(Exception inner, string location)
@@ -42,7 +42,7 @@ namespace KSW.ATE01.Project.Base.Models.Errors
             var functionName = nameof(DriverAndComparatorOutOfRange);
             var errorInfo = GetErrorInfo(L["DriverAndComparatorOutOfRange"], param);
             errorInfo.Behavior = BehaviorType.ForceFail;
-            errorInfo.Code = functionName;
+            errorInfo.ErrorName = functionName;
             errorInfo.IsAlarm = true;
             ErrorService.Instance.ThrowError(errorInfo, null, location);
         }
@@ -52,7 +52,7 @@ namespace KSW.ATE01.Project.Base.Models.Errors
             var functionName = nameof(PinListIsNullOrEmpty);
             var errorInfo = GetErrorInfo(L["PinListNullOrEmpty"]);
             errorInfo.Behavior = BehaviorType.ForceFail;
-            errorInfo.Code = functionName;
+            errorInfo.ErrorName = functionName;
             errorInfo.IsAlarm = true;
             ErrorService.Instance.ThrowError(errorInfo, null, functionName);
         }
@@ -62,7 +62,7 @@ namespace KSW.ATE01.Project.Base.Models.Errors
             var functionName = nameof(FVMIOutOfRange);
             var errorInfo = GetErrorInfo(L["FVMIOutOfRange"], param);
             errorInfo.Behavior = BehaviorType.ForceFail;
-            errorInfo.Code = functionName;
+            errorInfo.ErrorName = functionName;
             errorInfo.IsAlarm = true;
             ErrorService.Instance.ThrowError(errorInfo, null, location);
         }
@@ -72,7 +72,7 @@ namespace KSW.ATE01.Project.Base.Models.Errors
             var functionName = nameof(FIMVOutOfRange);
             var errorInfo = GetErrorInfo(L["FIMVOutOfRange"], param);
             errorInfo.Behavior = BehaviorType.ForceFail;
-            errorInfo.Code = functionName;
+            errorInfo.ErrorName = functionName;
             errorInfo.IsAlarm = true;
             ErrorService.Instance.ThrowError(errorInfo, null, location);
         }

@@ -59,6 +59,6 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// 开始测试计划
         /// </summary>
 
-        void StartTestPlan(ProjectInfoModel projectInfo = null);
+        Task StartTestPlanAsync(ProjectInfoModel projectInfo = null);
     }
 }

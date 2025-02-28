@@ -30,11 +30,6 @@ namespace KSW.ATE01.Project.Base.Models.Errors
         public string ErrorName { get; set; }
 
         /// <summary>
-        /// 错误码
-        /// </summary>
-        public uint Number { get; set; }
-
-        /// <summary>
         /// 错误信息
         /// </summary>
         public string Message { get; set; }

@@ -19,6 +19,7 @@ using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Helpers;
 using KSW.Ui;
+using System.Configuration;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -35,7 +36,7 @@ namespace KSW.ATE01.Start.ViewModels
         private static object _lock = new object();
         private readonly IConfigureFileBLL _configureFileBLL;
         private readonly IEventAggregator _eventAggregator;
-        private readonly string _logFilePath = "C:\\Users\\zhang\\Desktop\\1663tch.txt";
+        private readonly string _logFilePath;
         private readonly string _prefixRun = "run";
         private ConfigureFileModel _configureFileModel;
         private string _searchContent;
@@ -138,7 +139,11 @@ namespace KSW.ATE01.Start.ViewModels
             _configureFileBLL = configureFileBLL;
             _eventAggregator = eventAggregator;
 
+
+            _logFilePath = ConfigurationManager.AppSettings["RealTimeFilePath"] ?? string.Empty;
             _eventAggregator.GetEvent<ConfigureFileUpdateEvent>().Subscribe(ConfigureFileUpdate, ThreadOption.UIThread);
+            _eventAggregator.GetEvent<ClearRealTimeTxtEvent>().Subscribe(ExecuteClearAllCommand, ThreadOption.UIThread);
+
         }
 
         private void ConfigureFileUpdate()
@@ -223,6 +228,9 @@ namespace KSW.ATE01.Start.ViewModels
         private void LoadTextFile(RichTextBox richTB, string filePath)
         {
             if (richTB == null)
+                return;
+
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
                 return;
 
             richTB.Document.Blocks.Clear();

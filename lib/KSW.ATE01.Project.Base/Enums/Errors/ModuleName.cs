@@ -25,6 +25,18 @@ namespace KSW.ATE01.Project.Base.Enums.Errors
         /// IO
         /// </summary>
         [Description("IO")]
-        IO
+        IO,
+
+        /// <summary>
+        /// 流程
+        /// </summary>
+        [Description("Flow")]
+        Flow,
+
+        /// <summary>
+        /// 一般情况
+        /// </summary>
+        [Description("InsGeneral")]
+        InsGeneral
     }
 }

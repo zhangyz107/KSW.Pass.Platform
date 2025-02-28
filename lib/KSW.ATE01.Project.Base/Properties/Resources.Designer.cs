@@ -61,11 +61,29 @@ namespace KSW.ATE01.Project.Base.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Error message: DefaultFunctionExecutionError. \nAn exception occurred while executing &apos;{0}&apos;. Exception information: {1}. 的本地化字符串。
+        /// </summary>
+        internal static string DefaultFunctionExecutionError {
+            get {
+                return ResourceManager.GetString("DefaultFunctionExecutionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Driver and comparator parameter {0}, setting value {1} is out of range: {2}~{3} 的本地化字符串。
         /// </summary>
         internal static string DriverAndComparatorOutOfRange {
             get {
                 return ResourceManager.GetString("DriverAndComparatorOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Execution of &quot;{0}&quot; failed. Reference information: {1} 的本地化字符串。
+        /// </summary>
+        internal static string FailToExecuteForceHalt {
+            get {
+                return ResourceManager.GetString("FailToExecuteForceHalt", resourceCulture);
             }
         }
         
@@ -84,6 +102,15 @@ namespace KSW.ATE01.Project.Base.Properties {
         internal static string FVMIOutOfRange {
             get {
                 return ResourceManager.GetString("FVMIOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Device address cannot be empty 的本地化字符串。
+        /// </summary>
+        internal static string IOAddressEmpty {
+            get {
+                return ResourceManager.GetString("IOAddressEmpty", resourceCulture);
             }
         }
         

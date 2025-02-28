@@ -1,4 +1,5 @@
-﻿using KSW.ATE01.Project.Base.Models.Errors;
+﻿using KSW.ATE01.Project.Base.Events;
+using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.Loggers;
 using KSW.ATE01.Project.Base.Services.Errors;
 using System;
@@ -12,10 +13,9 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
     public class PrintResultLog
     {
         #region Fields
-        private static object _lock = new object();
-        private static PrintResultLog _instance;
+        private static readonly Lazy<PrintResultLog> _lazy = new Lazy<PrintResultLog>(() => new PrintResultLog());
         private static bool _printRealTimeTxt = false;
-        private Action<LogMessage> _logNotigy = null;
+        private static IEventAggregator _eventAggregator;
         #endregion
 
         #region Properties
@@ -27,60 +27,22 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
 
         public static PrintResultLog Instance
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    lock (_lock)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new PrintResultLog();
-                        }
-                    }
-                }
-                return _instance;
-            }
-        }
-
-        public event Action<LogMessage> LogNotigy
-        {
-            add
-            {
-                Action<LogMessage> oldEvent = _logNotigy;
-                Action<LogMessage> newEvent = null;
-                do
-                {
-                    newEvent = oldEvent;
-                    Action<LogMessage> value2 = (Action<LogMessage>)Delegate.Combine(newEvent, value);
-                    oldEvent = Interlocked.CompareExchange<Action<LogMessage>>(ref _logNotigy, value2, newEvent);
-
-                } while (oldEvent != newEvent);
-            }
-            remove
-            {
-                Action<LogMessage> oldEvent = _logNotigy;
-                Action<LogMessage> newEvent = null;
-                do
-                {
-                    newEvent = oldEvent;
-                    Action<LogMessage> value2 = (Action<LogMessage>)Delegate.Combine(newEvent, value);
-                    oldEvent = Interlocked.CompareExchange<Action<LogMessage>>(ref _logNotigy, value2, newEvent);
-
-                } while (oldEvent != newEvent);
-            }
+            get { return _lazy.Value; }
         }
         #endregion
 
+        public PrintResultLog()
+        {
+            var container = ContainerLocator.Container;
+            _eventAggregator = container?.Resolve<IEventAggregator>() ?? null;
+        }
+
         public static void Message(string message)
         {
-            if (Instance._logNotigy != null)
+            _eventAggregator.GetEvent<PrintToRealTimeTxtEvent>().Publish(new RealTimeMessage()
             {
-                Instance._logNotigy(new LogMessage()
-                {
-                    Message = message
-                });
-            }
+                Message = message
+            });
         }
 
         public static void Pattern(string pattern)
@@ -95,18 +57,12 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
 
         public static void PrintRealTimeWithTestItem()
         {
-            if (PrintRealTimeTxt && Instance._logNotigy != null)
-            {
 
-            }
         }
 
         public static void PrintRealTimeTextWithSummary()
         {
-            if (PrintRealTimeTxt && Instance._logNotigy != null)
-            {
 
-            }
         }
     }
 }

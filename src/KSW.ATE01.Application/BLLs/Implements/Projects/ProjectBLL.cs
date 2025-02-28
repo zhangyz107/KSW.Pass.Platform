@@ -17,9 +17,13 @@ using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
+using KSW.ATE01.Project.Base.Enums.Errors;
 using KSW.ATE01.Project.Base.Enums.Results;
 using KSW.ATE01.Project.Base.Models;
+using KSW.ATE01.Project.Base.Models.Errors;
+using KSW.ATE01.Project.Base.Models.Exceptions;
 using KSW.ATE01.Project.Base.Models.TestPlans;
+using KSW.ATE01.Project.Base.Services.Errors;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Reflections;
@@ -44,6 +48,15 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly string _slnExt = ".sln";
         private readonly string _excelExtension;
         private readonly bool _alreadyStartLot = false;
+        private List<string> _errorMessageList = new List<string>();
+        private FlowStatus _flowStatus;
+
+        public FlowStatus FlowStatus
+        {
+            get { return _flowStatus; }
+            set { _flowStatus = value; }
+        }
+
         public ProjectBLL(
             IContainerProvider containerProvider,
             IDialogService dialogService,
@@ -259,7 +272,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
             return result;
         }
-        public void StartTestPlan(ProjectInfoModel projectInfo = null)
+        public async Task StartTestPlanAsync(ProjectInfoModel projectInfo = null)
         {
             try
             {
@@ -285,27 +298,27 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     {
                         try
                         {
+                            Message.InitializeStatusClear();
+                            Message.StatusClear();
                             //运行TestStart
-                            var flag = ExecuteFunction(instance, classType, startTestMethod, null);
+                            var flag = ExecuteFunction(ProcessStage.TestStart, instance, classType, startTestMethod, null);
 
                             if (flag)   //运行FlowStart
                                 flag = ExecuteTestItemsInFlow(instance, classType);
-                        }
-                        catch (Exception)
-                        {
 
-                            throw;
+                            if (flag)   //运行TestEnd
+                                flag = ExecuteFunction(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
                         }
-                        finally
+                        catch (Exception ex)
                         {
-                            //运行TestEnd
-                            var flag = ExecuteFunction(instance, classType, endTestMethod, null);
+                            throw ex;
                         }
                     }
                     else
                     {
                         try
                         {
+                            Message.StatusClear();
                             //运行FlowStart
                             var flag = ExecuteTestItemsInFlow(instance, classType);
                         }
@@ -322,12 +335,36 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 // 在适当的地方调用GC以释放未管理的资源
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
-
             }
             catch (Exception)
             {
                 throw;
             }
+        }
+
+        private bool GetFlowStatus(bool returnValue)
+        {
+            bool result = false;
+            var location = nameof(GetFlowStatus);
+            try
+            {
+                if (returnValue && Message.ErrorStatus == ErrorStatus.Normal)
+                    result = true;
+                else
+                {
+                    if (Message.ErrorStatus != ErrorStatus.Normal)
+                    {
+                        _errorMessageList.Add(Message.GetErrorMessageAndClear());
+                    }
+                }
+            }
+            catch (Exception inner)
+            {
+                result = false;
+                ErrorMessages.Flow.InternalError(inner, location);
+            }
+
+            return result;
         }
 
         private void CopyExcelFile(ProjectInfoModel projectInfo)
@@ -403,7 +440,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
         }
 
-        private bool ExecuteFunction(object? classInstance, Type classType, string methodName, object?[]? parameters)
+        private bool ExecuteFunction(ProcessStage stage, object? classInstance, Type classType, string methodName, object?[]? parameters)
         {
             var result = false;
             if (classInstance == null)
@@ -423,14 +460,122 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
                 if (obj != null && obj.GetType().IsEnum)
                     result = (Test)obj == Test.Pass;
-            }
-            catch (Exception)
-            {
 
-                throw;
+                var flag = GetFlowStatus(result);
+                switch (stage)
+                {
+                    case ProcessStage.TestItem:
+                        if (!flag)
+                            FlowStatus = FlowStatus.ExecuteTestItemFail;
+                        break;
+                    case ProcessStage.TestStart:
+                        FlowStatus = flag ? FlowStatus.TestStartExecuteSucceed : FlowStatus.TestStartExecuteFailed;
+                        break;
+                    case ProcessStage.TestEnd:
+                        FlowStatus = flag ? FlowStatus.TestEndExecuteSucceed : FlowStatus.FlowEndExecuteFailed;
+                        break;
+                    case ProcessStage.FlowStart:
+                        FlowStatus = flag ? FlowStatus.FlowStartExecuteSucceed : FlowStatus.FlowStartExecuteFailed;
+                        break;
+                    case ProcessStage.FlowEnd:
+                        FlowStatus = flag ? FlowStatus.FlowEndExecuteSucceed : FlowStatus.FlowEndExecuteFailed;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                var innerException = GetInnerException(ex);
+                switch (stage)
+                {
+                    case ProcessStage.TestItem:
+                        if (innerException is ATEException ate)
+                        {
+                            ErrorMessages.InsGeneral.MarkerError(nameof(ExecuteFunction), new object[]
+                            {
+                                ate.Message
+                            });
+                        }
+                        else
+                        {
+                            FlowStatus = FlowStatus.ExecuteTestItemFail;
+                            ErrorMessages.Flow.InternalError(innerException, nameof(ExecuteFunction));
+                            ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunction), new object[]
+                            {
+                                methodName,
+                                innerException.Message,
+                            });
+                        }
+                        break;
+                    case ProcessStage.TestStart:
+                        FlowStatus = FlowStatus.TestStartExecuteFailed;
+                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunction), new object[]
+                        {
+                            innerException.Message,
+                        });
+
+                        ErrorMessages.Flow.FailToExecuteForceHalt(nameof(ExecuteFunction), new object[]
+                        {
+                            methodName,
+                            "\n" + innerException.Message,
+                        });
+                        break;
+                    case ProcessStage.TestEnd:
+                        FlowStatus = FlowStatus.TestEndExecuteFailed;
+                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunction), new object[]
+                        {
+                            innerException.Message,
+                        });
+
+                        ErrorMessages.Flow.FailToExecuteForceHalt(nameof(ExecuteFunction), new object[]
+                        {
+                            methodName,
+                            "\n" + innerException.Message,
+                        });
+                        break;
+                    case ProcessStage.FlowStart:
+                        FlowStatus = FlowStatus.FlowStartExecuteFailed;
+                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunction), new object[]
+                        {
+                            innerException.Message,
+                        });
+
+                        ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunction), new object[]
+                        {
+                            methodName,
+                            innerException.Message,
+                        });
+                        break;
+                    case ProcessStage.FlowEnd:
+                        FlowStatus = FlowStatus.FlowEndExecuteFailed;
+                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunction), new object[]
+                        {
+                           innerException.Message,
+                        });
+
+                        ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunction), new object[]
+                        {
+                            methodName,
+                            innerException.Message,
+                        });
+                        break;
+                    default:
+                        break;
+                }
             }
 
             return result;
+        }
+
+        private Exception GetInnerException(Exception ex)
+        {
+            while (ex.InnerException != null)
+            {
+                return GetInnerException(ex.InnerException);
+            }
+
+            return ex;
         }
 
         private bool ExecuteTestItemsInFlow(object? instance, Type classType)
@@ -443,13 +588,13 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             var testPlan = commonData?.TestPlan;
             try
             {
-                result = ExecuteFunction(instance, classType, startFlowMethod, null);
+                result = ExecuteFunction(ProcessStage.FlowStart, instance, classType, startFlowMethod, null);
                 var flowIds = testPlan.Flow.Where(x => x.Enable.IsEmpty()).Select(x => x.TestItemId);
                 var testItems = testPlan.TestItem.Where(x => flowIds.Contains(x.Id.ToGuid())).Select(x => x);
                 foreach (var testItem in testItems)
                 {
                     SetCommonData(testItem);
-                    result = ExecuteFunction(instance, classType, testItem.FunctionName, null);
+                    result = ExecuteFunction(ProcessStage.TestItem, instance, classType, testItem.FunctionName, null);
                 }
 
             }
@@ -460,7 +605,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
             finally
             {
-                result = ExecuteFunction(instance, classType, endFlowMethod, null);
+                result = ExecuteFunction(ProcessStage.FlowEnd, instance, classType, endFlowMethod, null);
             }
 
             return result;

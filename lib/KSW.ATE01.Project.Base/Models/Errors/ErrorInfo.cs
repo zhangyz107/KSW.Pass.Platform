@@ -20,9 +20,9 @@ namespace KSW.ATE01.Project.Base.Models.Errors
         public bool IsAlarm { get; set; }
 
         /// <summary>
-        /// 错误编码
+        /// 错误名
         /// </summary>
-        public string Code { get; set; }
+        public string ErrorName { get; set; }
 
         /// <summary>
         /// 行为

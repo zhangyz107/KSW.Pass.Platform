@@ -4,8 +4,6 @@ using KSW.ATE01.Project.Base.Extensions;
 using KSW.ATE01.Project.Base.Language;
 using KSW.ATE01.Project.Base.Models.Patterns;
 using System.IO;
-using System.Net.NetworkInformation;
-using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 
 namespace KSW.ATE01.Project.Base.Helpers

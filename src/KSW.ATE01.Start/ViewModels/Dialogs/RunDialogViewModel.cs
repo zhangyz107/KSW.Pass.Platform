@@ -313,7 +313,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                         Debug.WriteLine($"赋值{nameof(CommonData.TestPlan)}");
                     }
 
-                    _projectBLL?.StartTestPlan(_projectInfo);
+                  await  _projectBLL?.StartTestPlanAsync(_projectInfo);
 
                 }
 

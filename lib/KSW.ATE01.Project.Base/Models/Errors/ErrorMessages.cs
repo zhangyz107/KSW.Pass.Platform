@@ -23,5 +23,21 @@ namespace KSW.ATE01.Project.Base.Models.Errors
                 return IOErrors.Instance;
             }
         }
+
+        public static FlowErrors Flow
+        {
+            get
+            {
+                return FlowErrors.Instance;
+            }
+        }
+
+        public static InsGeneralErrors InsGeneral
+        {
+            get
+            {
+                return InsGeneralErrors.Instance;
+            }
+        }
     }
 }

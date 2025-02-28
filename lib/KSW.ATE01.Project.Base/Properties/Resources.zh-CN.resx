@@ -234,4 +234,13 @@
   <data name="FIMVOutOfRange" xml:space="preserve">
     <value>FIMV参数{0}，设置值{1}超出范围：{2}~{3}</value>
   </data>
+  <data name="IOAddressEmpty" xml:space="preserve">
+    <value>设备地址不能为空</value>
+  </data>
+  <data name="FailToExecuteForceHalt" xml:space="preserve">
+    <value>执行"{0}"失败。参考信息：{1}</value>
+  </data>
+  <data name="DefaultFunctionExecutionError" xml:space="preserve">
+    <value>错误信息：DefaultFunctionExecutionError。\n执行“{0}”时发生异常。异常信息：{1}。</value>
+  </data>
 </root>

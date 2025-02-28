@@ -4,13 +4,14 @@ using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.Exceptions;
 using KSW.ATE01.Project.Base.Models.Loggers;
+using KSW.ATE01.Project.Base.Services.Loggers;
 
 namespace KSW.ATE01.Project.Base.Services.Errors
 {
     public class ErrorService
     {
         #region Fields
-        private static readonly Lazy<ErrorService> _lazy = new Lazy<ErrorService>();
+        private static readonly Lazy<ErrorService> _lazy = new Lazy<ErrorService>(() => new ErrorService());
         private static bool _isPrintToRealTimeTxt;
         private static bool _errorFlag;
         private static IEventAggregator _eventAggregator;
@@ -28,16 +29,6 @@ namespace KSW.ATE01.Project.Base.Services.Errors
             var container = ContainerLocator.Container;
             _eventAggregator = container?.Resolve<IEventAggregator>() ?? null;
             _isPrintToRealTimeTxt = false;
-        }
-
-
-        private static RealTimeMessage GetRealTimeTxtMessage(ErrorMessage error, string message, OutputType realTimeTxt)
-        {
-            var result = new RealTimeMessage();
-            {
-                message = GetErrorMessage(error, message, realTimeTxt);
-            }
-            return result;
         }
         #region Public
 
@@ -86,7 +77,7 @@ namespace KSW.ATE01.Project.Base.Services.Errors
                 errorMessageByInfo.ModuleName = errorInfo.ModuleName;
                 try
                 {
-                    HandleMessage(errorMessageByInfo, "");
+                    HandleMessage(errorMessageByInfo, errorInfo.Message);
                 }
                 catch (Exception ex)
                 {
@@ -99,9 +90,10 @@ namespace KSW.ATE01.Project.Base.Services.Errors
         {
             return new ErrorMessage()
             {
+                ModuleName = errorInfo.ModuleName,
                 AlarmFlag = errorInfo.IsAlarm,
                 Behavior = errorInfo.Behavior,
-                ErrorName = errorInfo.Code,
+                ErrorName = errorInfo.ErrorName,
                 Exception = exception,
                 Message = errorInfo.Message,
                 Location = location,
@@ -116,22 +108,36 @@ namespace KSW.ATE01.Project.Base.Services.Errors
                     _eventAggregator?.GetEvent<ErrorNotifyEvent>().Publish(error);
                     break;
                 case BehaviorType.ForceFail:
+                case BehaviorType.ForceHalt:
                     _eventAggregator?.GetEvent<ErrorNotifyEvent>().Publish(error);
                     if (_errorFlag)
                     {
                         Message.ErrorStatus = ErrorStatus.Error;
                     }
                     throw new ATEException(GetErrorMessage(error, message, OutputType.Exception));
+                case BehaviorType.ForceBin:
+                    _eventAggregator?.GetEvent<PrintToRealTimeTxtEvent>().Publish(new RealTimeMessage()
+                    {
+                        Message = message,
+                    });
+                    LogHelper.WriteLog(message);
+                    if (_errorFlag)
+                    {
+                        Message.ErrorStatus = ErrorStatus.Error;
+                        Message.ErrorMessageList.Add(message);
+                    }
+                    _eventAggregator?.GetEvent<ErrorNotifyEvent>().Publish(error);
+                    break;
                 case BehaviorType.Off:
                     break;
                 case BehaviorType.Default:
-                    _eventAggregator?.GetEvent<PrintToRealTimeTxtEvent>().Publish(GetRealTimeTxtMessage(error, message, OutputType.RealTimeTxt));
+                    PrintResultLog.Message(GetErrorMessage(error, message, OutputType.RealTimeTxt));
                     LogHelper.WriteLog(GetErrorMessage(error, message, OutputType.CommonLog));
                     _eventAggregator?.GetEvent<ErrorNotifyEvent>().Publish(error);
                     break;
                 case BehaviorType.Continue:
                     if (_isPrintToRealTimeTxt)
-                        _eventAggregator?.GetEvent<PrintToRealTimeTxtEvent>().Publish(GetRealTimeTxtMessage(error, message, OutputType.RealTimeTxt));
+                        PrintResultLog.Message(GetErrorMessage(error, message, OutputType.RealTimeTxt));
                     LogHelper.WriteLog(GetErrorMessage(error, message, OutputType.CommonLog));
                     _eventAggregator?.GetEvent<ErrorNotifyEvent>().Publish(error);
                     break;
@@ -155,8 +161,8 @@ namespace KSW.ATE01.Project.Base.Services.Errors
                     {
                         "\n",
                         message,
-                        "\nError Code:0x",
-                        error.Number.ToString("X"),
+                        "\nError Name:",
+                        error.ErrorName,
                         " Location:",
                         error.Location
                     });

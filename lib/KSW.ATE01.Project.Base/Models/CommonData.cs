@@ -22,14 +22,17 @@ namespace KSW.ATE01.Project.Base.Models
         {
             get
             {
-                lock (_lock)
+                if (_instance == null)
                 {
-                    if (_instance == null)
+                    lock (_lock)
                     {
-                        _instance = new CommonData();
+                        if (_instance == null)
+                        {
+                            _instance = new CommonData();
+                        }
                     }
-                    return _instance;
                 }
+                return _instance;
             }
         }
 

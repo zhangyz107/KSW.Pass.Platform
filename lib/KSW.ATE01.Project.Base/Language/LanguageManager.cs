@@ -11,7 +11,7 @@ namespace KSW.ATE01.Project.Base.Language
 {
     public class LanguageManager
     {
-        private readonly string _resource = "KSW.ATE01.Template.Base.Properties.Resources";
+        private readonly string _resource = "KSW.ATE01.Project.Base.Properties.Resources";
 
         private readonly ResourceManager _resourceManager;
 

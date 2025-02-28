@@ -14,6 +14,7 @@
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Extensions;
 using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models.Errors;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
@@ -53,8 +54,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
         {
             try
             {
+                Message.ModuleName = "Project.Base";
+                Message.FunctionName = "UdpInstrument Control Service CreateConnect";
+
                 if (string.IsNullOrEmpty(instrument.Address))
-                    throw new ArgumentNullException(nameof(InstrumentBaseModel.Address), "设备地址不能为空");
+                {
+                    ErrorMessages.IO.IOAddressEmpty();
+                    return this;
+                };
 
                 if (_connectionPool.Keys.Contains(instrument.Address))
                     return this;

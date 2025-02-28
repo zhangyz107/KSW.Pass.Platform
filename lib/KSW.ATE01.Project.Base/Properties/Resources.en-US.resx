@@ -234,4 +234,13 @@
   <data name="FIMVOutOfRange" xml:space="preserve">
     <value>FIMV parameter {0}, setting value {1} is out of range: {2}~{3}</value>
   </data>
+  <data name="IOAddressEmpty" xml:space="preserve">
+    <value>Device address cannot be empty</value>
+  </data>
+  <data name="FailToExecuteForceHalt" xml:space="preserve">
+    <value>Execution of "{0}" failed. Reference information: {1}</value>
+  </data>
+  <data name="DefaultFunctionExecutionError" xml:space="preserve">
+    <value>Error message: DefaultFunctionExecutionError. \nAn exception occurred while executing '{0}'. Exception information: {1}.</value>
+  </data>
 </root>

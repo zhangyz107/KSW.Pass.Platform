@@ -1,15 +1,13 @@
 ﻿using KSW.ATE01.Project.Base.Enums.Errors;
 using KSW.ATE01.Project.Base.Language;
 using KSW.ATE01.Project.Base.Services.Errors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Project.Base.Models.Errors
 {
-    public class IOErrors
+    /// <summary>
+    /// 通信错误
+    /// </summary>
+    public class IOErrors : MarshalByRefObject
     {
         private static readonly Lazy<IOErrors> _lazy = new Lazy<IOErrors>(() => new IOErrors());
         private readonly LanguageManager L = LanguageManager.Instance;
@@ -29,7 +27,22 @@ namespace KSW.ATE01.Project.Base.Models.Errors
 
         private void InitError()
         {
-            Instance.ModuleType = ModuleName.IO;
+            ModuleType = ModuleName.IO;
+        }
+
+        public void InternalError(Exception inner, string location)
+        {
+            ErrorService.Instance.ThrowInternalError(null, inner, location);
+        }
+
+        public void IOAddressEmpty()
+        {
+            var functionName = nameof(IOAddressEmpty);
+            var errorInfo = GetErrorInfo(L["IOAddressEmpty"]);
+            errorInfo.Behavior = BehaviorType.ForceFail;
+            errorInfo.ErrorName = functionName;
+            errorInfo.IsAlarm = false;
+            ErrorService.Instance.ThrowError(errorInfo, null, functionName);
         }
 
         public void IOResultAbnormal()
@@ -37,7 +50,7 @@ namespace KSW.ATE01.Project.Base.Models.Errors
             var functionName = nameof(IOResultAbnormal);
             var errorInfo = GetErrorInfo(L["IOResultAbnormal"]);
             errorInfo.Behavior = BehaviorType.ForceFail;
-            errorInfo.Code = functionName;
+            errorInfo.ErrorName = functionName;
             errorInfo.IsAlarm = false;
             ErrorService.Instance.ThrowError(errorInfo, null, functionName);
         }
@@ -47,7 +60,7 @@ namespace KSW.ATE01.Project.Base.Models.Errors
             var functionName = nameof(IOConfigurationFailed);
             var errorInfo = GetErrorInfo(L["IOConfigurationFailed"]);
             errorInfo.Behavior = BehaviorType.ForceFail;
-            errorInfo.Code = functionName;
+            errorInfo.ErrorName = functionName;
             errorInfo.IsAlarm = false;
             ErrorService.Instance.ThrowError(errorInfo, null, functionName);
         }
@@ -57,7 +70,7 @@ namespace KSW.ATE01.Project.Base.Models.Errors
             var functionName = nameof(IOInvalidQuery);
             var errorInfo = GetErrorInfo(L["IOInvalidQuery"]);
             errorInfo.Behavior = BehaviorType.ForceFail;
-            errorInfo.Code = functionName;
+            errorInfo.ErrorName = functionName;
             errorInfo.IsAlarm = false;
             ErrorService.Instance.ThrowError(errorInfo, null, functionName);
         }
