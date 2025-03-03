@@ -6,23 +6,12 @@ using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Infrastructure;
 using KSW.Localization;
-using MaterialDesignColors;
-using MaterialDesignColors.ColorManipulation;
-using MaterialDesignThemes.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Configuration;
-using System.Diagnostics;
-using System.IO.Pipes;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
 using System.Windows.Threading;
-using DryIoc;
-using KSW.ATE01.Project.Base.Models.Errors;
 
 namespace KSW.ATE01.Platform
 {

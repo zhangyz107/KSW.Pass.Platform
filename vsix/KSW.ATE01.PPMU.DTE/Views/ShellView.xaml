@@ -1,0 +1,131 @@
+﻿<Window x:Class="KSW.ATE01.PPMU.Start.Views.ShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KSW.ATE01.PPMU.Start.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:prism="http://prismlibrary.com/"
+        mc:Ignorable="d"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Title="MainWindow" Height="400" Width="900"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        FontSize="16">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="100" UseAeroCaptionButtons="False" GlassFrameThickness="1"></WindowChrome>
+    </WindowChrome.WindowChrome>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Border Background="#3B3B3B">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <materialDesign:PackIcon Kind="AccountCircle" Margin="6,4" VerticalAlignment="Center" Width="24" Height="24"/>
+                <TextBlock Margin="6,4" VerticalAlignment="Center" Grid.Column="1" Text="{Binding Title}" FontSize="14" Foreground="White"></TextBlock>
+
+                <Button Grid.Column="4" Style="{StaticResource MaterialDesignToolButton}" Foreground="White" Click="CloseBtn_Click" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button.Content>
+                        <materialDesign:PackIcon Kind="WindowClose"/>
+                    </Button.Content>
+                </Button>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Background="#a9afbc"  WindowChrome.IsHitTestVisibleInChrome="True">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="120"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Margin="32,8,8,8" VerticalAlignment="Center" Text="Slot:" HorizontalAlignment="Right"></TextBlock>
+
+                <ComboBox Grid.Column="1" Padding="6" Style="{StaticResource MaterialDesignOutlinedComboBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="15" Background="White" BorderThickness="0"></ComboBox>
+
+                <Button  Margin="32,8,0,8" Content="Refresh" Grid.Column="2" materialDesign:ButtonAssist.CornerRadius="15" Background="#535e74"  BorderBrush="#535e74"></Button>
+
+                <Button Margin="16,8,0,8" Content="ClearAlarm" Grid.Column="3" Style="{StaticResource MaterialDesignRaisedDarkButton}" materialDesign:ButtonAssist.CornerRadius="15" Background="#535e74" Command="{Binding RefreshCommand}" BorderBrush="#535e74"></Button>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Border Background="#535e74">
+                    <TextBlock Text="Source" Margin="0,8" HorizontalAlignment="Center" Foreground="White"></TextBlock>
+                </Border>
+
+                <Border Grid.Row="1" Background="#a9afbc">
+                    <Grid Margin="4" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="5"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="5"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Mode:" VerticalAlignment="Center" TextAlignment="Right"></TextBlock>
+                        <ComboBox Grid.Column="1" Padding="6" Margin="8,0" Style="{StaticResource MaterialDesignOutlinedComboBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="15" Background="White" BorderThickness="0"></ComboBox>
+
+                        <TextBlock Grid.Column="3" Text="Voltage:" VerticalAlignment="Center" TextAlignment="Right"></TextBlock>
+                        <TextBox Grid.Column="4" Padding="6" Margin="8,0" Text="{Binding Voltage}" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="15" Background="White" BorderThickness="0"></TextBox>
+                        <TextBlock Grid.Column="5" Text="V" VerticalAlignment="Center"></TextBlock>
+
+                        <TextBlock Grid.Row="2" Text="Gate:" VerticalAlignment="Center" TextAlignment="Right"></TextBlock>
+                        <ComboBox Grid.Row="2" Grid.Column="1" Padding="6" Margin="8,0" Style="{StaticResource MaterialDesignOutlinedComboBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="15" Background="White" BorderThickness="0"></ComboBox>
+
+                        <TextBlock Grid.Row="2" Grid.Column="3" Text="IRange:" VerticalAlignment="Center" TextAlignment="Right"></TextBlock>
+                        <ComboBox Grid.Row="2" Grid.Column="4" Padding="6" Margin="8,0" Style="{StaticResource MaterialDesignOutlinedComboBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="15" Background="White" BorderThickness="0"></ComboBox>
+                        <TextBlock Grid.Row="2" Grid.Column="5" Text="A" VerticalAlignment="Center"></TextBlock>
+
+                        <TextBlock Grid.Row="4" Text="ClampHi:" VerticalAlignment="Center" TextAlignment="Right"></TextBlock>
+                        <TextBox Grid.Row="4" Grid.Column="1" Padding="6" Margin="8,0" Text="{Binding Voltage}" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="15" Background="White" BorderThickness="0"></TextBox>
+                        <TextBlock Grid.Row="4" Grid.Column="2" Text="V" Margin="0,0,12,0" VerticalAlignment="Center"></TextBlock>
+
+                        <TextBlock Grid.Row="4" Grid.Column="3" Text="ClampLo:" VerticalAlignment="Center" TextAlignment="Right"></TextBlock>
+                        <TextBox Grid.Row="4" Grid.Column="4" Padding="6" Margin="8,0" Text="{Binding Voltage}" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="15" Background="White" BorderThickness="0"></TextBox>
+                        <TextBlock Grid.Row="4" Grid.Column="5" Text="V" VerticalAlignment="Center"></TextBlock>
+                    </Grid>
+                </Border>
+
+            </Grid>
+            
+            <local:PpmuCanvasView Grid.Column="1" ></local:PpmuCanvasView>
+        </Grid>
+
+    </Grid>
+</Window>
