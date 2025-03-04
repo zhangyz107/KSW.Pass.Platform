@@ -1,6 +1,6 @@
 ﻿using DryIoc.Microsoft.DependencyInjection;
-using KSW.ATE01.PPMU.Start.Language;
-using KSW.ATE01.PPMU.Start.Views;
+using KSW.ATE01.DPS.Start.Language;
+using KSW.ATE01.DPS.Start.Views;
 using KSW.Infrastructure;
 using KSW.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +10,7 @@ using System.Data;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace KSW.ATE01.PPMU.DTE
+namespace KSW.ATE01.DPS.Start
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -19,7 +19,7 @@ namespace KSW.ATE01.PPMU.DTE
     {
         private static Mutex mutex;
 
-        private const string _title = "PPMU DTE";
+        private const string _title = "DPS DTE";
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -62,7 +62,6 @@ namespace KSW.ATE01.PPMU.DTE
             RegisterView(containerRegistry);
         }
 
-
         private void InitLogConfig()
         {
             var logOutputTemplate = ConfigurationManager.AppSettings["OutputTemplate"];
@@ -80,7 +79,6 @@ namespace KSW.ATE01.PPMU.DTE
             containerRegistry.RegisterInstance<ILanguageManager>(languageManager);
         }
 
-
         private void RegisterView(IContainerRegistry containerRegistry)
         {
 
@@ -95,6 +93,7 @@ namespace KSW.ATE01.PPMU.DTE
             return new DryIocContainerExtension(new Container(CreateContainerRules())
     .WithDependencyInjectionAdapter(serviceCollection));
         }
+
     }
 
 }

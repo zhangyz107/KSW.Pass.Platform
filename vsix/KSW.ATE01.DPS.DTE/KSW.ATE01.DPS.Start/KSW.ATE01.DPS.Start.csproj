@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>$(NetTargetFramework)</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+		<PackageReference Include="Prism.DryIoc" Version="$(PrismVersion)" />
+		<PackageReference Include="MaterialDesignThemes" Version="$(MaterialDesignVersion)" />
+		<PackageReference Include="Serilog" Version="4.0.1" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\src\src-platform\KSW.Core\KSW.Core.csproj" />
+	  <ProjectReference Include="..\KSW.ATE01.DPS.Application.Models\KSW.ATE01.DPS.Application.Models.csproj" />
+	</ItemGroup>
+
+</Project>
