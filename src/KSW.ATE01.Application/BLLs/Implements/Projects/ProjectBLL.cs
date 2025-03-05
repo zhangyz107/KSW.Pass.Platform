@@ -19,6 +19,7 @@ using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
 using KSW.ATE01.Project.Base.Enums.Errors;
 using KSW.ATE01.Project.Base.Enums.Results;
+using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.Exceptions;
@@ -181,7 +182,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             {
                 var configPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + projectInfo.ConfigurationExtension);
                 var entity = projectInfo.MapTo<ProjectInfo>();
-                XmlHelper.SerializeToXml(entity, configPath);
+                KSW.Helpers.XmlHelper.SerializeToXml(entity, configPath);
                 result = true;
             }
             catch (Exception)
@@ -200,7 +201,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
                 if (File.Exists(file))
                 {
-                    var projectInfo = XmlHelper.DeserializeFromXml<ProjectInfo>(file);
+                    var projectInfo = KSW.Helpers.XmlHelper.DeserializeFromXml<ProjectInfo>(file);
                     return projectInfo.MapTo<ProjectInfoModel>();
                 }
                 return null;

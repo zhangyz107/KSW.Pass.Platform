@@ -62,16 +62,14 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
             try
             {
-                var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
+                var path = GetTestPlanFilePathFromProject(projectInfo);
                 switch (projectInfo.TestPlanType)
                 {
                     case TestPlanType.Excel:
-                        var filePath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.TestPlanExtension);
-                        result = await LoadTestPlanFromExcelAsync(filePath);
+                        result = await LoadTestPlanFromExcelAsync(path);
                         break;
                     case TestPlanType.Csv:
-                        var testPlanDir = Path.Combine(projectInfo.ProjectPath, testPlanDirName);
-                        result = await LoadTestPlanFromCsvAsync(testPlanDir);
+                        result = await LoadTestPlanFromCsvAsync(path);
                         break;
                 }
                 return result;
@@ -119,6 +117,33 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
                 result = TestPlanHelper.LoadTestPlanFromCsv(testPlanDir);
 
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region 从项目信息中获取测试计划路径
+
+        public string GetTestPlanFilePathFromProject(ProjectInfoModel projectInfo)
+        {
+            var result = string.Empty;
+            try
+            {
+                var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
+                switch (projectInfo.TestPlanType)
+                {
+                    case TestPlanType.Excel:
+                        result = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.TestPlanExtension);
+                        break;
+                    case TestPlanType.Csv:
+                        result = Path.Combine(projectInfo.ProjectPath, testPlanDirName);
+                        break;
+                }
                 return result;
             }
             catch (Exception)

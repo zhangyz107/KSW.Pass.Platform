@@ -1,13 +1,7 @@
 ﻿using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.Memory;
-using MessagePack;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using System.Windows;
 
 namespace KSW.ATE01.Project.Base.Services.Memory
@@ -71,14 +65,11 @@ namespace KSW.ATE01.Project.Base.Services.Memory
             var memoryExsitDataBlock = GetMemoryExistDataBlock(dataBlockName);
             if (memoryExsitDataBlock.Count == 0)
             {
-                MessageBox.Show("");
+                //MessageBox.Show("");
                 return;
             }
             var memoryDataBlock = memoryExsitDataBlock.FirstOrDefault();
-            var array = new byte[memoryDataBlock.BlockLength];
-            ShareMemoryHelper.ReadShareMemory(_memoryName, (int)memoryDataBlock.StartAddress, array, array.Length);
-            data = new byte[memoryDataBlock.VaildValueLength];
-            Array.Copy(array, memory_data_block_size, data, 0, data.Length);
+            data = memoryDataBlock?.BlockValue;
         }
 
         private List<MemoryDataBlock> GetMemoryExistDataBlock(string dataBlockName)
@@ -133,31 +124,12 @@ namespace KSW.ATE01.Project.Base.Services.Memory
             return GetDeserialized<MemoryHeadInfo>(array2);
         }
 
-        private void WriteToMemory(MemoryDataBlock memoryDataBlock)
-        {
-            byte[] array = this.FormatDataBlockToBytes(memoryDataBlock);
-            ShareMemoryHelper.WriteShareMemory(_memoryName, (int)memoryDataBlock.StartAddress, array, array.Length);
-        }
-
         private void WriteToMemory(MemoryHeadInfo headInfo)
         {
             byte[] serializedInstance = this.GetSerializedInstance(headInfo);
             ShareMemoryHelper.WriteShareMemory(_memoryName, 4, serializedInstance, serializedInstance.Length);
             byte[] bytes = BitConverter.GetBytes(serializedInstance.Length);
             ShareMemoryHelper.WriteShareMemory(_memoryName, 0, bytes, bytes.Length);
-        }
-
-        private byte[] FormatDataBlockToBytes(MemoryDataBlock memoryDataBlock)
-        {
-            List<byte> list = new List<byte>();
-            list.AddRange(BitConverter.GetBytes(memoryDataBlock.BlockLength));
-            list.AddRange(BitConverter.GetBytes(memoryDataBlock.StartAddress));
-            byte[] bytes = Encoding.Default.GetBytes(memoryDataBlock.BlockName);
-            Array.Resize<byte>(ref bytes, 256);
-            list.AddRange(bytes);
-            list.AddRange(BitConverter.GetBytes(memoryDataBlock.VaildValueLength));
-            list.AddRange(memoryDataBlock.BlockValue);
-            return list.ToArray();
         }
 
         public void AppendDataToMemory(string dataBlockName, byte[] dataValue, int spaceSizeByte = -1)
@@ -171,7 +143,6 @@ namespace KSW.ATE01.Project.Base.Services.Memory
             }
             MemoryDataBlock memoryDataBlock = CreateMemoryDataBlockInstance(dataBlockName, dataValue, spaceSizeByte);
             this.HeadInfo.Blocks.Add(memoryDataBlock);
-            this.WriteToMemory(memoryDataBlock);
             this.WriteToMemory(this.HeadInfo);
         }
 
@@ -185,7 +156,6 @@ namespace KSW.ATE01.Project.Base.Services.Memory
             }
             MemoryDataBlock memoryDataBlock = CreateMemoryDataBlockInstance(dataBlockName, dataValue);
             HeadInfo.Blocks.Add(memoryDataBlock);
-            WriteToMemory(memoryDataBlock);
             WriteToMemory(HeadInfo);
         }
 
@@ -198,7 +168,7 @@ namespace KSW.ATE01.Project.Base.Services.Memory
                 MessageBox.Show("Block name '" + dataBlockName + "' does not exists in memory when update data of datablock.", "Warn", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
-            MemoryDataBlock memoryDataBlock = memoryExistDataBlock[0];
+            MemoryDataBlock memoryDataBlock = memoryExistDataBlock.FirstOrDefault();
             if (memoryDataBlock.VaildValueLength < dataValue.Length)
             {
                 this.EmptyMemoryOfDataBlock(memoryDataBlock);
@@ -210,23 +180,7 @@ namespace KSW.ATE01.Project.Base.Services.Memory
             memoryDataBlock.BlockValue = dataValue;
             memoryDataBlock.VaildValueLength = dataValue.Length;
             memoryDataBlock.BlockLength = (long)(dataValue.Length + memory_data_block_size);
-            this.WriteToMemory(memoryDataBlock);
             this.WriteToMemory(this.HeadInfo);
-        }
-
-        public void EmptyDataInDataBlock(string dataBlockName)
-        {
-            this.HeadInfo = this.GetMemoryHeadFromMemory();
-            List<MemoryDataBlock> memoryExistDataBlock = this.GetMemoryExistDataBlock(dataBlockName);
-            if (memoryExistDataBlock.Count == 0)
-            {
-                MessageBox.Show("Block name '" + dataBlockName + "' does not exists in memory when delete data from memory.", "Warn", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-            MemoryDataBlock memoryDataBlock = memoryExistDataBlock[0];
-            byte[] blockValue = new byte[memoryDataBlock.VaildValueLength];
-            memoryDataBlock.BlockValue = blockValue;
-            this.WriteToMemory(memoryDataBlock);
         }
 
         public void EmptyAllMemory()
@@ -244,14 +198,14 @@ namespace KSW.ATE01.Project.Base.Services.Memory
 
         public byte[] GetSerializedInstance(object objectInstance)
         {
-            return MessagePackSerializer.Serialize(objectInstance);
+            return JsonSerializer.SerializeToUtf8Bytes(objectInstance);
         }
 
         private T GetDeserialized<T>(byte[] array)
         {
             try
             {
-                return MessagePackSerializer.Deserialize<T>(array);
+                return JsonSerializer.Deserialize<T>(array);
             }
             catch (Exception ex)
             {

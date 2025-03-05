@@ -12,6 +12,7 @@
 //------------------------------------------------------------*/
 
 
+using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Start.Views;
 using KSW.Ui;
 using MaterialDesignColors;
@@ -91,6 +92,12 @@ namespace KSW.ATE01.Start.ViewModels
             _dialogService = dialogService;
 
             Theme theme = _paletteHelper.GetTheme();
+
+            if(!ATE01ShareMemory.OpenShareMemory())
+            {
+                //开启共享内存
+                ATE01ShareMemory.CreateShareMemory();   
+            }
         }
 
         private void ExecuteLoadingCommand()

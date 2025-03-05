@@ -1,4 +1,5 @@
-﻿using KSW.Helpers;
+﻿using KSW.ATE01.Project.Base.Helpers;
+using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Extensions.Logging;
 using System;
@@ -38,7 +39,13 @@ namespace KSW.ATE01.PPMU.Start.ViewModels
 
         public ShellViewModel(IContainerProvider containerProvider) : base(containerProvider)
         {
-
+            if (!ATE01ShareMemory.OpenShareMemory())
+            {
+                //开启共享内存
+                ATE01ShareMemory.CreateShareMemory();
+            }
+            var testPlanFilePath = ATE01ShareMemory.TestPlanFilePath;
+            var loadTestPlan = ATE01ShareMemory.LoadedTestPlanFilePath;
         }
 
 

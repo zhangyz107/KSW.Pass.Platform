@@ -22,6 +22,6 @@ namespace KSW.ATE01.Project.Base.Models.Memory
         /// <summary>
         /// 块集合
         /// </summary>
-        public List<MemoryDataBlock> Blocks { get; set; }
+        public List<MemoryDataBlock> Blocks { get; set; } = new List<MemoryDataBlock>();
     }
 }

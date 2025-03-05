@@ -24,6 +24,9 @@ using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.Managers;
 using KSW.ATE01.Application.BLLs.Implements.Managers;
+using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.BLLs.Implements.TestPlans;
+using KSW.ATE01.Project.Base.Helpers;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
@@ -36,6 +39,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
+        private readonly ITestPlanBLL _testPlanBLL;
         private readonly IProjectTestPlanManager _projectTestPlanManager;
         private TestPlanType? _testPlanType;
         private ProjectInfoModel _currentProjectInfo;
@@ -113,6 +117,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
             _projectBLL = ContainerProvider.IsRegistered<IProjectBLL>() ? ContainerProvider.Resolve<IProjectBLL>() : null;
+            _testPlanBLL = ContainerProvider.IsRegistered<ITestPlanBLL>() ? ContainerProvider.Resolve<ITestPlanBLL>() : null;
             _projectTestPlanManager = ContainerProvider.IsRegistered<IProjectTestPlanManager>() ? ContainerProvider.Resolve<IProjectTestPlanManager>() : null;
             LoadData();
         }
@@ -184,6 +189,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
                     var result = await _projectTestPlanManager?.SaveAsProjectInfoAsync(_testPlanType.GetValueOrDefault(), _saveAsDir, _saveAsName);
+
+                    var testPlanFilePath = _testPlanBLL?.GetTestPlanFilePathFromProject(_projectBLL?.GetCurrentProjectInfo());
+
+                    ATE01ShareMemory.TestPlanFilePath = testPlanFilePath;
 
                     if (result)
                     {

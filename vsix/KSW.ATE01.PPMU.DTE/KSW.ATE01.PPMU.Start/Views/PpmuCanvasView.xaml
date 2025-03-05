@@ -12,25 +12,27 @@
              prism:ViewModelLocator.AutoWireViewModel="True">
 
     <UserControl.Resources>
+        <local:SwitchDataConverter x:Key="SwitchDataConverter"></local:SwitchDataConverter>
+
         <Style x:Key="SwitchStyle" TargetType="ToggleButton">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Grid Background="Transparent" Width="45" Height="45">
+                        <Grid Background="{Binding Background,RelativeSource={RelativeSource Mode=TemplatedParent}}" Width="{Binding Width,RelativeSource={RelativeSource Mode=TemplatedParent}}" Height="{Binding Height,RelativeSource={RelativeSource Mode=TemplatedParent}}">
                             <!-- 绘制开关的电路符号 -->
                             <Ellipse Width="5" Height="5" Fill="Black" Stroke="Black" StrokeThickness="2" 
-                  HorizontalAlignment="Left" VerticalAlignment="Center">
+          HorizontalAlignment="Left" VerticalAlignment="Center">
                             </Ellipse>
                             <Line x:Name="SwitchLine1" Stroke="Black" 
-               StrokeThickness="1" X1="0" Y1="2.5"  X2="45" Y2="2.5" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+       StrokeThickness="1" X1="0" Y1="2.5"  X2="{Binding Width,RelativeSource={RelativeSource Mode=TemplatedParent},Mode=OneWay,Converter={StaticResource SwitchDataConverter}}" Y2="2.5" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                 <Line.RenderTransform>
                                     <RotateTransform  Angle="-45"></RotateTransform>
                                 </Line.RenderTransform>
                             </Line>
                             <Line x:Name="SwitchLine2" Stroke="Black" 
-               StrokeThickness="1" X1="0" Y1="0"  X2="45" Y2="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Visibility="Collapsed"/>
+       StrokeThickness="1" X1="0" Y1="0"  X2="{Binding Width,RelativeSource={RelativeSource Mode=TemplatedParent}}" Y2="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Visibility="Collapsed"/>
                             <Ellipse Width="5" Height="5" Fill="Black" Stroke="Black" StrokeThickness="2" 
-                  HorizontalAlignment="Right" VerticalAlignment="Center">
+          HorizontalAlignment="Right" VerticalAlignment="Center">
                             </Ellipse>
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -72,7 +74,7 @@
 
         <Rectangle Fill="#F5BF80" Width="16" Height="150"  Canvas.Left="253" Canvas.Top="0"></Rectangle>
 
-        <ToggleButton Style="{StaticResource SwitchStyle}" Canvas.Left="100" Canvas.Top="78" IsChecked="{Binding IsDGSSwitch}">
+        <ToggleButton Style="{StaticResource SwitchStyle}" Width="45" Height="45" Background="White" Canvas.Left="100" Canvas.Top="78" IsChecked="{Binding IsDGSSwitch}">
             <ToggleButton.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleX="1" ScaleY="-1"></ScaleTransform>
@@ -101,7 +103,7 @@
         <userControls:NodeLine X1="0" Y1="0" X2="50" Y2="0" Diameter="5" Canvas.Left="130" Canvas.Top="120" LineShape="Line">
         </userControls:NodeLine>
 
-        <ToggleButton Style="{StaticResource SwitchStyle}" Canvas.Left="175" Canvas.Top="100" IsChecked="{Binding IsForceSwitch}">
+        <ToggleButton Style="{StaticResource SwitchStyle}" Width="45" Height="45" Background="White" Canvas.Left="175" Canvas.Top="100" IsChecked="{Binding IsForceSwitch}">
         </ToggleButton>
 
         <Path Fill="White" Stroke="Black" Canvas.Left="77" Canvas.Top="93" Panel.ZIndex="99">

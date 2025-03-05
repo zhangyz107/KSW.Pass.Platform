@@ -17,6 +17,7 @@ using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Project.Base.Events;
+using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.TestPlans;
 using KSW.ATE01.Start.Views;
@@ -238,6 +239,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             await ExecuteWithExceptionHandling(async () =>
             {
                 _testPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
+
+                ATE01ShareMemory.LoadedTestPlanFilePath = (Path.IsPathRooted(ATE01ShareMemory.TestPlanFilePath) ? ATE01ShareMemory.TestPlanFilePath : Path.Combine(Path.GetDirectoryName(_projectInfo.ProjectPath), ATE01ShareMemory.TestPlanFilePath));
+
                 if (_testPlan?.Flow?.IsEmpty() == false)
                 {
                     FlowList.Clear();
@@ -301,6 +305,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             await ExecuteWithExceptionHandling(async () =>
             {
+
                 //todo 先保证生成dll
                 if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
                 {
@@ -313,7 +318,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                         Debug.WriteLine($"赋值{nameof(CommonData.TestPlan)}");
                     }
 
-                  await  _projectBLL?.StartTestPlanAsync(_projectInfo);
+                    await _projectBLL?.StartTestPlanAsync(_projectInfo);
 
                 }
 

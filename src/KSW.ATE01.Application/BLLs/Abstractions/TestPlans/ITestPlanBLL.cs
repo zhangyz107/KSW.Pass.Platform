@@ -17,6 +17,11 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         Task<TestPlanModel> LoadTestPlanAsync(ProjectInfoModel projectInfo);
 
         /// <summary>
+        /// 从项目信息中获取测试计划路径
+        /// </summary>
+        string GetTestPlanFilePathFromProject(ProjectInfoModel projectInfo);
+
+        /// <summary>
         /// 设置测试计划Flow
         /// </summary>
         bool SetTestPlanFlow(IList<FlowInfoModel> flows, ProjectInfoModel projectInfo);
