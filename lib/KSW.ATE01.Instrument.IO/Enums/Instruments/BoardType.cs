@@ -5,18 +5,24 @@ namespace KSW.ATE01.Instrument.IO.Enums.Instruments
     /// <summary>
     /// 板卡类型
     /// </summary>
-    public enum BoradType
+    public enum BoardType
     {
         /// <summary>
         /// PE板卡
         /// </summary>
-        [Description("0x0101")]
-        PE = 1,
+        [Description("PE")]
+        PE = 0x0101,
 
         /// <summary>
         /// DPS板卡
         /// </summary>
-        [Description("0x0201")]
-        DPS = 2,
+        [Description("DPS")]
+        DPS = 0x0201,
+
+        /// <summary>
+        /// 背板
+        /// </summary>
+        [Description("Backplane")]
+        Backplane = 0x0301,
     }
 }

@@ -5,6 +5,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 测试项模型
     /// </summary>
+    [Serializable]
     public class TestItemModel
     {
         /// <summary>

@@ -22,14 +22,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
     {
         private static Dictionary<IOTypeEnum, IInstruentControlService> _instrumentControls = new Dictionary<IOTypeEnum, IInstruentControlService>();
 
-        public IInstruentControlService? GetInstrumentControlService(IOTypeEnum ioType)
+        public IInstruentControlService? GetInstrumentControlService(IOTypeEnum? ioType)
         {
-            if (_instrumentControls.TryGetValue(ioType, out var control))
+            if (ioType != null && _instrumentControls.TryGetValue(ioType.Value, out var control))
                 return control;
             else
             {
                 RegisterControls();
-                if (_instrumentControls.TryGetValue(ioType, out var instruentControl))
+                if (_instrumentControls.TryGetValue(ioType.Value, out var instruentControl))
                     return instruentControl;
             }
             return null;

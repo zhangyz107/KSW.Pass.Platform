@@ -9,6 +9,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 测试计划模型
     /// </summary>
+    [Serializable]
     public class TestPlanModel
     {
         /// <summary>

@@ -17,6 +17,7 @@ using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.Errors;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -38,6 +39,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
         //发送队列最多支持命令数量
         private readonly int _maxSendCount = 100;
         private readonly int _bufferSize = 8192;
+        private readonly int _sendTimeOut = 5000;
+        private readonly int _receiveTimeOut = 10000;     
+        private readonly int _localPort = 9988;
         #endregion
 
         #region Properties
@@ -103,6 +107,47 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
         public override bool IsConnected(InstrumentBaseModel instrument)
         {
             return _connectionPool.Keys.Contains(instrument.Address);
+        }
+
+        public override void Send(string ipAddress, int port, byte[] data, bool hasAck = true)
+        {
+            try
+            {
+                var receiveData = new byte[_bufferSize];
+                var udpClient = SampleConnectInstrument(ipAddress, port);
+                if (udpClient == null)
+                    throw new ArgumentNullException(nameof(ipAddress), "无法发送到空设备 (检查设备是否正常连接)！");
+
+                udpClient.Client.Send(data);
+                if (hasAck)
+                {
+                    var size = udpClient.Client.Receive(receiveData);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public override byte[] Query(string ipAddress, int port, byte[] data)
+        {
+            var receiveData = new byte[_bufferSize];
+            try
+            {
+                var udpClient = SampleConnectInstrument(ipAddress, port);
+                if (udpClient == null)
+                    throw new ArgumentNullException(nameof(ipAddress), "无法发送到空设备 (检查设备是否正常连接)！");
+
+                udpClient.Client.Send(data);
+
+                var length = udpClient.Client.Receive(receiveData);
+                return receiveData.AsSpan().Slice(0, length).ToArray();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public override void Send(InstrumentBaseModel instrument, byte[] data, bool direct = true, bool hasAck = true)
@@ -215,6 +260,32 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
             {
                 Send(instrument, data, direct, hasAck);
             }
+        }
+
+        internal UdpClient SampleConnectInstrument(string ipAddress, int port)
+        {
+            UdpClient result = null;
+            try
+            {
+                if (string.IsNullOrEmpty(ipAddress))
+                    throw new ArgumentNullException(nameof(ipAddress), "当前设备地址为空!");
+
+                var udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, _localPort));
+                var targetEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
+                udpClient.Connect(targetEndPoint);
+
+                udpClient.Client.SendBufferSize = int.MaxValue;
+                udpClient.Client.ReceiveBufferSize = int.MaxValue;
+
+                udpClient.Client.SendTimeout = _sendTimeOut;
+                udpClient.Client.ReceiveTimeout = _receiveTimeOut;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
         }
 
         protected override bool ConnectInstrument(InstrumentBaseModel instrument)

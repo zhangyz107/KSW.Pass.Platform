@@ -21,17 +21,17 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Patterns
         /// </summary>
         //void SetPatternParam();
 
-#if DEBUG
-        /// <summary>
-        /// Pattern运行或停止
-        /// </summary>
-        void SetPatternEnable(bool enable);
+//#if DEBUG
+//        /// <summary>
+//        /// Pattern运行或停止
+//        /// </summary>
+//        void SetPatternEnable(bool enable);
 
-        /// <summary>
-        /// 获取Pattern运行使能
-        /// </summary>
-        ChannelResultModel<bool> GetPatternEnable();
-#endif
+//        /// <summary>
+//        /// 获取Pattern运行使能
+//        /// </summary>
+//        ChannelResultModel<bool> GetPatternEnable();
+//#endif
 
         /// <summary>
         /// 获取运行状态

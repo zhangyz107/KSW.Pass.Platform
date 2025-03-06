@@ -15,6 +15,11 @@ namespace KSW.ATE01.Instrument.IO
         IInstruentControlService CreateConnect(InstrumentBaseModel instrument);
 
         /// <summary>
+        /// 测试连接
+        /// </summary>
+        bool TestConnect(string ipAddress);
+
+        /// <summary>
         /// 是否连接
         /// </summary>
         bool IsConnected(InstrumentBaseModel instrument);
@@ -24,6 +29,16 @@ namespace KSW.ATE01.Instrument.IO
         /// </summary>
         /// <returns></returns>
         IInstruentControlService DestroyConnect(InstrumentBaseModel instrument);
+
+        /// <summary>
+        /// 通过IP地址发送数据
+        /// </summary>
+        void Send(string ipAddress, int port, byte[] data, bool hasAck = true);
+
+        /// <summary>
+        /// 通过IP地址查询数据
+        /// </summary>
+        byte[] Query(string ipAddress, int port, byte[] data);
 
         /// <summary>
         /// 发送数据

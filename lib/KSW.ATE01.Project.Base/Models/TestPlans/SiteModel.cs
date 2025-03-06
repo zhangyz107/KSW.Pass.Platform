@@ -9,6 +9,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 站点模型
     /// </summary>
+    [Serializable]
     public class SiteModel
     {
         /// <summary>

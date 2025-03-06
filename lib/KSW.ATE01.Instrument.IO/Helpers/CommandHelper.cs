@@ -41,7 +41,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
         private const string _messageEnd = "0xDEAD";
         private static FrameStruct _frameStruct = default;
 
-        public static byte[] GetCommandBytes(byte slotNum, BoradType boradType, InstructionType instructionType, List<CommandInfoModel> commands)
+        public static byte[] GetCommandBytes(byte slotNum, BoardType boradType, InstructionType instructionType, List<CommandInfoModel> commands)
         {
             if (!commands.Any())
                 return null;
@@ -61,7 +61,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
             message.Add(slotNum);
 
             //板卡类型
-            message.AddRange(boradType.GetDescription().ToByteArray());
+            message.AddRange(boradType.ToString().ToByteArray());
 
             //指令类型
             message.AddRange(instructionType.GetDescription().ToByteArray());
@@ -81,7 +81,8 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                     message.AddRange(commandLength);
 
                     //指令内容
-                    message.AddRange(command.CommandContent);
+                    if (command.CommandContent != null && command.CommandContent.Any())
+                        message.AddRange(command.CommandContent);
                 }
             }
 

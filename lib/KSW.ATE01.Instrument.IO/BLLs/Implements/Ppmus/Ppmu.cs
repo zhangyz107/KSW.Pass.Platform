@@ -54,6 +54,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
             try
             {
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
                 if (vil < -2.56 || vil > 6.09)
                     ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(vil), new object[] { vil, "-2.56V", "6.09V" });
 
@@ -90,12 +92,19 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 var iohByte = GetByteValue(ioh);
 
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
                 foreach (var pin in PinList)
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -121,11 +130,18 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (ControlService != null && message.Any())
-                        ControlService.Send(PE131, message);
+                    foreach (var commandList in commandListDic)
+                    {
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && instrumentInfo != null)
+                            controlService.Send(instrumentInfo, message);
+                    }
                 }
             }
             catch (Exception)
@@ -166,12 +182,21 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 var vchByte = GetVclOrVchValue(vch);
 
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
                 foreach (var pin in PinList)
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -191,11 +216,17 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (ControlService != null && message.Any())
-                        ControlService.Send(PE131, message);
+                    foreach (var commandList in commandListDic)
+                    {
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && instrumentInfo != null)
+                            controlService.Send(instrumentInfo, message);
+                    }
                 }
             }
             catch (Exception)
@@ -318,12 +349,21 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 var ichByte = GetIclOrIchValue(ich, imax);
 
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
                 foreach (var pin in PinList)
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -343,11 +383,18 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (ControlService != null && message.Any())
-                        ControlService.Send(PE131, message);
+                    foreach (var commandList in commandListDic)
+                    {
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && instrumentInfo != null)
+                            controlService.Send(instrumentInfo, message);
+                    }
                 }
             }
             catch (Exception)
@@ -402,12 +449,21 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             try
             {
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
                 foreach (var pin in PinList)
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -423,20 +479,27 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, commandList);
-                    if (ControlService != null && message.Any())
+                    foreach (var commandList in commandListDic)
                     {
-                        var queryResult = ControlService.Query(PE131, message);
-                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
-                        foreach (var command in commands)
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && message.Any())
                         {
-                            var tempData = ContentToDriverAndComparator(command.CommandContent);
-                            if (tempData != null)
+                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                            foreach (var command in commands)
                             {
-                                result.Add(tempData);
+                                var tempData = ContentToDriverAndComparator(command.CommandContent);
+                                if (tempData != null)
+                                {
+                                    result.Add(tempData);
+                                }
                             }
                         }
                     }
@@ -527,12 +590,21 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             try
             {
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
                 foreach (var pin in PinList)
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -548,20 +620,27 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, commandList);
-                    if (ControlService != null && message.Any())
+                    foreach (var commandList in commandListDic)
                     {
-                        var queryResult = ControlService.Query(PE131, message);
-                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
-                        foreach (var command in commands)
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && message.Any())
                         {
-                            var tempData = ContentToVoltageForce(command.CommandContent);
-                            if (tempData != null)
+                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                            foreach (var command in commands)
                             {
-                                result.Add(tempData);
+                                var tempData = ContentToVoltageForce(command.CommandContent);
+                                if (tempData != null)
+                                {
+                                    result.Add(tempData);
+                                }
                             }
                         }
                     }
@@ -623,12 +702,21 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             try
             {
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
                 foreach (var pin in PinList)
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -644,23 +732,29 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, commandList);
-                    if (ControlService != null && message.Any())
+                    foreach (var commandList in commandListDic)
                     {
-                        var queryResult = ControlService.Query(PE131, message);
-                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
 
-                        foreach (var command in commands)
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && message.Any())
                         {
-                            var tempData = ContentToCurrentForce(command.CommandContent);
-                            if (tempData != null)
+                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                            foreach (var command in commands)
                             {
-                                result.Add(tempData);
+                                var tempData = ContentToCurrentForce(command.CommandContent);
+                                if (tempData != null)
+                                {
+                                    result.Add(tempData);
+                                }
                             }
                         }
-
                     }
                 }
 

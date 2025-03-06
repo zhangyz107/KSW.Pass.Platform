@@ -20,6 +20,7 @@ using KSW.ATE01.Project.Base.Events;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.TestPlans;
+using KSW.ATE01.Project.Base.Services.Memory;
 using KSW.ATE01.Start.Views;
 using KSW.Helpers;
 using KSW.Ui;
@@ -241,6 +242,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 _testPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
 
                 ATE01ShareMemory.LoadedTestPlanFilePath = (Path.IsPathRooted(ATE01ShareMemory.TestPlanFilePath) ? ATE01ShareMemory.TestPlanFilePath : Path.Combine(Path.GetDirectoryName(_projectInfo.ProjectPath), ATE01ShareMemory.TestPlanFilePath));
+
+                ShareMemoryInTestPlan<TestPlanModel> instance = ShareMemoryInTestPlan<TestPlanModel>.Instance;
+                instance.Create();
+                instance.WriteObject(_testPlan);
 
                 if (_testPlan?.Flow?.IsEmpty() == false)
                 {

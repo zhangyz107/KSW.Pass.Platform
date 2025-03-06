@@ -5,6 +5,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 时钟模型
     /// </summary>
+    [Serializable]
     public class TimingModel
     {
         /// <summary>

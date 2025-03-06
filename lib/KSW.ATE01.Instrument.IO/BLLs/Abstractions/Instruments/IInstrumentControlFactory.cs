@@ -22,6 +22,6 @@ namespace KSW.ATE01.Instrument.IO
         /// </summary>
         /// <param name="ioType"></param>
         /// <returns></returns>
-        IInstruentControlService? GetInstrumentControlService(IOTypeEnum ioType);
+        IInstruentControlService? GetInstrumentControlService(IOTypeEnum? ioType);
     }
 }

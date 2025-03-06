@@ -6,6 +6,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 电压限制模型
     /// </summary>
+    [Serializable]
     public class LimitsModel
     {
         /// <summary>

@@ -7,6 +7,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 通道模型
     /// </summary>
+    [Serializable]
     public class ChannelModel
     {
         /// <summary>

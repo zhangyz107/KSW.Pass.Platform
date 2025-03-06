@@ -9,6 +9,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 全局模型
     /// </summary>
+    [Serializable]
     public class GlobalModel
     {
         /// <summary>

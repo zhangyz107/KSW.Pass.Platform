@@ -15,50 +15,22 @@ namespace KSW.ATE01.Instrument.IO.Helpers
         /// <summary>
         /// 通过站点信息获取通道号
         /// </summary>
-        public static int GetChannelNumBySlot(string site)
+        public static int GetChannelNumSiteInfo(string site,out int slot)
         {
-            var channelNum = -1;
+            var channelNum = 0;
             var siteStr = site.ToLower();
-
+            slot = 0;
             if (_siteRegex.IsMatch(siteStr))
             {
                 var match = _siteRegex.Match(siteStr);
-                var slot = match.Groups[1].Value.Trim();
-                if (int.TryParse(slot, out int slotNum) && (slotNum > 4 || slotNum <= 0))
+                var slotStr = match.Groups[1].Value.Trim();
+                if (int.TryParse(slotStr, out slot) && (slot > 16 || slot < 0))
                     throw new ArgumentOutOfRangeException($"slot{slot}超出范围");
-
-                channelNum = GetChannelNumFromSlot(slotNum);
+                slot -= 1;
 
                 var channel = match.Groups[2].Value.Trim();
-                if (int.TryParse(channel, out int channNum) && (channNum > 32 || channNum < 0))
+                if (int.TryParse(channel, out channelNum) && (channelNum > 127 || channelNum < 0))
                     throw new ArgumentOutOfRangeException($"ch{channel}超出范围");
-
-                channelNum += channNum;
-            }
-
-            return channelNum;
-        }
-
-        private static int GetChannelNumFromSlot(int slot)
-        {
-            var channelNum = 0;
-
-            switch (slot)
-            {
-                case 1:
-                    channelNum = 0;
-                    break;
-                case 2:
-                    channelNum = 32;
-                    break;
-                case 3:
-                    channelNum = 64;
-                    break;
-                case 4:
-                    channelNum = 96;
-                    break;
-                default:
-                    break;
             }
 
             return channelNum;

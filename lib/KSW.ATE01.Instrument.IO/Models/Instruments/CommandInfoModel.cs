@@ -19,7 +19,7 @@ namespace KSW.ATE01.Instrument.IO.Models.Instruments
         /// <summary>
         /// 指令长度
         /// </summary>
-        public short CommnadLength => CommandContent.Any() ? (short)CommandContent.Length : (short)0;
+        public short CommnadLength => (CommandContent != null && CommandContent.Any()) ? (short)CommandContent.Length : (short)0;
 
         /// <summary>
         /// 指令内容

@@ -23,12 +23,34 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
         /// <returns></returns>
         public abstract IInstruentControlService CreateConnect(InstrumentBaseModel instrument);
 
+        /// <summary>
+        /// 测试连接
+        /// </summary>
+        public bool TestConnect(string ipAddress)
+        {
+            return IsHostOnline(IPAddress.Parse(ipAddress));
+        }
+
+        /// <summary>
+        /// 是否连接
+        /// </summary>
         public abstract bool IsConnected(InstrumentBaseModel instrument);
+
         /// <summary>
         /// 断开连接
         /// </summary>
         /// <returns></returns>
         public abstract IInstruentControlService DestroyConnect(InstrumentBaseModel instrument);
+
+        /// <summary>
+        /// 通过IP地址发送数据
+        /// </summary>
+        public abstract void Send(string ipAddress, int port, byte[] data, bool hasAck = true);
+
+        /// <summary>
+        /// 通过IP地址查询数据
+        /// </summary>
+        public abstract byte[] Query(string ipAddress, int port, byte[] data);
 
         /// <summary>
         /// 发送数据
@@ -104,5 +126,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
                 return false;
             }
         }
+
     }
 }

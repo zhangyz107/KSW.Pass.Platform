@@ -46,13 +46,20 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 try
                 {
                     //  组装数据包
-                    var commandList = new List<CommandInfoModel>();
-
+                    var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                    var controlService = Instance?.ControlService;
                     foreach (var pin in PinList)
                     {
                         foreach (var site in pin.Sites)
                         {
-                            var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                            var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                            var commandList = new List<CommandInfoModel>();
+                            if (!commandListDic.ContainsKey(slot))
+                                commandListDic[slot] = commandList;
+                            else
+                                commandList = commandListDic[slot];
+
                             if (channelNum >= 0)
                             {
                                 var byteList = new List<byte>();
@@ -69,16 +76,23 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                         }
                     }
 
-                    if (commandList.Any())
+                    if (commandListDic.Any())
                     {
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                        if (ControlService != null && message.Any())
-                            ControlService.Send(PE131, message);
+                        foreach (var commandList in commandListDic)
+                        {
+                            var slotNum = $"0x{commandList.Key.ToString("X")}";
+                            var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+
+                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                            if (controlService != null && instrumentInfo != null)
+                                controlService.Send(instrumentInfo, message);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    ErrorMessages.InsGeneral.MarkerError($"{nameof(Pattern)}.{nameof(SetPinType)}",new object[]
+                    ErrorMessages.InsGeneral.MarkerError($"{nameof(Pattern)}.{nameof(SetPinType)}", new object[]
                     {
                         ex.Message
                     });
@@ -100,13 +114,21 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 try
                 {
                     //  组装数据包
-                    var commandList = new List<CommandInfoModel>();
+                    var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                    var controlService = Instance?.ControlService;
 
                     foreach (var pin in PinList)
                     {
                         foreach (var site in pin.Sites)
                         {
-                            var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                            var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                            var commandList = new List<CommandInfoModel>();
+                            if (!commandListDic.ContainsKey(slot))
+                                commandListDic[slot] = commandList;
+                            else
+                                commandList = commandListDic[slot];
+
                             if (channelNum >= 0)
                             {
                                 var byteList = new List<byte>();
@@ -123,13 +145,19 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                         }
                     }
 
-                    if (commandList.Any())
+                    if (commandListDic.Any())
                     {
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                        if (ControlService != null && message.Any())
-                            ControlService.Send(PE131, message);
-                    }
+                        foreach (var commandList in commandListDic)
+                        {
+                            var slotNum = $"0x{commandList.Key.ToString("X")}";
+                            var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
 
+                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                            if (controlService != null && instrumentInfo != null)
+                                controlService.Send(instrumentInfo, message);
+                        }
+                    }
                 }
                 catch (ATEException)
                 {
@@ -164,12 +192,15 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 if (patternFile == null)
                     return;
 
+                var controlService = Instance?.ControlService;
+
                 var dataStartAddress = patternFile.DataStartAddress;
                 var dataLength = patternFile.PinDataLength;
                 var pinList = patternFile.PatternVectors.FirstOrDefault()?.Pins;
 
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+
                 foreach (var pin in pinList)
                 {
                     var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, pin.PinName);
@@ -177,7 +208,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     var dataEndAddress = dataStartAddress + dataLength;
                     foreach (var site in channel.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var patternStartAddress = dataStartAddress;
@@ -219,12 +257,18 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     dataStartAddress = dataEndAddress;
                 }
 
-
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                    if (Instance?.ControlService != null && Instance?.PE131 != null && message.Any())
-                        Instance?.ControlService.Send(Instance?.PE131, message);
+                    foreach (var commandList in commandListDic)
+                    {
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+
+                        if (controlService != null && instrumentInfo != null)
+                            controlService.Send(instrumentInfo, message);
+                    }
                 }
             }
 
@@ -271,6 +315,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
         {
             try
             {
+                var controlService = Instance?.ControlService;
+
                 foreach (var package in packages)
                 {
                     var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, package.PinName);
@@ -279,7 +325,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
                     foreach (var site in channel.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
                         if (channelNum >= 0)
                         {
                             var contentBytes = new byte[package.Length + _packageAdditionalLength];
@@ -306,9 +352,13 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                                 CommandContent = contentBytes.ToArray(),
                             };
 
-                            var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
-                            if (Instance?.ControlService != null && Instance?.PE131 != null && message.Any())
-                                Instance?.ControlService.Send(Instance?.PE131, message);
+                            var slotNum = $"0x{slot.ToString("X")}";
+                            var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
+
+                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+
+                            if (controlService != null && instrumentInfo != null)
+                                controlService.Send(instrumentInfo, message);
                         }
 
                     }
@@ -321,134 +371,135 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             }
         }
 
-#if DEBUG
-        public void SetPatternEnable(bool enable)
-        {
-            var location = nameof(SetPatternEnable);
+        //#if DEBUG
+        //        public void SetPatternEnable(bool enable)
+        //        {
+        //            var location = nameof(SetPatternEnable);
 
-            if (PinList == null || !PinList.Any())
-                return;
+        //            if (PinList == null || !PinList.Any())
+        //                return;
 
-            if (Message.ErrorStatus != ErrorStatus.Error)
-            {
-                Message.ModuleName = "Pattern";
-                Message.FunctionName = "Set Pattern Enable";
-                try
-                {
-                    int maxChannelNum = 0;
-                    //  组装数据包
-                    var commandList = new List<CommandInfoModel>();
-                    var channelList = new int[] { 31, 63, 95, 127 };
-                    var enableByte = System.Convert.ToByte(enable);
-                    foreach (var channel in channelList)
-                    {
-                        var channelByte = System.Convert.ToByte(channel);
+        //            if (Message.ErrorStatus != ErrorStatus.Error)
+        //            {
+        //                Message.ModuleName = "Pattern";
+        //                Message.FunctionName = "Set Pattern Enable";
+        //                try
+        //                {
+        //                    int maxChannelNum = 0;
+        //                    //  组装数据包
+        //                    var commandList = new List<CommandInfoModel>();
+        //                    var channelList = new int[] { 31, 63, 95, 127 };
+        //                    var enableByte = System.Convert.ToByte(enable);
+        //                    foreach (var channel in channelList)
+        //                    {
+        //                        var channelByte = System.Convert.ToByte(channel);
 
-                        var command = new CommandInfoModel()
-                        {
-                            CommandCode = "0xfeff",
-                            CommandContent = new byte[] { channelByte, enableByte },
-                        };
-                        commandList.Add(command);
-                    }
+        //                        var command = new CommandInfoModel()
+        //                        {
+        //                            CommandCode = "0xfeff",
+        //                            CommandContent = new byte[] { channelByte, enableByte },
+        //                        };
+        //                        commandList.Add(command);
+        //                    }
 
-                    if (commandList.Any())
-                    {
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                        if (ControlService != null && message.Any())
-                            ControlService.Send(PE131, message);
-                    }
-                }
-                catch (ATEException)
-                {
-                    throw;
-                }
-                catch (Exception inner)
-                {
-                    ErrorMessages.IO.InternalError(inner, location);
-                }
-            }
+        //                    if (commandList.Any())
+        //                    {
+        //                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList);
+        //                        if (ControlService != null && message.Any())
+        //                            ControlService.Send(PE131, message);
+        //                    }
+        //                }
+        //                catch (ATEException)
+        //                {
+        //                    throw;
+        //                }
+        //                catch (Exception inner)
+        //                {
+        //                    ErrorMessages.IO.InternalError(inner, location);
+        //                }
+        //            }
 
-        }
+        //        }
 
-        public ChannelResultModel<bool> GetPatternEnable()
-        {
-            var location = nameof(GetPatternEnable);
+        //        public ChannelResultModel<bool> GetPatternEnable()
+        //        {
+        //            var location = nameof(GetPatternEnable);
 
-            ChannelResultModel<bool> result = null;
-            if (PinList == null || !PinList.Any())
-                return result;
+        //            ChannelResultModel<bool> result = null;
+        //            if (PinList == null || !PinList.Any())
+        //                return result;
 
-            if (Message.ErrorStatus != ErrorStatus.Error)
-            {
-                Message.ModuleName = "Pattern";
-                Message.FunctionName = "Get Pattern Enable";
-                try
-                {
-                    int maxChannelNum = 0;
-                    //  组装数据包
-                    var commandList = new List<CommandInfoModel>();
-                    foreach (var pin in PinList)
-                    {
-                        foreach (var site in pin.Sites)
-                        {
-                            var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
-                            if (channelNum >= 0 && maxChannelNum < channelNum)
-                            {
-                                maxChannelNum = channelNum;
-                            }
-                        }
-                    }
+        //            if (Message.ErrorStatus != ErrorStatus.Error)
+        //            {
+        //                Message.ModuleName = "Pattern";
+        //                Message.FunctionName = "Get Pattern Enable";
+        //                try
+        //                {
+        //                    int maxChannelNum = 0;
+        //                    //  组装数据包
+        //                    var commandList = new List<CommandInfoModel>();
+        //                    foreach (var pin in PinList)
+        //                    {
+        //                        foreach (var site in pin.Sites)
+        //                        {
+        //                            var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue);
+        //                            if (channelNum >= 0 && maxChannelNum < channelNum)
+        //                            {
+        //                                maxChannelNum = channelNum;
+        //                            }
+        //                        }
+        //                    }
 
-                    var channelByte = System.Convert.ToByte(maxChannelNum);
+        //                    var channelByte = System.Convert.ToByte(maxChannelNum);
 
-                    commandList.Add(new CommandInfoModel()
-                    {
-                        CommandCode = "0xfeff",
-                        CommandContent = new byte[] { channelByte },
-                    });
+        //                    commandList.Add(new CommandInfoModel()
+        //                    {
+        //                        CommandCode = "0xfeff",
+        //                        CommandContent = new byte[] { channelByte },
+        //                    });
 
-                    if (commandList.Any())
-                    {
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, commandList);
-                        if (ControlService != null && message.Any())
-                        {
-                            var queryResult = ControlService.Query(PE131, message);
-                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+        //                    if (commandList.Any())
+        //                    {
+        //                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList);
+        //                        if (ControlService != null && message.Any())
+        //                        {
+        //                            var queryResult = ControlService.Query(PE131, message);
+        //                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
 
-                            foreach (var command in commands)
-                            {
-                                if (command.CommnadLength >= 2)
-                                {
-                                    result = new ChannelResultModel<bool>();
-                                    result.ChannelNum = (int)command.CommandContent[0];
-                                    result.OriginalData = command.CommandContent;
-                                    if (result.ChannelNum >= 0)
-                                    {
-                                        result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
-                                        result.PinName = PinManagerHelper.GetPinNameBySlotName(Instance.TestPlan?.Channel, result.Site);
-                                    }
-                                    result.SiteResult = BitConverter.ToBoolean(command.CommandContent, 1);
-                                }
-                            }
-                        }
-                    }
+        //                            foreach (var command in commands)
+        //                            {
+        //                                if (command.CommnadLength >= 2)
+        //                                {
+        //                                    result = new ChannelResultModel<bool>();
+        //                                    result.ChannelNum = (int)command.CommandContent[0];
+        //                                    result.OriginalData = command.CommandContent;
+        //                                    if (result.ChannelNum >= 0)
+        //                                    {
+        //                                        result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
+        //                                        result.PinName = PinManagerHelper.GetPinNameBySlotName(Instance.TestPlan?.Channel, result.Site);
+        //                                    }
+        //                                    result.SiteResult = BitConverter.ToBoolean(command.CommandContent, 1);
+        //                                }
+        //                            }
+        //                        }
+        //                    }
 
-                    return result;
-                }
-                catch (ATEException)
-                {
-                    throw;
-                }
-                catch (Exception inner)
-                {
-                    ErrorMessages.IO.InternalError(inner, location);
-                }
-            }
+        //                    return result;
+        //                }
+        //                catch (ATEException)
+        //                {
+        //                    throw;
+        //                }
+        //                catch (Exception inner)
+        //                {
+        //                    ErrorMessages.IO.InternalError(inner, location);
+        //                }
+        //            }
 
-            return result;
-        }
-#endif
+        //            return result;
+        //        }
+        //#endif
+
         public List<PatternRunningStateModel> GetRunningState()
         {
             if (PinList == null || !PinList.Any())
@@ -469,12 +520,22 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             try
             {
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+
+                var controlService = Instance?.ControlService;
+
                 foreach (var pin in PinList)
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+                        var commandList = new List<CommandInfoModel>();
+
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -489,28 +550,35 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, commandList);
-                    if (ControlService != null && message.Any())
+                    foreach (var commandList in commandListDic)
                     {
-                        var queryResult = ControlService.Query(PE131, message);
-                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
-                        foreach (var command in commands)
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && instrumentInfo != null)
                         {
-                            if (command.CommandContent.Length >= 5)
+                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                            foreach (var command in commands)
                             {
-                                var tempData = new ChannelResultModel<int>();
-                                tempData.ChannelNum = (int)command.CommandContent[0];
-                                tempData.OriginalData = command.CommandContent;
-                                if (tempData.ChannelNum >= 0)
+                                if (command.CommandContent.Length >= 5)
                                 {
-                                    tempData.Site = ChannelManagerHelper.GetSlotByChannelNum(tempData.ChannelNum);
-                                    tempData.PinName = PinManagerHelper.GetPinNameBySlotName(Instance.TestPlan?.Channel, tempData.Site);
+                                    var tempData = new ChannelResultModel<int>();
+                                    tempData.ChannelNum = (int)command.CommandContent[0];
+                                    tempData.OriginalData = command.CommandContent;
+                                    if (tempData.ChannelNum >= 0)
+                                    {
+                                        tempData.Site = ChannelManagerHelper.GetSlotByChannelNum(tempData.ChannelNum);
+                                        tempData.PinName = PinManagerHelper.GetPinNameBySlotName(Instance.TestPlan?.Channel, tempData.Site);
+                                    }
+                                    tempData.SiteResult = BitConverter.ToInt32(command.CommandContent.AsSpan(1, 4).ToArray().Reverse().ToArray());  //存在疑问，未调试
+                                    result.Add(tempData);
                                 }
-                                tempData.SiteResult = BitConverter.ToInt32(command.CommandContent.AsSpan(1, 4).ToArray().Reverse().ToArray());  //存在疑问，未调试
-                                result.Add(tempData);
                             }
                         }
                     }
@@ -534,7 +602,10 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             try
             {
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+
+                var controlService = Instance?.ControlService;
+
                 var addressBytes = BitConverter.GetBytes(startAddress).Reverse().ToArray();
                 var lengthBytes = BitConverter.GetBytes(length).Reverse().ToArray();
 
@@ -542,7 +613,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+                        var commandList = new List<CommandInfoModel>();
+
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -560,20 +638,27 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, commandList);
-                    if (ControlService != null && message.Any())
+                    foreach (var commandList in commandListDic)
                     {
-                        var queryResult = ControlService.Query(PE131, message);
-                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
-                        foreach (var command in commands)
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && instrumentInfo != null)
                         {
-                            if (command.CommnadLength >= length + 5)
+                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                            foreach (var command in commands)
                             {
-                                var tempData = ContentToChannelResult(command.CommandContent);
-                                result.Add(tempData);
+                                if (command.CommnadLength >= length + 5)
+                                {
+                                    var tempData = ContentToChannelResult(command.CommandContent);
+                                    result.Add(tempData);
+                                }
                             }
                         }
                     }
@@ -624,24 +709,30 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
             try
             {
+                var controlService = Instance?.ControlService;
+                var instrumentInfos = InstrumentManagerHelper.GetInstrumentInfosByBoardType((BoardType)Instance?.BoardType);
+
                 var sendCommand = new CommandInfoModel()
                 {
                     CommandCode = "0x010D",
                     CommandContent = new byte[] { 255 }
                 };
 
-                var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, new List<CommandInfoModel>() { sendCommand });
-                if (Instance.ControlService != null && message.Any())
+                var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, new List<CommandInfoModel>() { sendCommand });
+                if (controlService != null && message.Any())
                 {
-                    var queryResult = Instance.ControlService.Query(Instance.PE131, message);
-                    var commands = CommandHelper.ConversionBytesToCommands(queryResult);
-
-                    foreach (var command in commands)
+                    foreach (var instrumentInfo in instrumentInfos)
                     {
-                        if (command.CommnadLength >= 33)
+                        var queryResult = controlService.Query(instrumentInfo, message);
+                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                        foreach (var command in commands)
                         {
-                            var tempData = ContentToChannelRunningState(command.CommandContent);
-                            result.AddRange(tempData);
+                            if (command.CommnadLength >= 33)
+                            {
+                                var tempData = ContentToChannelRunningState(command.CommandContent);
+                                result.AddRange(tempData);
+                            }
                         }
                     }
                 }
@@ -728,14 +819,22 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             try
             {
                 //  组装数据包
-                var commandList = new List<CommandInfoModel>();
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
 
+                var controlService = Instance?.ControlService;
 
                 foreach (var pin in PinList)
                 {
                     foreach (var site in pin.Sites)
                     {
-                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue,out int slot);
+                
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
                         if (channelNum >= 0)
                         {
                             var byteList = new List<byte>();
@@ -751,41 +850,48 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     }
                 }
 
-                if (commandList.Any())
+                if (commandListDic.Any())
                 {
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Query, commandList);
-                    if (ControlService != null && message.Any())
+                    foreach (var commandList in commandListDic)
                     {
-                        var queryResult = ControlService.Query(PE131, message);
-                        var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
-                        foreach (var command in commands)
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && instrumentInfo != null)
                         {
-                            if (command.CommnadLength >= 11)
-                            {
-                                var tempData = new ChannelResultModel<PatternStorageAddress>();
-                                tempData.ChannelNum = (int)command.CommandContent[0];
-                                tempData.OriginalData = command.CommandContent;
-                                if (tempData.ChannelNum >= 0)
-                                {
-                                    tempData.Site = ChannelManagerHelper.GetSlotByChannelNum(tempData.ChannelNum);
-                                    tempData.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, tempData.Site);
-                                }
-                                var buffAddressBytes = new byte[8];
-                                tempData.SiteResult = new PatternStorageAddress();
-                                var startAddressBytes = command.CommandContent.AsSpan(1, 5).ToArray().Reverse().ToArray();
-                                Array.Copy(startAddressBytes, buffAddressBytes, 5);
-                                tempData.SiteResult.StartAddress = BitConverter.ToInt64(buffAddressBytes);
+                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
 
-                                var endAddressBytes = command.CommandContent.AsSpan(6, 5).ToArray().Reverse().ToArray();
-                                Array.Copy(endAddressBytes, buffAddressBytes, 5);
-                                tempData.SiteResult.EndAddress = BitConverter.ToInt64(buffAddressBytes);
-                                result.Add(tempData);
+                            foreach (var command in commands)
+                            {
+                                if (command.CommnadLength >= 11)
+                                {
+                                    var tempData = new ChannelResultModel<PatternStorageAddress>();
+                                    tempData.ChannelNum = (int)command.CommandContent[0];
+                                    tempData.OriginalData = command.CommandContent;
+                                    if (tempData.ChannelNum >= 0)
+                                    {
+                                        tempData.Site = ChannelManagerHelper.GetSlotByChannelNum(tempData.ChannelNum);
+                                        tempData.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, tempData.Site);
+                                    }
+                                    var buffAddressBytes = new byte[8];
+                                    tempData.SiteResult = new PatternStorageAddress();
+                                    var startAddressBytes = command.CommandContent.AsSpan(1, 5).ToArray().Reverse().ToArray();
+                                    Array.Copy(startAddressBytes, buffAddressBytes, 5);
+                                    tempData.SiteResult.StartAddress = BitConverter.ToInt64(buffAddressBytes);
+
+                                    var endAddressBytes = command.CommandContent.AsSpan(6, 5).ToArray().Reverse().ToArray();
+                                    Array.Copy(endAddressBytes, buffAddressBytes, 5);
+                                    tempData.SiteResult.EndAddress = BitConverter.ToInt64(buffAddressBytes);
+                                    result.Add(tempData);
+                                }
                             }
                         }
+
                     }
                 }
-
                 return result;
             }
             catch (Exception)

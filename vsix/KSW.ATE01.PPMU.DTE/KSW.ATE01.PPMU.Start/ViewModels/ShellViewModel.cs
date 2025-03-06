@@ -1,4 +1,6 @@
 ﻿using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models.TestPlans;
+using KSW.ATE01.Project.Base.Services.Memory;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Extensions.Logging;
@@ -46,6 +48,12 @@ namespace KSW.ATE01.PPMU.Start.ViewModels
             }
             var testPlanFilePath = ATE01ShareMemory.TestPlanFilePath;
             var loadTestPlan = ATE01ShareMemory.LoadedTestPlanFilePath;
+
+            ShareMemoryInTestPlan<TestPlanModel> instance = ShareMemoryInTestPlan<TestPlanModel>.Instance;
+            if (instance.IsExisting() && instance.Open().Item1)
+            {
+                var testPlan = instance.ReadObject();
+            }
         }
 
 

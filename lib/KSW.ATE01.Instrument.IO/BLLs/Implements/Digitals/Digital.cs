@@ -5,6 +5,7 @@ using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Models;
+using System.Collections.Generic;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 {
@@ -86,6 +87,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                     {
                         try
                         {
+                            var controlService = Instance.ControlService;
+
                             foreach (var patternTiming in patternTimings)
                             {
                                 var pinList = commonData.TestPlan.Channel?.Where(x => x.Groups.Any(y => y.Name.Equals(patternTiming.PinName))).ToList();
@@ -137,14 +140,20 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                 var fd_caBytes = BitConverter.GetBytes(fd_ca).Reverse();
                                 var fd_cbBytes = BitConverter.GetBytes(fd_cb).Reverse();
 
-                                //  组装数据包
-                                var commandList = new List<CommandInfoModel>();
+                                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
 
                                 foreach (var pin in pinList)
                                 {
                                     foreach (var site in pin.Sites)
                                     {
-                                        var channelNum = ChannelManagerHelper.GetChannelNumBySlot(site.SiteValue);
+                                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                                        List<CommandInfoModel> commandList = new List<CommandInfoModel>();
+                                        if (!commandListDic.ContainsKey(slot))
+                                            commandListDic[slot] = commandList;
+                                        else
+                                            commandList = commandListDic[slot];
+
                                         if (channelNum >= 0)
                                         {
                                             var byteList = new List<byte>();
@@ -180,11 +189,18 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                     }
                                 }
 
-                                if (commandList.Any())
+                                if (commandListDic.Any())
                                 {
-                                    var message = CommandHelper.GetCommandBytes(0xFF, BoradType.PE, InstructionType.Configuration, commandList);
-                                    if (Instance?.ControlService != null && Instance?.PE131 != null && message.Any())
-                                        Instance?.ControlService?.Send(Instance?.PE131, message);
+                                    foreach (var commandList in commandListDic)
+                                    {
+                                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+
+                                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+                                        
+                                        if (controlService != null && instrumentInfo != null)
+                                            controlService.Send(instrumentInfo, message);
+                                    }
                                 }
                             }
                         }

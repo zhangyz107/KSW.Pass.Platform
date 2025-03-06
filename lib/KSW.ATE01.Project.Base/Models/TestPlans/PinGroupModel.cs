@@ -9,6 +9,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 引脚组模型
     /// </summary>
+    [Serializable]
     public class PinGroupModel
     {
         /// <summary>

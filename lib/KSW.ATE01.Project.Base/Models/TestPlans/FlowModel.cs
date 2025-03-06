@@ -5,6 +5,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
     /// <summary>
     /// 流程模型
     /// </summary>
+    [Serializable]
     public class FlowModel
     {
         /// <summary>
