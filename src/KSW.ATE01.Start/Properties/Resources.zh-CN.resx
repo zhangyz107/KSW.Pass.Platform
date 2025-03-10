@@ -429,4 +429,7 @@
   <data name="IsDelete" xml:space="preserve">
     <value>是否删除</value>
   </data>
+  <data name="NoSiteSelected" xml:space="preserve">
+    <value>没有选择中任何站点</value>
+  </data>
 </root>

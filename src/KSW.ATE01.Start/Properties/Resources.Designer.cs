@@ -538,6 +538,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 No site selected 的本地化字符串。
+        /// </summary>
+        internal static string NoSiteSelected {
+            get {
+                return ResourceManager.GetString("NoSiteSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Not found 的本地化字符串。
         /// </summary>
         internal static string NotFound {

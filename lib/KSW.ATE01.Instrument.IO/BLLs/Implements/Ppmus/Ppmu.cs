@@ -97,6 +97,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                         var commandList = new List<CommandInfoModel>();
@@ -190,6 +193,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                         var commandList = new List<CommandInfoModel>();
@@ -357,6 +363,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                         var commandList = new List<CommandInfoModel>();
@@ -457,6 +466,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                         var commandList = new List<CommandInfoModel>();
@@ -598,6 +610,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                         var commandList = new List<CommandInfoModel>();
@@ -710,6 +725,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                         var commandList = new List<CommandInfoModel>();

@@ -52,6 +52,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     {
                         foreach (var site in pin.Sites)
                         {
+                            if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                                continue;
+
                             var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                             var commandList = new List<CommandInfoModel>();
@@ -121,6 +124,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     {
                         foreach (var site in pin.Sites)
                         {
+                            if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                                continue;
+
                             var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                             var commandList = new List<CommandInfoModel>();
@@ -208,6 +214,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     var dataEndAddress = dataStartAddress + dataLength;
                     foreach (var site in channel.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                         if (channelNum != 0)
@@ -330,6 +339,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
                     foreach (var site in channel.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
                         if (channelNum >= 0)
                         {
@@ -533,6 +545,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
                         var commandList = new List<CommandInfoModel>();
 
@@ -618,6 +633,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
                         var commandList = new List<CommandInfoModel>();
 
@@ -832,6 +850,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue,out int slot);
                 
                         var commandList = new List<CommandInfoModel>();

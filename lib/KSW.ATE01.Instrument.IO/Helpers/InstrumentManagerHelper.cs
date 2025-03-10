@@ -46,19 +46,19 @@ namespace KSW.ATE01.Instrument.IO.Helpers
         {
             var control = _controlFactory.GetInstrumentControlService(ioType);
             var port = 40288;
+            var commandInfo = new CommandInfoModel()
+            {
+                CommandCode = "0xFF00",
+                CommandContent = Array.Empty<byte>(),
+            };
+            var message = CommandHelper.GetCommandBytes(0xFF, BoardType.Unknown, InstructionType.Query, new List<CommandInfoModel>() { commandInfo });
             for (int i = 0; i < _maxSlotNum; i++)
             {
                 var endIp = 200 + i;
                 var ipAddress = $"192.168.0.{endIp}";
-                var commandInfo = new CommandInfoModel()
-                {
-                    CommandCode = "0xFF00",
-                    CommandContent = Array.Empty<byte>(),
-                };
-                var message = CommandHelper.GetCommandBytes(0xFF, BoardType.Unknown, InstructionType.Query, new List<CommandInfoModel>() { commandInfo });
                 if (control.TestConnect(ipAddress))
                 {
-                    var queryResult = control.Query(ipAddress, port, message,out int localPort);
+                    var queryResult = control.Query(ipAddress, port, message, out int localPort);
                     var commands = CommandHelper.ConversionBytesToCommands(queryResult);
 
                     if (commands != null && commands.Any())

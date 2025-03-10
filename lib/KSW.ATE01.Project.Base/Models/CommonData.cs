@@ -95,5 +95,10 @@ namespace KSW.ATE01.Project.Base.Models
         /// 电压上限
         /// </summary>
         public decimal? HighLimit { get => TestItemLimit?.HighLimit; }
+
+        /// <summary>
+        /// 使用站点名称
+        /// </summary>
+        public List<string> UseSiteName { get; set; }
     }
 }

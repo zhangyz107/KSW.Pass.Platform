@@ -1,4 +1,5 @@
-﻿using KSW.ATE01.Project.Base.Models.TestPlans;
+﻿using KSW.ATE01.Project.Base.Models;
+using KSW.ATE01.Project.Base.Models.TestPlans;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,16 @@ namespace KSW.ATE01.Instrument.IO.Helpers
     {
         private static Regex _siteRegex = new Regex("^slot([1-9]\\d*|0)+:ch([1-9]\\d*|0)$");
 
+        public static bool IsSiteValid(string siteName)
+        {
+            var siteNameList = CommonData.Instance.UseSiteName;
+            return siteNameList != null && siteNameList.Any() ? siteNameList.Contains(siteName) : false;
+        }
+
         /// <summary>
         /// 通过站点信息获取通道号
         /// </summary>
-        public static int GetChannelNumSiteInfo(string site,out int slot)
+        public static int GetChannelNumSiteInfo(string site, out int slot)
         {
             var channelNum = 0;
             var siteStr = site.ToLower();

@@ -429,4 +429,7 @@
   <data name="IsDelete" xml:space="preserve">
     <value>IsDelete</value>
   </data>
+  <data name="NoSiteSelected" xml:space="preserve">
+    <value>No site selected</value>
+  </data>
 </root>

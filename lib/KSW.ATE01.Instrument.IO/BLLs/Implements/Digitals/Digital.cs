@@ -146,6 +146,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                 {
                                     foreach (var site in pin.Sites)
                                     {
+                                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                                            continue;
+
                                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
                                         List<CommandInfoModel> commandList = new List<CommandInfoModel>();

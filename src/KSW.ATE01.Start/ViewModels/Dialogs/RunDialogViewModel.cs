@@ -308,24 +308,35 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private async void ExecuteStartTestCommand()
         {
+            if (!_siteList.Any(x => x.IsSelected))
+            {
+                DialogService.ShowMessageDialog(L["NoSiteSelected"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             await ExecuteWithExceptionHandling(async () =>
             {
 
-                //todo 先保证生成dll
-                if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
+                var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-                    var commonData = CommonData.Instance;
-                    if (commonData != null)
+                    //todo 先保证生成dll
+                    if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
                     {
-                        commonData.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
-                        Debug.WriteLine($"赋值{nameof(CommonData.ProjectInfo)}");
-                        commonData.TestPlan = await _testPlanBLL.LoadTestPlanAsync(_projectInfo);
-                        Debug.WriteLine($"赋值{nameof(CommonData.TestPlan)}");
+                        var commonData = CommonData.Instance;
+                        if (commonData != null)
+                        {
+                            commonData.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
+                            Debug.WriteLine($"赋值{nameof(CommonData.ProjectInfo)}");
+                            commonData.TestPlan = await _testPlanBLL.LoadTestPlanAsync(_projectInfo);
+                            Debug.WriteLine($"赋值{nameof(CommonData.TestPlan)}");
+                            commonData.UseSiteName = _siteList.Where(x => x.IsSelected).Select(x => x.SiteName).ToList();
+                        }
+
+                        await _projectBLL?.StartTestPlanAsync(_projectInfo);
+
                     }
-
-                    await _projectBLL?.StartTestPlanAsync(_projectInfo);
-
-                }
+                });
+                await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
 
             }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }

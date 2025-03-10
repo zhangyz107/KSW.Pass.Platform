@@ -533,4 +533,8 @@
     <value>IsDelete</value>
     <comment>是否删除</comment>
   </data>
+  <data name="NoSiteSelected" xml:space="preserve">
+    <value>No site selected</value>
+    <comment>没有选择中任何站点</comment>
+  </data>
 </root>

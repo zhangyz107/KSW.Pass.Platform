@@ -3,6 +3,7 @@ using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
+using KSW.ATE01.Project.Base.Models;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Backplanes
 {
@@ -33,6 +34,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Backplanes
                 {
                     foreach (var site in pin.Sites)
                     {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
                         if (slot > 16 || slot < 0)
                             throw new ArgumentOutOfRangeException($"{site.SiteValue}的slot{slot}超出范围");
