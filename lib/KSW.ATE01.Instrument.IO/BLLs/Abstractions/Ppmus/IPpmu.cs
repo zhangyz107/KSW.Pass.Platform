@@ -23,7 +23,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus
         /// <param name="activeLoad">Active Load开关，0:off，1:on</param>
         /// <param name="hiz">Hiz模式，0:hiz，1:vt</param>
         /// <param name="dpc"></param>
-        void SetDriverAndComparator(double vil, double vih, double vol, double voh, double vt, double iol, double ioh, bool activeLoad, HizType hiz, byte dpc);
+        void SetDriverAndComparator(double vil, double vih, double vol, double voh, double vt, double iol, double ioh, bool activeLoad, HizType hiz, byte dpc, byte diff = 0);
 
         /// <summary>
         /// 设置FIMV

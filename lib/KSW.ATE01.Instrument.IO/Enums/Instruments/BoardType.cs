@@ -24,5 +24,11 @@ namespace KSW.ATE01.Instrument.IO.Enums.Instruments
         /// </summary>
         [Description("Backplane")]
         Backplane = 0x0301,
+
+        /// <summary>
+        /// 未知
+        /// </summary>
+        [Description("Unknown")]
+        Unknown = 0xFFFF
     }
 }

@@ -29,7 +29,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
         /// <param name="pwa_cb">-128~+127</param>
         /// <param name="cd_cb">0~63</param>
         /// <param name="fd_cb">0~63</param>
-        public static void SetTiming(sbyte pwa_en = 0, byte cd_en = 0, ushort fd_en = 0, sbyte pwa_d = 0, byte cd_d = 0, ushort fd_d = 0, sbyte pwa_ca = 0, byte cd_ca = 0, ushort fd_ca = 0, sbyte pwa_cb = 0, byte cd_cb = 0, ushort fd_cb = 0)
+        public static void SetTiming(sbyte pwa_en = 0, byte cd_en = 0, ushort fd_en = 0, sbyte pwa_d = 0, byte cd_d = 0, ushort fd_d = 0, sbyte pwa_ca = 0, byte cd_ca = 0, ushort fd_ca = 0, sbyte pwa_cb = 0, byte cd_cb = 0, ushort fd_cb = 0, byte d_d_d = 0, byte en_d_d = 0, byte ca_d_d = 0, byte cb_d_d = 0, short cab_d_c = 0)
         {
             if (cd_en < 0 || cd_en > 63)
                 throw new ArgumentOutOfRangeException(nameof(cd_en), "取值范围:0~ 63");
@@ -62,11 +62,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 
             if (!string.IsNullOrEmpty(commonData.Timing))
             {
-                SetTimingDetail(pwa_en, cd_en, fd_en, pwa_d, cd_d, fd_d, pwa_ca, cd_ca, fd_ca, pwa_cb, cd_cb, fd_cb);
+                SetTimingDetail(pwa_en, cd_en, fd_en, pwa_d, cd_d, fd_d, pwa_ca, cd_ca, fd_ca, pwa_cb, cd_cb, fd_cb, d_d_d, en_d_d, ca_d_d, cb_d_d, cab_d_c);
             }
         }
 
-        private static void SetTimingDetail(sbyte pwa_en, byte cd_en, ushort fd_en, sbyte pwa_d, byte cd_d, ushort fd_d, sbyte pwa_ca, byte cd_ca, ushort fd_ca, sbyte pwa_cb, byte cd_cb, ushort fd_cb)
+        private static void SetTimingDetail(sbyte pwa_en, byte cd_en, ushort fd_en, sbyte pwa_d, byte cd_d, ushort fd_d, sbyte pwa_ca, byte cd_ca, ushort fd_ca, sbyte pwa_cb, byte cd_cb, ushort fd_cb, byte d_d_d, byte en_d_d, byte ca_d_d, byte cb_d_d, short cab_d_c)
         {
             var commonData = CommonData.Instance;
 
@@ -139,7 +139,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                 var fd_dBytes = BitConverter.GetBytes(fd_d).Reverse();
                                 var fd_caBytes = BitConverter.GetBytes(fd_ca).Reverse();
                                 var fd_cbBytes = BitConverter.GetBytes(fd_cb).Reverse();
-
+                                var cab_dcBytes = BitConverter.GetBytes(cab_d_c).Reverse();
                                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
 
                                 foreach (var pin in pinList)
@@ -179,6 +179,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                             byteList.Add((byte)pwa_cb);       //pwa_cb
                                             byteList.Add(cd_cb);              //cd_cb
                                             byteList.AddRange(fd_cbBytes);    //fd_cb
+                                            byteList.Add(d_d_d);              //d_d_d
+                                            byteList.Add(en_d_d);              //en_d_d
+                                            byteList.Add(ca_d_d);              //ca_d_d
+                                            byteList.Add(cb_d_d);              //cb_d_d
+                                            byteList.AddRange(cab_dcBytes);    //cab_d_c
                                             var command = new CommandInfoModel()
                                             {
                                                 CommandCode = "0x010A",
@@ -193,11 +198,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                 {
                                     foreach (var commandList in commandListDic)
                                     {
-                                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
 
                                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
-                                        
+
                                         if (controlService != null && instrumentInfo != null)
                                             controlService.Send(instrumentInfo, message);
                                     }

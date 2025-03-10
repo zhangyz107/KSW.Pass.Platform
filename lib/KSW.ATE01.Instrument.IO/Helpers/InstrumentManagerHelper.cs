@@ -2,7 +2,6 @@
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Helpers;
-using System.Collections.Generic;
 
 namespace KSW.ATE01.Instrument.IO.Helpers
 {
@@ -45,26 +44,21 @@ namespace KSW.ATE01.Instrument.IO.Helpers
 
         private void QuerySlotInfo(IOTypeEnum ioType = IOTypeEnum.UDP)
         {
-            var helper = _instance.Value;
-            if (helper == null)
-                return;
-
-            var control = helper._controlFactory.GetInstrumentControlService(ioType);
+            var control = _controlFactory.GetInstrumentControlService(ioType);
             var port = 40288;
             for (int i = 0; i < _maxSlotNum; i++)
             {
                 var endIp = 200 + i;
                 var ipAddress = $"192.168.0.{endIp}";
-
                 var commandInfo = new CommandInfoModel()
                 {
                     CommandCode = "0xFF00",
                     CommandContent = Array.Empty<byte>(),
                 };
-                var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, new List<CommandInfoModel>() { commandInfo });
+                var message = CommandHelper.GetCommandBytes(0xFF, BoardType.Unknown, InstructionType.Query, new List<CommandInfoModel>() { commandInfo });
                 if (control.TestConnect(ipAddress))
                 {
-                    var queryResult = control.Query(ipAddress, port, message);
+                    var queryResult = control.Query(ipAddress, port, message,out int localPort);
                     var commands = CommandHelper.ConversionBytesToCommands(queryResult);
 
                     if (commands != null && commands.Any())
@@ -72,7 +66,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                         var command = commands.FirstOrDefault();
                         if (command.CommandContent.Length >= 3)
                         {
-                            var channelNum = command.CommandContent[0];
+                            var slot = command.CommandContent[0];
                             var type = BitConverter.ToInt16(command.CommandContent, 1);
 
                             var boardType = (BoardType)type;
@@ -82,14 +76,14 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                             {
                                 BoardName = boardType.GetDescription(),
                                 BoardType = boardType,
-                                SlotNum = $"0x{i.ToString("X")}"
+                                SlotNum = $"0x{slot.ToString("x2")}"
                             },
                             new UdpInstrumentModel()
                             {
                                 InstrumentName = $"{boardType.GetDescription()}-{boardInfos.Count() + 1}",
                                 IpAddress = ipAddress,
                                 Port = 40288,
-                                LocalPort = 9989 + i,
+                                LocalPort = localPort,
                                 ConnectType = IOTypeEnum.UDP,
                             });
                         }

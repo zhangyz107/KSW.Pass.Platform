@@ -50,7 +50,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
 
             //帧头
             message.AddRange(_messageHeader.ToByteArray());
-            var realCommands = commands.Where(x => x != null && x.CommandContent.Any());
+            var realCommands = commands.Where(x => x != null && !string.IsNullOrEmpty(x.CommandCode));
             var commandsLength = realCommands.Sum(x => x.CommnadLength) + realCommands.Count() * 4;
             var totalLength = Marshal.SizeOf(_frameStruct) + commandsLength;
             //帧长
@@ -61,18 +61,18 @@ namespace KSW.ATE01.Instrument.IO.Helpers
             message.Add(slotNum);
 
             //板卡类型
-            message.AddRange(boradType.ToString().ToByteArray());
+            message.AddRange(((int)boradType).ToString("x4").ToByteArray());
 
             //指令类型
             message.AddRange(instructionType.GetDescription().ToByteArray());
 
             //指令数量
-            var commandCount = BitConverter.GetBytes((short)commands.Where(x => x != null && x.CommandContent.Any()).Count()).Reverse();
+            var commandCount = BitConverter.GetBytes((short)commands.Where(x => x != null && !string.IsNullOrEmpty(x.CommandCode)).Count()).Reverse();
             message.AddRange(commandCount);
 
             foreach (var command in commands)
             {
-                if (command.CommnadLength > 0)
+                if (command.CommnadLength >= 0)
                 {
                     //ID
                     message.AddRange(command.CommandCode.ToByteArray());

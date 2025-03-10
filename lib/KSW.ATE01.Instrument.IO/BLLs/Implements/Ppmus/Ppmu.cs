@@ -47,7 +47,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             return Instance;
         }
 
-        public void SetDriverAndComparator(double vil, double vih, double vol, double voh, double vt, double iol, double ioh, bool activeLoad, HizType hiz, byte dpc)
+        public void SetDriverAndComparator(double vil, double vih, double vol, double voh, double vt, double iol, double ioh, bool activeLoad, HizType hiz, byte dpc, byte diff = 0)
         {
             if (PinList == null || !PinList.Any())
                 return;
@@ -119,6 +119,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                             byteList.Add(System.Convert.ToByte(activeLoad));  //Active Load开关，0:off，1:on
                             byteList.Add((byte)hiz);  //Hiz模式，0:hiz，1:vt
                             byteList.Add(dpc);  //DPC
+                            byteList.Add(diff);  //DPC
 
                             var command = new CommandInfoModel()
                             {
@@ -134,7 +135,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
@@ -220,7 +221,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
 
@@ -387,7 +388,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
@@ -483,7 +484,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
@@ -624,7 +625,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
@@ -736,7 +737,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
 
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);

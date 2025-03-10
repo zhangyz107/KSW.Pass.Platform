@@ -45,12 +45,12 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
         /// <summary>
         /// 通过IP地址发送数据
         /// </summary>
-        public abstract void Send(string ipAddress, int port, byte[] data, bool hasAck = true);
+        public abstract void Send(string ipAddress, int port, byte[] data, out int localPort, bool hasAck = true);
 
         /// <summary>
         /// 通过IP地址查询数据
         /// </summary>
-        public abstract byte[] Query(string ipAddress, int port, byte[] data);
+        public abstract byte[] Query(string ipAddress, int port, byte[] data, out int localPort);
 
         /// <summary>
         /// 发送数据

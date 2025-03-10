@@ -33,12 +33,12 @@ namespace KSW.ATE01.Instrument.IO
         /// <summary>
         /// 通过IP地址发送数据
         /// </summary>
-        void Send(string ipAddress, int port, byte[] data, bool hasAck = true);
+        void Send(string ipAddress, int port, byte[] data, out int localPort, bool hasAck = true );
 
         /// <summary>
         /// 通过IP地址查询数据
         /// </summary>
-        byte[] Query(string ipAddress, int port, byte[] data);
+        byte[] Query(string ipAddress, int port, byte[] data, out int localPort);
 
         /// <summary>
         /// 发送数据

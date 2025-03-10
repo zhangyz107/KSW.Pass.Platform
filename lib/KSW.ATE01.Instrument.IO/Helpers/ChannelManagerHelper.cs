@@ -24,9 +24,8 @@ namespace KSW.ATE01.Instrument.IO.Helpers
             {
                 var match = _siteRegex.Match(siteStr);
                 var slotStr = match.Groups[1].Value.Trim();
-                if (int.TryParse(slotStr, out slot) && (slot > 16 || slot < 0))
+                if (int.TryParse(slotStr, out slot) && (slot >= 16 || slot < 0))
                     throw new ArgumentOutOfRangeException($"slot{slot}超出范围");
-                slot -= 1;
 
                 var channel = match.Groups[2].Value.Trim();
                 if (int.TryParse(channel, out channelNum) && (channelNum > 127 || channelNum < 0))

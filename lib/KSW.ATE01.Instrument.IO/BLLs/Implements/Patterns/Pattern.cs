@@ -80,7 +80,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     {
                         foreach (var commandList in commandListDic)
                         {
-                            var slotNum = $"0x{commandList.Key.ToString("X")}";
+                            var slotNum = $"0x{commandList.Key.ToString("x2")}";
                             var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
 
                             var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
@@ -149,7 +149,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     {
                         foreach (var commandList in commandListDic)
                         {
-                            var slotNum = $"0x{commandList.Key.ToString("X")}";
+                            var slotNum = $"0x{commandList.Key.ToString("x2")}";
                             var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
 
                             var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
@@ -210,6 +210,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     {
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
 
+                        if (channelNum != 0)
+                        {
+                            continue;
+                        }
+
                         var commandList = new List<CommandInfoModel>();
                         if (!commandListDic.ContainsKey(slot))
                             commandListDic[slot] = commandList;
@@ -261,7 +266,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
@@ -352,7 +357,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                                 CommandContent = contentBytes.ToArray(),
                             };
 
-                            var slotNum = $"0x{slot.ToString("X")}";
+                            var slotNum = $"0x{slot.ToString("x2")}";
                             var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
 
                             var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
@@ -554,7 +559,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
@@ -642,7 +647,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
@@ -854,7 +859,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var commandList in commandListDic)
                     {
-                        var slotNum = $"0x{commandList.Key.ToString("X")}";
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
                         var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
