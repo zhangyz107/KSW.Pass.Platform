@@ -42,13 +42,19 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private readonly IProjectBLL _projectBLL;
         private readonly ITestPlanBLL _testPlanBLL;
         private ProjectInfoModel _projectInfo;
-        private int _loopExecuted;
-        private int _failCount;
         private TestPlanModel _testPlan;
         private ObservableCollection<FlowInfoModel> _flowList = new ObservableCollection<FlowInfoModel>();
         private ObservableCollection<SiteInfoModel> _siteList = new ObservableCollection<SiteInfoModel>();
         private RealTimeTxtView _realTimeTxtView;
-
+        private bool _canLoadTestPlan = true;
+        private bool _canExecuteSetTest = true;
+        private bool _canExecuteStartTest = false;
+        private bool _canExecuteEndTest = false;
+        private bool _canExecuteLooping = false;
+        private bool _canExecuteStop = false;
+        private bool _isRunning = false;
+        private bool _loopCountEnabled = true;
+        private bool _loopDelayEnabled = true;
         #endregion
 
         #region Properties
@@ -96,24 +102,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
         }
 
-        /// <summary>
-        /// 已执行循环
-        /// </summary>
-        public int LoopExecuted
-        {
-            get => _loopExecuted;
-            set => SetProperty(ref _loopExecuted, value);
-        }
-
-        /// <summary>
-        /// 失败数
-        /// </summary>
-        public int FailCount
-        {
-            get => _failCount;
-            set => SetProperty(ref _failCount, value);
-        }
-
         public ObservableCollection<FlowInfoModel> FlowList
         {
             get => _flowList;
@@ -132,6 +120,18 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             set => SetProperty(ref _realTimeTxtView, value);
         }
 
+        public bool LoopCountEnabled
+        {
+            get => _loopCountEnabled;
+            set => SetProperty(ref _loopCountEnabled, value);
+        }
+
+        public bool LoopDelayEnabled
+        {
+            get => _loopDelayEnabled;
+            set => SetProperty(ref _loopDelayEnabled, value);
+        }
+
         #endregion
 
         #region Command
@@ -145,27 +145,25 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private DelegateCommand _loadTestPlanCommand;
         public DelegateCommand LoadTestPlanCommand =>
-            _loadTestPlanCommand ?? (_loadTestPlanCommand = new DelegateCommand(ExecuteLoadTestPlanCommand));
+            _loadTestPlanCommand ?? (_loadTestPlanCommand = new DelegateCommand(ExecuteLoadTestPlanCommand, () => { return _canLoadTestPlan; }));
+
+        private AsyncDelegateCommand _loopingCommand;
+        public AsyncDelegateCommand LoopingCommand => _loopingCommand ?? (_loopingCommand = new AsyncDelegateCommand(ExecuteLoopingCommand, () => { return _canExecuteLooping; }));
+
+        private DelegateCommand _stopCommand;
+        public DelegateCommand StopCommand => _stopCommand ?? (_stopCommand = new DelegateCommand(ExecuteStopCommand, () => { return _canExecuteStop; }));
 
         private DelegateCommand _setTestItemCommand;
         public DelegateCommand SetTestItemCommand =>
-            _setTestItemCommand ?? (_setTestItemCommand = new DelegateCommand(ExecuteSetTestItemCommand));
+            _setTestItemCommand ?? (_setTestItemCommand = new DelegateCommand(ExecuteSetTestItemCommand, () => { return _flowList.Any() && _canExecuteSetTest; }));
 
-        private DelegateCommand _startTestCommand;
-        public DelegateCommand StartTestCommand =>
-            _startTestCommand ?? (_startTestCommand = new DelegateCommand(ExecuteStartTestCommand));
+        private AsyncDelegateCommand _startTestCommand;
+        public AsyncDelegateCommand StartTestCommand =>
+            _startTestCommand ?? (_startTestCommand = new AsyncDelegateCommand(ExecuteStartTestCommand, () => { return _canExecuteStartTest; }));
 
-        private DelegateCommand _endTestCommand;
-        public DelegateCommand EndTestCommand =>
-            _endTestCommand ?? (_endTestCommand = new DelegateCommand(ExecuteEndTestCommand));
-
-        private DelegateCommand _oKCommand;
-        public DelegateCommand OKCommand =>
-            _oKCommand ?? (_oKCommand = new DelegateCommand(ExecuteOKCommand));
-
-        private DelegateCommand _cancelCommand;
-        public DelegateCommand CancelCommand =>
-            _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
+        private AsyncDelegateCommand _endTestCommand;
+        public AsyncDelegateCommand EndTestCommand =>
+            _endTestCommand ?? (_endTestCommand = new AsyncDelegateCommand(ExecuteEndTestCommand, () => { return _canExecuteEndTest; }));
 
         public ProjectInfoModel ProjectInfo
         {
@@ -190,7 +188,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public bool CanCloseDialog()
         {
-            return true;
+            return !_isRunning;
         }
 
         public void OnDialogClosed()
@@ -239,6 +237,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             await ExecuteWithExceptionHandling(async () =>
             {
+                _isRunning = true;
+                _canLoadTestPlan = false;
+                ChangeCommandsState();
+
                 _testPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
 
                 ATE01ShareMemory.LoadedTestPlanFilePath = (Path.IsPathRooted(ATE01ShareMemory.TestPlanFilePath) ? ATE01ShareMemory.TestPlanFilePath : Path.Combine(Path.GetDirectoryName(_projectInfo.ProjectPath), ATE01ShareMemory.TestPlanFilePath));
@@ -293,7 +295,27 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                     RaisePropertyChanged(nameof(IsAllSitesSelected));
                 }
 
-            }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
+                _canExecuteStartTest = true;
+                _canExecuteLooping = true;
+
+            }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning),
+            () =>
+            {
+                _isRunning = false;
+                _canLoadTestPlan = true;
+                ChangeCommandsState();
+            });
+
+        }
+
+        private void ChangeCommandsState()
+        {
+            LoadTestPlanCommand.RaiseCanExecuteChanged();
+            SetTestItemCommand.RaiseCanExecuteChanged();
+            StartTestCommand.RaiseCanExecuteChanged();
+            EndTestCommand.RaiseCanExecuteChanged();
+            LoopingCommand.RaiseCanExecuteChanged();
+            StopCommand.RaiseCanExecuteChanged();
 
         }
 
@@ -306,7 +328,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         }
 
-        private async void ExecuteStartTestCommand()
+        private async Task ExecuteStartTestCommand()
         {
             if (!_siteList.Any(x => x.IsSelected))
             {
@@ -316,6 +338,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
             await ExecuteWithExceptionHandling(async () =>
             {
+                _isRunning = true;
+                _canExecuteStartTest = false;
+                _canLoadTestPlan = false;
+                ChangeCommandsState();
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
@@ -332,29 +358,103 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                             commonData.UseSiteName = _siteList.Where(x => x.IsSelected).Select(x => x.SiteName).ToList();
                         }
 
-                        await _projectBLL?.StartTestPlanAsync(_projectInfo);
+                        await _projectBLL?.StartTestAsync(_flowList.ToList(), _projectInfo);
 
                     }
                 });
+
                 await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
 
-            }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
+                _canExecuteEndTest = true;
+            },
+            async (e) =>
+            {
+                await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
+                _canExecuteStartTest = true;
+            },
+            () =>
+            {
+                _canLoadTestPlan = true;
+                ChangeCommandsState();
+
+                _isRunning = false;
+            });
         }
 
-        private void ExecuteEndTestCommand()
+        private async Task ExecuteEndTestCommand()
         {
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                _isRunning = true;
+                _canExecuteEndTest = false;
 
+                ChangeCommandsState();
+
+                await _projectBLL?.EndTestAsync(_projectInfo);
+
+                _canExecuteStartTest = true;
+            },
+            async (e) =>
+            {
+                await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
+                _canExecuteEndTest = true;
+            },
+            () =>
+            {
+                _isRunning = false;
+                ChangeCommandsState();
+            });
         }
 
-        private void ExecuteOKCommand()
+        private async Task ExecuteLoopingCommand()
         {
+            if (_projectInfo.LoopCount == 0)
+                return;
 
-            RaiseRequestClose(new DialogResult(ButtonResult.OK));
+            if (!_siteList.Any(x => x.IsSelected))
+            {
+                await DialogService.ShowMessageDialog(L["NoSiteSelected"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            _isRunning = true;
+            _canLoadTestPlan = false;
+            _canExecuteSetTest = false;
+            _canExecuteStartTest = false;
+            _canExecuteEndTest = false;
+            _canExecuteLooping = false;
+            _canExecuteStop = true;
+            _loopCountEnabled = false;
+            _loopDelayEnabled = false;
+
+            ChangeCommandsState();
+
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                await _projectBLL.ExecuteLoopingAsync(_flowList.ToList(), _projectInfo);
+
+                _canExecuteEndTest = true;
+            },
+            async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning)
+            , () =>
+            {
+                _isRunning = false;
+                _canLoadTestPlan = true;
+                _canExecuteSetTest = true;
+                _canExecuteStartTest = true;
+                _canExecuteEndTest = true;
+                _canExecuteLooping = true;
+                _canExecuteStop = false;
+                _loopCountEnabled = true;
+                _loopDelayEnabled = true;
+
+                ChangeCommandsState();
+            });
         }
 
-        private void ExecuteCancelCommand()
+        private void ExecuteStopCommand()
         {
-            RaiseRequestClose(new DialogResult(ButtonResult.Cancel));
+            _projectBLL.StopLooping();
         }
 
         private void SelectAllItems(bool select)

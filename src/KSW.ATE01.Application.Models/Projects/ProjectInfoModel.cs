@@ -24,6 +24,8 @@ namespace KSW.ATE01.Application.Models.Projects
         private bool _isOffLine;
         private int _loopCount;
         private int _delayBetweenLoops;
+        private int _loopExecuted;
+        private int _failCount;
         private bool _stopOnFail;
         private string _releasePath;
         private readonly string _excelExtension;
@@ -207,6 +209,25 @@ namespace KSW.ATE01.Application.Models.Projects
                     SetProperty(ref _delayBetweenLoops, value);
                 }
             }
+        }
+
+
+        /// <summary>
+        /// 已执行循环
+        /// </summary>
+        public int LoopExecuted
+        {
+            get => _loopExecuted;
+            set => SetProperty(ref _loopExecuted, value);
+        }
+
+        /// <summary>
+        /// 失败数
+        /// </summary>
+        public int FailCount
+        {
+            get => _failCount;
+            set => SetProperty(ref _failCount, value);
         }
 
         /// <summary>

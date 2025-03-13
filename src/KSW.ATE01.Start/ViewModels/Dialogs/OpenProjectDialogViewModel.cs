@@ -110,7 +110,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
+            var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
 
+            if ((!currentProjectInfo?.ProjectPath.IsEmpty()) == true && Directory.Exists(currentProjectInfo?.ProjectPath))
+            {
+                ProjectList = _projectBLL?.ScanProjects(Path.GetDirectoryName(currentProjectInfo.ProjectPath));
+            }
         }
 
         public virtual void RaiseRequestClose(IDialogResult dialogResult)
@@ -128,7 +133,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
 
             if ((!currentProjectInfo?.ProjectPath.IsEmpty()) == true && Directory.Exists(currentProjectInfo?.ProjectPath))
-                folderDialog.InitialDirectory = currentProjectInfo.ProjectPath;
+                folderDialog.InitialDirectory = Path.GetDirectoryName(currentProjectInfo.ProjectPath);
 
             if (folderDialog.ShowDialog() == true)
             {

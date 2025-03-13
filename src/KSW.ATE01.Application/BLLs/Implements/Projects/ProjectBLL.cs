@@ -15,16 +15,15 @@ using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
 using KSW.ATE01.Project.Base.Enums.Errors;
 using KSW.ATE01.Project.Base.Enums.Results;
-using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.Exceptions;
 using KSW.ATE01.Project.Base.Models.TestPlans;
-using KSW.ATE01.Project.Base.Services.Errors;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Reflections;
@@ -48,15 +47,18 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly string _csprojExt = ".csproj";
         private readonly string _slnExt = ".sln";
         private readonly string _excelExtension;
-        private readonly bool _alreadyStartLot = false;
+        private bool _alreadyStartLot = false;
         private List<string> _errorMessageList = new List<string>();
         private FlowStatus _flowStatus;
-
+        private CancellationTokenSource _tokenSource;
+        private int _loopTargeCount = 0;
+        #region Properties
         public FlowStatus FlowStatus
         {
             get { return _flowStatus; }
             set { _flowStatus = value; }
         }
+        #endregion
 
         public ProjectBLL(
             IContainerProvider containerProvider,
@@ -273,17 +275,17 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
             return result;
         }
-        public async Task StartTestPlanAsync(ProjectInfoModel projectInfo = null)
+        public async Task StartTestAsync(List<FlowInfoModel> flows, ProjectInfoModel projectInfo = null)
         {
             try
             {
                 projectInfo = projectInfo ?? _currentProjectInfo;
+
                 if (projectInfo == null)
                     throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
 
                 var testItemName = ConfigurationManager.AppSettings["TestItemName"] ?? throw new ArgumentNullException("TestItemName");
                 var startTestMethod = ConfigurationManager.AppSettings["StartTestMethod"] ?? throw new ArgumentNullException("StartTestMethod");
-                var endTestMethod = ConfigurationManager.AppSettings["EndTestMethod"] ?? throw new ArgumentNullException("EndTestMethod");
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 var dllPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.ExecuteExtension);
 
@@ -297,36 +299,23 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     object instance = Activator.CreateInstance(classType);
                     if (!_alreadyStartLot)
                     {
-                        try
-                        {
-                            Message.InitializeStatusClear();
-                            Message.StatusClear();
-                            //运行TestStart
-                            var flag = ExecuteFunction(ProcessStage.TestStart, instance, classType, startTestMethod, null);
+                        Message.InitializeStatusClear();
+                        Message.StatusClear();
+                        //运行TestStart
+                        var flag = ExecuteFunction(ProcessStage.TestStart, instance, classType, startTestMethod, null);
+                        _alreadyStartLot = true;
 
-                            if (flag)   //运行FlowStart
-                                flag = ExecuteTestItemsInFlow(instance, classType);
+                        if (flag)   //运行FlowStart
+                            flag = ExecuteTestItemsInFlow(instance, classType, flows);
 
-                            if (flag)   //运行TestEnd
-                                flag = ExecuteFunction(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw ex;
-                        }
+                        //if (flag)   //运行TestEnd
+                        //    flag = ExecuteFunction(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
                     }
                     else
                     {
-                        try
-                        {
-                            Message.StatusClear();
-                            //运行FlowStart
-                            var flag = ExecuteTestItemsInFlow(instance, classType);
-                        }
-                        finally
-                        {
-
-                        }
+                        Message.StatusClear();
+                        //运行FlowStart
+                        var flag = ExecuteTestItemsInFlow(instance, classType, flows);
                     }
 
                 }
@@ -339,6 +328,148 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+
+        public async Task EndTestAsync(ProjectInfoModel projectInfo = null)
+        {
+            try
+            {
+                projectInfo = projectInfo ?? _currentProjectInfo;
+
+                if (projectInfo == null)
+                    throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
+
+                var testItemName = ConfigurationManager.AppSettings["TestItemName"] ?? throw new ArgumentNullException("TestItemName");
+                var endTestMethod = ConfigurationManager.AppSettings["EndTestMethod"] ?? throw new ArgumentNullException("EndTestMethod");
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var dllPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.ExecuteExtension);
+
+                var loadContext = new PluginLoadContext(Path.GetDirectoryName(dllPath), assemblies);
+                var assem = loadContext.LoadFromAssemblyPath(dllPath);
+                var classType = assem.GetType(testItemName);
+
+                // 获取实现该接口的类型
+                if (classType != null)
+                {
+                    // 创建类的实例
+                    object instance = Activator.CreateInstance(classType);
+
+                    var flag = ExecuteFunction(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
+
+                    // 释放加载的上下文和程序集
+                    loadContext.Unload();
+
+                    // 在适当的地方调用GC以释放未管理的资源
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessages.InsGeneral.MarkerError(nameof(EndTestAsync), new object[] { ex.Message });
+                throw;
+            }
+            finally
+            {
+                _alreadyStartLot = false;
+            }
+        }
+
+        public async Task ExecuteLoopingAsync(List<FlowInfoModel> flows, ProjectInfoModel projectInfo = null)
+        {
+            try
+            {
+                projectInfo = projectInfo ?? _currentProjectInfo;
+
+                if (projectInfo == null)
+                    throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
+
+                var testItemName = ConfigurationManager.AppSettings["TestItemName"] ?? throw new ArgumentNullException("TestItemName");
+                var startTestMethod = ConfigurationManager.AppSettings["StartTestMethod"] ?? throw new ArgumentNullException("StartTestMethod");
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var dllPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.ExecuteExtension);
+
+                var loadContext = new PluginLoadContext(Path.GetDirectoryName(dllPath), assemblies);
+                var assem = loadContext.LoadFromAssemblyPath(dllPath);
+                var classType = assem.GetType(testItemName);
+
+
+                // 获取实现该接口的类型
+                if (classType != null)
+                {
+                    // 创建类的实例
+                    object instance = Activator.CreateInstance(classType);
+                    _tokenSource = new CancellationTokenSource();
+                    var token = _tokenSource.Token;
+
+                    if (!_alreadyStartLot)
+                    {
+                        Message.InitializeStatusClear();
+                        Message.StatusClear();
+                        _loopTargeCount = 0;
+                        projectInfo.LoopExecuted = 0;
+                        projectInfo.FailCount = 0;
+
+                        //运行TestStart
+                        var flag = ExecuteFunction(ProcessStage.TestStart, instance, classType, startTestMethod, null);
+                        _alreadyStartLot = true;
+                    }
+                    else
+                    {
+                        Message.StatusClear();
+                    }
+
+                    await Task.Factory.StartNew(async () => await LoopTest(instance, classType, flows, projectInfo, token), token);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task LoopTest(object instance, Type? classType, List<FlowInfoModel> flows, ProjectInfoModel projectInfo, CancellationToken token)
+        {
+            try
+            {
+                if (projectInfo.LoopExecuted >= _loopTargeCount)
+                {
+                    _loopTargeCount = projectInfo.LoopExecuted + projectInfo.LoopCount;
+                }
+
+                while (projectInfo.LoopExecuted < _loopTargeCount)
+                {
+                    if (token.IsCancellationRequested)
+                        break;
+
+                    //运行FlowStart
+                    var flag = ExecuteTestItemsInFlow(instance, classType, flows);
+
+                    projectInfo.LoopExecuted++;
+
+                    await Task.Delay(projectInfo.DelayBetweenLoops * 1000);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public void StopLooping()
+        {
+            try
+            {
+                if (_tokenSource != null && !_tokenSource.IsCancellationRequested)
+                    _tokenSource.Cancel();
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
         }
@@ -579,7 +710,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return ex;
         }
 
-        private bool ExecuteTestItemsInFlow(object? instance, Type classType)
+        private bool ExecuteTestItemsInFlow(object? instance, Type classType, List<FlowInfoModel> flows)
         {
             var result = false;
 
@@ -590,7 +721,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             try
             {
                 result = ExecuteFunction(ProcessStage.FlowStart, instance, classType, startFlowMethod, null);
-                var flowIds = testPlan.Flow.Where(x => x.Enable.IsEmpty()).Select(x => x.TestItemId);
+                var testItemNames = flows.Where(x => x.Enable.IsEmpty()).Select(x => x.TestItemName);
+                var flowIds = testPlan.Flow.Where(x => testItemNames.Contains(x.TestItemName)).Select(x => x.TestItemId);
                 var testItems = testPlan.TestItem.Where(x => flowIds.Contains(x.Id.ToGuid())).Select(x => x);
                 foreach (var testItem in testItems)
                 {

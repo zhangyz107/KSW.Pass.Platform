@@ -31,5 +31,10 @@ namespace KSW.ATE01.Start.Views.Dialogs
             var width = this.ActualWidth;
             this.expandContent.Width = width / 2.0;
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
     }
 }

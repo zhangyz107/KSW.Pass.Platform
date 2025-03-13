@@ -41,7 +41,7 @@ namespace KSW.Ui
         /// <summary>
         /// 执行异常处理
         /// </summary>
-        protected async Task ExecuteWithExceptionHandling(Action action, Func<Exception, Task> errorCallBack = null)
+        protected async Task ExecuteWithExceptionHandling(Action action, Func<Exception, Task> errorCallBack = null, Action finallyAction = null)
         {
             try
             {
@@ -51,12 +51,16 @@ namespace KSW.Ui
             {
                 await HandleException(ex, errorCallBack);
             }
+            finally
+            {
+                finallyAction?.Invoke();
+            }
         }
 
         /// <summary>
         /// 执行异常处理
         /// </summary>
-        protected async Task ExecuteWithExceptionHandling(Func<Task> action, Func<Exception, Task> errorCallBack = null)
+        protected async Task ExecuteWithExceptionHandling(Func<Task> action, Func<Exception, Task> errorCallBack = null,Action finallyAction = null)
         {
             try
             {
@@ -65,6 +69,10 @@ namespace KSW.Ui
             catch (Exception ex)
             {
                 await HandleException(ex, errorCallBack);
+            }
+            finally
+            {
+                finallyAction?.Invoke();
             }
         }
 

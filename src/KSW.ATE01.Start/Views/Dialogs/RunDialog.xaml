@@ -185,24 +185,24 @@ Background="Transparent">
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Label Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopCount}"></Label>
-                            <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="1" BorderThickness="1" Text="{Binding ProjectInfo.LoopCount,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+                            <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="1" BorderThickness="1" Text="{Binding ProjectInfo.LoopCount,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsEnabled="{Binding LoopCountEnabled}"></TextBox>
 
                             <Label Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L LoopsExecuted}"></Label>
-                            <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="3" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding LoopExecuted}"></TextBox>
+                            <TextBox Padding="6" Margin="0,0,6,6" Grid.Column="3" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding ProjectInfo.LoopExecuted}"></TextBox>
 
                             <Label Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L DelayBetweenLoops}"></Label>
-                            <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="1" Text="{Binding ProjectInfo.DelayBetweenLoops,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+                            <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="1" Text="{Binding ProjectInfo.DelayBetweenLoops,UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Style="{StaticResource MaterialDesignOutlinedTextBox}"  IsEnabled="{Binding LoopDelayEnabled}"></TextBox>
 
                             <Label Grid.Row="1" Grid.Column="2" Margin="0,0,6,6" VerticalAlignment="Center" Content="{language:L FailCount}"></Label>
-                            <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="3" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsReadOnly="True" Text="{Binding FailCount}"></TextBox>
+                            <TextBox Padding="6" Grid.Row="1" Margin="0,0,6,6" Grid.Column="3" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsReadOnly="True" Text="{Binding ProjectInfo.FailCount}"></TextBox>
 
                             <Label Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,6" Content="s（max 300s）"></Label>
 
                             <CheckBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,0,0,6" VerticalContentAlignment="Center" Content="{language:L StopOnFail}" IsChecked="{Binding ProjectInfo.StopOnFail}"></CheckBox>
 
-                            <Button Grid.Row="4" Grid.ColumnSpan="2" Margin="0,0,6,0" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Looping}"></Button>
+                            <Button Grid.Row="4" Grid.ColumnSpan="2" Margin="0,0,6,0" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Looping}" Command="{Binding LoopingCommand}"></Button>
 
-                            <Button Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Stop}"></Button>
+                            <Button Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L Stop}" Command="{Binding StopCommand}"></Button>
                         </Grid>
                     </GroupBox>
 

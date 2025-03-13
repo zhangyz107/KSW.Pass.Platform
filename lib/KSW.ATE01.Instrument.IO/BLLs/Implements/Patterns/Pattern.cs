@@ -218,12 +218,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                             continue;
 
                         var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
-
-                        if (channelNum != 0)
-                        {
-                            continue;
-                        }
-
                         var commandList = new List<CommandInfoModel>();
                         if (!commandListDic.ContainsKey(slot))
                             commandListDic[slot] = commandList;

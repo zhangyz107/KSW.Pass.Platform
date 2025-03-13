@@ -1,5 +1,6 @@
 ﻿using KSW.Application;
 using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 
 namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
@@ -56,9 +57,23 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         Task<bool> CopyTestPlanAsync(ProjectInfoModel projectInfo = null);
 
         /// <summary>
-        /// 开始测试计划
+        /// 开始测试
         /// </summary>
+        Task StartTestAsync(List<FlowInfoModel> flows, ProjectInfoModel projectInfo = null);
 
-        Task StartTestPlanAsync(ProjectInfoModel projectInfo = null);
+        /// <summary>
+        /// 结束测试
+        /// </summary>
+        Task EndTestAsync(ProjectInfoModel projectInfo = null);
+
+        /// <summary>
+        /// 循环执行
+        /// </summary>
+        Task ExecuteLoopingAsync(List<FlowInfoModel> flows, ProjectInfoModel projectInfo = null);
+
+        /// <summary>
+        /// 停止循环
+        /// </summary>
+        void StopLooping();
     }
 }
