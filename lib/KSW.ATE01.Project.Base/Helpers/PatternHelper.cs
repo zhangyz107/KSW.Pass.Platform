@@ -225,207 +225,216 @@ namespace KSW.ATE01.Project.Base.Helpers
                 return result;
 
             var lengthBytes = BitConverter.GetBytes(_vectorLength).Reverse().Skip(6).ToArray();
-
-            //先将向量根据命令分组
-            var groupPatternVectors = new Dictionary<int, List<PatternVectorModel>>();
-            var groupIndex = 0;
-            foreach (var vector in patternModel.PatternVectors)
+            try
             {
-                List<PatternVectorModel> currentGroup = null;
-                if (!groupPatternVectors.ContainsKey(groupIndex) || groupPatternVectors[groupIndex] == null)
+                //先将向量根据命令分组
+                var groupPatternVectors = new Dictionary<int, List<PatternVectorModel>>();
+                var groupIndex = 0;
+                foreach (var vector in patternModel.PatternVectors)
                 {
-                    groupPatternVectors[groupIndex] = new List<PatternVectorModel>();
-                    currentGroup = groupPatternVectors[groupIndex];
-                }
-                else
-                    currentGroup = groupPatternVectors[groupIndex];
+                    List<PatternVectorModel> currentGroup = null;
+                    if (!groupPatternVectors.ContainsKey(groupIndex) || groupPatternVectors[groupIndex] == null)
+                    {
+                        groupPatternVectors[groupIndex] = new List<PatternVectorModel>();
+                        currentGroup = groupPatternVectors[groupIndex];
+                    }
+                    else
+                        currentGroup = groupPatternVectors[groupIndex];
 
-                //根据命令实际情况分组
-                if (vector.Command != null && (vector.Command.Type == CommandType.loop || vector.Command.Type == CommandType.repeat))
+                    //根据命令实际情况分组
+                    if (vector.Command != null && (vector.Command.Type == CommandType.loop || vector.Command.Type == CommandType.repeat))
+                    {
+                        currentGroup = new List<PatternVectorModel>();
+                        groupPatternVectors[++groupIndex] = currentGroup;
+                    }
+
+                    if (currentGroup != null)
+                        currentGroup.Add(vector);
+                }
+                patternDataLength = (groupIndex + 1) * (int)_vectorLength;
+                var packageModelDic = new Dictionary<int, PatternPackageModel>();
+                var groupCount = 0;
+                int vectorUnitByte = 62;
+                foreach (var groupVectors in groupPatternVectors)
                 {
-                    currentGroup = new List<PatternVectorModel>();
-                    groupPatternVectors[++groupIndex] = currentGroup;
-                }
+                    var isEven = groupVectors.Value.Count % 2 == 0;
 
-                if (currentGroup != null)
-                    currentGroup.Add(vector);
+                    if (isEven)
+                    {
+                        for (int i = 0; i < groupVectors.Value.Count; i += 2)
+                        {
+                            var isInit = true;
+                            if (i != 0)
+                                isInit = false;
+
+                            var row1 = groupVectors.Value[i];
+                            var row2 = groupVectors.Value[i + 1];
+
+                            var length = row1.Pins.Count > row2.Pins.Count ? row2.Pins.Count : row1.Pins.Count;
+                            var pinList = row1.Pins.Count > row2.Pins.Count ? row1.Pins : row2.Pins;
+
+                            for (int j = 0; j < length; j++)
+                            {
+                                PatternPackageModel lastPackageModel = null;
+                                var pinName = pinList[j].PinName;
+                                if (isInit)
+                                {
+                                    lastPackageModel = new PatternPackageModel();
+                                    lastPackageModel.PinName = pinName;
+                                    var addr = dataStartAddress;
+                                    lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                                    lastPackageModel.Length = _vectorLength;
+                                    lastPackageModel.LengthBytes = lengthBytes;
+                                    lastPackageModel.PatternGroups = new List<PatternGroupModel>();
+                                    lastPackageModel.PatternGroups.Add(new PatternGroupModel());
+                                    packageModelDic.Add(j, lastPackageModel);
+                                    result.Add(lastPackageModel);
+                                    dataStartAddress += _vectorLength;
+                                }
+                                else
+                                {
+                                    lastPackageModel = packageModelDic[j];
+                                }
+
+                                var pinByte = (byte)((int)row2.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue);
+
+                                var lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
+                                if (lastPatternModel != null)
+                                {
+                                    var byteLength = lastPatternModel.VectorNumber + lastPatternModel.Parameter.Count;
+                                    if (byteLength >= vectorUnitByte * 2)
+                                    {
+                                        lastPatternModel = new PatternGroupModel();
+                                        if (lastPackageModel.PatternGroups.Count < 8)
+                                        {
+                                            lastPackageModel.PatternGroups.Add(lastPatternModel);
+                                            lastPatternModel.Vectors.Add(pinByte);
+                                        }
+                                        else
+                                        {
+                                            lastPackageModel = new PatternPackageModel();
+                                            lastPackageModel.PinName = pinName;
+                                            var addr = dataStartAddress;
+                                            lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                                            lastPackageModel.Length = _vectorLength;
+                                            lastPackageModel.LengthBytes = lengthBytes;
+                                            lastPackageModel.PatternGroups = new List<PatternGroupModel>();
+                                            lastPackageModel.PatternGroups.Add(new PatternGroupModel());
+                                            if (packageModelDic.ContainsKey(j))
+                                                packageModelDic[j] = lastPackageModel;
+                                            else
+                                                packageModelDic.Add(j, lastPackageModel);
+                                            result.Add(lastPackageModel);
+
+                                            lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
+                                            lastPatternModel.Vectors.Add(pinByte);
+                                            dataStartAddress += _vectorLength;
+                                        }
+
+                                    }
+                                    else
+                                        lastPatternModel.Vectors.Add(pinByte);
+
+                                }
+                            }
+
+                            if (isInit)
+                                groupCount++;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < groupVectors.Value.Count; i += 2)
+                        {
+                            var isInit = true;
+                            if (i != 0)
+                                isInit = false;
+
+                            var row1 = groupVectors.Value[i];
+                            PatternVectorModel row2 = null;
+                            if (i != groupVectors.Value.Count - 1)
+                                row2 = groupVectors.Value[i + 1];
+
+                            var length = row2 != null ? row1.Pins.Count > row2.Pins.Count ? row1.Pins.Count : row2.Pins.Count : row1.Pins.Count;
+                            var pinList = row1.Pins;
+                            if (row2 != null)
+                                pinList = row1.Pins.Count > row2?.Pins.Count ? row1.Pins : row2?.Pins;
+
+                            for (int j = 0; j < length; j++)
+                            {
+                                PatternPackageModel lastPackageModel = null;
+                                var pinName = pinList[j].PinName;
+                                if (isInit)
+                                {
+                                    lastPackageModel = new PatternPackageModel();
+                                    lastPackageModel.PinName = pinName;
+                                    var addr = dataStartAddress;
+                                    lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                                    lastPackageModel.Length = _vectorLength;
+                                    lastPackageModel.LengthBytes = lengthBytes;
+                                    lastPackageModel.PatternGroups = new List<PatternGroupModel>();
+                                    lastPackageModel.PatternGroups.Add(new PatternGroupModel());
+                                    packageModelDic.Add(j, lastPackageModel);
+                                    result.Add(lastPackageModel);
+                                    dataStartAddress += _vectorLength;
+                                }
+                                else
+                                {
+                                    lastPackageModel = packageModelDic[j];
+                                }
+
+                                var pinByte = row2 != null ? (byte)((int)row2.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue) : (byte)row1.Pins[j].VectorValue;
+
+                                var lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
+                                if (lastPatternModel != null)
+                                {
+                                    var byteLength = lastPatternModel.VectorNumber + lastPatternModel.Parameter.Count;
+                                    if (byteLength >= vectorUnitByte * 2)
+                                    {
+                                        lastPatternModel = new PatternGroupModel();
+                                        if (lastPackageModel.PatternGroups.Count < 8)
+                                        {
+                                            lastPackageModel.PatternGroups.Add(lastPatternModel);
+                                            lastPatternModel.Vectors.Add(pinByte);
+                                        }
+                                        else
+                                        {
+                                            lastPackageModel = new PatternPackageModel();
+                                            lastPackageModel.PinName = pinName;
+                                            var addr = dataStartAddress;
+                                            lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                                            lastPackageModel.Length = _vectorLength;
+                                            lastPackageModel.LengthBytes = lengthBytes;
+                                            lastPackageModel.PatternGroups = new List<PatternGroupModel>();
+                                            lastPackageModel.PatternGroups.Add(new PatternGroupModel());
+                                            if (packageModelDic.ContainsKey(j))
+                                                packageModelDic[j] = lastPackageModel;
+                                            else
+                                                packageModelDic.Add(j, lastPackageModel);
+                                            result.Add(lastPackageModel);
+
+                                            lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
+                                            lastPatternModel.Vectors.Add(pinByte);
+                                            dataStartAddress += _vectorLength;
+                                        }
+
+                                    }
+                                    else
+                                        lastPatternModel.Vectors.Add(pinByte);
+
+                                }
+                            }
+
+                            if (isInit)
+                                groupCount++;
+                        }
+                    }
+                }
             }
-            patternDataLength = (groupIndex + 1) * (int)_vectorLength;
-            var packageModelDic = new Dictionary<int, PatternPackageModel>();
-            var groupCount = 0;
-            int vectorUnitByte = 62;
-            foreach (var groupVectors in groupPatternVectors)
+            catch (Exception)
             {
-                var isEven = groupVectors.Value.Count % 2 == 0;
 
-                if (isEven)
-                {
-                    for (int i = 0; i < groupVectors.Value.Count; i += 2)
-                    {
-                        var isInit = true;
-                        if (i != 0)
-                            isInit = false;
-
-                        var row1 = groupVectors.Value[i];
-                        var row2 = groupVectors.Value[i + 1];
-
-                        var length = row1.Pins.Count > row2.Pins.Count ? row2.Pins.Count : row1.Pins.Count;
-                        var pinList = row1.Pins.Count > row2.Pins.Count ? row1.Pins : row2.Pins;
-
-                        for (int j = 0; j < length; j++)
-                        {
-                            PatternPackageModel lastPackageModel = null;
-                            var pinName = pinList[j].PinName;
-                            if (isInit)
-                            {
-                                lastPackageModel = new PatternPackageModel();
-                                lastPackageModel.PinName = pinName;
-                                var addr = dataStartAddress;
-                                lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                lastPackageModel.Length = _vectorLength;
-                                lastPackageModel.LengthBytes = lengthBytes;
-                                lastPackageModel.PatternGroups = new List<PatternGroupModel>();
-                                lastPackageModel.PatternGroups.Add(new PatternGroupModel());
-                                packageModelDic.Add(j, lastPackageModel);
-                                result.Add(lastPackageModel);
-                                dataStartAddress += _vectorLength;
-                            }
-                            else
-                            {
-                                lastPackageModel = packageModelDic[j];
-                            }
-
-                            var pinByte = (byte)((int)row2.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue);
-
-                            var lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
-                            if (lastPatternModel != null)
-                            {
-                                var byteLength = lastPatternModel.VectorNumber + lastPatternModel.Parameter.Count;
-                                if (byteLength >= vectorUnitByte * 2)
-                                {
-                                    lastPatternModel = new PatternGroupModel();
-                                    if (lastPackageModel.PatternGroups.Count < 8)
-                                    {
-                                        lastPackageModel.PatternGroups.Add(lastPatternModel);
-                                        lastPatternModel.Vectors.Add(pinByte);
-                                    }
-                                    else
-                                    {
-                                        lastPackageModel = new PatternPackageModel();
-                                        lastPackageModel.PinName = pinName;
-                                        var addr = dataStartAddress;
-                                        lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                        lastPackageModel.Length = _vectorLength;
-                                        lastPackageModel.LengthBytes = lengthBytes;
-                                        lastPackageModel.PatternGroups = new List<PatternGroupModel>();
-                                        lastPackageModel.PatternGroups.Add(new PatternGroupModel());
-                                        if (packageModelDic.ContainsKey(j))
-                                            packageModelDic[j] = lastPackageModel;
-                                        else
-                                            packageModelDic.Add(j, lastPackageModel);
-                                        result.Add(lastPackageModel);
-
-                                        lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
-                                        lastPatternModel.Vectors.Add(pinByte);
-                                        dataStartAddress += _vectorLength;
-                                    }
-
-                                }
-                                else
-                                    lastPatternModel.Vectors.Add(pinByte);
-
-                            }
-                        }
-
-                        if (isInit)
-                            groupCount++;
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < groupVectors.Value.Count; i += 2)
-                    {
-                        var isInit = true;
-                        if (i != 0)
-                            isInit = false;
-
-                        var row1 = groupVectors.Value[i];
-                        PatternVectorModel row2 = null;
-                        if (i != groupVectors.Value.Count - 1)
-                            row2 = groupVectors.Value[i + 1];
-
-                        var length = row2 != null ? row1.Pins.Count > row2.Pins.Count ? row1.Pins.Count : row2.Pins.Count : row1.Pins.Count;
-                        var pinList = row1.Pins.Count > row2.Pins.Count ? row1.Pins : row2.Pins;
-
-                        for (int j = 0; j < length; j++)
-                        {
-                            PatternPackageModel lastPackageModel = null;
-                            var pinName = pinList[j].PinName;
-                            if (isInit)
-                            {
-                                lastPackageModel = new PatternPackageModel();
-                                lastPackageModel.PinName = pinName;
-                                var addr = dataStartAddress;
-                                lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                lastPackageModel.Length = _vectorLength;
-                                lastPackageModel.LengthBytes = lengthBytes;
-                                lastPackageModel.PatternGroups = new List<PatternGroupModel>();
-                                lastPackageModel.PatternGroups.Add(new PatternGroupModel());
-                                packageModelDic.Add(j, lastPackageModel);
-                                result.Add(lastPackageModel);
-                                dataStartAddress += _vectorLength;
-                            }
-                            else
-                            {
-                                lastPackageModel = packageModelDic[j];
-                            }
-
-                            var pinByte = row2 != null ? (byte)((int)row2.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue) : (byte)row1.Pins[j].VectorValue;
-
-                            var lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
-                            if (lastPatternModel != null)
-                            {
-                                var byteLength = lastPatternModel.VectorNumber + lastPatternModel.Parameter.Count;
-                                if (byteLength >= vectorUnitByte * 2)
-                                {
-                                    lastPatternModel = new PatternGroupModel();
-                                    if (lastPackageModel.PatternGroups.Count < 8)
-                                    {
-                                        lastPackageModel.PatternGroups.Add(lastPatternModel);
-                                        lastPatternModel.Vectors.Add(pinByte);
-                                    }
-                                    else
-                                    {
-                                        lastPackageModel = new PatternPackageModel();
-                                        lastPackageModel.PinName = pinName;
-                                        var addr = dataStartAddress;
-                                        lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                        lastPackageModel.Length = _vectorLength;
-                                        lastPackageModel.LengthBytes = lengthBytes;
-                                        lastPackageModel.PatternGroups = new List<PatternGroupModel>();
-                                        lastPackageModel.PatternGroups.Add(new PatternGroupModel());
-                                        if (packageModelDic.ContainsKey(j))
-                                            packageModelDic[j] = lastPackageModel;
-                                        else
-                                            packageModelDic.Add(j, lastPackageModel);
-                                        result.Add(lastPackageModel);
-
-                                        lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
-                                        lastPatternModel.Vectors.Add(pinByte);
-                                        dataStartAddress += _vectorLength;
-                                    }
-
-                                }
-                                else
-                                    lastPatternModel.Vectors.Add(pinByte);
-
-                            }
-                        }
-
-                        if (isInit)
-                            groupCount++;
-                    }
-                }
+                throw;
             }
 
             return result;

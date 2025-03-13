@@ -370,11 +370,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             async (e) =>
             {
                 await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning);
-                _canExecuteStartTest = true;
             },
             () =>
             {
                 _canLoadTestPlan = true;
+                _canExecuteStartTest = true;
                 ChangeCommandsState();
 
                 _isRunning = false;

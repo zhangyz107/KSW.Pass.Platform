@@ -1,10 +1,13 @@
 ﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Digitals;
+using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Models;
+using KSW.ATE01.Project.Base.Models.Errors;
+using KSW.ATE01.Project.Base.Models.TestPlans;
 using System.Collections.Generic;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
@@ -13,6 +16,55 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
     {
         private const double _periodResolution = 6.25e-10;
         private const double _ns = 1e-9;
+
+        public static IDigital Pins(string pinList)
+        {
+            if (string.IsNullOrEmpty(pinList))
+                ErrorMessages.DpsPpmu.PinListIsNullOrEmpty();
+
+            Instance.GetPinList(pinList);
+
+            return Instance;
+        }
+
+        public void SetTimingByPins(sbyte pwa_en = 0, byte cd_en = 0, ushort fd_en = 0, sbyte pwa_d = 0, byte cd_d = 0, ushort fd_d = 0, sbyte pwa_ca = 0, byte cd_ca = 0, ushort fd_ca = 0, sbyte pwa_cb = 0, byte cd_cb = 0, ushort fd_cb = 0, byte d_d_d = 0, byte en_d_d = 0, byte ca_d_d = 0, byte cb_d_d = 0, short cab_d_c = 0)
+        {
+            if (PinList == null || !PinList.Any())
+                return;
+
+            if (cd_en < 0 || cd_en > 63)
+                throw new ArgumentOutOfRangeException(nameof(cd_en), "取值范围:0~ 63");
+
+            if (fd_en < 0 || fd_en > 63)
+                throw new ArgumentOutOfRangeException(nameof(fd_en), "取值范围:0~ 63");
+
+            if (cd_d < 0 || cd_d > 63)
+                throw new ArgumentOutOfRangeException(nameof(cd_d), "取值范围:0~ 63");
+
+            if (fd_d < 0 || fd_d > 63)
+                throw new ArgumentOutOfRangeException(nameof(fd_d), "取值范围:0~ 63");
+
+            if (cd_ca < 0 || cd_ca > 63)
+                throw new ArgumentOutOfRangeException(nameof(cd_ca), "取值范围:0~ 63");
+
+            if (fd_ca < 0 || fd_ca > 63)
+                throw new ArgumentOutOfRangeException(nameof(fd_ca), "取值范围:0~ 63");
+
+            if (cd_cb < 0 || cd_cb > 63)
+                throw new ArgumentOutOfRangeException(nameof(cd_cb), "取值范围:0~ 63");
+
+            if (fd_cb < 0 || fd_cb > 63)
+                throw new ArgumentOutOfRangeException(nameof(fd_cb), "取值范围:0~ 63");
+
+            var commonData = CommonData.Instance;
+            if (commonData == null || commonData.TestPlan == null || commonData.TestPlan?.Channel == null || commonData.TestPlan?.TestItem == null)
+                return;
+
+            if (!string.IsNullOrEmpty(commonData.Timing))
+            {
+                SetTimingDetail(pwa_en, cd_en, fd_en, pwa_d, cd_d, fd_d, pwa_ca, cd_ca, fd_ca, pwa_cb, cd_cb, fd_cb, d_d_d, en_d_d, ca_d_d, cb_d_d, cab_d_c, PinList);
+            }
+        }
 
         /// <summary>
         /// 设置周期
@@ -66,12 +118,15 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
             }
         }
 
-        private static void SetTimingDetail(sbyte pwa_en, byte cd_en, ushort fd_en, sbyte pwa_d, byte cd_d, ushort fd_d, sbyte pwa_ca, byte cd_ca, ushort fd_ca, sbyte pwa_cb, byte cd_cb, ushort fd_cb, byte d_d_d, byte en_d_d, byte ca_d_d, byte cb_d_d, short cab_d_c)
+        private static void SetTimingDetail(sbyte pwa_en, byte cd_en, ushort fd_en, sbyte pwa_d, byte cd_d, ushort fd_d, sbyte pwa_ca, byte cd_ca, ushort fd_ca, sbyte pwa_cb, byte cd_cb, ushort fd_cb, byte d_d_d, byte en_d_d, byte ca_d_d, byte cb_d_d, short cab_d_c, List<ChannelModel> pinList = null)
         {
             var commonData = CommonData.Instance;
 
             var testItem = commonData.TestPlan?.TestItem?.FirstOrDefault(x => x.TestItemName.Equals(commonData.TestItemName));
             var args = commonData.TestItemArgs;
+
+            if (pinList == null || !pinList.Any())
+                pinList = commonData.TestPlan.Channel;
 
             if (args.Any())
             {
@@ -91,7 +146,10 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 
                             foreach (var patternTiming in patternTimings)
                             {
-                                var pinList = commonData.TestPlan.Channel?.Where(x => x.Groups.Any(y => y.Name.Equals(patternTiming.PinName))).ToList();
+                                var currentPinList = pinList.Where(x => x.Groups.Any(y => y.Name.ToLower().Equals(patternTiming.PinName.ToLower()))).ToList();
+                                if (currentPinList == null || !currentPinList.Any())
+                                    currentPinList = pinList.Where(x => x.PinName.ToLower().Equals(patternTiming.PinName.ToLower())).ToList();
+
                                 var period = patternTiming.Period * _ns;
 
                                 if (period < 0 || period > 0.02684354559375)
@@ -142,7 +200,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                 var cab_dcBytes = BitConverter.GetBytes(cab_d_c).Reverse();
                                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
 
-                                foreach (var pin in pinList)
+                                foreach (var pin in currentPinList)
                                 {
                                     foreach (var site in pin.Sites)
                                     {
