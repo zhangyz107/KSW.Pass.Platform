@@ -516,10 +516,25 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             if (PinList == null || !PinList.Any())
                 return null;
 
-            var allChannelResult = GetAllChannelRunningState();
+            var slotList = new List<int>();
+
+            foreach (var pin in PinList)
+            {
+                var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, pin.PinName);
+                foreach (var site in channel.Sites)
+                {
+                    if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                        continue;
+
+                    var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+                    if (!slotList.Contains(slot))
+                        slotList.Add(slot);
+                }
+            }
+            var allChannelResult = GetAllChannelRunningState(slotList);
             var pinNames = PinList.Select(x => x.PinName);
 
-            return allChannelResult.Where(x => pinNames.Contains(x.PinName)).ToList();
+            return allChannelResult.Where(x => !string.IsNullOrEmpty(x.PinName) && pinNames.Any(y => y.ToLower().Equals(x.PinName?.ToLower()))).ToList();
         }
 
         public List<ChannelResultModel<int>> GetFailPosition()
@@ -587,7 +602,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                                     tempData.OriginalData = command.CommandContent;
                                     if (tempData.ChannelNum >= 0)
                                     {
-                                        tempData.Site = ChannelManagerHelper.GetSlotByChannelNum(tempData.ChannelNum);
+                                        tempData.Site = ChannelManagerHelper.GetSiteInfo(command.SlotNum, tempData.ChannelNum);
                                         tempData.PinName = PinManagerHelper.GetPinNameBySlotName(Instance.TestPlan?.Channel, tempData.Site);
                                     }
                                     tempData.SiteResult = BitConverter.ToInt32(command.CommandContent.AsSpan(1, 4).ToArray().Reverse().ToArray());  //存在疑问，未调试
@@ -673,7 +688,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                             {
                                 if (command.CommnadLength >= length + 5)
                                 {
-                                    var tempData = ContentToChannelResult(command.CommandContent);
+                                    var tempData = ContentToChannelResult(command.SlotNum, command.CommandContent);
                                     result.Add(tempData);
                                 }
                             }
@@ -690,7 +705,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             return result;
         }
 
-        private ChannelResultModel<PatternResultModel> ContentToChannelResult(byte[] commandContent)
+        private ChannelResultModel<PatternResultModel> ContentToChannelResult(int slot, byte[] commandContent)
         {
             var result = new ChannelResultModel<PatternResultModel>();
 
@@ -700,7 +715,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 result.OriginalData = commandContent;
                 if (result.ChannelNum >= 0)
                 {
-                    result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
+                    result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(Instance.TestPlan?.Channel, result.Site);
                 }
                 result.SiteResult = new PatternResultModel();
@@ -720,14 +735,22 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             return result;
         }
 
-        public static List<PatternRunningStateModel> GetAllChannelRunningState()
+        public static List<PatternRunningStateModel> GetAllChannelRunningState(List<int> slotList)
         {
             var result = new List<PatternRunningStateModel>();
+
+            if (slotList == null || !slotList.Any())
+                return result;
 
             try
             {
                 var controlService = Instance?.ControlService;
-                var instrumentInfos = InstrumentManagerHelper.GetInstrumentInfosByBoardType((BoardType)Instance?.BoardType);
+                var instrumentInfos = new List<InstrumentBaseModel>();
+                foreach (var slot in slotList)
+                {
+                    var tempInstumentInfos = InstrumentManagerHelper.GetInstrumentInfosByBoardType((BoardType)Instance?.BoardType, $"0x{slot.ToString("x2")}");
+                    instrumentInfos.AddRange(tempInstumentInfos);
+                }
 
                 var sendCommand = new CommandInfoModel()
                 {
@@ -735,11 +758,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     CommandContent = new byte[] { 255 }
                 };
 
-                var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, new List<CommandInfoModel>() { sendCommand });
-                if (controlService != null && message.Any())
+                if (controlService != null)
                 {
                     foreach (var instrumentInfo in instrumentInfos)
                     {
+                        var message = CommandHelper.GetCommandBytes((byte)instrumentInfo.SortId, BoardType.PE, InstructionType.Query, new List<CommandInfoModel>() { sendCommand });
                         var queryResult = controlService.Query(instrumentInfo, message);
                         var commands = CommandHelper.ConversionBytesToCommands(queryResult);
 
@@ -747,7 +770,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                         {
                             if (command.CommnadLength >= 33)
                             {
-                                var tempData = ContentToChannelRunningState(command.CommandContent);
+                                var tempData = ContentToChannelRunningState(command.SlotNum, command.CommandContent);
                                 result.AddRange(tempData);
                             }
                         }
@@ -762,7 +785,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             return result;
         }
 
-        private static List<PatternRunningStateModel> ContentToChannelRunningState(byte[] commandContent)
+        private static List<PatternRunningStateModel> ContentToChannelRunningState(int slot, byte[] commandContent)
         {
             var result = new List<PatternRunningStateModel>();
 
@@ -770,8 +793,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             {
                 if (commandContent.Any() && commandContent.Length >= 33)
                 {
-                    var passArray = commandContent.AsSpan().Slice(1, 16).ToArray();
-                    var runningArray = commandContent.AsSpan().Slice(17, 16).ToArray();
+                    var passArray = commandContent.AsSpan().Slice(1, 16).ToArray().Reverse().ToArray();
+                    var runningArray = commandContent.AsSpan().Slice(17, 16).ToArray().Reverse().ToArray();
 
                     var passResults = ByteArrayToBoolArray(passArray);
                     var runningResults = ByteArrayToBoolArray(runningArray);
@@ -785,7 +808,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                             var tempData = new PatternRunningStateModel();
                             tempData.ChannelNum = i;
                             tempData.OriginalData = commandContent;
-                            tempData.Site = ChannelManagerHelper.GetSlotByChannelNum(i);
+                            tempData.Site = ChannelManagerHelper.GetSiteInfo(slot, i);
                             tempData.PinName = PinManagerHelper.GetPinNameBySlotName(Instance.TestPlan?.Channel, tempData.Site);
                             tempData.SiteResult = passResults[i];
                             tempData.IsRunning = runningResults.Length > i ? runningResults[i] : false;
@@ -818,7 +841,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 for (int j = 0; j < 8; j++)
                 {
                     // 提取当前位
-                    var bit = (currentByte & (1 << (7 - j))) != 0;
+                    var bit = (currentByte & (1 << j)) != 0;
                     // 将布尔值存储到结果数组中
                     boolArray[i * 8 + j] = bit;
                 }
@@ -847,8 +870,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                         if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
                             continue;
 
-                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue,out int slot);
-                
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
                         var commandList = new List<CommandInfoModel>();
                         if (!commandListDic.ContainsKey(slot))
                             commandListDic[slot] = commandList;
@@ -893,7 +916,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                                     tempData.OriginalData = command.CommandContent;
                                     if (tempData.ChannelNum >= 0)
                                     {
-                                        tempData.Site = ChannelManagerHelper.GetSlotByChannelNum(tempData.ChannelNum);
+                                        tempData.Site = ChannelManagerHelper.GetSiteInfo(command.SlotNum, tempData.ChannelNum);
                                         tempData.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, tempData.Site);
                                     }
                                     var buffAddressBytes = new byte[8];

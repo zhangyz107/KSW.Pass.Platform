@@ -39,6 +39,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                 Port = 40288,
                 LocalPort = 9988,
                 ConnectType = IOTypeEnum.UDP,
+                SortId = 16
             });
         }
 
@@ -85,6 +86,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                                 Port = 40288,
                                 LocalPort = localPort,
                                 ConnectType = IOTypeEnum.UDP,
+                                SortId = slot
                             });
                         }
                     }

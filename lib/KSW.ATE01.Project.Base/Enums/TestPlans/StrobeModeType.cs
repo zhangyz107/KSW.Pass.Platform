@@ -10,15 +10,21 @@ namespace KSW.ATE01.Project.Base.Enums.TestPlans
     public enum StrobeModeType
     {
         /// <summary>
-        /// OFF
+        /// Edge
         /// </summary>
-        [Description("OFF")]
-        OFF = 0,
+        [Description("Edge")]
+        Edge = 0,
 
         /// <summary>
         /// Edge
         /// </summary>
-        [Description("Edge")]
-        Edge = 1
+        [Description("Window")]
+        Window = 1,
+
+        /// <summary>
+        /// OFF
+        /// </summary>
+        [Description("OFF")]
+        OFF = 2,
     }
 }

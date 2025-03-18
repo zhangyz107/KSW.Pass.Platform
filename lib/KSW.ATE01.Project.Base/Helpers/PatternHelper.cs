@@ -195,21 +195,29 @@ namespace KSW.ATE01.Project.Base.Helpers
             var result = new PatternModel();
             var patternFileName = Path.GetFileNameWithoutExtension(patternFilePath);
             result.PatternFileName = patternFileName;
-            AnalysisPatternTimeSet(patternFilePath, result);
-            var instrumentInfo = AnalysisPatternDigitalInstrument(patternFilePath);
-            result.InstrumentName = instrumentInfo;
-            var pinList = AnalysisPatternPins(patternFilePath, result);
-            UpdateParametersByModuleType(patternFilePath, result.ModuleType);
-            var instruments = new List<InstrumentModel>();
-            AnalysisPatternInstrument(patternFilePath, pinList, instruments);
-            if (instruments.Any())
+            try
             {
-                result.InstrumentInfo = instruments.FirstOrDefault();
-                GetInstrumentsInfoFromDataBlock(result, patternFilePath, pinList, instruments, out _dataBlockMarkerParameter);
-            }
-            AnalysisPatternVector(patternFilePath, pinList, result);
+                AnalysisPatternTimeSet(patternFilePath, result);
+                var instrumentInfo = AnalysisPatternDigitalInstrument(patternFilePath);
+                result.InstrumentName = instrumentInfo;
+                var pinList = AnalysisPatternPins(patternFilePath, result);
+                UpdateParametersByModuleType(patternFilePath, result.ModuleType);
+                var instruments = new List<InstrumentModel>();
+                AnalysisPatternInstrument(patternFilePath, pinList, instruments);
+                if (instruments.Any())
+                {
+                    result.InstrumentInfo = instruments.FirstOrDefault();
+                    GetInstrumentsInfoFromDataBlock(result, patternFilePath, pinList, instruments, out _dataBlockMarkerParameter);
+                }
+                AnalysisPatternVector(patternFilePath, pinList, result);
 
-            _instance.Value._pattern = result;
+                _instance.Value._pattern = result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
 
             return result;
         }
@@ -446,26 +454,34 @@ namespace KSW.ATE01.Project.Base.Helpers
         {
             using StreamReader streamReader = new StreamReader(pathPattern);
             string input;
-            do
+            try
             {
-                if (!streamReader.EndOfStream)
+                do
                 {
-                    input = streamReader.ReadLine().Trim();
-                    continue;
-                }
-                _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr001"]);
-                return;
-            } while (!_timeSetRegex.IsMatch(input));
-            string[] array = _timeSetRegex.Match(input).Groups[1].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (patternResult.TimingSets.Contains(array[i].Trim()))
-                {
+                    if (!streamReader.EndOfStream)
+                    {
+                        input = streamReader.ReadLine().Trim();
+                        continue;
+                    }
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr001"]);
+                    return;
+                } while (!_timeSetRegex.IsMatch(input));
+                string[] array = _timeSetRegex.Match(input).Groups[1].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < array.Length; i++)
+                {
+                    if (patternResult.TimingSets.Contains(array[i].Trim()))
+                    {
+                        _compileError = true;
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
+                    }
+                    patternResult.TimingSets.Add(array[i].Trim());
                 }
-                patternResult.TimingSets.Add(array[i].Trim());
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
@@ -474,21 +490,30 @@ namespace KSW.ATE01.Project.Base.Helpers
             var strDigitalInstrument = string.Empty;
             using StreamReader streamReader = new StreamReader(pathPattern);
             string input;
-            do
+            try
             {
-                if (!streamReader.EndOfStream)
+                do
                 {
-                    input = streamReader.ReadLine().Trim();
-                    if (_digitalInstrumentRegex.IsMatch(input))
+                    if (!streamReader.EndOfStream)
                     {
-                        strDigitalInstrument = _digitalInstrumentRegex.Match(input).Groups[1].Value;
-                        break;
+                        input = streamReader.ReadLine().Trim();
+                        if (_digitalInstrumentRegex.IsMatch(input))
+                        {
+                            strDigitalInstrument = _digitalInstrumentRegex.Match(input).Groups[1].Value;
+                            break;
+                        }
+                        continue;
                     }
-                    continue;
+                    break;
                 }
-                break;
+                while (!_atpPinsRegex.IsMatch(input));
             }
-            while (!_atpPinsRegex.IsMatch(input));
+            catch (Exception)
+            {
+
+                throw;
+            }
+
             return strDigitalInstrument;
         }
 
@@ -520,60 +545,69 @@ namespace KSW.ATE01.Project.Base.Helpers
             string empty = string.Empty;
             string text = string.Empty;
             string empty2 = string.Empty;
-            do
+            try
             {
-                if (!streamReader.EndOfStream)
+                do
                 {
-                    empty = text;
-                    do
+                    if (!streamReader.EndOfStream)
                     {
-                        text = streamReader.ReadLine().Trim().RemoveNode();
+                        empty = text;
+                        do
+                        {
+                            text = streamReader.ReadLine().Trim().RemoveNode();
+                        }
+                        while (text.Length == 0);
+                        empty2 = empty + " " + text;
+                        //if (this.eventPinAnalysis != null)
+                        //{
+                        //    empty2 = this.eventPinAnalysis(empty2, Path.GetFileNameWithoutExtension(path_Pattern));
+                        //}
+                        continue;
                     }
-                    while (text.Length == 0);
-                    empty2 = empty + " " + text;
-                    //if (this.eventPinAnalysis != null)
-                    //{
-                    //    empty2 = this.eventPinAnalysis(empty2, Path.GetFileNameWithoutExtension(path_Pattern));
-                    //}
-                    continue;
+                    _compileError = true;
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr002"]);
+                    return patternPins;
                 }
-                _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr002"]);
-                return patternPins;
-            }
-            while (!_atpPinsRegex.IsMatch(empty2));
-            Match match = _atpPinsRegex.Match(empty2);
-            var memoryName = match.Groups[1].Value.Trim();
-            var vectorName = match.Groups[2].Value.Trim();
-            string[] array = match.Groups[3].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < array.Length; i++)
-            {
-                array[i] = array[i].Replace("(", ":").Replace(")", "");
-                //patternPinsWithDigitalMode.Add(array[i]);
-                string text2 = array[i].Split(':')[0];
-                if (patternPins.Contains(text2))
+                while (!_atpPinsRegex.IsMatch(empty2));
+                Match match = _atpPinsRegex.Match(empty2);
+                var memoryName = match.Groups[1].Value.Trim();
+                var vectorName = match.Groups[2].Value.Trim();
+                string[] array = match.Groups[3].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < array.Length; i++)
                 {
-                    _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr03"]}{text2}."));
+                    array[i] = array[i].Replace("(", ":").Replace(")", "");
+                    //patternPinsWithDigitalMode.Add(array[i]);
+                    string text2 = array[i].Split(':')[0];
+                    if (patternPins.Contains(text2))
+                    {
+                        _compileError = true;
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr03"]}{text2}."));
+                    }
+                    patternPins.Add(text2);
                 }
-                patternPins.Add(text2);
+                switch (memoryName.ToLower())
+                {
+                    default:
+                        _compileError = true;
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr04"]}{memoryName}."));
+                        break;
+                    case "srm_vector":
+                        patternResult.ModuleType = ModuleType.SRM_Vector;
+                        break;
+                    case "lvm_vector":
+                        patternResult.ModuleType = ModuleType.LVM_Vector;
+                        break;
+                    case "vm_vector":
+                        patternResult.ModuleType = ModuleType.VM_Vector;
+                        break;
+                }
             }
-            switch (memoryName.ToLower())
+            catch (Exception)
             {
-                default:
-                    _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr04"]}{memoryName}."));
-                    break;
-                case "srm_vector":
-                    patternResult.ModuleType = ModuleType.SRM_Vector;
-                    break;
-                case "lvm_vector":
-                    patternResult.ModuleType = ModuleType.LVM_Vector;
-                    break;
-                case "vm_vector":
-                    patternResult.ModuleType = ModuleType.VM_Vector;
-                    break;
+
+                throw;
             }
+
             return patternPins;
         }
 
@@ -581,110 +615,125 @@ namespace KSW.ATE01.Project.Base.Helpers
         {
             using StreamReader streamReader = new StreamReader(pathPattern);
             string text;
-            do
+            try
             {
-                if (!streamReader.EndOfStream)
+                do
                 {
-                    text = streamReader.ReadLine().RemoveNode().Trim();
-                    if (!_instrumentsRegex.IsMatch(text))
+                    if (!streamReader.EndOfStream)
                     {
-                        continue;
-                    }
-                    string text2 = text;
-                    while (true)
-                    {
-                        if (!text2.Contains("}"))
+                        text = streamReader.ReadLine().RemoveNode().Trim();
+                        if (!_instrumentsRegex.IsMatch(text))
                         {
-                            if (_atpPinsRegex.IsMatch(text2))
-                            {
-                                break;
-                            }
-                            text2 += streamReader.ReadLine().RemoveNode().Trim();
                             continue;
                         }
-                        int num = text2.IndexOf("{");
-                        int num2 = text2.IndexOf("}");
-                        if (num >= 0 && num2 >= 0 && num <= num2)
+                        string text2 = text;
+                        while (true)
                         {
-                            string[] array = text2.Substring(num + 1, num2 - num - 1).Split(new string[1] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                            for (int i = 0; i < array.Length; i++)
+                            if (!text2.Contains("}"))
                             {
-                                InstrumentModel instrumentInstance = GetInstrumentInstance(array[i].Trim(), atpPinsPinGroups);
-                                if (instrumentInstance != null)
+                                if (_atpPinsRegex.IsMatch(text2))
                                 {
-                                    FillRegularExpressionForPinPinGroup(instrumentInstance, atpPinsPinGroups);
-                                    patternInstrument.Add(instrumentInstance);
+                                    break;
+                                }
+                                text2 += streamReader.ReadLine().RemoveNode().Trim();
+                                continue;
+                            }
+                            int num = text2.IndexOf("{");
+                            int num2 = text2.IndexOf("}");
+                            if (num >= 0 && num2 >= 0 && num <= num2)
+                            {
+                                string[] array = text2.Substring(num + 1, num2 - num - 1).Split(new string[1] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                                for (int i = 0; i < array.Length; i++)
+                                {
+                                    InstrumentModel instrumentInstance = GetInstrumentInstance(array[i].Trim(), atpPinsPinGroups);
+                                    if (instrumentInstance != null)
+                                    {
+                                        FillRegularExpressionForPinPinGroup(instrumentInstance, atpPinsPinGroups);
+                                        patternInstrument.Add(instrumentInstance);
+                                    }
                                 }
                             }
+                            else
+                            {
+                                _compileError = true;
+                                var msg = L["PatternCompileErr005"];
+                                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{msg}", text2));
+                            }
+                            return;
                         }
-                        else
-                        {
-                            _compileError = true;
-                            var msg = L["PatternCompileErr005"];
-                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{msg}", text2));
-                        }
-                        return;
+                        _compileError = true;
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr006"]);
+                        break;
                     }
-                    _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr006"]);
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileInfo001"]);
                     break;
                 }
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileInfo001"]);
-                break;
+                while (!_atpPinsRegex.IsMatch(text));
             }
-            while (!_atpPinsRegex.IsMatch(text));
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private static InstrumentModel GetInstrumentInstance(string strInstrument, List<string> atpPinsPinGroups)
         {
             InstrumentModel result = null;
             string[] array = strInstrument.Split(new string[2] { ":", " " }, StringSplitOptions.RemoveEmptyEntries);
-            if (array.Length != 6)
+            try
             {
-                _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr007"]}", strInstrument));
-                return result;
-            }
-            result = new InstrumentModel();
-            result.StrInstrument = strInstrument;
-            string[] array2 = array[0].Replace("(", "").Replace(")", "").Split(new string[3] { ",", " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < array2.Length; i++)
-            {
-                if (atpPinsPinGroups.Any() && atpPinsPinGroups.Any(x => x.Equals(array2[i])) == true)
-                {
-                    result.DicPinItem.Add(array2[i], new List<string> { array2[i] });
-                    continue;
-                }
-                //if (testPlan.Keys.Contains(array2[i]))
-                //{
-                //    result.DicPinItem.Add(array2[i], testPlan[array2[i]]);
-                //    continue;
-                //}
-                _compileError = true;
-            }
-            result.DigitalMode = array[1];
-            if (!int.TryParse(array[2], out var result2))
-            {
-                _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr008"]}", array[2]));
-            }
-            else
-            {
-                if (result2 < 1 || result2 > 32)
+                if (array.Length != 6)
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr009"]}", result2));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr007"]}", strInstrument));
+                    return result;
                 }
-                if (array[3].ToLower() == "parallel" && result2 != 1)
+                result = new InstrumentModel();
+                result.StrInstrument = strInstrument;
+                string[] array2 = array[0].Replace("(", "").Replace(")", "").Split(new string[3] { ",", " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < array2.Length; i++)
+                {
+                    if (atpPinsPinGroups.Any() && atpPinsPinGroups.Any(x => x.Equals(array2[i])) == true)
+                    {
+                        result.DicPinItem.Add(array2[i], new List<string> { array2[i] });
+                        continue;
+                    }
+                    //if (testPlan.Keys.Contains(array2[i]))
+                    //{
+                    //    result.DicPinItem.Add(array2[i], testPlan[array2[i]]);
+                    //    continue;
+                    //}
+                    _compileError = true;
+                }
+                result.DigitalMode = array[1];
+                if (!int.TryParse(array[2], out var result2))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr010"]}", result2));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr008"]}", array[2]));
                 }
-                result.InstrumentWidth = result2;
+                else
+                {
+                    if (result2 < 1 || result2 > 32)
+                    {
+                        _compileError = true;
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr009"]}", result2));
+                    }
+                    if (array[3].ToLower() == "parallel" && result2 != 1)
+                    {
+                        _compileError = true;
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr010"]}", result2));
+                    }
+                    result.InstrumentWidth = result2;
+                }
+                result.InstrumentMode = array[3];
+                result.BitOrder = array[4];
+                result.Format = array[5];
             }
-            result.InstrumentMode = array[3];
-            result.BitOrder = array[4];
-            result.Format = array[5];
+            catch (Exception)
+            {
+                throw;
+            }
+
             return result;
         }
 
@@ -725,51 +774,59 @@ namespace KSW.ATE01.Project.Base.Helpers
             GroupInstrumentBySrcAndCap(instruments, out var listSrcInstrument, out var listCapInstrument);
             List<int> normalPinIndex = GetNormalPinIndex(atpPinsPinGroups, listSrcInstrument, listCapInstrument);
             using StreamReader streamReader = new StreamReader(pathPattern);
-            while (!streamReader.EndOfStream && !_atpPinsRegex.IsMatch(streamReader.ReadLine().Trim()))
+            try
             {
-                num++;
-            }
-            string text = string.Empty;
-            string text2 = string.Empty;
-            while (!streamReader.EndOfStream)
-            {
-                streamReader.ReadLine().SplitValidAndComment(out var valid, out var comment);
-                text = text + " " + valid;
-                text2 = text2 + " " + comment;
-                num++;
-                if (!_vectorRegex.IsMatch(text))
+                while (!streamReader.EndOfStream && !_atpPinsRegex.IsMatch(streamReader.ReadLine().Trim()))
                 {
-                    continue;
+                    num++;
                 }
-                list.Add(text);
-                if (_commandLoopRegex.IsMatch(text))
+                string text = string.Empty;
+                string text2 = string.Empty;
+                while (!streamReader.EndOfStream)
                 {
-                    Match match = _commandLoopRegex.Match(text);
-                    string text3 = "Loop" + match.Groups[1].Value;
-                    int.Parse(match.Groups[2].Value);
-                    _tempNestLoopOutermostLoopName = _tempNestLoopOutermostLoopName.Length == 0 ? text3 : _tempNestLoopOutermostLoopName;
-                    flag = false;
-                }
-                else if (_commandEndLoopRegex.IsMatch(text))
-                {
-                    string value = _commandEndLoopRegex.Match(text).Groups[1].Value;
-                    if (_tempNestLoopOutermostLoopName == "Loop" + value)
+                    streamReader.ReadLine().SplitValidAndComment(out var valid, out var comment);
+                    text = text + " " + valid;
+                    text2 = text2 + " " + comment;
+                    num++;
+                    if (!_vectorRegex.IsMatch(text))
                     {
-                        flag = true;
+                        continue;
+                    }
+                    list.Add(text);
+                    if (_commandLoopRegex.IsMatch(text))
+                    {
+                        Match match = _commandLoopRegex.Match(text);
+                        string text3 = "Loop" + match.Groups[1].Value;
+                        int.Parse(match.Groups[2].Value);
+                        _tempNestLoopOutermostLoopName = _tempNestLoopOutermostLoopName.Length == 0 ? text3 : _tempNestLoopOutermostLoopName;
+                        flag = false;
+                    }
+                    else if (_commandEndLoopRegex.IsMatch(text))
+                    {
+                        string value = _commandEndLoopRegex.Match(text).Groups[1].Value;
+                        if (_tempNestLoopOutermostLoopName == "Loop" + value)
+                        {
+                            flag = true;
+                        }
+                    }
+                    if (flag)
+                    {
+                        ProgramOneRowVector(patternModel, num, list, listSrcInstrument, listCapInstrument, atpPinsPinGroups, dataBlockMarkerParameter, normalPinIndex);
+                        list.Clear();
+                        _tempNestLoopOutermostLoopName = string.Empty;
+                    }
+                    text = string.Empty;
+                    text2 = string.Empty;
+                    if (_compileError)
+                    {
+                        break;
                     }
                 }
-                if (flag)
-                {
-                    ProgramOneRowVector(patternModel, num, list, listSrcInstrument, listCapInstrument, atpPinsPinGroups, dataBlockMarkerParameter, normalPinIndex);
-                    list.Clear();
-                    _tempNestLoopOutermostLoopName = string.Empty;
-                }
-                text = string.Empty;
-                text2 = string.Empty;
-                if (_compileError)
-                {
-                    break;
-                }
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
@@ -1033,150 +1090,158 @@ namespace KSW.ATE01.Project.Base.Helpers
         {
             using (StreamReader streamReader = new StreamReader(pathPattern))
             {
-                _ = streamReader.BaseStream.Length / 100L;
-                long num = 1L;
-                long num2 = 0L;
-                while (!streamReader.EndOfStream && !_atpPinsRegex.IsMatch(streamReader.ReadLine().Trim()))
+                try
                 {
-                    num++;
-                }
-                string text = string.Empty;
-                string text2 = string.Empty;
-                List<byte> list = new List<byte>();
-                while (!streamReader.EndOfStream)
-                {
-                    PatternVectorModel vectorModel = new PatternVectorModel();
-                    LabelModel labelModel = null;
-                    CommandModel commandModel = null;
-                    var pins = new List<PinModel>();
+                    _ = streamReader.BaseStream.Length / 100L;
+                    long num = 1L;
+                    long num2 = 0L;
+                    while (!streamReader.EndOfStream && !_atpPinsRegex.IsMatch(streamReader.ReadLine().Trim()))
+                    {
+                        num++;
+                    }
+                    string text = string.Empty;
+                    string text2 = string.Empty;
+                    List<byte> list = new List<byte>();
+                    while (!streamReader.EndOfStream)
+                    {
+                        PatternVectorModel vectorModel = new PatternVectorModel();
+                        LabelModel labelModel = null;
+                        CommandModel commandModel = null;
+                        var pins = new List<PinModel>();
 
-                    streamReader.ReadLine().SplitValidAndComment(out var valid, out var comment);
-                    text = text + " " + valid;
-                    text2 = text2 + " " + comment;
-                    num++;
-                    if (/*this.eventPrintCompilePercent != null && */num % 25000L == 0L)
-                    {
-                        //this.eventPrintCompilePercent((double)streamReader.BaseStream.Position * 100.0 / (double)streamReader.BaseStream.Length);
-                        list.Clear();
-                    }
-                    if (!_vectorRegex.IsMatch(text))
-                    {
-                        continue;
-                    }
-                    List<byte> list2 = new List<byte>();
-                    Match match = _vectorRegex.Match(text);
-                    string value = match.Groups[1].Value;
-                    string strPseudo = string.Empty;
-                    string strPseudoParameter = string.Empty;
-                    string value2 = match.Groups[5].Value;
-                    string value3 = match.Groups[6].Value;
-                    string comment2 = text2 + match.Groups[7].Value;
-                    string strMTE = string.Empty;
-                    string text3 = match.Groups[4].Value.Trim();
-                    if (_mteRegex.IsMatch(text3))
-                    {
-                        Match match2 = _mteRegex.Match(text3);
-                        strMTE = match2.Groups[1].Value;
-                        text3 = text3.Replace(match2.Value, string.Empty);
-                    }
-                    List<string> list3 = (from y in text3.Trim().Split(new string[1] { "," }, StringSplitOptions.RemoveEmptyEntries)
-                                          select y.Trim()).ToList();
-                    List<string> list4 = (from x in list3
-                                          where _listTotalMaskCC.Contains(x.Trim().ToLower())
-                                          select x into y
-                                          select y.Trim()).ToList();
-                    for (int i = 0; i < list4.Count; i++)
-                    {
-                        if (list3.Contains(list4[i]))
+                        streamReader.ReadLine().SplitValidAndComment(out var valid, out var comment);
+                        text = text + " " + valid;
+                        text2 = text2 + " " + comment;
+                        num++;
+                        if (/*this.eventPrintCompilePercent != null && */num % 25000L == 0L)
                         {
-                            list3.Remove(list4[i]);
+                            //this.eventPrintCompilePercent((double)streamReader.BaseStream.Position * 100.0 / (double)streamReader.BaseStream.Length);
+                            list.Clear();
                         }
-                    }
-                    for (int j = 0; j < list4.Count; j++)
-                    {
-                        list4[j] = list4[j].ToLower();
-                    }
-                    if (value.Where((x) => x == ':').Count() <= 1)
-                    {
-                        if (list3.Count <= 1)
+                        if (!_vectorRegex.IsMatch(text))
                         {
-                            string uCode = list3.Count == 1 ? list3[0] : string.Empty;
-                            switch (patternResult.ModuleType)
-                            {
-                                case ModuleType.VM_Vector:
-                                    if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
-                                    {
-                                        _compileError = true;
-                                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
-                                    }
-                                    labelModel = VectorAnalysisLabel(value, num, num2);
-                                    pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
-                                    commandModel = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, num);
-                                    vectorModel.TimingSet = value2;
-                                    //if (_saveComment)
-                                    //{
-                                    //    VectorAnalysis_Comment(comment2, num, num2);
-                                    //}
-                                    break;
-                                case ModuleType.LVM_Vector:
-                                    if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
-                                    {
-                                        _compileError = true;
-                                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
-                                    }
-                                    labelModel = VectorAnalysisLabel(value, num, num2);
-                                    //VectorAnalysisLvmMaskCCWithOpcode(list4, strPseudo, strPseudoParameter, num, num2);
-                                    vectorModel.TimingSet = value2;
-                                    commandModel = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, num);
-                                    pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
-                                    //if (_saveComment)
-                                    //{
-                                    //    VectorAnalysis_Comment(comment2, num, num2);
-                                    //}
-                                    break;
-                                case ModuleType.SRM_Vector:
-                                    //VectorAnalysisMte(strMTE, num, num2, list5, out var containsMTE);
-                                    VectorAnalysisSrmPseudoWithParametersModifiler(uCode, num, num2, out strPseudo, out strPseudoParameter);
-                                    labelModel = VectorAnalysisLabel(value, num, num2);
-                                    //VectorAnalysisSrmMaskCCWithOpcode(list4, listBitValueModifier, listBitValueOpcode, num, list5);
-                                    vectorModel.TimingSet = value2;
-                                    pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
-                                    //if (_saveComment)
-                                    //{
-                                    //    VectorAnalysis_Comment(comment2, num, num2);
-                                    //}
-                                    break;
-                            }
-                            vectorModel.Label = labelModel;
-                            vectorModel.Command = commandModel;
-                            vectorModel.Pins = pins;
-                            patternResult.PatternVectors.Add(vectorModel);
-                            text = string.Empty;
-                            text2 = string.Empty;
-                            _validVectorLinesCountInPatternFile++;
-                            list.AddRange(list2);
-                            if (strPseudo.ToLower() == "halt" && _haltInVectorLinesPosition == -1)
-                            {
-                                _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
-                            }
-                            num2++;
-                            if (list.Count > 0)
-                            {
-                                list.Clear();
-                            }
-                            if (_compileError)
-                            {
-                                return;
-                            }
                             continue;
                         }
+                        List<byte> list2 = new List<byte>();
+                        Match match = _vectorRegex.Match(text);
+                        string value = match.Groups[1].Value;
+                        string strPseudo = string.Empty;
+                        string strPseudoParameter = string.Empty;
+                        string value2 = match.Groups[5].Value;
+                        string value3 = match.Groups[6].Value;
+                        string comment2 = text2 + match.Groups[7].Value;
+                        string strMTE = string.Empty;
+                        string text3 = match.Groups[4].Value.Trim();
+                        if (_mteRegex.IsMatch(text3))
+                        {
+                            Match match2 = _mteRegex.Match(text3);
+                            strMTE = match2.Groups[1].Value;
+                            text3 = text3.Replace(match2.Value, string.Empty);
+                        }
+                        List<string> list3 = (from y in text3.Trim().Split(new string[1] { "," }, StringSplitOptions.RemoveEmptyEntries)
+                                              select y.Trim()).ToList();
+                        List<string> list4 = (from x in list3
+                                              where _listTotalMaskCC.Contains(x.Trim().ToLower())
+                                              select x into y
+                                              select y.Trim()).ToList();
+                        for (int i = 0; i < list4.Count; i++)
+                        {
+                            if (list3.Contains(list4[i]))
+                            {
+                                list3.Remove(list4[i]);
+                            }
+                        }
+                        for (int j = 0; j < list4.Count; j++)
+                        {
+                            list4[j] = list4[j].ToLower();
+                        }
+                        if (value.Where((x) => x == ':').Count() <= 1)
+                        {
+                            if (list3.Count <= 1)
+                            {
+                                string uCode = list3.Count == 1 ? list3[0] : string.Empty;
+                                switch (patternResult.ModuleType)
+                                {
+                                    case ModuleType.VM_Vector:
+                                        if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
+                                        {
+                                            _compileError = true;
+                                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
+                                        }
+                                        labelModel = VectorAnalysisLabel(value, num, num2);
+                                        pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
+                                        commandModel = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, num);
+                                        vectorModel.TimingSet = value2;
+                                        //if (_saveComment)
+                                        //{
+                                        //    VectorAnalysis_Comment(comment2, num, num2);
+                                        //}
+                                        break;
+                                    case ModuleType.LVM_Vector:
+                                        if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
+                                        {
+                                            _compileError = true;
+                                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
+                                        }
+                                        labelModel = VectorAnalysisLabel(value, num, num2);
+                                        //VectorAnalysisLvmMaskCCWithOpcode(list4, strPseudo, strPseudoParameter, num, num2);
+                                        vectorModel.TimingSet = value2;
+                                        commandModel = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, num);
+                                        pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
+                                        //if (_saveComment)
+                                        //{
+                                        //    VectorAnalysis_Comment(comment2, num, num2);
+                                        //}
+                                        break;
+                                    case ModuleType.SRM_Vector:
+                                        //VectorAnalysisMte(strMTE, num, num2, list5, out var containsMTE);
+                                        VectorAnalysisSrmPseudoWithParametersModifiler(uCode, num, num2, out strPseudo, out strPseudoParameter);
+                                        labelModel = VectorAnalysisLabel(value, num, num2);
+                                        //VectorAnalysisSrmMaskCCWithOpcode(list4, listBitValueModifier, listBitValueOpcode, num, list5);
+                                        vectorModel.TimingSet = value2;
+                                        pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
+                                        //if (_saveComment)
+                                        //{
+                                        //    VectorAnalysis_Comment(comment2, num, num2);
+                                        //}
+                                        break;
+                                }
+                                vectorModel.Label = labelModel;
+                                vectorModel.Command = commandModel;
+                                vectorModel.Pins = pins;
+                                patternResult.PatternVectors.Add(vectorModel);
+                                text = string.Empty;
+                                text2 = string.Empty;
+                                _validVectorLinesCountInPatternFile++;
+                                list.AddRange(list2);
+                                if (strPseudo.ToLower() == "halt" && _haltInVectorLinesPosition == -1)
+                                {
+                                    _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
+                                }
+                                num2++;
+                                if (list.Count > 0)
+                                {
+                                    list.Clear();
+                                }
+                                if (_compileError)
+                                {
+                                    return;
+                                }
+                                continue;
+                            }
+                            _compileError = true;
+                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr020"]}", num));
+                            return;
+                        }
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr020"]}", num));
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", num));
                         return;
                     }
-                    _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", num));
-                    return;
+                }
+                catch (Exception)
+                {
+
+                    throw;
                 }
             }
             if (_validVectorLinesCountInPatternFile < 32)

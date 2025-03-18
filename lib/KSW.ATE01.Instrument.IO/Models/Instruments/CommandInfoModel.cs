@@ -17,6 +17,11 @@ namespace KSW.ATE01.Instrument.IO.Models.Instruments
         public string CommandCode { get; set; }
 
         /// <summary>
+        /// 槽位号
+        /// </summary>
+        public byte SlotNum { get; set; }
+
+        /// <summary>
         /// 指令长度
         /// </summary>
         public short CommnadLength => (CommandContent != null && CommandContent.Any()) ? (short)CommandContent.Length : (short)0;

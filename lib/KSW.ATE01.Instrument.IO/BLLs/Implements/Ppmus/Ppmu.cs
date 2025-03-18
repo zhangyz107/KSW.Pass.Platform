@@ -508,7 +508,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                             foreach (var command in commands)
                             {
-                                var tempData = ContentToDriverAndComparator(command.CommandContent);
+                                var tempData = ContentToDriverAndComparator(command.SlotNum, command.CommandContent);
                                 if (tempData != null)
                                 {
                                     result.Add(tempData);
@@ -527,7 +527,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             }
         }
 
-        private ChannelResultModel<DriverResultModel> ContentToDriverAndComparator(byte[] commandContent)
+        private ChannelResultModel<DriverResultModel> ContentToDriverAndComparator(int slot, byte[] commandContent)
         {
             ChannelResultModel<DriverResultModel> result = null;
 
@@ -539,7 +539,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     var index = 0;
                     result.ChannelNum = commandContent[index++];
                     result.OriginalData = commandContent;
-                    result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
+                    result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
                     result.SiteResult = new DriverResultModel();
                     var vilBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
@@ -652,7 +652,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                             foreach (var command in commands)
                             {
-                                var tempData = ContentToVoltageForce(command.CommandContent);
+                                var tempData = ContentToVoltageForce(command.SlotNum, command.CommandContent);
                                 if (tempData != null)
                                 {
                                     result.Add(tempData);
@@ -671,7 +671,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             }
         }
 
-        private ChannelResultModel<double> ContentToVoltageForce(byte[] commandContent)
+        private ChannelResultModel<double> ContentToVoltageForce(int slot, byte[] commandContent)
         {
             ChannelResultModel<double> result = null;
 
@@ -683,7 +683,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     var index = 0;
                     result.ChannelNum = commandContent[index++];
                     result.OriginalData = commandContent;
-                    result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
+                    result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
                     var imType = (MIType)commandContent[index++];
                     var vforceBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
@@ -767,7 +767,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                             foreach (var command in commands)
                             {
-                                var tempData = ContentToCurrentForce(command.CommandContent);
+                                var tempData = ContentToCurrentForce(command.SlotNum, command.CommandContent);
                                 if (tempData != null)
                                 {
                                     result.Add(tempData);
@@ -786,7 +786,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             }
         }
 
-        private ChannelResultModel<double> ContentToCurrentForce(byte[] commandContent)
+        private ChannelResultModel<double> ContentToCurrentForce(int slot, byte[] commandContent)
         {
             ChannelResultModel<double> result = null;
 
@@ -798,7 +798,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     var index = 0;
                     result.ChannelNum = commandContent[index++];
                     result.OriginalData = commandContent;
-                    result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
+                    result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
                     var imType = (IMType)commandContent[index++];
                     var iforceBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();

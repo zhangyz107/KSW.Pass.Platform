@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace KSW.ATE01.Instrument.IO.Helpers
@@ -45,18 +46,9 @@ namespace KSW.ATE01.Instrument.IO.Helpers
         /// <summary>
         /// 通过通道号获取站点信息
         /// </summary>
-        public static string GetSlotByChannelNum(int channelNum)
+        public static string GetSiteInfo(int slot, int channel)
         {
-            var result = string.Empty;
-
-            if (channelNum >= 0 && channelNum <= 127)
-            {
-                var slot = channelNum / 32 + 1;
-                var channel = channelNum % 32;
-                result = $"slot{slot}:ch{channel}";
-            }
-
-            return result;
+            return $"slot{slot}:ch{channel}";
         }
     }
 }

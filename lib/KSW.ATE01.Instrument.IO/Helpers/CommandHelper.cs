@@ -111,6 +111,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                 else if (type == InstructionType.QueryFailed)
                     ErrorMessages.IO.IOInvalidQuery();
 
+                var slotNum = data[4];
                 var startIndex = 8;
 
                 var span = data.AsSpan();
@@ -134,6 +135,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                     startIndex += contentLength;
                     var command = new CommandInfoModel()
                     {
+                        SlotNum = slotNum,
                         CommandCode = commandCode,
                         CommandContent = contentBytes,
                     };
