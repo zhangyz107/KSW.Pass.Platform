@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KSW.ATE01.Project.Base\KSW.ATE01.Project.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SciChart.Charting">
+      <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\netcoreapp3.1\SciChart.Charting.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Core">
+      <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\netcoreapp3.1\SciChart.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Data">
+      <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\netcoreapp3.1\SciChart.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Drawing">
+      <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\netcoreapp3.1\SciChart.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Drawing.DirectX">
+      <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\netcoreapp3.1\SciChart.Drawing.DirectX.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Examples.ExternalDependencies">
+      <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\netcoreapp3.1\SciChart.Examples.ExternalDependencies.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
