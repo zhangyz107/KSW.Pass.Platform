@@ -652,7 +652,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                             foreach (var command in commands)
                             {
-                                var tempData = ContentToVoltageForce(command.SlotNum, command.CommandContent);
+                                var tempData = AnalysisVoltageForce(command.SlotNum, command.CommandContent);
                                 if (tempData != null)
                                 {
                                     result.Add(tempData);
@@ -671,7 +671,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             }
         }
 
-        private ChannelResultModel<double> ContentToVoltageForce(int slot, byte[] commandContent)
+        private ChannelResultModel<double> AnalysisVoltageForce(int slot, byte[] commandContent)
         {
             ChannelResultModel<double> result = null;
 
@@ -767,7 +767,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                             foreach (var command in commands)
                             {
-                                var tempData = ContentToCurrentForce(command.SlotNum, command.CommandContent);
+                                var tempData = AnalysisCurrentForce(command.SlotNum, command.CommandContent);
                                 if (tempData != null)
                                 {
                                     result.Add(tempData);
@@ -786,7 +786,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             }
         }
 
-        private ChannelResultModel<double> ContentToCurrentForce(int slot, byte[] commandContent)
+        private ChannelResultModel<double> AnalysisCurrentForce(int slot, byte[] commandContent)
         {
             ChannelResultModel<double> result = null;
 
@@ -822,6 +822,231 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
         private double GetIforceByUshort(ushort i, double imax)
         {
             return ((i * 1.0) / 1000000 * 132 - 1.75 - 2.56) / 1.28 * imax;
+        }
+
+
+        public List<ChannelResultModel<double>> GetMV()
+        {
+            var result = new List<ChannelResultModel<double>>();
+
+            if (PinList == null || !PinList.Any())
+                return result;
+
+            try
+            {
+                //  组装数据包
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
+                foreach (var pin in PinList)
+                {
+                    foreach (var site in pin.Sites)
+                    {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
+                        if (channelNum >= 0)
+                        {
+                            var byteList = new List<byte>();
+                            byteList.Add((byte)channelNum);       //暂时按顺序下发通道（后续需要映射站点信息）
+
+                            var command = new CommandInfoModel()
+                            {
+                                CommandCode = "0x0103",
+                                CommandContent = byteList.ToArray(),
+                            };
+                            commandList.Add(command);
+                        }
+                    }
+                }
+
+                if (commandListDic.Any())
+                {
+                    foreach (var commandList in commandListDic)
+                    {
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
+
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && message.Any())
+                        {
+                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                            foreach (var command in commands)
+                            {
+                                var tempData = AnalysisContentToMV(command.SlotNum, command.CommandContent);
+                                if (tempData != null)
+                                {
+                                    result.Add(tempData);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return result;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private ChannelResultModel<double> AnalysisContentToMV(byte slot, byte[] commandContent)
+        {
+            ChannelResultModel<double> result = null;
+
+            try
+            {
+                if (commandContent.Any() && commandContent.Length >= 3)
+                {
+                    result = new ChannelResultModel<double>();
+                    var index = 0;
+                    result.ChannelNum = commandContent[index++];
+                    result.OriginalData = commandContent;
+                    result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
+                    result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    var mvBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var mvShort = BitConverter.ToUInt16(mvBytes);
+                    var mv = (mvShort * 1.0 / 32768 * 5.0 - 1.5) * 2;
+                    result.SiteResult = mv;
+
+                    return result;
+
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+            return result;
+        }
+
+        public List<ChannelResultModel<double>> GetMI()
+        {
+            var result = new List<ChannelResultModel<double>>();
+
+            if (PinList == null || !PinList.Any())
+                return result;
+
+            try
+            {
+                //  组装数据包
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
+                foreach (var pin in PinList)
+                {
+                    foreach (var site in pin.Sites)
+                    {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
+                        if (channelNum >= 0)
+                        {
+                            var byteList = new List<byte>();
+                            byteList.Add((byte)channelNum);       //暂时按顺序下发通道（后续需要映射站点信息）
+
+                            var command = new CommandInfoModel()
+                            {
+                                CommandCode = "0x0104",
+                                CommandContent = byteList.ToArray(),
+                            };
+                            commandList.Add(command);
+                        }
+                    }
+                }
+
+                if (commandListDic.Any())
+                {
+                    foreach (var commandList in commandListDic)
+                    {
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
+
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && message.Any())
+                        {
+                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
+
+                            foreach (var command in commands)
+                            {
+                                var tempData = AnalysisContentToMI(command.SlotNum, command.CommandContent);
+                                if (tempData != null)
+                                {
+                                    result.Add(tempData);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return result;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+        private ChannelResultModel<double> AnalysisContentToMI(byte slot, byte[] commandContent)
+        {
+            ChannelResultModel<double> result = null;
+
+            try
+            {
+                if (commandContent.Any() && commandContent.Length >= 4)
+                {
+                    result = new ChannelResultModel<double>();
+                    var index = 0;
+                    result.ChannelNum = commandContent[index++];
+                    result.OriginalData = commandContent;
+                    result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
+                    result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    var miType = (MIType)commandContent[index++];
+                    var mvBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
+                    var mvShort = BitConverter.ToUInt16(mvBytes);
+                    var imax = GetImaxFromType(miType);
+                    var mv = (mvShort * 1.0 / 32768 * 5.0 - 1.75) / 1.28 * imax;
+                    result.SiteResult = mv;
+
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+            return result;
         }
     }
 }

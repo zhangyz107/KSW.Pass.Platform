@@ -65,5 +65,15 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus
         /// 获取激励电流
         /// </summary>
         List<ChannelResultModel<double>> GetCurrentForce();
+
+        /// <summary>
+        /// 获取MV结果
+        /// </summary>
+        List<ChannelResultModel<double>> GetMV();
+
+        /// <summary>
+        /// 获取MI结果
+        /// </summary>
+        List<ChannelResultModel<double>> GetMI();
     }
 }
