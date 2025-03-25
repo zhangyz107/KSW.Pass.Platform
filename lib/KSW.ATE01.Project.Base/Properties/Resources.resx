@@ -265,4 +265,8 @@
     <value>Error message: DefaultFunctionExecutionError. \nAn exception occurred while executing '{0}'. Exception information: {1}.</value>
     <comment>错误信息：DefaultFunctionExecutionError。\n执行“{0}”时发生异常。异常信息：{1}。</comment>
   </data>
+  <data name="ShmooTestNameEmpty" xml:space="preserve">
+    <value>Shmoo test name is empty</value>
+    <comment>Shmoo测试名为空</comment>
+  </data>
 </root>

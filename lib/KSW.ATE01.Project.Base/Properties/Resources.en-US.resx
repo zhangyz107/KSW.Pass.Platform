@@ -243,4 +243,7 @@
   <data name="DefaultFunctionExecutionError" xml:space="preserve">
     <value>Error message: DefaultFunctionExecutionError. \nAn exception occurred while executing '{0}'. Exception information: {1}.</value>
   </data>
+  <data name="ShmooTestNameEmpty" xml:space="preserve">
+    <value>Shmoo test name is empty</value>
+  </data>
 </root>

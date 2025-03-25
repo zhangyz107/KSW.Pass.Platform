@@ -37,6 +37,12 @@ namespace KSW.ATE01.Project.Base.Enums.Errors
         /// 一般情况
         /// </summary>
         [Description("InsGeneral")]
-        InsGeneral
+        InsGeneral,
+
+        /// <summary>
+        /// Shmoo图
+        /// </summary>
+        [Description("Shmoo")]
+        Shmoo
     }
 }

@@ -243,4 +243,7 @@
   <data name="DefaultFunctionExecutionError" xml:space="preserve">
     <value>错误信息：DefaultFunctionExecutionError。\n执行“{0}”时发生异常。异常信息：{1}。</value>
   </data>
+  <data name="ShmooTestNameEmpty" xml:space="preserve">
+    <value>Shmoo测试名为空</value>
+  </data>
 </root>

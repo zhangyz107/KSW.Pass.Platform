@@ -437,5 +437,14 @@ namespace KSW.ATE01.Project.Base.Properties {
                 return ResourceManager.GetString("PinListNullOrEmpty", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   查找类似 Shmoo test name is empty 的本地化字符串。
+        /// </summary>
+        internal static string ShmooTestNameEmpty {
+            get {
+                return ResourceManager.GetString("ShmooTestNameEmpty", resourceCulture);
+            }
+        }
     }
 }

@@ -11,6 +11,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus
     public interface IPpmu
     {
         /// <summary>
+        /// 设置驱动器和比较器(按照Sheet设置)
+        /// </summary>
+        /// <param name="activeLoad">Active Load开关，0:off，1:on</param>
+        /// <param name="hiz">Hiz模式，0:hiz，1:vt</param>
+        /// <param name="dpc"></param>
+        void SetDriverAndComparator(bool activeLoad, HizType hiz, byte dpc, byte diff = 0, string levelSheet = "");
+
+        /// <summary>
         /// 设置驱动器和比较器
         /// </summary>
         /// <param name="vil">取值范围：-2.56V~+6.09V</param>

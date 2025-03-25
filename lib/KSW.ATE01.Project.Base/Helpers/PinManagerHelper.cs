@@ -49,22 +49,47 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (string.IsNullOrEmpty(name))
                 return null;
 
-            var lowerName = name.ToLower();
+            var result = new List<ChannelModel>();
             var groups = new List<PinGroupModel>();
-            //  1、先查组名
-            foreach (var pin in pins)
+            var list = name.Split(',').ToList();
+            if (list != null && list.Any())
             {
-                if (pin.Groups != null && pin.Groups.Any())
-                    groups.AddRange(pin.Groups);
+                foreach (var pinStr in list)
+                {
+                    var lowerName = pinStr.ToLower();
+                    //  1、先查组名
+                    foreach (var pin in pins)
+                    {
+                        if (pin.Groups != null && pin.Groups.Any())
+                            groups.AddRange(pin.Groups);
+                    }
+                    groups = groups.Distinct().ToList();
+                    var selectGroupIds = groups.Where(x => x.Name.ToLower().Equals(lowerName)).Select(x => x.Id);
+                    if (selectGroupIds.Any())
+                        result.AddRange(pins.Where(x => x.Groups.Any(x => selectGroupIds.Contains(x.Id))));
+
+                    //  2、查引脚名
+                    result.AddRange(pins.Where(x => x.PinName.ToLower().Equals(lowerName)));
+                }
             }
-            groups = groups.Distinct().ToList();
-            var selectGroupIds = groups.Where(x => x.Name.ToLower().Equals(lowerName)).Select(x => x.Id);
-            if (selectGroupIds.Any())
-                return pins.Where(x => x.Groups.Any(x => selectGroupIds.Contains(x.Id))).ToList();
+            else
+            {
+                var lowerName = name.ToLower();
+                //  1、先查组名
+                foreach (var pin in pins)
+                {
+                    if (pin.Groups != null && pin.Groups.Any())
+                        groups.AddRange(pin.Groups);
+                }
+                groups = groups.Distinct().ToList();
+                var selectGroupIds = groups.Where(x => x.Name.ToLower().Equals(lowerName)).Select(x => x.Id);
+                if (selectGroupIds.Any())
+                    result.AddRange(pins.Where(x => x.Groups.Any(x => selectGroupIds.Contains(x.Id))));
 
-
-            //  2、查引脚名
-            return pins.Where(x => x.PinName.ToLower().Equals(lowerName)).ToList();
+                //  2、查引脚名
+                result.AddRange(pins.Where(x => x.PinName.ToLower().Equals(lowerName)));
+            }
+            return result;
         }
 
         public static string GetPinNameBySlotName(List<ChannelModel> pins, string slot)

@@ -6,6 +6,7 @@ using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Instrument.IO.Models.Results;
 using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
 using System.Runtime.Intrinsics.Arm;
 
@@ -45,6 +46,113 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             Instance.GetPinList(pinList);
 
             return Instance;
+        }
+
+        public void SetDriverAndComparator(bool activeLoad, HizType hiz, byte dpc, byte diff = 0, string levelSheet = "")
+        {
+            if (PinList == null || !PinList.Any())
+                return;
+
+            try
+            {
+                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+
+                if (string.IsNullOrEmpty(levelSheet))
+                    levelSheet = CommonData.Instance.Level;
+
+                var commonData = CommonData.Instance;
+                if (commonData == null || commonData.TestPlan == null || string.IsNullOrEmpty(commonData.FunctionName))
+                    return;
+
+                var currentFunction = commonData.FunctionName;
+
+                var testItem = commonData.TestPlan.TestItem.FirstOrDefault(x => x.FunctionName.ToLower().Equals(currentFunction.ToLower()));
+
+                var levels = testItem.Levels;
+                if (levels == null || !levels.Any())
+                    return;
+
+                //  组装数据包
+                var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
+                foreach (var pin in PinList)
+                {
+                    var currentLevel = levels.FirstOrDefault(x => pin.Groups.Any(y => y.Name.ToLower().Equals(x.PinGroupName.ToLower())) || pin.PinName.ToLower().Equals(x.PinGroupName.ToLower()));
+
+                    if (currentLevel == null)
+                        continue;
+
+                    foreach (var site in pin.Sites)
+                    {
+                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                            continue;
+
+                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+                        var commandList = new List<CommandInfoModel>();
+                        if (!commandListDic.ContainsKey(slot))
+                            commandListDic[slot] = commandList;
+                        else
+                            commandList = commandListDic[slot];
+
+                        // 转换数据格式
+                        var vilValue = GetUshortValue(System.Convert.ToDouble(currentLevel?.Vil));
+                        var vilBytes = BitConverter.GetBytes(vilValue).Reverse();
+                        var vihValue = GetUshortValue(System.Convert.ToDouble(currentLevel?.Vih));
+                        var vihBytes = BitConverter.GetBytes(vihValue).Reverse();
+                        var volValue = GetUshortValue(System.Convert.ToDouble(currentLevel?.Vol));
+                        var volBytes = BitConverter.GetBytes(volValue).Reverse();
+                        var vohValue = GetUshortValue(System.Convert.ToDouble(currentLevel?.Voh));
+                        var vohBytes = BitConverter.GetBytes(vohValue).Reverse();
+                        var vtValue = GetUshortValue(System.Convert.ToDouble(currentLevel?.Vt));
+                        var vtBytes = BitConverter.GetBytes(vtValue).Reverse();
+                        var iolByte = GetByteValue(System.Convert.ToDouble(currentLevel?.Iol));
+                        var iohByte = GetByteValue(System.Convert.ToDouble(currentLevel?.Ioh));
+
+                        if (channelNum >= 0)
+                        {
+                            var byteList = new List<byte>();
+                            byteList.Add((byte)channelNum);
+                            byteList.AddRange(vilBytes);  //vil
+                            byteList.AddRange(vihBytes);  //vih
+                            byteList.AddRange(volBytes);  //vol
+                            byteList.AddRange(vohBytes);  //voh
+                            byteList.AddRange(vtBytes);  //vt
+                            byteList.Add(iolByte);  //iol
+                            byteList.Add(iohByte);  //ioh
+                            byteList.Add(System.Convert.ToByte(activeLoad));  //Active Load开关，0:off，1:on
+                            byteList.Add((byte)hiz);  //Hiz模式，0:hiz，1:vt
+                            byteList.Add(dpc);  //DPC
+                            byteList.Add(diff);  //DPC
+
+                            var command = new CommandInfoModel()
+                            {
+                                CommandCode = "0x0100",
+                                CommandContent = byteList.ToArray(),
+                            };
+                            commandList.Add(command);
+                        }
+                    }
+                }
+
+                if (commandListDic.Any())
+                {
+                    foreach (var commandList in commandListDic)
+                    {
+                        var slotNum = $"0x{commandList.Key.ToString("x2")}";
+                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+
+                        if (controlService != null && instrumentInfo != null)
+                            controlService.Send(instrumentInfo, message);
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public void SetDriverAndComparator(double vil, double vih, double vol, double voh, double vt, double iol, double ioh, bool activeLoad, HizType hiz, byte dpc, byte diff = 0)

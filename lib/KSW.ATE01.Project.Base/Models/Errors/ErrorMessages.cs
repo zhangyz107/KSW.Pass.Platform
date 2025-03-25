@@ -39,5 +39,13 @@ namespace KSW.ATE01.Project.Base.Models.Errors
                 return InsGeneralErrors.Instance;
             }
         }
+
+        public static ShmooErrors Shmoo
+        {
+            get
+            {
+                return ShmooErrors.Instance;
+            }
+        }
     }
 }
