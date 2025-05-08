@@ -8,7 +8,6 @@ using KSW.ATE01.Instrument.IO.Models.Results;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
-using System.Runtime.Intrinsics.Arm;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 {

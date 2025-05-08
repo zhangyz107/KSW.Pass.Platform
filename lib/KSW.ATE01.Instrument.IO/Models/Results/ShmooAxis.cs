@@ -40,7 +40,7 @@ namespace KSW.ATE01.Instrument.IO.Models.Results
         public string PinList { get; set; }
 
         /// <summary>
-        /// TimingSheet名
+        /// TimingSheet中时序名
         /// </summary>
         public string TimingName { get; set; }
 

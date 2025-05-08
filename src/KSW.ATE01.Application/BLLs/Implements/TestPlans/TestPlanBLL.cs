@@ -87,7 +87,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             var result = new TestPlanModel();
             try
             {
-
                 if (!File.Exists(filePath))
                     throw new Warning(L["FileDoesNotExist"]);
 

@@ -97,23 +97,12 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     this.InternalRunShmoo(activeMode, shmooTest.YAxis, this.GetAxisLoopCount(yaxis), xaxis, this.GetAxisLoopCount(xaxis), patternName);
                     break;
             }
-
-            if (IsLevelOrPowerAxis(xaxis) || IsLevelOrPowerAxis(yaxis))
-            {
-                //Ppmu.SetDriverAndComparator(Characterize._levelSheet);
-            }
-
         }
 
         // Helper Methods
         private bool IsTimingAxis(ShmooAxis axis)
         {
             return axis != null && axis.AxisType == AxisType.Timing;
-        }
-
-        private bool IsLevelOrPowerAxis(ShmooAxis axis)
-        {
-            return axis != null && (axis.AxisType == AxisType.Level || axis.AxisType == AxisType.Power);
         }
 
         private int GetAxisLoopCount(ShmooAxis axis)
@@ -242,8 +231,18 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     result = false;
                 }
                 var level = _levelDic[pinName];
+                if (level == null)
+                    continue;
+
+                var vih = System.Convert.ToDouble(level.Vih);
+                var vol = System.Convert.ToDouble(level.Vol);
+                var voh = System.Convert.ToDouble(level.Voh);
+                var vt = System.Convert.ToDouble(level.Vt);
+                var iol = System.Convert.ToDouble(level.Iol);
+                var ioh = System.Convert.ToDouble(level.Ioh);
+
                 //todo:设置Vil
-                //Ppmu.Pins(pinName).SetDriverAndComparator();
+                Ppmu.Pins(pinName).SetDriverAndComparator(currentValue, vih, vol, voh, vt, iol, ioh, true, Enums.Ppmus.HizType.vt, 0);
             }
             return result;
         }
@@ -260,8 +259,20 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     PrintResultLog.Message(string.Format($"{msg}", pin, "Vil", "Vih", currentValue));
                     result = false;
                 }
+
+                var level = _levelDic[pinName];
+                if (level == null)
+                    continue;
+
+                var vil = System.Convert.ToDouble(level.Vil);
+                var vol = System.Convert.ToDouble(level.Vol);
+                var voh = System.Convert.ToDouble(level.Voh);
+                var vt = System.Convert.ToDouble(level.Vt);
+                var iol = System.Convert.ToDouble(level.Iol);
+                var ioh = System.Convert.ToDouble(level.Ioh);
+
                 //todo:设置Vih
-                //Ppmu.Pins(pinName).SetDriverAndComparator();
+                Ppmu.Pins(pinName).SetDriverAndComparator(vil, currentValue, vol, voh, vt, iol, ioh, true, Enums.Ppmus.HizType.vt, 0);
             }
             return result;
         }
@@ -278,9 +289,20 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     PrintResultLog.Message(string.Format($"{msg}", pin, "Voh", "Vol", currentValue));
                     result = false;
                 }
+
                 var level = _levelDic[pinName];
-                //todo:设置Vil
-                //Ppmu.Pins(pinName).SetDriverAndComparator();
+                if (level == null)
+                    continue;
+
+                var vil = System.Convert.ToDouble(level.Vil);
+                var vih = System.Convert.ToDouble(level.Vih);
+                var voh = System.Convert.ToDouble(level.Voh);
+                var vt = System.Convert.ToDouble(level.Vt);
+                var iol = System.Convert.ToDouble(level.Iol);
+                var ioh = System.Convert.ToDouble(level.Ioh);
+
+                //todo:设置Vol
+                Ppmu.Pins(pinName).SetDriverAndComparator(vil, vih, currentValue, voh, vt, iol, ioh, true, Enums.Ppmus.HizType.vt, 0);
             }
             return result;
         }
@@ -297,9 +319,20 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     PrintResultLog.Message(string.Format($"{msg}", pin, "Vol", "Voh", currentValue));
                     result = false;
                 }
+
                 var level = _levelDic[pinName];
-                //todo:设置Vil
-                //Ppmu.Pins(pinName).SetDriverAndComparator();
+                if (level == null)
+                    continue;
+
+                var vil = System.Convert.ToDouble(level.Vil);
+                var vih = System.Convert.ToDouble(level.Vih);
+                var vol = System.Convert.ToDouble(level.Vol);
+                var vt = System.Convert.ToDouble(level.Vt);
+                var iol = System.Convert.ToDouble(level.Iol);
+                var ioh = System.Convert.ToDouble(level.Ioh);
+
+                //todo:设置Voh
+                Ppmu.Pins(pinName).SetDriverAndComparator(vil, vih, vol, currentValue, vt, iol, ioh, true, Enums.Ppmus.HizType.vt, 0);
             }
             return result;
         }
@@ -316,9 +349,20 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     PrintResultLog.Message(string.Format($"{msg}", pin, "Ioh", "Iol", currentValue));
                     result = false;
                 }
+
                 var level = _levelDic[pinName];
-                //todo:设置Vil
-                //Ppmu.Pins(pinName).SetDriverAndComparator();
+                if (level == null)
+                    continue;
+
+                var vil = System.Convert.ToDouble(level.Vil);
+                var vih = System.Convert.ToDouble(level.Vih);
+                var vol = System.Convert.ToDouble(level.Vol);
+                var voh = System.Convert.ToDouble(level.Voh);
+                var vt = System.Convert.ToDouble(level.Vt);
+                var ioh = System.Convert.ToDouble(level.Ioh);
+
+                //todo:设置Iol
+                Ppmu.Pins(pinName).SetDriverAndComparator(vil, vih, vol, voh, vt, currentValue, ioh, true, Enums.Ppmus.HizType.vt, 0);
             }
             return result;
         }
@@ -335,9 +379,20 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     PrintResultLog.Message(string.Format($"{msg}", pin, "Iol", "Ioh", currentValue));
                     result = false;
                 }
+
                 var level = _levelDic[pinName];
-                //todo:设置Vil
-                //Ppmu.Pins(pinName).SetDriverAndComparator();
+                if (level == null)
+                    continue;
+
+                var vil = System.Convert.ToDouble(level.Vil);
+                var vih = System.Convert.ToDouble(level.Vih);
+                var vol = System.Convert.ToDouble(level.Vol);
+                var voh = System.Convert.ToDouble(level.Voh);
+                var iol = System.Convert.ToDouble(level.Iol);
+                var vt = System.Convert.ToDouble(level.Vt);
+
+                //todo:设置Ioh
+                Ppmu.Pins(pinName).SetDriverAndComparator(vil, vih, vol, voh, vt, iol, currentValue, true, Enums.Ppmus.HizType.vt, 0);
             }
             return result;
         }
@@ -349,8 +404,19 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
             {
                 var pinName = pin.PinName;
                 var level = _levelDic[pinName];
+
+                if (level == null)
+                    continue;
+
+                var vil = System.Convert.ToDouble(level.Vil);
+                var vih = System.Convert.ToDouble(level.Vih);
+                var vol = System.Convert.ToDouble(level.Vol);
+                var voh = System.Convert.ToDouble(level.Voh);
+                var iol = System.Convert.ToDouble(level.Iol);
+                var ioh = System.Convert.ToDouble(level.Ioh);
+
                 //todo:设置Vt
-                //Ppmu.Pins(pinName).SetDriverAndComparator();
+                Ppmu.Pins(pinName).SetDriverAndComparator(vil, vih, vol, voh, currentValue, iol, ioh, true, Enums.Ppmus.HizType.vt, 0);
             }
             return result;
         }
@@ -398,10 +464,179 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
         private bool TrySetTimingMode(string mode, string pinList, double value)
         {
             var pins = GetPinList(pinList);
+            var result = false;
 
-            return true;
+            switch (mode)
+            {
+                case "Period":
+                    result = ProcessPeriodMode(pins, value);
+                    break;
+                case "StrobeB":
+                    result = SetDigitalPinValue(pins, value, WaveformEdgeType.StrobeB);
+                    break;
+                case "DriveD":
+                    result = VaildateAndSetDrive(pins, value, p => System.Convert.ToDouble(_timeDic[p].Period), "Period", "DriveD", WaveformEdgeType.DriveD);
+                    break;
+                case "DriveC":
+                    result = VaildateAndSetDrive(pins, value, p => double.Parse(_timeDic[p].DriveD), "DriveD", "DriveC", WaveformEdgeType.DriveC);
+                    break;
+                case "DriveB":
+                    result = VaildateAndSetDrive(pins, value, p => double.Parse(_timeDic[p].DriveC), "DriveC", "DriveB", WaveformEdgeType.DriveB);
+                    break;
+                case "DriveA":
+                    result = VaildateAndSetDrive(pins, value, p => double.Parse(_timeDic[p].DriveB), "DriveB", "DriveA", WaveformEdgeType.DriveA);
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
         }
 
+        private bool ProcessPeriodMode(List<ChannelModel> pins, double value)
+        {
+            var result = true;
+            try
+            {
+                var timingModelDic = new Dictionary<TimingModel, string>();
+                foreach (var pin in pins)
+                {
+                    if (!_timeDic.ContainsKey(pin.PinName))
+                        continue;
+
+                    var pinList = pin.PinName;
+                    var timing = _timeDic[pin.PinName];
+                    if (timingModelDic.Any())
+                    {
+                        if (timingModelDic.ContainsKey(timing))
+                        {
+                            pinList = timingModelDic[timing];
+                            timingModelDic[timing] = pinList + $",{pin.PinName}";
+                        }
+                        else
+                            timingModelDic.Add(timing, pinList);
+                    }
+                    else
+                        timingModelDic.Add(timing, pinList);
+                }
+
+                foreach (var timingModel in timingModelDic)
+                {
+                    var timing = timingModel.Key;
+                    var pinList = timingModel.Value;
+
+                    var period = timing.Period;
+                    var radio = value / (period * 1.0); //同比例调整
+
+                    double.TryParse(timing.DriveA, out double driveA);
+                    double.TryParse(timing.DriveB, out double driveB);
+                    double.TryParse(timing.DriveC, out double driveC);
+                    double.TryParse(timing.DriveD, out double driveD);
+                    var strobeA = System.Convert.ToDouble(timing.StrobeA);
+                    var strobeB = System.Convert.ToDouble(timing.StrobeB);
+
+                    driveA *= radio;
+                    driveB *= radio;
+                    driveC *= radio;
+                    driveD *= radio;
+                    strobeA *= radio;
+                    strobeB *= radio;
+
+                    Digital.Pins(pinList).SetTimingDetail(value, driveA, driveB, driveC, driveD, timing.Fmt, timing.StrobeMode, strobeA, strobeB);
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+
+            return result;
+        }
+
+        private bool SetDigitalPinValue(List<ChannelModel> pins, double value, WaveformEdgeType edgeType)
+        {
+            var result = true;
+            try
+            {
+                var timingModelDic = new Dictionary<TimingModel, string>();
+
+                //对TimingModel相同的引脚进行分组 
+                foreach (var pin in pins)
+                {
+                    if (!_timeDic.ContainsKey(pin.PinName))
+                        continue;
+                    var pinList = pin.PinName;
+                    var timing = _timeDic[pin.PinName];
+                    if (timingModelDic.Any())
+                    {
+                        if (timingModelDic.ContainsKey(timing))
+                        {
+                            pinList = timingModelDic[timing];
+                            timingModelDic[timing] = pinList + $",{pin.PinName}";
+                        }
+                        else
+                            timingModelDic.Add(timing, pinList);
+                    }
+                    else
+                    {
+                        timingModelDic.Add(timing, pinList);
+                    }
+                }
+
+                foreach (var timingModel in timingModelDic)
+                {
+                    var timing = timingModel.Key;
+                    var pinList = timingModel.Value;
+
+                    var currentValue = System.Convert.ToInt32(value);
+                    double.TryParse(timing.DriveA, out double driveA);
+                    double.TryParse(timing.DriveB, out double driveB);
+                    double.TryParse(timing.DriveC, out double driveC);
+                    double.TryParse(timing.DriveD, out double driveD);
+
+                    switch (edgeType)
+                    {
+                        case WaveformEdgeType.DriveA:
+                            Digital.Pins(pinList).SetTimingDetail(timing.Period, currentValue, driveB, driveC, driveD, timing.Fmt, timing.StrobeMode, timing.StrobeA, timing.StrobeB);
+                            break;
+                        case WaveformEdgeType.DriveB:
+                            Digital.Pins(pinList).SetTimingDetail(timing.Period, driveA, currentValue, driveC, driveD, timing.Fmt, timing.StrobeMode, timing.StrobeA, timing.StrobeB);
+                            break;
+                        case WaveformEdgeType.DriveC:
+                            Digital.Pins(pinList).SetTimingDetail(timing.Period, driveA, driveB, currentValue, driveD, timing.Fmt, timing.StrobeMode, timing.StrobeA, timing.StrobeB);
+                            break;
+                        case WaveformEdgeType.DriveD:
+                            Digital.Pins(pinList).SetTimingDetail(timing.Period, driveA, driveB, driveC, currentValue, timing.Fmt, timing.StrobeMode, timing.StrobeA, timing.StrobeB);
+                            break;
+                        case WaveformEdgeType.StrobeB:
+                            Digital.Pins(pinList).SetTimingDetail(timing.Period, driveA, driveB, driveC, driveD, timing.Fmt, timing.StrobeMode, timing.StrobeB, currentValue);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+
+            return result;
+        }
+
+        private bool VaildateAndSetDrive(List<ChannelModel> pins, double value, Func<string, double> getCompareValue, string compareField, string targetField, WaveformEdgeType edgeType)
+        {
+            bool result = true;
+            var invalidPin = pins.FirstOrDefault(x => getCompareValue(x.PinName) < value);
+            if (invalidPin != null)
+            {
+                PrintResultLog.Message(string.Format(L["ForceModeEmptyError"], invalidPin.PinName, compareField, targetField, value));
+                result = false;
+            }
+
+            SetDigitalPinValue(pins, value, edgeType);
+            return result;
+        }
         #endregion
 
         private async Task ProcessAxis(ShmooAxis axis, int axisLoopCount, double num, bool isValidAxis1, List<ShmooResult> list, ActiveMode activeMode, string moduleName)
@@ -436,6 +671,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
         private ShmooResult ShmooPattern(ActiveMode activeMode, string moduleName, double x, double y)
         {
             //todo:运行Pattern
+
+
 
             return null;
         }
@@ -495,7 +732,5 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
         {
             ShmooTestManagerHelper.Instance.TrySetPrint(_testName, path);
         }
-
-
     }
 }

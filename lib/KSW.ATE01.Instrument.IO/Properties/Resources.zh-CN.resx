@@ -132,4 +132,7 @@
   <data name="IsOutOfAllowedRange" xml:space="preserve">
     <value>{0} {1}超出允许范围【{2}，{3}】</value>
   </data>
+  <data name="PinLessValueTips" xml:space="preserve">
+    <value>Pin [{0}] {1} 小于当前 shmoo {2} 值 {3}</value>
+  </data>
 </root>

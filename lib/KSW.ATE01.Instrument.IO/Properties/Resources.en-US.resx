@@ -132,4 +132,7 @@
   <data name="IsOutOfAllowedRange" xml:space="preserve">
     <value>{0} {1} is out of allowed range [{2}, {3}]</value>
   </data>
+  <data name="PinLessValueTips" xml:space="preserve">
+    <value>Pin [{0}] {1} is less than current shmoo {2} value {3}</value>
+  </data>
 </root>

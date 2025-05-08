@@ -104,5 +104,14 @@ namespace KSW.ATE01.Instrument.IO.Properties {
                 return ResourceManager.GetString("LevelValueLowerErrorTips", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   查找类似 Pin [{0}] {1} is less than current shmoo {2} value {3} 的本地化字符串。
+        /// </summary>
+        internal static string PinLessValueTips {
+            get {
+                return ResourceManager.GetString("PinLessValueTips", resourceCulture);
+            }
+        }
     }
 }

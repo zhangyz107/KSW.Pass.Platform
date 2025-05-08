@@ -1,10 +1,4 @@
-﻿using KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo;
-using KSW.ATE01.Instrument.IO.Enums.Shmoos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using KSW.ATE01.Instrument.IO.Enums.Shmoos;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Shmoo
 {
