@@ -37,11 +37,19 @@ namespace KSW.Helpers
 
         public static async Task<IDialogResult> ShowProcessBarDialogAsync(this IDialogService dialogService, ProcessBarParameters processBarParameters)
         {
-            var tempParams = new DialogParameters
+            try
+            {
+                var tempParams = new DialogParameters
             {
                 { "params", processBarParameters }
             };
-            return await dialogService.ShowDialogAsync(GetProcessBarDialogName, tempParams);
+                return await dialogService.ShowDialogAsync(GetProcessBarDialogName, tempParams);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public static void ShowProcessBar(this IDialogService dialogService, ProcessBarParameters processBarParameters, Action<IDialogResult> callback = null)

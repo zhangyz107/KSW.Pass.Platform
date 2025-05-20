@@ -68,7 +68,7 @@ namespace KSW.ATE01.Application.Helpers
                     return output;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 throw;
             }

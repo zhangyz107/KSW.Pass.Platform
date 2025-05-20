@@ -57,7 +57,7 @@ namespace KSW.UI.WPF.ViewModels
             IsIndeterminate = processBarParameters.IsIndeterminate;
             ProcessContent = processBarParameters.ProcessContent;
             ProcessRate = processBarParameters.ProcessRate;
-
+            Exception exception = null;
             try
             {
                 processBarParameters.UpdateProgress = (processRate, processContent) =>
@@ -70,13 +70,17 @@ namespace KSW.UI.WPF.ViewModels
                     }
                 };
                 await processBarParameters.DoWork();
-                RaiseRequestClose(new DialogResult(ButtonResult.Yes));
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
+                exception = e;
+            }
+            finally
+            {
                 RaiseRequestClose(new DialogResult(ButtonResult.Yes)
                 {
-                    Exception = e
+                    Exception = exception
                 });
             }
         }

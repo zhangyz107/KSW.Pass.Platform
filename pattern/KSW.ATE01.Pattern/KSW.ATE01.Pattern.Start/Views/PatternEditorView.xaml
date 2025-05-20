@@ -183,7 +183,7 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-
+        
         <Border Grid.Row="3" Background="#3B3B3B">
 
         </Border>

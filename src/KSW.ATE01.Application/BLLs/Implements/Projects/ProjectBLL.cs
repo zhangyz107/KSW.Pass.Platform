@@ -144,7 +144,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
         }
 
-        public ProjectInfoModel GetCurrentProjectInfo()
+        public virtual ProjectInfoModel GetCurrentProjectInfo()
         {
             return _currentProjectInfo;
         }
