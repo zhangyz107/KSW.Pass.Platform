@@ -1,4 +1,5 @@
-﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus;
+﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Commons;
+using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Ppmus;
@@ -11,7 +12,7 @@ using KSW.ATE01.Project.Base.Models.Errors;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 {
-    public class Ppmu : PE131CommandBase<Ppmu>, IPpmu
+    public class Ppmu : PE131CommandBase<Ppmu>, IPpmu, ICommon
     {
         private PpmuCurrentRange _currentRange;
         private double _iforce;
@@ -43,6 +44,16 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                 ErrorMessages.DpsPpmu.PinListIsNullOrEmpty();
 
             Instance.GetPinList(pinList);
+
+            return Instance;
+        }
+
+        public static ICommon Common(string pinList)
+        {
+            if (string.IsNullOrEmpty(pinList))
+                ErrorMessages.DpsPpmu.PinListIsNullOrEmpty();
+
+            Instance.CommonPinList = pinList;
 
             return Instance;
         }
@@ -161,8 +172,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
             try
             {
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
-
                 if (vil < -2.56 || vil > 6.09)
                     ErrorMessages.DpsPpmu.DriverAndComparatorOutOfRange(nameof(vil), new object[] { vil, "-2.56V", "6.09V" });
 
@@ -250,8 +259,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
 
-                        if (controlService != null && instrumentInfo != null)
-                            controlService.Send(instrumentInfo, message);
+                        if (ControlService != null && instrumentInfo != null)
+                            ControlService.Send(instrumentInfo, message);
                     }
                 }
             }
@@ -567,7 +576,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             {
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
 
                 foreach (var pin in PinList)
                 {
@@ -608,9 +616,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                         var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
 
-                        if (controlService != null && message.Any())
+                        if (ControlService != null && message.Any())
                         {
-                            var queryResult = controlService.Query(instrumentInfo, message);
+                            var queryResult = ControlService.Query(instrumentInfo, message);
                             var commands = CommandHelper.ConversionBytesToCommands(queryResult);
 
                             foreach (var command in commands)

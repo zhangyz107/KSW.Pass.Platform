@@ -32,12 +32,16 @@ namespace KSW.ATE01.Instrument.IO.Helpers
             {
                 var match = _siteRegex.Match(siteStr);
                 var slotStr = match.Groups[1].Value.Trim();
-                if (int.TryParse(slotStr, out slot) && (slot >= 16 || slot < 0))
+                int.TryParse(slotStr, out slot);
+                var channel = match.Groups[2].Value.Trim();
+                int.TryParse(channel, out channelNum);
+#if !DEBUG
+                if (slot >= 16 || slot < 0)
                     throw new ArgumentOutOfRangeException($"slot{slot}超出范围");
 
-                var channel = match.Groups[2].Value.Trim();
-                if (int.TryParse(channel, out channelNum) && (channelNum > 127 || channelNum < 0))
+                if (channelNum > 127 || channelNum < 0)
                     throw new ArgumentOutOfRangeException($"ch{channel}超出范围");
+#endif
             }
 
             return channelNum;

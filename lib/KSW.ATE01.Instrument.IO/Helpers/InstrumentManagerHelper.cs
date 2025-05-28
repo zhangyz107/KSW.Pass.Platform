@@ -2,6 +2,7 @@
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Helpers;
+using System.Linq;
 
 namespace KSW.ATE01.Instrument.IO.Helpers
 {
@@ -68,7 +69,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                         if (command.CommandContent.Length >= 3)
                         {
                             var slot = command.CommandContent[0];
-                            var type = BitConverter.ToInt16(command.CommandContent, 1);
+                            var type = BitConverter.ToInt16(command.CommandContent.AsSpan(1, 2).ToArray().Reverse().ToArray(), 0);
 
                             var boardType = (BoardType)type;
                             var boardInfos = _instrumentDic.Keys.Where(x => x.BoardType == boardType);
@@ -104,6 +105,8 @@ namespace KSW.ATE01.Instrument.IO.Helpers
             var boardInfos = helper._instrumentDic.Keys.Where(x => x.BoardType == boardType);
             if (!string.IsNullOrEmpty(slot))
                 boardInfos = boardInfos.Where(x => x.SlotNum.ToLower().Equals(slot.ToLower()));
+            else
+                result = helper._instrumentDic.Where(x => x.Key.BoardType == boardType).Select(x => x.Value).ToList();
 
             foreach (var boardInfo in boardInfos)
             {
@@ -115,6 +118,15 @@ namespace KSW.ATE01.Instrument.IO.Helpers
             }
 
             return result;
+        }
+
+        public static Dictionary<BoardInfoModel, InstrumentBaseModel> GetDetailInfosByBoardType(BoardType boardType)
+        {
+            var helper = _instance.Value;
+            if (helper == null)
+                return null;
+
+            return helper._instrumentDic.Where(x => x.Key.BoardType == boardType).Select(x => x).ToDictionary();
         }
 
         public static IInstruentControlService GetControlServiceByBoardType(BoardType boardType)

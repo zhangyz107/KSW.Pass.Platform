@@ -3,7 +3,6 @@ using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
-using KSW.ATE01.Project.Base.Models;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Backplanes
 {

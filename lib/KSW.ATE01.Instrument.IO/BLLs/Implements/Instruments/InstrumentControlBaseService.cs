@@ -116,7 +116,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
             myOptions.DontFragment = true;
             string data = "test";
             byte[] buff = Encoding.ASCII.GetBytes(data);
-            PingReply reply = pingtest.Send(ipAddress, 1000, buff, myOptions);
+            PingReply reply = pingtest.Send(ipAddress, 100, buff, myOptions);
             if (reply.Status == IPStatus.Success)
             {
                 return true;
