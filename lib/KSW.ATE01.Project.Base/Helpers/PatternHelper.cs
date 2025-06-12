@@ -305,6 +305,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 }
 
                                 var pinByte = (byte)((int)row2.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue);
+                                var vectorIncrease = 2;
 
                                 var lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
                                 if (lastPatternModel != null)
@@ -317,6 +318,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                         {
                                             lastPackageModel.PatternGroups.Add(lastPatternModel);
                                             lastPatternModel.Vectors.Add(pinByte);
+                                            lastPatternModel.VectorNumber += vectorIncrease;
                                         }
                                         else
                                         {
@@ -336,12 +338,16 @@ namespace KSW.ATE01.Project.Base.Helpers
 
                                             lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
                                             lastPatternModel.Vectors.Add(pinByte);
+                                            lastPatternModel.VectorNumber += vectorIncrease;
                                             dataStartAddress += _vectorLength;
                                         }
 
                                     }
                                     else
+                                    {
                                         lastPatternModel.Vectors.Add(pinByte);
+                                        lastPatternModel.VectorNumber += vectorIncrease;
+                                    }
 
                                 }
                             }
@@ -392,6 +398,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 }
 
                                 var pinByte = row2 != null ? (byte)((int)row2.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue) : (byte)row1.Pins[j].VectorValue;
+                                var vectorIncrease = row2 != null ? 2 : 1;
 
                                 var lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
                                 if (lastPatternModel != null)
@@ -404,6 +411,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                         {
                                             lastPackageModel.PatternGroups.Add(lastPatternModel);
                                             lastPatternModel.Vectors.Add(pinByte);
+                                            lastPatternModel.VectorNumber += vectorIncrease;
                                         }
                                         else
                                         {
@@ -423,12 +431,16 @@ namespace KSW.ATE01.Project.Base.Helpers
 
                                             lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
                                             lastPatternModel.Vectors.Add(pinByte);
+                                            lastPatternModel.VectorNumber += vectorIncrease;
                                             dataStartAddress += _vectorLength;
                                         }
 
                                     }
                                     else
+                                    {
                                         lastPatternModel.Vectors.Add(pinByte);
+                                        lastPatternModel.VectorNumber += vectorIncrease;
+                                    }
 
                                 }
                             }

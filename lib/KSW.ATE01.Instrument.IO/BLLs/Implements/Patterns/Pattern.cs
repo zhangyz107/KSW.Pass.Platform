@@ -211,7 +211,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, pin.PinName);
                     var pinIndex = PinManagerHelper.GetPinIndexByPinName(Instance.TestPlan?.Channel, pin.PinName);
-                    var dataEndAddress = dataStartAddress + dataLength;
+                    var dataEndAddress = dataStartAddress + dataLength - 1;
                     foreach (var site in channel.Sites)
                     {
                         if (!ChannelManagerHelper.IsSiteValid(site.SiteName))

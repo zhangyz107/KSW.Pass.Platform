@@ -77,7 +77,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Calibrations
                                 tempData.Add(new CountValueModel()
                                 {
                                     Index = index++,
-                                    Value = BitConverter.ToUInt32(countValue.Reverse().ToArray())
+                                    Value = ByteConverterHelper.GetUInt32(countValue,isBigEndian: true)
                                 });
                             }
                         }
@@ -106,10 +106,10 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Calibrations
             var instrumentInfos = InstrumentManagerHelper.GetInstrumentInfosByBoardType(boardType);
             var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(boardType);
 
-            var fdEnByteList = BitConverter.GetBytes(fdEn).Reverse().ToArray();
-            var fdDByteList = BitConverter.GetBytes(fdD).Reverse().ToArray();
-            var fdCaByteList = BitConverter.GetBytes(fdCa).Reverse().ToArray();
-            var fdCbByteList = BitConverter.GetBytes(fdCb).Reverse().ToArray();
+            var fdEnByteList = ByteConverterHelper.GetBytes(fdEn, true);
+            var fdDByteList = ByteConverterHelper.GetBytes(fdD, true);
+            var fdCaByteList = ByteConverterHelper.GetBytes(fdCa, true);
+            var fdCbByteList = ByteConverterHelper.GetBytes(fdCb, true);
 
             var byteList = new List<byte>();
             byteList.Add(roPath);
@@ -176,15 +176,15 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Calibrations
                     var resultCommand = resultCommands.FirstOrDefault();
                     if (resultCommand != null && resultCommand.CommandContent.Length >= command.CommnadLength)
                     {
-                        tempData.CA = BitConverter.ToUInt32(resultCommand.CommandContent.AsSpan(index, 4).ToArray().Reverse().ToArray());
+                        tempData.CA = ByteConverterHelper.GetUInt32(resultCommand.CommandContent, index, true);
                         index += 4;
-                        tempData.CB = BitConverter.ToUInt32(resultCommand.CommandContent.AsSpan(index, 4).ToArray().Reverse().ToArray());
+                        tempData.CB = ByteConverterHelper.GetUInt32(resultCommand.CommandContent, index, true);
                         index += 4;
-                        tempData.CACount = BitConverter.ToUInt32(resultCommand.CommandContent.AsSpan(index, 4).ToArray().Reverse().ToArray());
+                        tempData.CACount = ByteConverterHelper.GetUInt32(resultCommand.CommandContent, index, true);
                         index += 4;
-                        tempData.CBCount = BitConverter.ToUInt32(resultCommand.CommandContent.AsSpan(index, 4).ToArray().Reverse().ToArray());
+                        tempData.CBCount = ByteConverterHelper.GetUInt32(resultCommand.CommandContent, index, true);
                         index += 4;
-                        tempData.Position = BitConverter.ToUInt32(resultCommand.CommandContent.AsSpan(index, 4).ToArray().Reverse().ToArray());
+                        tempData.Position = ByteConverterHelper.GetUInt32(resultCommand.CommandContent, index, true);
                     }
                 }
             }

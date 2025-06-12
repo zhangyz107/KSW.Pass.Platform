@@ -15,7 +15,7 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
         /// <summary>
         /// Vector数量
         /// </summary>
-        public int VectorNumber { get => Vectors.Any() ? Vectors.Count * 2 : 0; }
+        public int VectorNumber { get; set; }
 
         /// <summary>
         /// 指令

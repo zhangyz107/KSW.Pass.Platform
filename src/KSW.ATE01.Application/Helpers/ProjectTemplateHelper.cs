@@ -150,7 +150,7 @@ namespace KSW.ATE01.Application.Helpers
             var result = false;
             try
             {
-                var commandParams = $"msbuild {slnFilePath} -p:Configuration=Release -p:OutDir={releaseDir}";
+                var commandParams = $"msbuild {slnFilePath} -p:Configuration=Debug -p:OutDir={releaseDir}";  // 指定配置为 Debug，原代码为Release
                 var output = await CommandLineHelper.SendCommandLine(_commandExecute, commandParams);
                 result = true;
 

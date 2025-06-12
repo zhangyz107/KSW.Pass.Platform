@@ -451,7 +451,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
             _vcl = vcl;
             _vch = vch;
 
-            var iRType = IRType.Hiz;
+            var iRType = IRType.IR0;
 
             var currentAbs = Math.Abs(iforce);
             // 转换数据格式
@@ -617,7 +617,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                 {
                     miType = DpsIMType.IM4;
                 }
-                else if (50e-3 < currentAbsMax && currentAbsMax <= 500e-3)
+                else
                 {
                     miType = DpsIMType.IM5;
                 }
@@ -1268,7 +1268,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                 {
                     var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, pin.PinName);
                     var pinIndex = PinManagerHelper.GetPinIndexByPinName(Instance.TestPlan?.Channel, pin.PinName);
-                    var dataEndAddress = dataStartAddress + dataLength;
+                    var dataEndAddress = dataStartAddress + dataLength - 1;
                     foreach (var site in channel.Sites)
                     {
                         if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
