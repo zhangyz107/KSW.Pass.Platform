@@ -22,8 +22,8 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
             set => _debugLogPrint = value;
         }
 
-        public static string TestStartTime 
-        { 
+        public static string TestStartTime
+        {
             get => _testStartTime;
             set => _testStartTime = value;
         }
@@ -47,9 +47,13 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
                     if (DebugLogPrint)
                     {
                         LogHelper.WriteLog("=====================================================================================");
+                        result.Add("=====================================================================================");
                         LogHelper.WriteLog("======================================  Start  ======================================");
+                        result.Add("======================================  Start  ======================================");
                         LogHelper.WriteLog("=====================================================================================");
+                        result.Add("=====================================================================================");
                         LogHelper.WriteLog($"Enter Datalog.Print() function case {DataLogFlag.HeaderOrStart}.");
+                        result.Add($"Enter Datalog.Print() function case {DataLogFlag.HeaderOrStart}.");
                     }
                     try
                     {
@@ -57,7 +61,7 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
 
                         if (DebugLogPrint)
                         {
-                            LogHelper.WriteLog(string.Concat(new string[]
+                            var tempContent = string.Concat(new string[]
                             {
                                 "Get csv/txt/stdf/summary files name from meshead successful.",
                                 Environment.NewLine,
@@ -72,7 +76,9 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
                                 Environment.NewLine,
                                 "\t\t\t\t\t\t\t\t\t\tSummaryFileName:",
                                 SummaryFilePath
-                            }));
+                            });
+                            LogHelper.WriteLog(tempContent);
+                            result.Add(tempContent);
                         }
 
                         if (DebugLogPrint)

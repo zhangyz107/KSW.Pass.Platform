@@ -15,5 +15,7 @@ namespace KSW.ATE01.Project.Base.Models.Loggers
         /// 消息内容
         /// </summary>
         public string Message { get; set; }
+
+
     }
 }

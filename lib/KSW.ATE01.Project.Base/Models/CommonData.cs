@@ -89,12 +89,12 @@ namespace KSW.ATE01.Project.Base.Models
         /// <summary>
         /// 电压下限
         /// </summary>
-        public decimal? LowLimit { get => TestItemLimit?.LowLimit; }
+        public double? LowLimit { get => TestItemLimit?.LowLimit; }
 
         /// <summary>
         /// 电压上限
         /// </summary>
-        public decimal? HighLimit { get => TestItemLimit?.HighLimit; }
+        public double? HighLimit { get => TestItemLimit?.HighLimit; }
 
         /// <summary>
         /// 使用站点名称

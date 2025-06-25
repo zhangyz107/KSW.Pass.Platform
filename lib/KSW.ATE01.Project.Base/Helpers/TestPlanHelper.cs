@@ -1268,15 +1268,15 @@ namespace KSW.ATE01.Project.Base.Helpers
                         limitModel.TestItemName = cols[colIndex];
                     colIndex++;
 
-                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && int.TryParse(cols[colIndex], out int testNumber))
+                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && uint.TryParse(cols[colIndex], out uint testNumber))
                         limitModel.TestNumber = testNumber;
                     colIndex++;
 
-                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && decimal.TryParse(cols[colIndex], out decimal lowLimit))
+                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && double.TryParse(cols[colIndex], out double lowLimit))
                         limitModel.LowLimit = lowLimit;
                     colIndex++;
 
-                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && decimal.TryParse(cols[colIndex], out decimal highLimit))
+                    if (cols.Length > colIndex && !string.IsNullOrEmpty(cols[colIndex]) && double.TryParse(cols[colIndex], out double highLimit))
                         limitModel.HighLimit = highLimit;
                     colIndex++;
 

@@ -8,6 +8,13 @@
     <RootNamespace>KSW</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Compare\**" />
+    <EmbeddedResource Remove="Compare\**" />
+    <None Remove="Compare\**" />
+    <Page Remove="Compare\**" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<Compile Update="Properties\R.Designer.cs">
 			<DesignTime>True</DesignTime>
@@ -21,10 +28,6 @@
 			<Generator>PublicResXFileCodeGenerator</Generator>
 			<LastGenOutput>R.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Compare\" />
 	</ItemGroup>
 
 	<ItemGroup>

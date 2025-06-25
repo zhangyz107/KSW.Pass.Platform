@@ -135,4 +135,10 @@
   <data name="PinLessValueTips" xml:space="preserve">
     <value>Pin [{0}] {1} is less than current shmoo {2} value {3}</value>
   </data>
+  <data name="LimitValueError" xml:space="preserve">
+    <value>Parameter exception: The lower limit cannot exceed the upper limit</value>
+  </data>
+  <data name="LimitValueSetError" xml:space="preserve">
+    <value>The lower and upper limits should be set at the same time</value>
+  </data>
 </root>

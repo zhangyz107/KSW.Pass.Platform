@@ -135,4 +135,10 @@
   <data name="PinLessValueTips" xml:space="preserve">
     <value>Pin [{0}] {1} 小于当前 shmoo {2} 值 {3}</value>
   </data>
+  <data name="LimitValueError" xml:space="preserve">
+    <value>参数异常：下限不能超过上限</value>
+  </data>
+  <data name="LimitValueSetError" xml:space="preserve">
+    <value>下限和上限应同时设置</value>
+  </data>
 </root>

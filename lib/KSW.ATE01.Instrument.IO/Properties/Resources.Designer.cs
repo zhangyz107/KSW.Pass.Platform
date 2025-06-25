@@ -106,6 +106,24 @@ namespace KSW.ATE01.Instrument.IO.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Parameter exception: The lower limit cannot exceed the upper limit 的本地化字符串。
+        /// </summary>
+        internal static string LimitValueError {
+            get {
+                return ResourceManager.GetString("LimitValueError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The lower and upper limits should be set at the same time 的本地化字符串。
+        /// </summary>
+        internal static string LimitValueSetError {
+            get {
+                return ResourceManager.GetString("LimitValueSetError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Pin [{0}] {1} is less than current shmoo {2} value {3} 的本地化字符串。
         /// </summary>
         internal static string PinLessValueTips {

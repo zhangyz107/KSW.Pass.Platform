@@ -1,6 +1,5 @@
 ﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Commons;
 using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Dps;
-using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns;
 using KSW.ATE01.Instrument.IO.Enums.Dps;

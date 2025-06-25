@@ -16,10 +16,10 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Project.Base.Events;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.TestPlans;
+using KSW.ATE01.Project.Base.Services.Loggers;
 using KSW.ATE01.Project.Base.Services.Memory;
 using KSW.ATE01.Start.Views;
 using KSW.Helpers;
@@ -58,6 +58,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #endregion
 
         #region Properties
+        public ProjectInfoModel ProjectInfo
+        {
+            get => _projectInfo;
+            private set => SetProperty(ref _projectInfo, value);
+        }
+
         public DialogCloseListener RequestClose { get; }
 
         public string Title => L["Run"];
@@ -164,12 +170,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private AsyncDelegateCommand _endTestCommand;
         public AsyncDelegateCommand EndTestCommand =>
             _endTestCommand ?? (_endTestCommand = new AsyncDelegateCommand(ExecuteEndTestCommand, () => { return _canExecuteEndTest; }));
-
-        public ProjectInfoModel ProjectInfo
-        {
-            get => _projectInfo;
-            private set => SetProperty(ref _projectInfo, value);
-        }
         #endregion
 
         public RunDialogViewModel(
@@ -349,6 +349,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                     if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
                     {
                         var commonData = CommonData.Instance;
+                        PrintResultLog.PrintRealTimeTxt = _projectInfo.SaveRealTimeText;
                         if (commonData != null)
                         {
                             commonData.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();

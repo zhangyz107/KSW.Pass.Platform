@@ -121,4 +121,12 @@
     <value>Pin [{0}] {1} is less than current shmoo {2} value {3}</value>
     <comment>Pin [{0}] {1} 小于当前 shmoo {2} 值 {3}</comment>
   </data>
+  <data name="LimitValueError" xml:space="preserve">
+    <value>Parameter exception: The lower limit cannot exceed the upper limit</value>
+    <comment>参数异常：下限不能超过上限</comment>
+  </data>
+  <data name="LimitValueSetError" xml:space="preserve">
+    <value>The lower and upper limits should be set at the same time</value>
+    <comment>下限和上限应同时设置</comment>
+  </data>
 </root>

@@ -14,19 +14,13 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
-using KSW.ATE01.Application.BLLs.Implements.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.ATE01.Domain.Projects.Entities;
 using KSW.ATE01.Project.Base.Helpers;
-using KSW.ATE01.Project.Base.Models.Projects;
 using KSW.Helpers;
 using KSW.Ui;
-using Microsoft.CodeAnalysis;
 using Microsoft.Win32;
-using Prism.Ioc;
 using System.IO;
-using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
