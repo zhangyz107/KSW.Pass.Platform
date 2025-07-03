@@ -1,6 +1,7 @@
 ﻿using KSW.Ui;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,20 +22,33 @@ namespace KSW.ATE01.Start.Views.Dialogs
     /// </summary>
     public partial class RunDialog : IView
     {
+        private double _expandedWidth;
+
         public RunDialog()
         {
             InitializeComponent();
+
+            this.Loaded += RunDialog_Loaded;
         }
 
-        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void RunDialog_Loaded(object sender, RoutedEventArgs e)
         {
-            var width = this.ActualWidth;
-            this.expandContent.Width = width / 2.0;
+            if (!double.IsNaN(this.mainExpander.ActualWidth))
+            {
+                _expandedWidth = this.mainExpander.ActualWidth;
+            }
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void mainExpander_Collapsed(object sender, RoutedEventArgs e)
         {
+            leftColumn.Width = new GridLength(1, GridUnitType.Star);
+            rightColumn.Width = new GridLength(1, GridUnitType.Auto);
+        }
 
+        private void mainExpander_Expanded(object sender, RoutedEventArgs e)
+        {
+            leftColumn.Width = new GridLength(1, GridUnitType.Star);
+            rightColumn.Width = new GridLength(1, GridUnitType.Star);
         }
     }
 }

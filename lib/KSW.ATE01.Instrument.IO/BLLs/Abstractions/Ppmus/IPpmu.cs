@@ -77,6 +77,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus
         /// <summary>
         /// 获取MI结果
         /// </summary>
-        List<ChannelResultModel<double>> GetMI();
+        List<PpmuMIResultModel<double>> GetMI();
     }
 }

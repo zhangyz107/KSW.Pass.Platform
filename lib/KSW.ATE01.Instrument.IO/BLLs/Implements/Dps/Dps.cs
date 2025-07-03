@@ -957,9 +957,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
             return result;
         }
 
-        public List<ChannelResultModel<DpsMIResultModel>> GetMI()
+        public List<DpsMIResultModel<double>> GetMI()
         {
-            var result = new List<ChannelResultModel<DpsMIResultModel>>();
+            var result = new List<DpsMIResultModel<double>>();
             if (PinList == null || !PinList.Any())
                 return result;
 
@@ -1034,26 +1034,25 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
             return result;
         }
 
-        private ChannelResultModel<DpsMIResultModel> ContentToMI(byte slot, byte[] commandContent)
+        private DpsMIResultModel<double> ContentToMI(byte slot, byte[] commandContent)
         {
-            ChannelResultModel<DpsMIResultModel> result = null;
+            DpsMIResultModel<double> result = null;
 
             try
             {
                 if (commandContent.Any())
                 {
-                    result = new ChannelResultModel<DpsMIResultModel>();
+                    result = new DpsMIResultModel<double>();
                     var index = 0;
                     result.ChannelNum = commandContent[index++];
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
-                    result.SiteResult = new DpsMIResultModel();
-                    result.SiteResult.IR = (IRType)commandContent[index++];
+                    result.IR = (IRType)commandContent[index++];
                     var codeBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var code = BitConverter.ToInt16(codeBytes);
-                    var value = ((2.5 * code / 32768 - 1.25) * 2.0) / 2.5 * 4 * GetImaxFromType(result.SiteResult.IR);
-                    result.SiteResult.I = value;
+                    var value = ((2.5 * code / 32768 - 1.25) * 2.0) / 2.5 * 4 * GetImaxFromType(result.IR);
+                    result.SiteResult = value;
                     return result;
                 }
 

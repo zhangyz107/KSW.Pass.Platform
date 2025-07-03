@@ -164,6 +164,7 @@ namespace KSW.ATE01.Start.ViewModels
                 {
                     richTb.MouseRightButtonUp += RichTextBox_MouseRightButtonUp;
                     richTb.SelectionChanged += RichTextBox_SelectionChanged;
+
                     LoadTextFile(richTb, _logFilePath);
                 }
 
@@ -284,6 +285,7 @@ namespace KSW.ATE01.Start.ViewModels
                             para.Inlines.Add(r);
                         }
                         richTB.Document.Blocks.Add(para);
+                        
                         if (!_isPauseWindow)
                             richTB.ScrollToEnd();
 

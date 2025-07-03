@@ -10,10 +10,8 @@ namespace KSW.ATE01.Instrument.IO.Models.Results
     /// <summary>
     /// 获取Dps MI结果
     /// </summary>
-    public class DpsMIResultModel
+    public class DpsMIResultModel<T> : ChannelResultModel<T>
     {
         public IRType IR { get; set; }
-
-        public double I { get; set; }
     }
 }

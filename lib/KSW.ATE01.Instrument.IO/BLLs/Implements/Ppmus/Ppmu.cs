@@ -1,6 +1,7 @@
 ﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Commons;
 using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Ppmus;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
+using KSW.ATE01.Instrument.IO.Enums.Dps;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Ppmus;
 using KSW.ATE01.Instrument.IO.Helpers;
@@ -1051,9 +1052,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             return result;
         }
 
-        public List<ChannelResultModel<double>> GetMI()
+        public List<PpmuMIResultModel<double>> GetMI()
         {
-            var result = new List<ChannelResultModel<double>>();
+            var result = new List<PpmuMIResultModel<double>>();
 
             if (PinList == null || !PinList.Any())
                 return result;
@@ -1131,24 +1132,24 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
         }
 
-        private ChannelResultModel<double> AnalysisContentToMI(byte slot, byte[] commandContent)
+        private PpmuMIResultModel<double> AnalysisContentToMI(byte slot, byte[] commandContent)
         {
-            ChannelResultModel<double> result = null;
+            PpmuMIResultModel<double> result = null;
 
             try
             {
                 if (commandContent.Any() && commandContent.Length >= 4)
                 {
-                    result = new ChannelResultModel<double>();
+                    result = new PpmuMIResultModel<double>();
                     var index = 0;
                     result.ChannelNum = commandContent[index++];
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
-                    var miType = (MIType)commandContent[index++];
+                    result.IR = (MIType)commandContent[index++];
                     var mvBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var mvShort = BitConverter.ToUInt16(mvBytes);
-                    var imax = GetImaxFromType(miType);
+                    var imax = GetImaxFromType(result.IR);
                     var mv = (mvShort * 1.0 / 32768 * 5.0 - 1.75) / 1.28 * imax;
                     result.SiteResult = mv;
 

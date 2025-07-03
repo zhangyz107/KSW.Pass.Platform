@@ -101,7 +101,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Dps
         /// <summary>
         /// 获取MI结果
         /// </summary>
-        List<ChannelResultModel<DpsMIResultModel>> GetMI();
+        List<DpsMIResultModel<double>> GetMI();
 
         /// <summary>
         /// 获取MT结果

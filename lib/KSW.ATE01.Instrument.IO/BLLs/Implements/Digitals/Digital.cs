@@ -11,6 +11,7 @@ using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.TestPlans;
 using KSW.ATE01.Project.Base.Services.Loggers;
 using System.IO;
+using System.Windows.Ink;
 using Convert = System.Convert;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
@@ -45,7 +46,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
             var periodBytes = BitConverter.GetBytes(periodUInt).Reverse();
 
             double driveADouble = driveA * _ns;
-            var driveAUInt = Convert.ToInt32(driveADouble / _periodResolution);
+            var driveAUInt = Convert.ToInt32(0 / _periodResolution);    //默认给0
             var driveABytes = BitConverter.GetBytes(driveAUInt).Reverse();
 
             double driveBDouble = (driveB - driveA) * _ns;
@@ -64,33 +65,12 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
             var strobeByte = Convert.ToByte(strobeMode);
 
             double r0Period = strobeA * _ns;
-            var r0PeriodUInt = Convert.ToInt32(r0Period / _periodResolution);
+            var r0PeriodUInt = Convert.ToInt32(0 / _periodResolution);   //默认给0
             var r0PeriodBytes = BitConverter.GetBytes(r0PeriodUInt).Reverse();
 
             double r1Period = (strobeB - strobeA) * _ns;
             var r1PeriodUInt = Convert.ToInt32(r1Period / _periodResolution);
             var r1PeriodBytes = BitConverter.GetBytes(r1PeriodUInt).Reverse();
-
-            #region 校准数据
-            sbyte pwa_en = 0;
-            byte cd_en = 0;
-            ushort fd_en = 0;
-            sbyte pwa_d = 0;
-            byte cd_d = 0;
-            ushort fd_d = 0;
-            sbyte pwa_ca = 0;
-            byte cd_ca = 0;
-            ushort fd_ca = 0;
-            sbyte pwa_cb = 0;
-            byte cd_cb = 0;
-            ushort fd_cb = 0;
-            byte d_d_d = 0;
-            byte en_d_d = 0;
-            ushort den_d_c = 0;
-            byte ca_d_d = 0;
-            byte cb_d_d = 0;
-            short cab_d_c = 0;
-            #endregion
 
             var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
 
@@ -116,7 +96,28 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                         if (channelNum >= 0)
                         {
                             #region 应用校准数据
-                            ApplyCalibrationData(period, driveA, ref cd_en, ref fd_en, ref cd_d, ref fd_d, ref cd_ca, ref fd_ca, ref cd_cb, ref fd_cb, ref d_d_d, ref en_d_d, ref den_d_c, ref ca_d_d, ref cb_d_d, ref cab_d_c, channelNum, slot);
+
+                            //校准数据归0
+                            sbyte pwa_en = 0;
+                            byte cd_en = 0;
+                            ushort fd_en = 0;
+                            sbyte pwa_d = 0;
+                            byte cd_d = 0;
+                            ushort fd_d = 0;
+                            sbyte pwa_ca = 0;
+                            byte cd_ca = 0;
+                            ushort fd_ca = 0;
+                            sbyte pwa_cb = 0;
+                            byte cd_cb = 0;
+                            ushort fd_cb = 0;
+                            byte d_d_d = 0;
+                            byte en_d_d = 0;
+                            int den_d_c = 0;
+                            byte ca_d_d = 0;
+                            byte cb_d_d = 0;
+                            int cab_d_c = 0;
+
+                            ApplyCalibrationData(period, driveA, strobeA, ref cd_en, ref fd_en, ref cd_d, ref fd_d, ref cd_ca, ref fd_ca, ref cd_cb, ref fd_cb, ref d_d_d, ref en_d_d, ref den_d_c, ref ca_d_d, ref cb_d_d, ref cab_d_c, channelNum, slot);
                             #endregion
 
                             var fd_enBytes = BitConverter.GetBytes(fd_en).Reverse();
@@ -190,7 +191,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
             }
         }
 
-        private static void ApplyCalibrationData(double period, double driveA, ref byte cd_en, ref ushort fd_en, ref byte cd_d, ref ushort fd_d, ref byte cd_ca, ref ushort fd_ca, ref byte cd_cb, ref ushort fd_cb, ref byte d_d_d, ref byte en_d_d, ref ushort den_d_c, ref byte ca_d_d, ref byte cb_d_d, ref short cab_d_c, int channelNum, int slot)
+        private static void ApplyCalibrationData(double period, double driveA, double strobeA, ref byte cd_en, ref ushort fd_en, ref byte cd_d, ref ushort fd_d, ref byte cd_ca, ref ushort fd_ca, ref byte cd_cb, ref ushort fd_cb, ref byte d_d_d, ref byte en_d_d, ref int den_d_c, ref byte ca_d_d, ref byte cb_d_d, ref int cab_d_c, int channelNum, int slot)
         {
             var timingList = CalibrationHelper.GetTimingCalibrations(Path.Combine(CalibrationHelper.CalDirectory, _timingCalibrationFile));
 
@@ -245,14 +246,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 
             if (caList != null && caList.Count > channelNum && cbList != null && cbList.Count > channelNum && cableList != null && cableList.Count > channelNum)
             {
-                var ca_dly_ps = 1000 * (cfg_tx_dly + caList[channelNum] + cableList[channelNum] - driveA);
-                var cb_dly_ps = 1000 * (cfg_tx_dly + cbList[channelNum] + cableList[channelNum] - driveA);
+                var ca_dly_ps = 1000 * (cfg_tx_dly + caList[channelNum] + cableList[channelNum] + strobeA);
+                var cb_dly_ps = 1000 * (cfg_tx_dly + cbList[channelNum] + cableList[channelNum] + strobeA);
 
                 CaculateComparatorDelay(channelNum, 1.0 / _periodResolution, ca_dly_ps, cb_dly_ps, cal_cd_ca_list, cal_cd_cb_list, cal_fd_ca_list, cal_fd_cb_list, ref cd_ca, ref fd_ca, ref cd_cb, ref fd_cb, ref ca_d_d, ref cb_d_d, ref cab_d_c);
             }
         }
 
-        private static void CaculateDriveDelay(int channelNum, double iorate_hz, double dat_dly_ps, double en_dly_ps, List<double> cal_cd_d_list, List<double> cal_cd_en_list, List<double> cal_fd_d_list, List<double> cal_fd_en_list, ref byte cd_d, ref ushort fd_d, ref byte cd_en, ref ushort fd_en, ref byte d_d_d, ref byte en_d_d, ref ushort den_d_c)
+        private static void CaculateDriveDelay(int channelNum, double iorate_hz, double dat_dly_ps, double en_dly_ps, List<double> cal_cd_d_list, List<double> cal_cd_en_list, List<double> cal_fd_d_list, List<double> cal_fd_en_list, ref byte cd_d, ref ushort fd_d, ref byte cd_en, ref ushort fd_en, ref byte d_d_d, ref byte en_d_d, ref int den_d_c)
         {
             double dly_ps_1dat = 1 / iorate_hz * 1000000000000.0;
             double dly_ps_1clk = dly_ps_1dat * 8;
@@ -328,7 +329,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
             }
         }
 
-        private static void CaculateComparatorDelay(int channelNum, double iorate_hz, double ca_dly_ps, double cb_dly_ps, List<double> cal_cd_ca_list, List<double> cal_cd_cb_list, List<double> cal_fd_ca_list, List<double> cal_fd_cb_list, ref byte cd_ca, ref ushort fd_ca, ref byte cd_cb, ref ushort fd_cb, ref byte ca_d_d, ref byte cb_d_d, ref short cab_d_c)
+        private static void CaculateComparatorDelay(int channelNum, double iorate_hz, double ca_dly_ps, double cb_dly_ps, List<double> cal_cd_ca_list, List<double> cal_cd_cb_list, List<double> cal_fd_ca_list, List<double> cal_fd_cb_list, ref byte cd_ca, ref ushort fd_ca, ref byte cd_cb, ref ushort fd_cb, ref byte ca_d_d, ref byte cb_d_d, ref int cab_d_c)
         {
             double dly_ps_1dat = 1 / iorate_hz * 1000000000000.0;
             double dly_ps_1clk = dly_ps_1dat * 8;
@@ -402,98 +403,22 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
             }
         }
 
-        public void SetTimingByPins(sbyte pwa_en = 0, byte cd_en = 0, ushort fd_en = 0, sbyte pwa_d = 0, byte cd_d = 0, ushort fd_d = 0, sbyte pwa_ca = 0, byte cd_ca = 0, ushort fd_ca = 0, sbyte pwa_cb = 0, byte cd_cb = 0, ushort fd_cb = 0, byte d_d_d = 0, byte en_d_d = 0, ushort den_d_c = 0, byte ca_d_d = 0, byte cb_d_d = 0, short cab_d_c = 0)
+        public void SetTimingByPins()
         {
             if (PinList == null || !PinList.Any())
                 return;
 
-            if (cd_en < 0 || cd_en > 63)
-                throw new ArgumentOutOfRangeException(nameof(cd_en), "取值范围:0~ 63");
-
-            if (fd_en < 0 || fd_en > 63)
-                throw new ArgumentOutOfRangeException(nameof(fd_en), "取值范围:0~ 63");
-
-            if (cd_d < 0 || cd_d > 63)
-                throw new ArgumentOutOfRangeException(nameof(cd_d), "取值范围:0~ 63");
-
-            if (fd_d < 0 || fd_d > 63)
-                throw new ArgumentOutOfRangeException(nameof(fd_d), "取值范围:0~ 63");
-
-            if (cd_ca < 0 || cd_ca > 63)
-                throw new ArgumentOutOfRangeException(nameof(cd_ca), "取值范围:0~ 63");
-
-            if (fd_ca < 0 || fd_ca > 63)
-                throw new ArgumentOutOfRangeException(nameof(fd_ca), "取值范围:0~ 63");
-
-            if (cd_cb < 0 || cd_cb > 63)
-                throw new ArgumentOutOfRangeException(nameof(cd_cb), "取值范围:0~ 63");
-
-            if (fd_cb < 0 || fd_cb > 63)
-                throw new ArgumentOutOfRangeException(nameof(fd_cb), "取值范围:0~ 63");
-
             var commonData = CommonData.Instance;
             if (commonData == null || commonData.TestPlan == null || commonData.TestPlan?.Channel == null || commonData.TestPlan?.TestItem == null)
                 return;
 
             if (!string.IsNullOrEmpty(commonData.Timing))
             {
-                SetTimingDetail(pwa_en, cd_en, fd_en, pwa_d, cd_d, fd_d, pwa_ca, cd_ca, fd_ca, pwa_cb, cd_cb, fd_cb, d_d_d, en_d_d, den_d_c, ca_d_d, cb_d_d, cab_d_c, PinList);
+                SetTimingDetail(PinList);
             }
         }
 
-        /// <summary>
-        /// 设置周期
-        /// </summary>
-        /// <param name="pwa_en">-128~+127</param>
-        /// <param name="cd_en">0~63</param>
-        /// <param name="fd_en">0~63</param>
-        /// <param name="pwa_d">-128~+127</param>
-        /// <param name="cd_d">0~63</param>
-        /// <param name="fd_d">0~63</param>
-        /// <param name="pwa_ca">-128~+127</param>
-        /// <param name="cd_ca">0~63</param>
-        /// <param name="fd_ca">0~63</param>
-        /// <param name="pwa_cb">-128~+127</param>
-        /// <param name="cd_cb">0~63</param>
-        /// <param name="fd_cb">0~63</param>
-        public static void SetTiming(sbyte pwa_en = 0, byte cd_en = 0, ushort fd_en = 0, sbyte pwa_d = 0, byte cd_d = 0, ushort fd_d = 0, sbyte pwa_ca = 0, byte cd_ca = 0, ushort fd_ca = 0, sbyte pwa_cb = 0, byte cd_cb = 0, ushort fd_cb = 0, byte d_d_d = 0, byte en_d_d = 0, ushort den_d_c = 0, byte ca_d_d = 0, byte cb_d_d = 0, short cab_d_c = 0)
-        {
-            if (cd_en < 0 || cd_en > 63)
-                throw new ArgumentOutOfRangeException(nameof(cd_en), "取值范围:0~ 63");
-
-            if (fd_en < 0 || fd_en > 63)
-                throw new ArgumentOutOfRangeException(nameof(fd_en), "取值范围:0~ 63");
-
-            if (cd_d < 0 || cd_d > 63)
-                throw new ArgumentOutOfRangeException(nameof(cd_d), "取值范围:0~ 63");
-
-            if (fd_d < 0 || fd_d > 63)
-                throw new ArgumentOutOfRangeException(nameof(fd_d), "取值范围:0~ 63");
-
-            if (cd_ca < 0 || cd_ca > 63)
-                throw new ArgumentOutOfRangeException(nameof(cd_ca), "取值范围:0~ 63");
-
-            if (fd_ca < 0 || fd_ca > 63)
-                throw new ArgumentOutOfRangeException(nameof(fd_ca), "取值范围:0~ 63");
-
-            if (cd_cb < 0 || cd_cb > 63)
-                throw new ArgumentOutOfRangeException(nameof(cd_cb), "取值范围:0~ 63");
-
-            if (fd_cb < 0 || fd_cb > 63)
-                throw new ArgumentOutOfRangeException(nameof(fd_cb), "取值范围:0~ 63");
-
-            var commonData = CommonData.Instance;
-            if (commonData == null || commonData.TestPlan == null || commonData.TestPlan?.Channel == null || commonData.TestPlan?.TestItem == null)
-                return;
-
-
-            if (!string.IsNullOrEmpty(commonData.Timing))
-            {
-                SetTimingDetail(pwa_en, cd_en, fd_en, pwa_d, cd_d, fd_d, pwa_ca, cd_ca, fd_ca, pwa_cb, cd_cb, fd_cb, d_d_d, en_d_d, den_d_c, ca_d_d, cb_d_d, cab_d_c);
-            }
-        }
-
-        private static void SetTimingDetail(sbyte pwa_en, byte cd_en, ushort fd_en, sbyte pwa_d, byte cd_d, ushort fd_d, sbyte pwa_ca, byte cd_ca, ushort fd_ca, sbyte pwa_cb, byte cd_cb, ushort fd_cb, byte d_d_d, byte en_d_d, ushort den_d_c, byte ca_d_d, byte cb_d_d, short cab_d_c, List<ChannelModel> pinList = null)
+        private static void SetTimingDetail(List<ChannelModel> pinList = null)
         {
             var commonData = CommonData.Instance;
             var testItem = commonData.TestPlan?.TestItem?.FirstOrDefault(x => x.TestItemName.Equals(commonData.TestItemName));
@@ -534,33 +459,31 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 
                                 double driveA = 0;
                                 double.TryParse(patternTiming.DriveA, out driveA);
-                                driveA *= _ns;
-                                var driveAUInt = Convert.ToInt32(driveA / _periodResolution);
+                                var driveAUInt = Convert.ToInt32(0 / _periodResolution);     //默认给0        
                                 var driveABytes = BitConverter.GetBytes(driveAUInt).Reverse();
 
                                 double driveB = 0;
                                 double.TryParse(patternTiming.DriveB, out driveB);
-                                driveB = (driveB - driveA) * _ns;
-                                var driveBUInt = Convert.ToInt32(driveB / _periodResolution);
+                                driveB = driveB - driveA;
+                                var driveBUInt = Convert.ToInt32(driveB * _ns / _periodResolution);
                                 var driveBBytes = BitConverter.GetBytes(driveBUInt).Reverse();
 
                                 double driveC = 0;
                                 double.TryParse(patternTiming.DriveC, out driveC);
-                                driveC = (driveC - driveA) * _ns;
-                                var driveCUInt = Convert.ToInt32(driveC / _periodResolution);
+                                driveC = driveC - driveA;
+                                var driveCUInt = Convert.ToInt32(driveC * _ns / _periodResolution);
                                 var driveCBytes = BitConverter.GetBytes(driveCUInt).Reverse();
 
                                 double driveD = 0;
                                 double.TryParse(patternTiming.DriveD, out driveD);
-                                driveD = (driveD - driveA) * _ns;
-                                var driveDUInt = Convert.ToInt32(driveD / _periodResolution);
+                                driveD = driveD - driveA;
+                                var driveDUInt = Convert.ToInt32(driveD * _ns / _periodResolution);
                                 var driveDBytes = BitConverter.GetBytes(driveDUInt).Reverse();
 
                                 var formatByte = Convert.ToByte(patternTiming.Fmt);
                                 var strobeByte = Convert.ToByte(patternTiming.StrobeMode);
 
-                                double r0Period = patternTiming.StrobeA * _ns;
-                                var r0PeriodUInt = Convert.ToInt32(r0Period / _periodResolution);
+                                var r0PeriodUInt = Convert.ToInt32(0 / _periodResolution);   //默认给0
                                 var r0PeriodBytes = BitConverter.GetBytes(r0PeriodUInt).Reverse();
 
                                 double r1Period = (patternTiming.StrobeB - patternTiming.StrobeA) * _ns;
@@ -587,7 +510,27 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                         if (channelNum >= 0)
                                         {
                                             #region 应用校准数据
-                                            ApplyCalibrationData(patternTiming.Period, driveA, ref cd_en, ref fd_en, ref cd_d, ref fd_d, ref cd_ca, ref fd_ca, ref cd_cb, ref fd_cb, ref d_d_d, ref en_d_d, ref den_d_c, ref ca_d_d, ref cb_d_d, ref cab_d_c, channelNum, slot);
+                                            //校准数据归0
+                                            sbyte pwa_en = 0;
+                                            byte cd_en = 0;
+                                            ushort fd_en = 0;
+                                            sbyte pwa_d = 0;
+                                            byte cd_d = 0;
+                                            ushort fd_d = 0;
+                                            sbyte pwa_ca = 0;
+                                            byte cd_ca = 0;
+                                            ushort fd_ca = 0;
+                                            sbyte pwa_cb = 0;
+                                            byte cd_cb = 0;
+                                            ushort fd_cb = 0;
+                                            byte d_d_d = 0;
+                                            byte en_d_d = 0;
+                                            int den_d_c = 0;
+                                            byte ca_d_d = 0;
+                                            byte cb_d_d = 0;
+                                            int cab_d_c = 0;
+
+                                            ApplyCalibrationData(patternTiming.Period, driveA, patternTiming.StrobeA, ref cd_en, ref fd_en, ref cd_d, ref fd_d, ref cd_ca, ref fd_ca, ref cd_cb, ref fd_cb, ref d_d_d, ref en_d_d, ref den_d_c, ref ca_d_d, ref cb_d_d, ref cab_d_c, channelNum, slot);
                                             #endregion
 
                                             var fd_enBytes = BitConverter.GetBytes(fd_en).Reverse();

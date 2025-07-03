@@ -135,6 +135,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             using (StreamWriter streamWriter = new StreamWriter(ErrorMessageLogPath, true))
             {
                 streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
+                streamWriter.Flush();
             }
         }
 
@@ -143,6 +144,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             using (StreamWriter streamWriter = new StreamWriter(GetErrorLogPath(errorLogPath), true))
             {
                 streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
+                streamWriter.Flush();
             }
         }
 
@@ -151,6 +153,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             using (StreamWriter streamWriter = new StreamWriter(InfoMessageLogPath, true))
             {
                 streamWriter.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff") + "," + log + "\n");
+                streamWriter.Flush();
             }
         }
 
@@ -159,6 +162,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             using (StreamWriter streamWriter = new StreamWriter(GetLogPath(logPath), true))
             {
                 streamWriter.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff") + "," + log + "\n");
+                streamWriter.Flush();
             }
         }
 
@@ -166,7 +170,8 @@ namespace KSW.ATE01.Project.Base.Helpers
         {
             using (StreamWriter streamWriter = new StreamWriter(LogHelper.ErrorMessageLogPath))
             {
-                streamWriter.Write(string.Format("{0} : Clear alle error log\n", DateTime.Now.ToString("YYYY-MM-DD HH:mm:ss:fff")));
+                streamWriter.Write(string.Format("{0} : Clear all eerror log\n", DateTime.Now.ToString("YYYY-MM-DD HH:mm:ss:fff")));
+                streamWriter.Flush();
             }
         }
 
