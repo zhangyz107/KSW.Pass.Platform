@@ -29,6 +29,11 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
         public string LimitName { get; set; }
 
         /// <summary>
+        /// 站点
+        /// </summary>
+        public int Site { get; set; }
+
+        /// <summary>
         /// 测试编号
         /// </summary>
         public uint TestNumber { get; set; }

@@ -1,8 +1,5 @@
-﻿using KSW.ATE01.Project.Base.Events;
-using KSW.ATE01.Project.Base.Helpers;
-using KSW.ATE01.Project.Base.Models.Loggers;
+﻿using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.Results;
-using System;
 using System.Text;
 
 namespace KSW.ATE01.Project.Base.Services.Loggers
@@ -31,6 +28,7 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
         {
             "TestName",
             "TestNumber",
+            "Site",
             "LimitName",
             "Pin",
             "Channel",
@@ -72,7 +70,7 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
             StringBuilder message = new StringBuilder();
             if (PrintRealTimeTxt && results != null && results.Count > 0)
             {
-                string format = "{0,-17} {1,-11} {2,-34} {3,-11} {4,-11} {5,-15:G10} {6,-17:G12} {7,-15:G10} {8,-5} {9,-7}";
+                string format = "{0,-17} {1,-11} {2,-5} {3,-34} {4,-11} {5,-11} {6,-15:G10} {7,-17:G12} {8,-15:G10} {9,-5} {10,-7}";
                 message.Append(Environment.NewLine);
                 message.Append(string.Format(format, TestItemTitalList.ToArray()));
 
@@ -83,6 +81,7 @@ namespace KSW.ATE01.Project.Base.Services.Loggers
                         string.Format(format,
                         item.TestItemName,
                         item.TestNumber,
+                        item.Site,
                         item.LimitName,
                         item.PinName,
                         item.ChannelName,

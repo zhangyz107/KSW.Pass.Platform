@@ -4,6 +4,16 @@
              xmlns:local="clr-namespace:KSW.ATE01.Drawing.Shmoo"
              xmlns:sci="http://schemas.abtsoftware.co.uk/scichart">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/SciChart.Examples.ExternalDependencies;component/Themes/Navy.xaml"/>
+                <ResourceDictionary Source="/SciChart.Examples.ExternalDependencies;component/Resources/Styles/Controls.xaml"/>
+                <ResourceDictionary Source="/Resources.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style TargetType="CheckBox" BasedOn="{StaticResource ToolbarPopupCheckBoxStyle}"/>
+            <Style TargetType="ComboBox" BasedOn="{StaticResource ToolbarPopupComboBoxStyle}"/>
+            <Style TargetType="RadioButton" BasedOn="{StaticResource ToolbarPopupRadioButtonStyle}"/>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -349,13 +349,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                     if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
                     {
                         var commonData = CommonData.Instance;
+                        var globalSetting = GlobalSetting.Instance;
+
                         PrintResultLog.PrintRealTimeTxt = _projectInfo.SaveRealTimeText;
                         if (commonData != null)
                         {
-                            commonData.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
-                            Debug.WriteLine($"赋值{nameof(CommonData.ProjectInfo)}");
+                            globalSetting.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
                             commonData.TestPlan = await _testPlanBLL.LoadTestPlanAsync(_projectInfo);
-                            Debug.WriteLine($"赋值{nameof(CommonData.TestPlan)}");
                             commonData.UseSiteName = _siteList.Where(x => x.IsSelected).Select(x => x.SiteName).ToList();
                         }
 
@@ -427,7 +427,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _canExecuteStop = true;
             _loopCountEnabled = false;
             _loopDelayEnabled = false;
-
+            _projectInfo.FailCount = 0;
             ChangeCommandsState();
 
             await ExecuteWithExceptionHandling(async () =>

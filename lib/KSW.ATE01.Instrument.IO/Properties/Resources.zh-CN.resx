@@ -141,4 +141,10 @@
   <data name="LimitValueSetError" xml:space="preserve">
     <value>下限和上限应同时设置</value>
   </data>
+  <data name="SaveDirectoryPathError" xml:space="preserve">
+    <value>保存文件夹路径错误</value>
+  </data>
+  <data name="SaveRealTimeTxtSuccessful" xml:space="preserve">
+    <value>保存Text格式测试项结果成功</value>
+  </data>
 </root>

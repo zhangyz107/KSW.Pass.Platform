@@ -2,11 +2,15 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>$(NetTargetFramework)</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KSW.ATE01.Project.Base\KSW.ATE01.Project.Base.csproj" />
@@ -15,6 +19,12 @@
   <ItemGroup>
     <Reference Include="SciChart.Charting">
       <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\netcoreapp3.1\SciChart.Charting.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Charting.DrawingTools">
+      <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\net6.0-windows\SciChart.Charting.DrawingTools.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Charting3D">
+      <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\net6.0-windows\SciChart.Charting3D.dll</HintPath>
     </Reference>
     <Reference Include="SciChart.Core">
       <HintPath>C:\Users\zhang\AppData\Local\Programs\SciChart\SciChart SDK\Lib\netcoreapp3.1\SciChart.Core.dll</HintPath>

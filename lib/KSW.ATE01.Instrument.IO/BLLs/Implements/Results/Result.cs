@@ -1,4 +1,6 @@
-﻿using KSW.ATE01.Instrument.IO.Enums.Results;
+﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.DataLogs;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.DataLogs;
+using KSW.ATE01.Instrument.IO.Enums.Results;
 using KSW.ATE01.Instrument.IO.Models.Results;
 using KSW.ATE01.Project.Base.Enums.Results;
 using KSW.ATE01.Project.Base.Helpers;
@@ -10,14 +12,25 @@ using KSW.ATE01.Project.Base.Services.Loggers;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Results
 {
-    public class Result
+    public class Result : MarshalByRefObject
     {
+        #region Private
+        private static long testTime;
         private static LanguageManager L => LanguageManager.Instance;
+        #endregion
 
         public static bool LimitError { get; set; }
         public static List<string> LimitErrorMessage { get; private set; } = new List<string>();
 
-        public static void TestLimit<T>(IEnumerable<IChannelResultModel<T>> resultValue, bool forceCustomerProgramLimit, uint testNumber = 0, double limitLow = double.NaN, double limitHigh = double.NaN, string limitName = "", string unit = "", uint failHardBin = 0, uint failSoftBin = 0, uint passHardBin = 0, uint passSoftBin = 0, string dutResult = "")
+        #region Public
+        public static long TestTime
+        {
+            get => testTime;
+            set => testTime = value;
+        }
+        #endregion
+
+        public static IDataLog TestLimit<T>(IEnumerable<IChannelResultModel<T>> resultValue, bool forceCustomerProgramLimit, uint testNumber = 0, double limitLow = double.NaN, double limitHigh = double.NaN, string limitName = "", string unit = "", uint failHardBin = 0, uint failSoftBin = 0, uint passHardBin = 0, uint passSoftBin = 0, string dutResult = "")
         {
             var commonData = CommonData.Instance;
             var result = new List<TestItemResultModel>();
@@ -40,6 +53,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Results
                     LogHelper.WriteError(errorMessage);
                 }
             }
+
+            return new DataLog(result);
         }
 
         private static bool LimitDataValid(LimitsModel testItemLimit, uint testNumber, double limitLow, double limitHigh, string unit, string limitName, uint failHardBin, uint failSoftBin, uint passHardBin, uint passSoftBin, string dutResult)
@@ -111,6 +126,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Results
                     tempItemResult.TestItemName = testItemLimit.TestItemName;
                     tempItemResult.LimitName = testItemLimit.LimitName;
                     tempItemResult.TestNumber = testItemLimit.TestNumber * 10 + index;
+                    tempItemResult.Site = value.SiteNumber ?? 0;
                     tempItemResult.LowLimit = testItemLimit.LowLimit;
                     tempItemResult.HighLimit = testItemLimit.HighLimit;
                     tempItemResult.Units = testItemLimit.Units;
@@ -125,7 +141,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Results
                     if (LimitErrorMessage.Count > 0)
                     {
                         var errorMessage = string.Join(Environment.NewLine, LimitErrorMessage);
-                        tempItemResult.Log  = errorMessage;
+                        tempItemResult.Log = errorMessage;
                     }
                     result.Add(tempItemResult);
                 }
@@ -148,14 +164,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Results
             return Test.Fail;
         }
 
-        public static void TestLimit<T>(IEnumerable<IChannelResultModel<T>> resultValue, double lowLimit, double highLimit, string limitName)
+        public static IDataLog TestLimit<T>(IEnumerable<IChannelResultModel<T>> resultValue, double lowLimit, double highLimit, string limitName)
         {
-            TestLimit(resultValue, true, 0, lowLimit, highLimit, limitName, "", 0, 0, 0, 0, "");
+            return TestLimit(resultValue, true, 0, lowLimit, highLimit, limitName, "", 0, 0, 0, 0, "");
         }
 
-        public static void TestLimit<T>(IEnumerable<IChannelResultModel<T>> resultValue, int failHardBin = 0, int failSoftBin = 0, int passHardBin = 0, string passSoftBin = "", string strResult = "", double lowVal = 0.0, double hiVal = 0.0, CompareSign lowCompareSign = CompareSign.SignGreaterEqual, CompareSign highCompareSign = CompareSign.SignGreaterEqual, ScaleType scaletype = ScaleType.ScaleNone, UnitType unit = UnitType.UnitNone, string formatStr = "%6.4f", string TName = "", LimitCompareType compareMode = LimitCompareType.CompareAverage, string PinName = "", double forceVal = 0.0, UnitType forceunit = UnitType.UnitNone, string customUnit = "", string customForceunit = "", LimitForceResults ForceResults = LimitForceResults.ForceNone, long TNum = 0L)
+        public static IDataLog TestLimit<T>(IEnumerable<IChannelResultModel<T>> resultValue, int failHardBin = 0, int failSoftBin = 0, int passHardBin = 0, string passSoftBin = "", string strResult = "", double lowVal = 0.0, double hiVal = 0.0, CompareSign lowCompareSign = CompareSign.SignGreaterEqual, CompareSign highCompareSign = CompareSign.SignGreaterEqual, ScaleType scaletype = ScaleType.ScaleNone, UnitType unit = UnitType.UnitNone, string formatStr = "%6.4f", string TName = "", LimitCompareType compareMode = LimitCompareType.CompareAverage, string PinName = "", double forceVal = 0.0, UnitType forceunit = UnitType.UnitNone, string customUnit = "", string customForceunit = "", LimitForceResults ForceResults = LimitForceResults.ForceNone, long TNum = 0L)
         {
-            Result.TestLimit(resultValue, false, 0U, double.NaN, double.NaN, "", "", 0U, 0U, 0U, 0U, "");
+            return TestLimit(resultValue, false, 0U, double.NaN, double.NaN, "", "", 0U, 0U, 0U, 0U, "");
         }
     }
 }

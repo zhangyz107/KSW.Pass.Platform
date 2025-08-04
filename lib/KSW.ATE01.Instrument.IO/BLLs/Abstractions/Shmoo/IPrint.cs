@@ -17,5 +17,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Abstractions.Shmoo
         /// 打印结果至Csv
         /// </summary>
         void Csv();
+
+        /// <summary>
+        /// 绘制图表对话框
+        /// <param name="isModal">是否模态
+        /// </summary>
+        void DrawChart(bool isModal = true);
     }
 }

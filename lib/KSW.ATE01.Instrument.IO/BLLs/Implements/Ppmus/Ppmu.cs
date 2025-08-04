@@ -10,6 +10,7 @@ using KSW.ATE01.Instrument.IO.Models.Results;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
+using KSW.ATE01.Project.Base.Models.TestPlans;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 {
@@ -801,6 +802,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    result.SiteName = ChannelManagerHelper.GetSiteName(result.PinName, result.Site);
                     var imType = (MIType)commandContent[index++];
                     var vforceBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var vforceShort = BitConverter.ToUInt16(vforceBytes);
@@ -916,6 +918,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    result.SiteName = ChannelManagerHelper.GetSiteName(result.PinName, result.Site);
                     var imType = (IMType)commandContent[index++];
                     var iforceBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var iforceShort = BitConverter.ToUInt16(iforceBytes);
@@ -1034,6 +1037,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    result.SiteName = ChannelManagerHelper.GetSiteName(result.PinName, result.Site);
                     var mvBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var mvShort = BitConverter.ToUInt16(mvBytes);
                     var mv = (mvShort * 1.0 / 32768 * 5.0 - 1.5) * 2;
@@ -1146,6 +1150,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    result.SiteName = ChannelManagerHelper.GetSiteName(result.PinName, result.Site);
                     result.IR = (MIType)commandContent[index++];
                     var mvBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var mvShort = BitConverter.ToUInt16(mvBytes);

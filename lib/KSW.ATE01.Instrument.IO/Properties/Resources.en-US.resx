@@ -141,4 +141,10 @@
   <data name="LimitValueSetError" xml:space="preserve">
     <value>The lower and upper limits should be set at the same time</value>
   </data>
+  <data name="SaveDirectoryPathError" xml:space="preserve">
+    <value>The path to save the folder is incorrect</value>
+  </data>
+  <data name="SaveRealTimeTxtSuccessful" xml:space="preserve">
+    <value>The test item result of saving Text format is successful</value>
+  </data>
 </root>

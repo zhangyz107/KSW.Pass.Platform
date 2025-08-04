@@ -78,8 +78,8 @@
                 <Button Grid.Column="4" Content="{language:L SearchDown}" Command="{Binding SearchCommand}" CommandParameter="False" Style="{StaticResource MaterialDesignFlatButton}"></Button>
             </Grid>
         </Grid>
-     
-        <RichTextBox Grid.Row="1" x:Name="richTB" Margin="4" Padding="4" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Style="{StaticResource MaterialDesignOutlinedRichTextBox}" FontFamily="Consolas" FontSize="14">
+
+        <RichTextBox Grid.Row="1" x:Name="richTB" Margin="4" Padding="4" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto"  Style="{StaticResource MaterialDesignOutlinedRichTextBox}" FontFamily="Consolas" FontSize="14">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Loaded">
                     <i:InvokeCommandAction Command="{Binding LoadingCommand}" CommandParameter="{Binding ElementName=richTB}"/>

@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>$(NetTargetFramework)</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\KSW.ATE01.Drawing.Shmoo\KSW.ATE01.Drawing.Shmoo.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Project.Base\KSW.ATE01.Project.Base.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,5 @@
-﻿using KSW.ATE01.Project.Base.Models;
+﻿using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
+using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.TestPlans;
 using System;
 using System.Collections.Generic;
@@ -53,6 +54,26 @@ namespace KSW.ATE01.Instrument.IO.Helpers
         public static string GetSiteInfo(int slot, int channel)
         {
             return $"slot{slot}:ch{channel}";
+        }
+
+        /// <summary>
+        /// 通过引脚名和站点值获取站点名
+        /// </summary>
+        /// <param name="pinName"></param>
+        /// <param name="siteValue"></param>
+        /// <returns></returns>
+        public static string GetSiteName(string pinName,string siteValue)
+        {
+            var testPlan = CommonData.Instance?.TestPlan;
+            var channels = testPlan?.Channel;
+            string result = null;
+            if (channels != null && channels.Any())
+            {
+                var channelModel = channels?.FirstOrDefault(x => x.PinName.Equals(pinName));
+                var siteModel = channelModel?.Sites?.FirstOrDefault(x => x.SiteValue.Equals(siteValue));
+                result = siteModel?.SiteName;
+            }
+            return result;
         }
     }
 }

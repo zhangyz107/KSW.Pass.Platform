@@ -24,6 +24,16 @@ namespace KSW.ATE01.Instrument.IO.Models.Results
         string Site { get; set; }
 
         /// <summary>
+        /// 站点名
+        /// </summary>
+        public string SiteName { get; set; }
+
+        /// <summary>
+        /// 站点编号
+        /// </summary>
+        public int? SiteNumber { get; }
+
+        /// <summary>
         /// 站点结果
         /// </summary>
         T SiteResult { get; set; }

@@ -939,6 +939,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    result.SiteName = ChannelManagerHelper.GetSiteName(result.PinName, result.Site);
                     var codeBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var code = BitConverter.ToInt16(codeBytes);
                     var value = ((2.5 * code / 32768 - 1.25) * 2.0 + 15.0 / 14.0) * 14.0 / 5.0;
@@ -1048,6 +1049,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    result.SiteName = ChannelManagerHelper.GetSiteName(result.PinName, result.Site);
                     result.IR = (IRType)commandContent[index++];
                     var codeBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var code = BitConverter.ToInt16(codeBytes);
@@ -1157,6 +1159,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                     result.OriginalData = commandContent;
                     result.Site = ChannelManagerHelper.GetSiteInfo(slot, result.ChannelNum);
                     result.PinName = PinManagerHelper.GetPinNameBySlotName(TestPlan?.Channel, result.Site);
+                    result.SiteName = ChannelManagerHelper.GetSiteName(result.PinName, result.Site);
                     var codeBytes = commandContent.AsSpan().Slice(index, 2).ToArray().Reverse().ToArray();
                     var code = BitConverter.ToInt16(codeBytes);
                     var value = code / 100.0;

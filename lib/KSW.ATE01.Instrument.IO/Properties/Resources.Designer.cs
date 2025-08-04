@@ -131,5 +131,23 @@ namespace KSW.ATE01.Instrument.IO.Properties {
                 return ResourceManager.GetString("PinLessValueTips", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   查找类似 The path to save the folder is incorrect 的本地化字符串。
+        /// </summary>
+        internal static string SaveDirectoryPathError {
+            get {
+                return ResourceManager.GetString("SaveDirectoryPathError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The test item result of saving Text format is successful 的本地化字符串。
+        /// </summary>
+        internal static string SaveRealTimeTxtSuccessful {
+            get {
+                return ResourceManager.GetString("SaveRealTimeTxtSuccessful", resourceCulture);
+            }
+        }
     }
 }

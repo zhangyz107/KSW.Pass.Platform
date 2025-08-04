@@ -129,4 +129,12 @@
     <value>The lower and upper limits should be set at the same time</value>
     <comment>下限和上限应同时设置</comment>
   </data>
+  <data name="SaveDirectoryPathError" xml:space="preserve">
+    <value>The path to save the folder is incorrect</value>
+    <comment>保存文件夹路径错误</comment>
+  </data>
+  <data name="SaveRealTimeTxtSuccessful" xml:space="preserve">
+    <value>The test item result of saving Text format is successful</value>
+    <comment>保存Text格式测试项结果成功</comment>
+  </data>
 </root>

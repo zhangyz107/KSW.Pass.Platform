@@ -1,4 +1,6 @@
-﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Shmoo;
+﻿using KSW.ATE01.Drawing.Shmoo.Helper;
+using KSW.ATE01.Drawing.Shmoo.IO.Enums.Shmoos;
+using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Shmoo;
 using KSW.ATE01.Instrument.IO.Models.Results;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
@@ -255,6 +257,102 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
             //    return "F";
             //}
             return "P";
+        }
+
+        public void DrawChart(bool isModal = true)
+        {
+            var shmooDic = ShmooShareMemory<Dictionary<string, ShmooModel>>.Instance.ReadObject();
+
+            if (shmooDic == null || !shmooDic.ContainsKey(_testName))
+                return;
+
+            var shmooModel = shmooDic[_testName];
+            var shmooTest = shmooModel.TestInfo;
+            var result = shmooModel.Results;
+
+            if (result == null || !result.Any())
+                return;
+
+            if (string.IsNullOrEmpty(shmooTest.PrintPath))
+                return;
+
+            if (shmooTest.Direction == Enums.Shmoos.AxisDirection.None)
+                return;
+
+            var xAxisMode = shmooTest.XAxis == null ? shmooTest.YAxis.Mode : shmooTest.XAxis.Mode;
+            var xUnit = shmooTest.XAxis == null ? GetAxisUnit(shmooTest.YAxis) : GetAxisUnit(shmooTest.XAxis);
+            var yAxisMode = shmooTest.Direction == Enums.Shmoos.AxisDirection.None ? string.Empty : shmooTest.YAxis.Mode;
+            var yUnit = shmooTest.Direction == Enums.Shmoos.AxisDirection.None ? string.Empty : GetAxisUnit(shmooTest.YAxis);
+
+            var xaxis = shmooTest.XAxis;
+            var yaxis = shmooTest.YAxis;
+
+            if (shmooTest.Direction == Enums.Shmoos.AxisDirection.XY)
+            {
+                var groupYs = result.GroupBy(x => x.YCoordinate).OrderBy(x => x.Key);
+                var maxXCount = groupYs.Max(x => x.Count());  // 获取最大数量的X坐标
+                var yCount = groupYs.Count();
+                var shmooValues = new ShmooResultType[yCount, maxXCount];
+                var index = 0;
+
+                var xAxisTitle = $"{yaxis.AxisType.GetDescription()}:{yaxis.Mode}({yUnit})";
+                var yAxisTitle = $"{xaxis.AxisType.GetDescription()}:{xaxis.Mode}({xUnit})";
+
+                foreach (var xCoordinate in groupYs)
+                {
+                    var xValues = xCoordinate.OrderBy(x => x.XCoordinate).ToList();
+                    for (int j = 0; j < maxXCount; j++)
+                    {
+                        if (xValues.Count > j)
+                        {
+                            var yCoordinate = xValues[j];
+                            shmooValues[index, j] = yCoordinate.IsResultValid ? ShmooResultType.Stability : ShmooResultType.Failure;
+                        }
+                        else
+                            shmooValues[index, j] = ShmooResultType.Untested;
+                    }
+                    index++;
+                }
+
+                if (isModal)
+                    ShmooChartHelper.DrawShmooChartDialog(yaxis.Begin, yaxis.End, xaxis.Begin, xaxis.End, shmooValues, xAxisTitle: $"{xAxisTitle}", yAxisTitle: $"{yAxisTitle}");
+                else
+                    ShmooChartHelper.DrawShmooChart(yaxis.Begin, yaxis.End, xaxis.Begin, xaxis.End, shmooValues, xAxisTitle: $"{xAxisTitle}", yAxisTitle: $"{yAxisTitle}");
+            }
+            else if (shmooTest.Direction == Enums.Shmoos.AxisDirection.YX)
+            {
+                var groupXs = result.GroupBy(x => x.XCoordinate).OrderBy(x => x.Key);
+                var maxYCount = groupXs.Max(x => x.Count());  // 获取最大数量的Y坐标
+                var xCount = groupXs.Count();
+                var shmooValues = new ShmooResultType[xCount, maxYCount];
+                var index = 0;
+
+                var xAxisTitle = $"{xaxis.AxisType.GetDescription()}:{xaxis.Mode}({xUnit})";
+                var yAxisTitle = $"{yaxis.AxisType.GetDescription()}:{yaxis.Mode}({yUnit})";
+
+
+                foreach (var xCoordinate in groupXs)
+                {
+                    var yValues = xCoordinate.OrderBy(x => x.YCoordinate).ToList();
+                    for (int j = 0; j < maxYCount; j++)
+                    {
+                        if (yValues.Count > j)
+                        {
+                            var yCoordinate = yValues[j];
+                            shmooValues[index, j] = yCoordinate.IsResultValid ? ShmooResultType.Stability : ShmooResultType.Failure;
+                        }
+                        else
+                            shmooValues[index, j] = ShmooResultType.Untested;
+                    }
+                    index++;
+                }
+
+                if (isModal)
+                    ShmooChartHelper.DrawShmooChartDialog(xaxis.Begin, xaxis.End, yaxis.Begin, yaxis.End, shmooValues, xAxisTitle: $"{xAxisTitle}", yAxisTitle: $"{yAxisTitle}");
+                else
+                    ShmooChartHelper.DrawShmooChart(xaxis.Begin, xaxis.End, yaxis.Begin, yaxis.End, shmooValues, xAxisTitle: $"{xAxisTitle}", yAxisTitle: $"{yAxisTitle}");
+            }
+
         }
     }
 }

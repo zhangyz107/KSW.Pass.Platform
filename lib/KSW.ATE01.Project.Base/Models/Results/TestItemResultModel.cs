@@ -32,5 +32,14 @@ namespace KSW.ATE01.Project.Base.Models.Results
         /// </summary>
         public string Log { get; set; }
 
+        /// <summary>
+        /// X坐标
+        /// </summary>
+        public string XCoordinate { get; set; }
+
+        /// <summary>
+        /// Y坐标
+        /// </summary>
+        public string YCoordinate { get; set; }
     }
 }

@@ -1,0 +1,56 @@
+﻿<Window x:Class="KSW.ATE01.Drawing.Shmoo.Views.Dialogs.HeatmapDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm ="clr-namespace:KSW.ATE01.Drawing.Shmoo.ViewModels.Dialogs"
+             xmlns:local="clr-namespace:KSW.ATE01.Drawing.Shmoo.Views.Dialogs"
+             xmlns:sci="http://schemas.abtsoftware.co.uk/scichart"
+             xmlns:ext="http://schemas.abtsoftware.co.uk/scichart/exampleExternals"
+             d:DataContext="{d:DesignInstance vm:HeatmapDialogViewModel}"
+             mc:Ignorable="d" 
+             Title="{Binding Title}"
+             Height="450" Width="800">
+
+    <Window.Resources>
+        <sci:GradientStopsToLinearGradientBrushConverter x:Key="ColorsToLinearGradientBrushConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <sci:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" ChartTitle="{Binding ChartTitle}">
+            <sci:SciChartSurface.RenderableSeries>
+                <sci:FastUniformHeatmapRenderableSeries x:Name="heatmapSeries" DrawTextInCell="False" FontSize="11" Opacity="0.9" DataSeries="{Binding ChartData}" UseLinearTextureFiltering="{Binding UseLinearTextureFiltering}">
+                    <!--UseLinearTextureFiltering="{Binding IsChecked, Mode=OneWay, Source={x:Reference Name=textureSwitch}}"-->
+                    <sci:FastUniformHeatmapRenderableSeries.ColorMap>
+                        <sci:HeatmapColorPalette Minimum="0" Maximum="100">
+                            <GradientStop Offset="0" Color="Green"/>
+                            <GradientStop Offset="0.2" Color="Yellow"/>
+                            <GradientStop Offset="0.4" Color="#FFF48420"/>
+                            <GradientStop Offset="0.6" Color="Blue"/>
+                            <GradientStop Offset="0.8" Color="Red"/>
+                            <GradientStop Offset="1" Color="Gray"/>
+                        </sci:HeatmapColorPalette>
+                    </sci:FastUniformHeatmapRenderableSeries.ColorMap>
+                </sci:FastUniformHeatmapRenderableSeries>
+            </sci:SciChartSurface.RenderableSeries>
+
+            <sci:SciChartSurface.XAxis>
+                <sci:NumericAxis x:Name="xAxis"  DrawMajorBands="True"  FlipCoordinates="True" ScientificNotation="None" AxisTitle="{Binding XAxisTitle}" LabelProvider="{Binding XAxisLabelProvider}" AutoTicks="False" MajorDelta="2" 
+MinorsPerMajor="1" MinorDelta="0.5"/>
+            </sci:SciChartSurface.XAxis>
+
+            <sci:SciChartSurface.YAxis>
+                <sci:NumericAxis x:Name="yAxis" DrawMajorBands="True" AxisAlignment="Left" FlipCoordinates="True" ScientificNotation="None" AxisTitle="{Binding YAxisTitle}" LabelProvider="{Binding YAxisLabelProvider}" MajorDelta="1"/>
+            </sci:SciChartSurface.YAxis>
+
+            <sci:SciChartSurface.ChartModifier>
+                <sci:ModifierGroup>
+                    <sci:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton"/>
+                    <sci:ZoomExtentsModifier ExecuteOn="MouseDoubleClick"/>
+                    <sci:XAxisDragModifier/>
+                    <sci:YAxisDragModifier/>
+                </sci:ModifierGroup>
+            </sci:SciChartSurface.ChartModifier>
+        </sci:SciChartSurface>
+    </Grid>
+</Window>

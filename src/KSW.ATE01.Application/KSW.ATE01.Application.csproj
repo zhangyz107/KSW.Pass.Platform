@@ -24,6 +24,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Reference Include="KSW.ATE01.Instrument.IO">
+	    <HintPath>..\..\lib\KSW.ATE01.Instrument.IO\bin\Debug\net8.0-windows\KSW.ATE01.Instrument.IO.dll</HintPath>
+	  </Reference>
 	  <Reference Include="KSW.ATE01.Project.Base">
 	    <HintPath>..\..\lib\KSW.ATE01.Project.Base\bin\Debug\net8.0-windows\KSW.ATE01.Project.Base.dll</HintPath>
 	  </Reference>

@@ -18,12 +18,14 @@ using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
 using KSW.ATE01.Project.Base.Enums.Errors;
 using KSW.ATE01.Project.Base.Enums.Results;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.Exceptions;
 using KSW.ATE01.Project.Base.Models.TestPlans;
+using KSW.ATE01.Project.Base.Services.Loggers;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Reflections;
@@ -47,6 +49,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly string _csprojExt = ".csproj";
         private readonly string _slnExt = ".sln";
         private readonly string _excelExtension;
+        private readonly Stopwatch _stopwatch;
         private bool _alreadyStartLot = false;
         private List<string> _errorMessageList = new List<string>();
         private FlowStatus _flowStatus;
@@ -68,6 +71,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
             _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
+            _stopwatch = new Stopwatch();
         }
 
         public async Task<bool> CreateProjectAsync(ProjectInfoModel projectInfo)
@@ -281,7 +285,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             try
             {
                 projectInfo = projectInfo ?? _currentProjectInfo;
-
                 if (projectInfo == null)
                     throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
 
@@ -302,12 +305,14 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     {
                         Message.InitializeStatusClear();
                         Message.StatusClear();
+                        GlobalSetting.Instance.StartTestTime = DateTime.Now;
+                        _stopwatch.Restart();
                         //运行TestStart
                         var flag = ExecuteFunction(ProcessStage.TestStart, instance, classType, startTestMethod, null);
                         _alreadyStartLot = true;
 
                         if (flag)   //运行FlowStart
-                            flag = ExecuteTestItemsInFlow(instance, classType, flows);
+                            flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, flows, out int _);
 
                         //if (flag)   //运行TestEnd
                         //    flag = ExecuteFunction(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
@@ -316,7 +321,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     {
                         Message.StatusClear();
                         //运行FlowStart
-                        var flag = ExecuteTestItemsInFlow(instance, classType, flows);
+                        var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, flows, out int _);
                     }
 
                 }
@@ -443,13 +448,15 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
                 while (projectInfo.LoopExecuted < _loopTargeCount)
                 {
-                    if (token.IsCancellationRequested)
-                        break;
 
                     //运行FlowStart
-                    var flag = ExecuteTestItemsInFlow(instance, classType, flows);
-
+                    var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, flows, out int failCount);
+                    projectInfo.FailCount += failCount;
+                    var failFlag = projectInfo.StopOnFail && failCount > 0;
                     projectInfo.LoopExecuted++;
+
+                    if (token.IsCancellationRequested && failFlag)
+                        break;
 
                     await Task.Delay(projectInfo.DelayBetweenLoops * 1000);
                 }
@@ -711,17 +718,25 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return ex;
         }
 
-        private bool ExecuteTestItemsInFlow(object? instance, Type classType, List<FlowInfoModel> flows)
+        private bool ExecuteTestItemsInFlow(ProjectInfoModel projectInfo, object? instance, Type classType, List<FlowInfoModel> flows, out int failCount)
         {
-            var result = false;
-
+            var result = true;
+            failCount = 0;
+            var spendTime = 0L;
             var startFlowMethod = ConfigurationManager.AppSettings["StartFlowMethod"] ?? throw new ArgumentNullException("StartFlowMethod");
             var endFlowMethod = ConfigurationManager.AppSettings["EndFlowMethod"] ?? throw new ArgumentNullException("EndFlowMethod");
             var commonData = CommonData.Instance;
             var testPlan = commonData?.TestPlan;
+            _stopwatch.Restart();
             try
             {
                 result = ExecuteFunction(ProcessStage.FlowStart, instance, classType, startFlowMethod, null);
+                if (projectInfo.IsPrintTime)
+                {
+                    var message = $"====== Flow Start time : {_stopwatch.ElapsedMilliseconds - spendTime} ms ====== ";
+                    spendTime = _stopwatch.ElapsedMilliseconds;
+                    PrintResultLog.Message(message);
+                }
                 var testItemNames = flows.Where(x => x.Enable.IsEmpty()).Select(x => x.TestItemName);
                 var flowIds = testPlan.Flow.Where(x => testItemNames.Contains(x.TestItemName)).Select(x => x.TestItemId);
                 var testItems = testPlan.TestItem.Where(x => flowIds.Contains(x.Id.ToGuid())).Select(x => x);
@@ -729,6 +744,15 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 {
                     SetCommonData(testItem);
                     result = ExecuteFunction(ProcessStage.TestItem, instance, classType, testItem.FunctionName, null);
+                    if (!result)
+                        ++failCount;
+                }
+
+                if (projectInfo.IsPrintTime)
+                {
+                    var message = $"====== The whole flow time : {_stopwatch.ElapsedMilliseconds - spendTime} ms ====== ";
+                    spendTime = _stopwatch.ElapsedMilliseconds;
+                    Result.TestTime = spendTime;
                 }
 
             }
@@ -740,6 +764,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             finally
             {
                 result = ExecuteFunction(ProcessStage.FlowEnd, instance, classType, endFlowMethod, null);
+                _stopwatch.Stop();
+                if (projectInfo.IsPrintTime)
+                {
+                    var message = $"====== Flow End time : {_stopwatch.ElapsedMilliseconds - spendTime} ms ====== ";
+                    spendTime = _stopwatch.ElapsedMilliseconds;
+                }
             }
 
             return result;

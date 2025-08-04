@@ -36,10 +36,10 @@ namespace KSW.ATE01.Project.Base.Models
             }
         }
 
-        /// <summary>
-        /// 项目信息
-        /// </summary>
-        public ProjectInfo ProjectInfo { get; set; }
+        ///// <summary>
+        ///// 项目信息
+        ///// </summary>
+        //public ProjectInfo ProjectInfo { get; set; }
 
         /// <summary>
         /// 测试计划

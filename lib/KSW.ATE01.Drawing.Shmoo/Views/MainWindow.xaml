@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <local:ShmooView DataContext="{Binding ShmooViewModel}"></local:ShmooView>
+
     </Grid>
 </Window>

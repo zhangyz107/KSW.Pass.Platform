@@ -1,4 +1,6 @@
-﻿using KSW.ATE01.Project.Base.Extensions;
+﻿using KSW.ATE01.Drawing.Shmoo.Helper;
+using KSW.ATE01.Drawing.Shmoo.IO.Enums.Shmoos;
+using KSW.ATE01.Project.Base.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +11,6 @@ namespace KSW.ATE01.Drawing.Shmoo.ViewModels
 {
     public class MainViewModel : ViewModelExtension
     {
-        private ShmooViewModel _shmooViewModel = new ShmooViewModel();
-
-        public ShmooViewModel ShmooViewModel
-        {
-            get => _shmooViewModel;
-            set => SetProperty(ref _shmooViewModel, value);
-        }
-
         public MainViewModel()
         {
             InitData();
@@ -26,32 +20,26 @@ namespace KSW.ATE01.Drawing.Shmoo.ViewModels
         {
             var xStart = 20.0;
             var xEnd = 30.0;
-            var xDelta = 0.5;
+            //var xDelta = 0.5;
             var yStart = 3.0;
             var yEnd = 5.5;
-            var yDelta = 0.15;
+            //var yDelta = 0.15;
+            const int w = 30;
+            const int h = 10;
 
-            var xDistence = xEnd - xStart;
-            var rowLength = (int)Math.Round(xDistence / xDelta, 0);
-            var yDistence = yEnd - yStart;
-            var colLength = (int)Math.Round(yDistence / yDelta, 0);
+            var rnd = new Random(DateTime.Now.Second);
+            var data = new ShmooResultType[h, w];
 
-            var data = new bool?[rowLength, colLength];
-
-            for (var i = 0; i < rowLength; i++)
-                for (var j = 0; j < colLength; j++)
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
                 {
-                    if (i < rowLength / 2 || j < colLength / 2)
-                        data[i, j] = false;
-                    else if (i == rowLength / 2 || j == colLength / 2)
-                    {
-                        data[i, j] = null;
-                    }
-                    else
-                        data[i, j] = true;
+                    data[y, x] = (ShmooResultType)(rnd.Next(0, 5) * 20);
                 }
+            }
 
-            ShmooViewModel.SetShmooData(20.0, 30.0, 0.5, 3, 5.5, 0.15, data, "X", "Y");
+            ShmooChartHelper.DrawShmooChart(xStart, xEnd, yStart, yEnd, data, xAxisTitle: "频率（MHz）", yAxisTitle: "电压(V)");
+            ShmooChartHelper.DrawShmooChart(xStart, xEnd, yStart, yEnd, data, xAxisTitle: "频率（MHz）", yAxisTitle: "电压(V)");
         }
     }
 }

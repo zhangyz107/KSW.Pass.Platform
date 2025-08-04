@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows</TargetFramework>
+		<TargetFramework>$(NetTargetFramework)</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<NuGetAuditMode>direct</NuGetAuditMode>
@@ -9,6 +9,10 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<NoWarn>$(NoWarn);SYSLIB0011</NoWarn>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Services\Loggers\DataLog.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />

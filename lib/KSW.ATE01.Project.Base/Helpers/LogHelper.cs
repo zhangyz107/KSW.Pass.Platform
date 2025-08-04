@@ -1,4 +1,5 @@
 ﻿using KSW.ATE01.Project.Base.Enums.Loggers;
+using KSW.ATE01.Project.Base.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -132,45 +133,81 @@ namespace KSW.ATE01.Project.Base.Helpers
 
         private static void WriteErrorPrivate(string errorLog)
         {
+            var globalSetting = GlobalSetting.Instance;
+            var projectInfo = globalSetting?.ProjectInfo;
+            var isPrintTime = projectInfo?.IsPrintTime;
+
             using (StreamWriter streamWriter = new StreamWriter(ErrorMessageLogPath, true))
             {
-                streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
+                if (isPrintTime == true)
+                    streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
+                else
+                    streamWriter.Write(string.Format("{0}\n", errorLog));
+
                 streamWriter.Flush();
             }
         }
 
         private static void WriteErrorPrivate(string errorLog, string errorLogPath)
         {
+            var globalSetting = GlobalSetting.Instance;
+            var projectInfo = globalSetting?.ProjectInfo;
+            var isPrintTime = projectInfo?.IsPrintTime;
+
             using (StreamWriter streamWriter = new StreamWriter(GetErrorLogPath(errorLogPath), true))
             {
-                streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
+                if (isPrintTime == true)
+                    streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
+                else
+                    streamWriter.Write(string.Format("{0}\n", errorLog));
                 streamWriter.Flush();
             }
         }
 
         private static void WriteLogPrivate(string log)
         {
+            var globalSetting = GlobalSetting.Instance;
+            var projectInfo = globalSetting?.ProjectInfo;
+            var isPrintTime = projectInfo?.IsPrintTime;
+
             using (StreamWriter streamWriter = new StreamWriter(InfoMessageLogPath, true))
             {
-                streamWriter.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff") + "," + log + "\n");
+                if (isPrintTime == true)
+                    streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), log));
+                else
+                    streamWriter.Write(string.Format("{0}\n", log));
                 streamWriter.Flush();
             }
         }
 
         private static void WriteLogPrivate(string log, string logPath)
         {
+            var globalSetting = GlobalSetting.Instance;
+            var projectInfo = globalSetting?.ProjectInfo;
+            var isPrintTime = projectInfo?.IsPrintTime;
+
             using (StreamWriter streamWriter = new StreamWriter(GetLogPath(logPath), true))
             {
-                streamWriter.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff") + "," + log + "\n");
+                if (isPrintTime == true)
+                    streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), log));
+                else
+                    streamWriter.Write(string.Format("{0}\n", log));
                 streamWriter.Flush();
             }
         }
 
         private static void ClearErrorLogPrivate()
         {
+            var globalSetting = GlobalSetting.Instance;
+            var projectInfo = globalSetting?.ProjectInfo;
+            var isPrintTime = projectInfo?.IsPrintTime;
+
             using (StreamWriter streamWriter = new StreamWriter(LogHelper.ErrorMessageLogPath))
             {
-                streamWriter.Write(string.Format("{0} : Clear all eerror log\n", DateTime.Now.ToString("YYYY-MM-DD HH:mm:ss:fff")));
+                if (isPrintTime == true)
+                    streamWriter.Write(string.Format("{0} : Clear all error log\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff")));
+                else
+                    streamWriter.Write(string.Format("Clear all error log\n"));
                 streamWriter.Flush();
             }
         }
