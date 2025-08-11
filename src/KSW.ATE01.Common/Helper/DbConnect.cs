@@ -12,7 +12,7 @@ namespace KSW.ATE01.Common.Helper
         public static string GetDbConnectStatement()
         {
             var connectionName = ConfigurationManager.ConnectionStrings["DatabaseName"].ConnectionString;
-            var connectPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KSW_ATE01");
+            var connectPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KSW_ATE01", connectionName);
             var dir = Path.GetDirectoryName(connectPath);
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
