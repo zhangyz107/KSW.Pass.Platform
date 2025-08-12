@@ -261,14 +261,14 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 if (projectInfo == null)
                     throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
 
-                switch (projectInfo.TestPlanType)
-                {
-                    case TestPlanType.Excel:
-                        CopyExcelFile(projectInfo);
-                        break;
-                    case TestPlanType.Csv:
-                        break;
-                }
+                //switch (projectInfo.TestPlanType)
+                //{
+                //    case TestPlanType.Excel:
+                //        CopyExcelFile(projectInfo);
+                //        break;
+                //    case TestPlanType.Csv:
+                //        break;
+                //}
 
                 result = true;
             }
@@ -542,11 +542,11 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         throw new Warning(L["TemplateInstalledFailed"]);
                 }
 
-                var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.TestPlanType, projectInfo.ProjectPath, templateName);
-                if (createResult)
-                    Log?.LogInformation(L["ProjectCreatedSuccessfully"]);
-                else
-                    throw new Warning(L["ProjectCreatedFailed"]);
+                //var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.TestPlanType, projectInfo.ProjectPath, templateName);
+                //if (createResult)
+                //    Log?.LogInformation(L["ProjectCreatedSuccessfully"]);
+                //else
+                //    throw new Warning(L["ProjectCreatedFailed"]);
             }
             catch (Exception)
             {

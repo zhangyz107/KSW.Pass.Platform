@@ -57,8 +57,8 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Label Margin="0,0,0,6" VerticalAlignment="Center" Content="{language:L TestPlanType}"></Label>
-        <ComboBox Padding="6" Margin="0,0,0,6" Grid.Column="1" ItemsSource="{Binding TestPlanTypeCbItems,Mode=OneWay}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding ProjectInfo.TestPlanType}" Style="{StaticResource MaterialDesignOutlinedComboBox}"></ComboBox>
+        <!--<Label Margin="0,0,0,6" VerticalAlignment="Center" Content="{language:L TestPlanType}"></Label>
+        <ComboBox Padding="6" Margin="0,0,0,6" Grid.Column="1" ItemsSource="{Binding TestPlanTypeCbItems,Mode=OneWay}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding ProjectInfo.TestPlanType}" Style="{StaticResource MaterialDesignOutlinedComboBox}"></ComboBox>-->
 
         <Label Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Content="{language:L ProjectName}"></Label>
         <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" Text="{Binding ProjectInfo.ProjectName,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>

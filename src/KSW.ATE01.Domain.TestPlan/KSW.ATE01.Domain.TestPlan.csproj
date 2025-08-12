@@ -8,6 +8,48 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\KSW.ATE01.Domain.TestPlan.Core\KSW.ATE01.Domain.TestPlan.Core.csproj" />
+	  <ProjectReference Include="..\src-platform\KSW.Domain\KSW.Domain.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Compile Update="Entities/PinOverview.*.cs">
+			<DependentUpon>PinOverview.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/PinInfo.*.cs">
+			<DependentUpon>PinInfo.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/SiteInfo.*.cs">
+			<DependentUpon>SiteInfo.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/PinSiteInfo.*.cs">
+			<DependentUpon>PinSiteInfo.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/GroupInfo.*.cs">
+			<DependentUpon>GroupInfo.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/PinGroupRelationship.*.cs">
+			<DependentUpon>PinGroupRelationship.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/TestItemInfo.*.cs">
+			<DependentUpon>TestItemInfo.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/LevelGroup.*.cs">
+			<DependentUpon>LevelGroup.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/Level.*.cs">
+			<DependentUpon>Level.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/TimingGroup.*.cs">
+			<DependentUpon>TimingGroup.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/Timing.*.cs">
+			<DependentUpon>Timing.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/Limits.*.cs">
+			<DependentUpon>Limits.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Entities/GlobalParameter.*.cs">
+			<DependentUpon>GlobalParameter.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
 </Project>

@@ -107,7 +107,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
             _projectInfo = new ProjectInfoModel()
             {
-                TestPlanType = TestPlanType.Excel,
+                //TestPlanType = TestPlanType.Excel,
             };
             _projectInfo.PropertyChanged += ProjectInfo_PropertyChanged;
         }

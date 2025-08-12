@@ -125,7 +125,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private void LoadData()
         {
             _currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
-            _testPlanType = _currentProjectInfo?.TestPlanType;
+            //_testPlanType = _currentProjectInfo?.TestPlanType;
             _currentProjectPath = _currentProjectInfo?.ProjectPath;
             _saveAsDir = Path.GetDirectoryName(_currentProjectInfo?.ProjectPath);
         }

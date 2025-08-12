@@ -432,4 +432,10 @@
   <data name="NoSiteSelected" xml:space="preserve">
     <value>没有选择中任何站点</value>
   </data>
+  <data name="AboutUs" xml:space="preserve">
+    <value>关于我们</value>
+  </data>
+  <data name="ProjectManagement" xml:space="preserve">
+    <value>项目管理</value>
+  </data>
 </root>

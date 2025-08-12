@@ -10,29 +10,27 @@ namespace KSW.ATE01.Application.Models.Projects
     public class ProjectInfoModel : DtoBase
     {
         private string _projectName;
-        private TestPlanType _testPlanType;
         private string _projectPath;
-        private DateTime _createTime;
         private string _projectVersion;
         private bool _saveRealTimeText;
         private bool _saveCsv;
         private bool _saveSummary;
-        private bool _saveSTDF;
+        private bool _saveStdf;
         private string _datalogPath;
         private bool _isDoAll;
         private bool _isPrintTime;
-        private bool _isOffLine;
         private int _loopCount;
         private int _delayBetweenLoops;
         private int _loopExecuted;
         private int _failCount;
         private bool _stopOnFail;
         private string _releasePath;
-        private readonly string _excelExtension;
+        private DateTime? _createTime;
+        private DateTime? _lastModificationTime;
 
         public ProjectInfoModel()
         {
-            _excelExtension =  ConfigurationManager.AppSettings["ExcelExtension"] ?? throw new ArgumentNullException("ExcelExtension");
+
         }
 
         /// <summary>
@@ -45,32 +43,12 @@ namespace KSW.ATE01.Application.Models.Projects
         }
 
         /// <summary>
-        /// 测试计划类型
-        /// </summary>
-        public TestPlanType TestPlanType
-        {
-            get => _testPlanType;
-            set => SetProperty(ref _testPlanType, value);
-        }
-
-        public string TestPlanTypeDescription => TestPlanType.Description();
-
-        /// <summary>
         /// 项目路径
         /// </summary>
         public string ProjectPath
         {
             get => _projectPath;
             set => SetProperty(ref _projectPath, value);
-        }
-
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime CreateTime
-        {
-            get => _createTime;
-            set => SetProperty(ref _createTime, value);
         }
 
         /// <summary>
@@ -83,36 +61,12 @@ namespace KSW.ATE01.Application.Models.Projects
         }
 
         /// <summary>
-        /// 测试计划扩展名
-        /// </summary>
-        public string TestPlanExtension => _testPlanType == TestPlanType.Excel ? _excelExtension : ".csv";
-
-        /// <summary>
-        /// 配置文件扩展名
-        /// </summary>
-        public string ConfigurationExtension => ".atecfg";
-
-        /// <summary>
-        /// 执行程序扩展名
-        /// </summary>
-        public string ExecuteExtension => ".dll";
-
-        /// <summary>
         /// 记录RealTime TxT
         /// </summary>
         public bool SaveRealTimeText
         {
             get => _saveRealTimeText;
             set => SetProperty(ref _saveRealTimeText, value);
-        }
-
-        /// <summary>
-        /// 记录CSV
-        /// </summary>
-        public bool SaveCsv
-        {
-            get => _saveCsv;
-            set => SetProperty(ref _saveCsv, value);
         }
 
         /// <summary>
@@ -125,12 +79,21 @@ namespace KSW.ATE01.Application.Models.Projects
         }
 
         /// <summary>
+        /// 记录CSV
+        /// </summary>
+        public bool SaveCsv
+        {
+            get => _saveCsv;
+            set => SetProperty(ref _saveCsv, value);
+        }
+
+        /// <summary>
         /// 记录STDF
         /// </summary>
-        public bool SaveSTDF
+        public bool SaveStdf
         {
-            get => _saveSTDF;
-            set => SetProperty(ref _saveSTDF, value);
+            get => _saveStdf;
+            set => SetProperty(ref _saveStdf, value);
         }
 
         /// <summary>
@@ -158,15 +121,6 @@ namespace KSW.ATE01.Application.Models.Projects
         {
             get => _isPrintTime;
             set => SetProperty(ref _isPrintTime, value);
-        }
-
-        /// <summary>
-        /// 是否离线模式
-        /// </summary>
-        public bool IsOffLine
-        {
-            get => _isOffLine;
-            set => SetProperty(ref _isOffLine, value);
         }
 
         /// <summary>
@@ -211,7 +165,6 @@ namespace KSW.ATE01.Application.Models.Projects
             }
         }
 
-
         /// <summary>
         /// 已执行循环
         /// </summary>
@@ -247,5 +200,43 @@ namespace KSW.ATE01.Application.Models.Projects
             get => _releasePath; 
             set => SetProperty(ref _releasePath, value);
         }
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTime? CreateTime
+        {
+            get => _createTime;
+            set => SetProperty(ref _createTime, value);
+        }
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTime? LastModificationTime
+        {
+            get => _lastModificationTime;
+            set => SetProperty(ref _lastModificationTime, value);
+        }
+
+        /// <summary>
+        /// 是否删除
+        /// </summary>
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
+        /// 版本号
+        ///</summary>
+        public byte[] Version { get; set; }
+
+        /// <summary>
+        /// 配置文件扩展名
+        /// </summary>
+        public string ConfigurationExtension => ".atecfg";
+
+        /// <summary>
+        /// 执行程序扩展名
+        /// </summary>
+        public string ExecuteExtension => ".dll";
     }
 }

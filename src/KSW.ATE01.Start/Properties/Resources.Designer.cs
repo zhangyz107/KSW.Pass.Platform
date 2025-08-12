@@ -61,6 +61,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 About Us 的本地化字符串。
+        /// </summary>
+        internal static string AboutUs {
+            get {
+                return ResourceManager.GetString("AboutUs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Add 的本地化字符串。
         /// </summary>
         internal static string Add {
@@ -696,6 +705,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string ProjectFolder {
             get {
                 return ResourceManager.GetString("ProjectFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Project Management 的本地化字符串。
+        /// </summary>
+        internal static string ProjectManagement {
+            get {
+                return ResourceManager.GetString("ProjectManagement", resourceCulture);
             }
         }
         

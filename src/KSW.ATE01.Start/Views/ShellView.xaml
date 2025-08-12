@@ -8,8 +8,12 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="450" Width="800"
+        d:Background="White"
+        d:DataContext="{d:DesignInstance viewmodel:ShellViewModel}"
+        Title="{Binding Title}"
+        WindowState="Maximized"
         prism:ViewModelLocator.AutoWireViewModel="True">
 
     <i:Interaction.Triggers>
@@ -19,25 +23,32 @@
     </i:Interaction.Triggers>
 
     <Grid>
-        <TabControl Style="{StaticResource MaterialDesignFilledTabControl}"  HorizontalContentAlignment="Left">
-            <TabItem Header="{language:L Project}" Margin="8,0">
-                <ContentControl Padding="8,0" Content="{Binding ProjectView}"></ContentControl>
-            </TabItem>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <materialDesign:ColorZone Padding="4" Mode="PrimaryMid">
+            <Menu Style="{StaticResource MaterialDesignMenu}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}">
+                <MenuItem Header="{language:L Project}">
+                    <MenuItem Header="{language:L NewProject}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding NewProjectCommand}">
+                    </MenuItem>
+                    <MenuItem Header="{language:L SaveAs}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding SaveAsCommand}">
+                    </MenuItem>
+                    <MenuItem Header="{language:L Release}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding ReleaseCommand}">
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="{language:L Help}">
+                    <MenuItem Header="{language:L Language}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+                        <MenuItem Header="简体中文" IsCheckable="True" IsChecked="{Binding IsChinese}"></MenuItem>
+                        <MenuItem Header="English" IsCheckable="True" IsChecked="{Binding IsChinese,Converter={StaticResource InvertBooleanConverter}}"></MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="{language:L AboutUs}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+        </materialDesign:ColorZone>
 
-            <TabItem Header="{language:L Help}">
-                <ContentControl Padding="8,0" Content="{Binding HelpView}"></ContentControl>
-            </TabItem>
-        </TabControl>
-        <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Label Margin="0,1,0,0" Content="{language:L Language}" Foreground="White"></Label>
-            <ComboBox Grid.Column="1" TextElement.Foreground="White" materialDesign:ColorZoneAssist.Mode="PrimaryMid" ItemsSource="{Binding LanguageCbItems,Mode=OneWay}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Language}">
-
-            </ComboBox>
-        </Grid>
+        <ContentControl Margin="0,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.ProjectViewContent}"></ContentControl>
     </Grid>
 
 </Window>

@@ -57,7 +57,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
                 var newProjectInfo = DeepCopy.Copy(currentProjectInfo);
                 newProjectInfo.ProjectName = saveAsName;
                 newProjectInfo.ProjectPath = targetDir;
-                newProjectInfo.TestPlanType = testPlanType;
+                //newProjectInfo.TestPlanType = testPlanType;
                 newProjectInfo.ReleasePath = Path.Combine(targetDir, _releaseDirName);
                 newProjectInfo.CreateTime = DateTime.Now;
                 _projectBLL?.SaveProjectInfo(newProjectInfo);
@@ -65,38 +65,38 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
 
                 #region 处理测试计划类型变更
 
-                if (currentProjectInfo.TestPlanType != testPlanType)
-                {
-                    ChangeTestPlanType(testPlanType, targetDir, saveAsName);
+                //if (currentProjectInfo.TestPlanType != testPlanType)
+                //{
+                //    ChangeTestPlanType(testPlanType, targetDir, saveAsName);
 
-                    //另存为TestPlan类型值
-                    var testPlanPath = Path.Combine(currentProjectInfo?.ReleasePath, currentProjectInfo?.ProjectName + currentProjectInfo?.TestPlanExtension);
+                //    //另存为TestPlan类型值
+                //    var testPlanPath = Path.Combine(currentProjectInfo?.ReleasePath, currentProjectInfo?.ProjectName + currentProjectInfo?.TestPlanExtension);
 
-                    var testPlan = await _testPlanBLL?.LoadTestPlanAsync(currentProjectInfo);
+                //    var testPlan = await _testPlanBLL?.LoadTestPlanAsync(currentProjectInfo);
 
-                    //拷贝测试计划
-                    if (await _projectBLL?.CopyTestPlanAsync(newProjectInfo))
-                    {
-                        _testPlanBLL?.SaveAsTestPlan(testPlan, testPlanType, targetDir, saveAsName);
-                    }
+                //    //拷贝测试计划
+                //    if (await _projectBLL?.CopyTestPlanAsync(newProjectInfo))
+                //    {
+                //        _testPlanBLL?.SaveAsTestPlan(testPlan, testPlanType, targetDir, saveAsName);
+                //    }
 
-                    var csvDirPath = Path.Combine(targetDir, testPlanDirName);
-                    if (testPlanType == TestPlanType.Excel && Directory.Exists(csvDirPath))
-                        Directory.Delete(csvDirPath, true);
-                }
-                else
-                {
-                    switch (newProjectInfo.TestPlanType)
-                    {
-                        case TestPlanType.Excel:
-                            if (!Directory.Exists(newProjectInfo.ReleasePath))
-                                Directory.CreateDirectory(newProjectInfo.ReleasePath);
-                            File.Copy(Path.Combine(currentProjectInfo.ReleasePath, currentProjectInfo.ProjectName + currentProjectInfo.TestPlanExtension), Path.Combine(newProjectInfo.ReleasePath, newProjectInfo.ProjectName + newProjectInfo.TestPlanExtension));
-                            break;
-                        case TestPlanType.Csv:
-                            break;
-                    }
-                }
+                //    var csvDirPath = Path.Combine(targetDir, testPlanDirName);
+                //    if (testPlanType == TestPlanType.Excel && Directory.Exists(csvDirPath))
+                //        Directory.Delete(csvDirPath, true);
+                //}
+                //else
+                //{
+                //    switch (newProjectInfo.TestPlanType)
+                //    {
+                //        case TestPlanType.Excel:
+                //            if (!Directory.Exists(newProjectInfo.ReleasePath))
+                //                Directory.CreateDirectory(newProjectInfo.ReleasePath);
+                //            File.Copy(Path.Combine(currentProjectInfo.ReleasePath, currentProjectInfo.ProjectName + currentProjectInfo.TestPlanExtension), Path.Combine(newProjectInfo.ReleasePath, newProjectInfo.ProjectName + newProjectInfo.TestPlanExtension));
+                //            break;
+                //        case TestPlanType.Csv:
+                //            break;
+                //    }
+                //}
 
                 #endregion
                 _projectBLL?.SetCurrentProjectInfo(newProjectInfo);

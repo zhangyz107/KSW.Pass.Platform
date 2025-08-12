@@ -8,7 +8,8 @@
 // 作者：zhangyingzhong
 // 日期：2024/10/16 10:35
 // 修改记录(Revision History)
-//
+// 修改时间：2025/08/12 09:56
+// 修改人：zhangyingzhong
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
@@ -18,66 +19,8 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// <summary>
     /// 时钟
     /// </summary>
-    public class Timing
+    public partial class Timing
     {
-        /// <summary>
-        /// 时钟名称
-        /// </summary>
-        public string TimingName { get; set; }
 
-        /// <summary>
-        /// 周期
-        /// </summary>
-        public int Period { get; set; }
-
-        /// <summary>
-        /// 引脚Id
-        /// </summary>
-        public Guid PinId { get; set; }
-
-        /// <summary>
-        /// 限制名称
-        /// </summary>
-        public string PinSetup { get; set; }
-
-        /// <summary>
-        /// 波形格式
-        /// </summary>
-        public string Fmt { get; set; }
-
-        /// <summary>
-        /// DriveA
-        /// </summary>
-        public string DriveA { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string DriveB { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string DriveC { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string DriveD { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public StrobeModeType StrobeMode { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int StrobeA { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int StrobeB { get; set; }
     }
 }

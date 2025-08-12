@@ -75,7 +75,7 @@ namespace KSW.ATE01.Start.ViewModels
         private void ProjectInfoUpdate()
         {
             ProjectInfo = _projectBLL.GetCurrentProjectInfo();
-            TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
+            //TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
             ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
         }
 
@@ -92,7 +92,7 @@ namespace KSW.ATE01.Start.ViewModels
                     {
                         ProjectInfo = _projectBLL.LoadProjectInfo(cfgFile.FullName);
                         _projectBLL.SetCurrentProjectInfo(ProjectInfo);
-                        TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
+                        //TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
                         ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
                         DialogService.ShowDialog(nameof(RunDialog));
                     }

@@ -8,7 +8,9 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels.Dialogs"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance viewmodel:RunDialogViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
 
     <prism:Dialog.WindowStyle>
@@ -79,7 +81,7 @@
                         <CheckBox Margin="0,0,0,6" Content="RealTime TXT" IsChecked="{Binding ProjectInfo.SaveRealTimeText}"></CheckBox>
                         <CheckBox Margin="0,0,0,6" Grid.Column="1" Content="CSV" IsChecked="{Binding ProjectInfo.SaveCsv}"></CheckBox>
                         <CheckBox Margin="0,0,0,6" Grid.Column="2"  Content="Summary" IsChecked="{Binding ProjectInfo.SaveSummary}"></CheckBox>
-                        <CheckBox Margin="0,0,0,6" Grid.Column="3"  Content="STDF" IsChecked="{Binding ProjectInfo.SaveSTDF}"></CheckBox>
+                        <CheckBox Margin="0,0,0,6" Grid.Column="3"  Content="STDF" IsChecked="{Binding ProjectInfo.SaveStdf}"></CheckBox>
 
                         <Grid Grid.Row="1" Grid.ColumnSpan="4">
                             <Grid.ColumnDefinitions>
@@ -139,7 +141,6 @@
                             </Grid.ColumnDefinitions>
                             <CheckBox Content="DoAll" IsChecked="{Binding ProjectInfo.IsDoAll}"></CheckBox>
                             <CheckBox Grid.Column="1" Content="{language:L PrintTime}" IsChecked="{Binding ProjectInfo.IsPrintTime}"></CheckBox>
-                            <CheckBox Grid.Column="2" Content="{language:L OfflineMode}" IsChecked="{Binding ProjectInfo.IsOffLine}"></CheckBox>
                         </Grid>
                     </GroupBox>
 

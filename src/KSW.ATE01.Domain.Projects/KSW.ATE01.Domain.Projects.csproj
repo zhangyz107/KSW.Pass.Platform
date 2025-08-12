@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KSW.ATE01.Domain.Projects.Core\KSW.ATE01.Domain.Projects.Core.csproj" />
+    <ProjectReference Include="..\src-platform\KSW.Domain\KSW.Domain.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Compile Update="Entities/ProjectInfo.*.cs">
+			<DependentUpon>ProjectInfo.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
 </Project>

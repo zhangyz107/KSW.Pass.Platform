@@ -12,10 +12,31 @@
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="6"></ColumnDefinition>
+            <ColumnDefinition Width="6*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Border Margin="3" BorderThickness="1.5" BorderBrush="#2196fd" Padding="3" CornerRadius="2.5">
+
+        <GroupBox Header="{language:L ProjectManagement}" Style="{StaticResource MaterialDesignCardGroupBox}">
+
+        </GroupBox>
+        <GridSplitter  Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></GridSplitter>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*"></RowDefinition>
+                <RowDefinition Height="6"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <GroupBox Header="{language:L TestPlan}" Style="{StaticResource MaterialDesignCardGroupBox}">
+
+            </GroupBox>
+            <GridSplitter  Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></GridSplitter>
+            <GroupBox Grid.Row="2" Header="{language:L ProjectDetail}" Style="{StaticResource MaterialDesignCardGroupBox}">
+
+            </GroupBox>
+        </Grid>
+        <!--<Border Margin="3" BorderThickness="1.5" BorderBrush="#2196fd" Padding="3" CornerRadius="2.5">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"></RowDefinition>
@@ -34,6 +55,6 @@
             </Grid>
         </Border>
 
-        <ContentControl Margin="3,3,6,3" Grid.Column="1" Content="{Binding ProjectDetailView,Mode=OneWay}"></ContentControl>
+        <ContentControl Margin="3,3,6,3" Grid.Column="1" Content="{Binding ProjectDetailView,Mode=OneWay}"></ContentControl>-->
     </Grid>
 </UserControl>

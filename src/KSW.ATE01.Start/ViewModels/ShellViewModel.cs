@@ -8,12 +8,16 @@
 // 作者：zhangyingzhong
 // 日期：2024/10/09 13:41
 // 修改记录(Revision History)
-//
+// 修改时间：2025/08/12 16:45
+// 修改人：zhangyingzhong
 //------------------------------------------------------------*/
 
 
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Start.Views;
+using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Ui;
 using MaterialDesignColors;
 using MaterialDesignColors.ColorManipulation;
@@ -29,75 +33,79 @@ namespace KSW.ATE01.Start.ViewModels
     /// </summary>
     public class ShellViewModel : ViewModelBase
     {
-        private readonly IContainerExtension _containerProvider;
-        private readonly IDialogService _dialogService;
+        private readonly IRegionManager _regionManager;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly IProjectBLL _projectBLL;
         private readonly PaletteHelper _paletteHelper = new();
-
-        private ProjectView _projectView;
-        private HelpView _helpView;
+        private bool _isChinese;
 
         #region Properties
-
-        public ProjectView ProjectView
+        public bool IsChinese
         {
-            get => _projectView;
-            set => SetProperty(ref _projectView, value);
-        }
-
-
-        public HelpView HelpView
-        {
-            get => _helpView;
-            set => SetProperty(ref _helpView, value);
-        }
-
-        private string _language;
-
-        public string Language
-        {
-            get => _language;
+            get => _isChinese;
             set
             {
-                if (SetProperty(ref _language, value))
+                if (SetProperty(ref _isChinese, value))
                 {
-                    ChangeLanguage(value);
+                    ChangeLanguage(value ? "zh-CN" : "en-US");
                 }
             }
         }
 
-
-        public Dictionary<string, string> LanguageCbItems => new Dictionary<string, string>()
-        {
-            {"zh-CN","简体中文" },
-            {"en-US", "English"}
-        };
-
         public string Title { get => "ATE01"; }
-
-        //public LanguageManager L => LanguageManager.Instance;
         #endregion
 
         #region Command
         private DelegateCommand _loadingCommand;
         public DelegateCommand LoadingCommand =>
             _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommand));
+
+        private DelegateCommand _newProjectCommand;
+        public DelegateCommand NewProjectCommand =>
+            _newProjectCommand ?? (_newProjectCommand = new DelegateCommand(ExecuteNewProjectCommand));
+
+        private DelegateCommand _saveAsCommand;
+        public DelegateCommand SaveAsCommand =>
+            _saveAsCommand ?? (_saveAsCommand = new DelegateCommand(ExecuteSaveAsCommand, () => _projectBLL?.GetCurrentProjectInfo() != null));
+
+        private DelegateCommand _releaseCommand;
+        public DelegateCommand ReleaseCommand =>
+            _releaseCommand ?? (_releaseCommand = new DelegateCommand(ExecuteReleaseCommand, () => _projectBLL?.GetCurrentProjectInfo() != null));
         #endregion
 
         public ShellViewModel(
             IContainerExtension containerProvider,
-            IDialogService dialogService
+            IRegionManager regionManager,
+            IEventAggregator eventAggregator,
+            IProjectBLL projectBLL
             ) : base(containerProvider)
         {
-            _containerProvider = containerProvider;
-            _dialogService = dialogService;
+            _regionManager = regionManager;
+            _eventAggregator = eventAggregator;
+            _projectBLL = projectBLL;
+
+            _regionManager.RegisterViewWithRegion(RegionNameManagement.ProjectViewContent, typeof(ProjectView));
 
             Theme theme = _paletteHelper.GetTheme();
 
-            if(!ATE01ShareMemory.OpenShareMemory())
+            if (!ATE01ShareMemory.OpenShareMemory())
             {
                 //开启共享内存
-                ATE01ShareMemory.CreateShareMemory();   
+                ATE01ShareMemory.CreateShareMemory();
             }
+
+            RegisterEvent();
+        }
+
+        private void RegisterEvent()
+        {
+            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Subscribe(ProjectInfoUpdate);
+        }
+
+        private void ProjectInfoUpdate()
+        {
+            SaveAsCommand.RaiseCanExecuteChanged();
+            ReleaseCommand.RaiseCanExecuteChanged();
         }
 
         private void ExecuteLoadingCommand()
@@ -105,10 +113,17 @@ namespace KSW.ATE01.Start.ViewModels
             ChangePrimaryColor(BlueSwatch.Blue300);
 
             var currentCulture = CultureInfo.CurrentCulture;
-            Language = currentCulture.Name;
-
-            ProjectView = _containerProvider.Resolve<ProjectView>();
-            HelpView = _containerProvider.Resolve<HelpView>();
+            switch (currentCulture.Name)
+            {
+                case "zh-CN":
+                    IsChinese = true;
+                    break;
+                case "en-US":
+                    IsChinese = false;
+                    break;
+                default:
+                    break;
+            }
         }
 
 
@@ -127,6 +142,21 @@ namespace KSW.ATE01.Start.ViewModels
             theme.PrimaryDark = new ColorPair(color.Darken());
             theme.SetPrimaryColor(color);
             _paletteHelper.SetTheme(theme);
+        }
+
+        private void ExecuteNewProjectCommand()
+        {
+            DialogService.ShowDialog(nameof(NewProjectDialog));
+        }
+
+        private void ExecuteSaveAsCommand()
+        {
+            DialogService.ShowDialog(nameof(SaveAsDialog));
+        }
+
+        private void ExecuteReleaseCommand()
+        {
+            DialogService.ShowDialog(nameof(ReleaseDialog));
         }
     }
 }

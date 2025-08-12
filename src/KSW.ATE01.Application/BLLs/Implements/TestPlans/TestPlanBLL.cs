@@ -63,15 +63,15 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             try
             {
                 var path = GetTestPlanFilePathFromProject(projectInfo);
-                switch (projectInfo.TestPlanType)
-                {
-                    case TestPlanType.Excel:
-                        result = await LoadTestPlanFromExcelAsync(path);
-                        break;
-                    case TestPlanType.Csv:
-                        result = await LoadTestPlanFromCsvAsync(path);
-                        break;
-                }
+                //switch (projectInfo.TestPlanType)
+                //{
+                //    case TestPlanType.Excel:
+                //        result = await LoadTestPlanFromExcelAsync(path);
+                //        break;
+                //    case TestPlanType.Csv:
+                //        result = await LoadTestPlanFromCsvAsync(path);
+                //        break;
+                //}
                 return result;
             }
             catch (Exception)
@@ -134,15 +134,15 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             try
             {
                 var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
-                switch (projectInfo.TestPlanType)
-                {
-                    case TestPlanType.Excel:
-                        result = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.TestPlanExtension);
-                        break;
-                    case TestPlanType.Csv:
-                        result = Path.Combine(projectInfo.ProjectPath, testPlanDirName);
-                        break;
-                }
+                //switch (projectInfo.TestPlanType)
+                //{
+                //    case TestPlanType.Excel:
+                //        result = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.TestPlanExtension);
+                //        break;
+                //    case TestPlanType.Csv:
+                //        result = Path.Combine(projectInfo.ProjectPath, testPlanDirName);
+                //        break;
+                //}
                 return result;
             }
             catch (Exception)
@@ -165,24 +165,24 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             {
                 var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
 
-                var filePath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.TestPlanExtension);
-                if (projectInfo.TestPlanType == TestPlanType.Csv)
-                    filePath = Path.Combine(projectInfo.ProjectPath, testPlanDirName, _flowSheetName + projectInfo.TestPlanExtension);
+                //var filePath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.TestPlanExtension);
+                //if (projectInfo.TestPlanType == TestPlanType.Csv)
+                //    filePath = Path.Combine(projectInfo.ProjectPath, testPlanDirName, _flowSheetName + projectInfo.TestPlanExtension);
 
-                if (!File.Exists(filePath))
-                    throw new Warning(L["FileDoesNotExist"]);
+                //if (!File.Exists(filePath))
+                //    throw new Warning(L["FileDoesNotExist"]);
 
-                switch (projectInfo.TestPlanType)
-                {
-                    case TestPlanType.Excel:
-                        SetTestPlanFlowToExcel(flows, filePath);
-                        break;
-                    case TestPlanType.Csv:
-                        SetTestPlanFlowToCsv(flows, filePath);
-                        break;
-                    default:
-                        break;
-                }
+                //switch (projectInfo.TestPlanType)
+                //{
+                //    case TestPlanType.Excel:
+                //        SetTestPlanFlowToExcel(flows, filePath);
+                //        break;
+                //    case TestPlanType.Csv:
+                //        SetTestPlanFlowToCsv(flows, filePath);
+                //        break;
+                //    default:
+                //        break;
+                //}
                 result = true;
             }
             catch (Exception)

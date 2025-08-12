@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Common.Helper;
 using KSW.ATE01.Data;
+using KSW.Data.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,10 @@ namespace KSW.ATE01.Sqlite
 {
     public class SqliteModule : IModule
     {
-        public void OnInitialized(IContainerProvider containerProvider)
+        public async void OnInitialized(IContainerProvider containerProvider)
         {
-
+            var unitOfWork = containerProvider.Resolve<ISystemUnitOfWork>();
+            await unitOfWork.MigrateAsync();
         }
 
         public void RegisterTypes(IContainerRegistry containerRegistry)

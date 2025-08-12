@@ -11,6 +11,11 @@ namespace KSW.ATE01.Start.ViewModels
     /// </summary>
     public static class RegionNameManagement
     {
+        /// <summary>
+        /// 项目视图内容
+        /// </summary>
+        public static string ProjectViewContent = "ProjectView";
+
         public static string TestPlanContent = "TestPlan";
 
         /// <summary>

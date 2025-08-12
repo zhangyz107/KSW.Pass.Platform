@@ -537,4 +537,12 @@
     <value>No site selected</value>
     <comment>没有选择中任何站点</comment>
   </data>
+  <data name="AboutUs" xml:space="preserve">
+    <value>About Us</value>
+    <comment>关于我们</comment>
+  </data>
+  <data name="ProjectManagement" xml:space="preserve">
+    <value>Project Management</value>
+    <comment>项目管理</comment>
+  </data>
 </root>
