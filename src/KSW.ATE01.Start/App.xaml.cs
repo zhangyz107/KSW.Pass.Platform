@@ -2,8 +2,11 @@
 using KSW.ATE01.Sqlite;
 using KSW.ATE01.Start;
 using KSW.ATE01.Start.ViewModels.Dialogs;
+using KSW.ATE01.Start.ViewModels.Dialogs.TestPlans;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
+using KSW.ATE01.Start.Views.Dialogs.TestPlans;
+using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Infrastructure;
 using KSW.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -146,6 +149,14 @@ namespace KSW.ATE01.Platform
             containerRegistry.RegisterDialog<ReleaseDialog, ReleaseDialogViewModel>();
             containerRegistry.RegisterDialog<RunDialog, RunDialogViewModel>();
             containerRegistry.RegisterDialog<ConfigureDialog, ConfigureDialogViewModel>();
+
+            #region TestPlans
+            containerRegistry.RegisterDialog<AddPinDialogView, AddPinDialogViewModel>();
+            containerRegistry.RegisterDialog<GroupSettingDialogView, GroupSettingDialogViewModel>();
+            containerRegistry.RegisterDialog<EditPinGroupDialogView, EditPinGroupDialogViewModel>();
+
+            containerRegistry.RegisterForNavigation<ChannelSettingView>();
+            #endregion
         }
 
         private void InitLogConfig()

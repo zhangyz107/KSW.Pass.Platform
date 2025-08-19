@@ -33,8 +33,8 @@ namespace KSW.ATE01.Sqlite.EntityTypeConfigurations.TestPlans
             builder.Property(t => t.TimingGroupName)
                 .HasColumnName("TimingGroupName")
                 .HasComment("时钟组名");
-            builder.Property(t => t.CreateTime)
-                .HasColumnName("CreateTime")
+            builder.Property(t => t.CreationTime)
+                .HasColumnName("CreationTime")
                 .HasComment("创建时间");
             builder.Property(t => t.LastModificationTime)
                 .HasColumnName("LastModificationTime")

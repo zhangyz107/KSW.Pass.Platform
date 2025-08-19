@@ -25,9 +25,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("ProjectInfoId")
                         .HasComment("项目信息Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<string>("DatalogPath")
@@ -145,9 +145,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("AdditionInfo")
                         .HasComment("附加信息");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<bool>("IsDeleted")
@@ -194,9 +194,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("GroupInfoId")
                         .HasComment("组信息Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<string>("GroupName")
@@ -249,7 +249,7 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("Comment")
                         .HasComment("注释");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
                         .HasColumnName("CreateTime")
                         .HasComment("创建时间");
@@ -362,9 +362,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("LevelGroupId")
                         .HasComment("测试项电平组Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<bool>("IsDeleted")
@@ -411,9 +411,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("LimitsId")
                         .HasComment("测试项门限Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<int?>("DutResult")
@@ -505,20 +505,15 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("PinGroupRelationshipId")
                         .HasComment("引脚与组关系Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<Guid>("GroupInfoId")
                         .HasColumnType("TEXT")
                         .HasColumnName("GroupInfoId")
                         .HasComment("组信息Id");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("IsDeleted")
-                        .HasComment("是否删除");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("TEXT")
@@ -553,9 +548,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("PinInfoId")
                         .HasComment("引脚信息Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<bool>("IsDeleted")
@@ -608,9 +603,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("PinOverview")
                         .HasComment("引脚总览Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<bool>("IsDeleted")
@@ -663,9 +658,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("ChannelName")
                         .HasComment("通道名称");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<bool>("IsDeleted")
@@ -687,6 +682,11 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("SiteInfoId")
                         .HasComment("站点信息Id");
+
+                    b.Property<int?>("SortId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("SortId")
+                        .HasComment("排序Id");
 
                     b.Property<byte[]>("Version")
                         .IsConcurrencyToken()
@@ -711,9 +711,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("SiteInfoId")
                         .HasComment("站点信息Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<bool>("IsDeleted")
@@ -771,9 +771,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("AdditionInfo")
                         .HasComment("附加信息");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<decimal>("Force")
@@ -853,9 +853,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("TimingId")
                         .HasComment("测试项时钟Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<int?>("DriveA")
@@ -952,9 +952,9 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("TimingGroupId")
                         .HasComment("测试项时钟组Id");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime?>("CreationTime")
                         .HasColumnType("TEXT")
-                        .HasColumnName("CreateTime")
+                        .HasColumnName("CreationTime")
                         .HasComment("创建时间");
 
                     b.Property<bool>("IsDeleted")

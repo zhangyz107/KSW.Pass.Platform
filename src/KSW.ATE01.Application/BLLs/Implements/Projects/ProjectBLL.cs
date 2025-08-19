@@ -16,8 +16,10 @@ using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
+using KSW.ATE01.Data;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
+using KSW.ATE01.Domain.Projects.Repositories;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
 using KSW.ATE01.Project.Base.Enums.Errors;
 using KSW.ATE01.Project.Base.Enums.Results;
@@ -39,10 +41,11 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
     /// <summary>
     /// 项目业务逻辑层
     /// </summary>
-    public class ProjectBLL : ServiceBase, IProjectBLL
+    public class ProjectBLL : CrudServiceBase<ProjectInfo>, IProjectBLL
     {
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
+        private readonly IProjectInfoRepository _repository;
         private ProjectInfoModel _currentProjectInfo;
         private readonly string _logDirName = "Log";
         private readonly string _releaseDirName = "Release";
@@ -65,16 +68,25 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
         public ProjectBLL(
             IContainerProvider containerProvider,
+            ISystemUnitOfWork unitOfWork,
+            IProjectInfoRepository repository,
             IDialogService dialogService,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IEventAggregator eventAggregator) : base(containerProvider, unitOfWork, repository)
         {
+            _repository = repository;
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
             _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
             _stopwatch = new Stopwatch();
         }
 
-        public async Task<bool> CreateProjectAsync(ProjectInfoModel projectInfo)
+        public async Task<List<ProjectInfoModel>> GetListAsync()
+        {
+            var list = await _repository.FindAllAsync();
+            return list.MapToList<ProjectInfoModel>();
+        }
+
+        public async Task<bool> CreateProjectInfoAsync(ProjectInfoModel projectInfo)
         {
             bool result = false;
             try
@@ -96,10 +108,9 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 ReplenishProjectInfo(projectInfo);
 
                 //保存项目信息
-                SaveProjectInfo(projectInfo);
-
-                _currentProjectInfo = projectInfo;
-                result = true;
+                result = await SaveProjectInfo(projectInfo);
+                if (result)
+                    _currentProjectInfo = projectInfo;
 
                 return result;
             }
@@ -181,14 +192,21 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
         }
 
-        public bool SaveProjectInfo(ProjectInfoModel projectInfo)
+        public async Task<bool> SaveProjectInfo(ProjectInfoModel projectInfo)
         {
             var result = false;
             try
             {
-                var configPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + projectInfo.ConfigurationExtension);
                 var entity = projectInfo.MapTo<ProjectInfo>();
-                KSW.Helpers.XmlHelper.SerializeToXml(entity, configPath);
+                if (projectInfo.Id.IsEmpty())
+                {
+                    entity.Init();
+                    await CreateAsync(entity);
+                }
+                else
+                    await UpdateAsync(projectInfo.Id, entity);
+                //var configPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + projectInfo.ConfigurationExtension);
+                //KSW.Helpers.XmlHelper.SerializeToXml(entity, configPath);
                 result = true;
             }
             catch (Exception)
@@ -558,7 +576,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private void ReplenishProjectInfo(ProjectInfoModel projectInfo)
         {
             //完善项目相关信息
-            projectInfo.CreateTime = DateTime.Now;
             projectInfo.ProjectVersion = new Version("1.0.0000.1").ToString();
             projectInfo.DatalogPath = Path.Combine(projectInfo.ProjectPath, _logDirName);
             projectInfo.ReleasePath = Path.Combine(projectInfo.ProjectPath, _releaseDirName);

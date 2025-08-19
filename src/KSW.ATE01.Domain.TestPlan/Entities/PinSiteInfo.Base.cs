@@ -1,4 +1,5 @@
 ﻿using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +10,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 引脚站点信息
     /// </summary>
     [Description("引脚站点信息")]
-    public partial class PinSiteInfo : AggregateRoot<PinSiteInfo>, IDelete, IVersion
+    public partial class PinSiteInfo : AggregateRoot<PinSiteInfo>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -49,10 +50,16 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         public string ChannelName { get; set; }
 
         /// <summary>
+        /// 排序Id
+        /// </summary>
+        [DisplayName("排序Id")]
+        public int? SortId { get; set; }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -69,11 +76,12 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
 
         protected override void AddChanges(PinSiteInfo other)
         {
-            AddChange(t => SiteInfoId, other.SiteInfoId);
-            AddChange(t => PinInfoId, other.PinInfoId);
-            AddChange(t => ChannelName, other.ChannelName);
-            AddChange(t => CreateTime, other.CreateTime);
-            AddChange(t => LastModificationTime, other.LastModificationTime);
+            AddChange(t => t.SiteInfoId, other.SiteInfoId);
+            AddChange(t => t.PinInfoId, other.PinInfoId);
+            AddChange(t => t.ChannelName, other.ChannelName);
+            AddChange(t => t.SortId, other.SortId);
+            AddChange(t => t.CreationTime, other.CreationTime);
+            AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }
 }

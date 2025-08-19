@@ -6,9 +6,17 @@
              xmlns:local="clr-namespace:KSW.ATE01.Start.Views"
              xmlns:language="clr-namespace:KSW.ATE01.Start"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
     <GroupBox Header="{language:L ProjectDetail}" Style="{StaticResource MaterialDesignCardGroupBox}">
         <Grid>
             <Grid.ColumnDefinitions>

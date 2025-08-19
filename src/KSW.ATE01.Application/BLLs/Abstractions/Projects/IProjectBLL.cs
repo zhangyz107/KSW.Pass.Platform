@@ -12,9 +12,15 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
     public interface IProjectBLL : IService
     {
         /// <summary>
+        /// 获取项目列表
+        /// </summary>
+        /// <returns></returns>
+        Task<List<ProjectInfoModel>> GetListAsync();
+
+        /// <summary>
         /// 创建项目
         /// </summary>
-        Task<bool> CreateProjectAsync(ProjectInfoModel projectInfo);
+        Task<bool> CreateProjectInfoAsync(ProjectInfoModel projectInfo);
 
         /// <summary>
         /// 通过VS运行当前项目
@@ -34,7 +40,7 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// <summary>
         /// 保存项目信息
         /// </summary>
-        bool SaveProjectInfo(ProjectInfoModel projectInfo);
+        Task<bool> SaveProjectInfo(ProjectInfoModel projectInfo);
 
         /// <summary>
         /// 从项目配置文件中加载项目信息

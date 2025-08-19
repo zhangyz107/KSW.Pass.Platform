@@ -14,11 +14,9 @@
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.Data;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Ui;
-using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
@@ -70,7 +68,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
-            _projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
+            //_projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
         }
 
         public bool CanCloseDialog()
@@ -78,9 +76,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             return true;
         }
 
-        public void OnDialogClosed()
+        public async void OnDialogClosed()
         {
-            if (_projectInfo != null && _projectBLL.SaveProjectInfo(_projectInfo))
+            var saveResult = await _projectBLL.SaveProjectInfo(_projectInfo);
+            if (_projectInfo != null && saveResult)
             {
                 _projectBLL.SetCurrentProjectInfo(_projectInfo);
                 _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();

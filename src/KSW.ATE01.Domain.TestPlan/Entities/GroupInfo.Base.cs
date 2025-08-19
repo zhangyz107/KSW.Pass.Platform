@@ -1,4 +1,5 @@
 ﻿using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 组信息
     /// </summary>
     [Description("组信息")]
-    public partial class GroupInfo : AggregateRoot<GroupInfo>, IDelete, IVersion
+    public partial class GroupInfo : AggregateRoot<GroupInfo>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -49,7 +50,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -67,8 +68,8 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         protected override void AddChanges(GroupInfo other)
         {
             AddChange(t => t.PinOverviewId, other.PinOverviewId);
-            AddChange(t => GroupName, other.GroupName);
-            AddChange(t => t.CreateTime, other.CreateTime);
+            AddChange(t => t.GroupName, other.GroupName);
+            AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }

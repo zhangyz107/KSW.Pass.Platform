@@ -1,4 +1,5 @@
 ﻿using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +10,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 站点信息
     /// </summary>
     [Description("站点信息")]
-    public partial class SiteInfo : AggregateRoot<SiteInfo>, IDelete, IVersion
+    public partial class SiteInfo : AggregateRoot<SiteInfo>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -52,7 +53,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -69,11 +70,11 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
 
         protected override void AddChanges(SiteInfo other)
         {
-            AddChange(t => PinOverviewId, other.PinOverviewId);
-            AddChange(t => SiteName, other.SiteName);
-            AddChange(t => SortId, other.SortId);
-            AddChange(t => CreateTime, other.CreateTime);
-            AddChange(t => LastModificationTime, other.LastModificationTime);
+            AddChange(t => t.PinOverviewId, other.PinOverviewId);
+            AddChange(t => t.SiteName, other.SiteName);
+            AddChange(t => t.SortId, other.SortId);
+            AddChange(t => t.CreationTime, other.CreationTime);
+            AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }
 }

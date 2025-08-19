@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +11,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 测试项时钟
     /// </summary>
     [Description("测试项时钟")]
-    public partial class Timing : AggregateRoot<Timing>, IDelete, IVersion
+    public partial class Timing : AggregateRoot<Timing>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -105,7 +106,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -134,7 +135,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
             AddChange(t => t.StrobeMode, other.StrobeMode);
             AddChange(t => t.StrobeA, other.StrobeA);
             AddChange(t => t.StrobeB, other.StrobeB);
-            AddChange(t => t.CreateTime, other.CreateTime);
+            AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }

@@ -44,7 +44,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// <summary>
         /// 通道类型
         /// </summary>
-        public ChannelType Type { get; set; }
+        public PinType Type { get; set; }
 
         /// <summary>
         /// Sites信息

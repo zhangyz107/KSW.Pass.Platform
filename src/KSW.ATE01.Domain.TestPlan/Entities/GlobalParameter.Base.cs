@@ -1,4 +1,5 @@
 ﻿using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 全局参数
     /// </summary>
     [Description("全局参数")]
-    public partial class GlobalParameter : AggregateRoot<GlobalParameter>, IDelete, IVersion
+    public partial class GlobalParameter : AggregateRoot<GlobalParameter>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -55,7 +56,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -75,7 +76,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
             AddChange(t => t.ProjectInfoId, other.ProjectInfoId);
             AddChange(t => t.PatternFile, other.PatternFile);
             AddChange(t => t.AdditionInfo, other.AdditionInfo);
-            AddChange(t => t.CreateTime, other.CreateTime);
+            AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }

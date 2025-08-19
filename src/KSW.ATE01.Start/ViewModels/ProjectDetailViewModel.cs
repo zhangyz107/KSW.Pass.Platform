@@ -29,7 +29,7 @@ namespace KSW.ATE01.Start.ViewModels
         #region Fields
         private readonly IContainerExtension _containerProvider;
         private readonly IEventAggregator _eventAggregator;
-        private readonly IProjectBLL _projectBLL;
+        private IProjectBLL _projectBLL;
         private ProjectInfoModel _projectInfo;
         private string _testPlanName;
         private string _executeName;
@@ -55,6 +55,12 @@ namespace KSW.ATE01.Start.ViewModels
         }
         #endregion
 
+        #region Commands
+        private AsyncDelegateCommand _loadingCommand;
+        public AsyncDelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
+        #endregion
+
         public ProjectDetailViewModel(
             IContainerExtension containerProvider,
             IEventAggregator eventAggregator) : base(containerProvider)
@@ -62,8 +68,12 @@ namespace KSW.ATE01.Start.ViewModels
             _containerProvider = containerProvider;
             _eventAggregator = eventAggregator;
 
-            _projectBLL = _containerProvider.Resolve<IProjectBLL>();
             RegisterEvent();
+        }
+
+        private async Task ExecuteLoadingCommand()
+        {
+            _projectBLL = _containerProvider?.Resolve<IProjectBLL>();
         }
 
         private void RegisterEvent()
@@ -74,9 +84,9 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ProjectInfoUpdate()
         {
-            ProjectInfo = _projectBLL.GetCurrentProjectInfo();
+            ProjectInfo = _projectBLL?.GetCurrentProjectInfo();
             //TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
-            ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
+            ExecuteName = _projectInfo?.ProjectName + _projectInfo?.ExecuteExtension;
         }
 
         private void LoadProjectFromArgs(string dir)

@@ -438,4 +438,79 @@
   <data name="ProjectManagement" xml:space="preserve">
     <value>Project Management</value>
   </data>
+  <data name="SaveTestPlan" xml:space="preserve">
+    <value>Save TestPlan</value>
+  </data>
+  <data name="ChannelSetting" xml:space="preserve">
+    <value>Channel Setting</value>
+  </data>
+  <data name="GroupSetting" xml:space="preserve">
+    <value>Group Setting</value>
+  </data>
+  <data name="ComfirmSiteCount" xml:space="preserve">
+    <value>Comfirm SiteCount</value>
+  </data>
+  <data name="AddChannel" xml:space="preserve">
+    <value>Add Channel</value>
+  </data>
+  <data name="DeleteChannel" xml:space="preserve">
+    <value>Delete Channel</value>
+  </data>
+  <data name="PinName" xml:space="preserve">
+    <value>Pin Name</value>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>Pin Type</value>
+  </data>
+  <data name="SiteSetting" xml:space="preserve">
+    <value>Site Setting</value>
+  </data>
+  <data name="FieldIsRequired" xml:space="preserve">
+    <value>Field Is Required.</value>
+  </data>
+  <data name="FieldAlreadyExists" xml:space="preserve">
+    <value>The {0} already exists</value>
+  </data>
+  <data name="FieldValueSame" xml:space="preserve">
+    <value>{0} have the same {1} value</value>
+  </data>
+  <data name="ChannelName" xml:space="preserve">
+    <value>Channel Name</value>
+  </data>
+  <data name="GroupName" xml:space="preserve">
+    <value>Group Name</value>
+  </data>
+  <data name="AddPin" xml:space="preserve">
+    <value>Add Pin</value>
+  </data>
+  <data name="DeletePin" xml:space="preserve">
+    <value>Delete Pin</value>
+  </data>
+  <data name="EditPin" xml:space="preserve">
+    <value>Edit Pin</value>
+  </data>
+  <data name="ConfirmTheDelete" xml:space="preserve">
+    <value>Are you sure delete?</value>
+  </data>
+  <data name="AddGroupName" xml:space="preserve">
+    <value>Add GroupName</value>
+  </data>
+  <data name="OperationSuccessful" xml:space="preserve">
+    <value>Operation Successful</value>
+  </data>
+  <data name="PleaseEnterAgain" xml:space="preserve">
+    <value>Please enter again</value>
+  </data>
+  <data name="Notsaved" xml:space="preserve">
+    <value>Not Saved</value>
+  </data>
+  <data name="MoveRight" xml:space="preserve">
+    <value>Move Right</value>
+  </data>
+  <data name="MoveLeft" xml:space="preserve">
+    <value>Move Left</value>
+  </data>
+  <data name="EditPinGroup" xml:space="preserve">
+    <value>Edit Pin Group</value>
+  </data>
 </root>

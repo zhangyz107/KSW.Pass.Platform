@@ -8,15 +8,20 @@
 // 作者：zhangyingzhong
 // 日期：2024/10/09 13:46
 // 修改记录(Revision History)
-//
+// 修改时间：2025/08/12 16:45
+// 修改人：zhangyingzhong
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
+using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
 
 namespace KSW.ATE01.Start.ViewModels
 {
@@ -27,11 +32,33 @@ namespace KSW.ATE01.Start.ViewModels
     {
         #region Fields
         private readonly IContainerExtension _containerProvider;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly IRegionManager _regionManager;
         private readonly IProjectBLL _projectBLL;
+        private ObservableCollection<ProjectInfoModel> _projectList;
         private ProjectDetailView _projectDetailView;
+        private ProjectInfoModel _selectProjectInfo;
         #endregion
 
         #region Properties
+        public ObservableCollection<ProjectInfoModel> ProjectList
+        {
+            get => _projectList;
+            set => SetProperty(ref _projectList, value);
+        }
+
+        public ProjectInfoModel SelectProjectInfo
+        {
+            get => _selectProjectInfo;
+            set
+            {
+                if (SetProperty(ref _selectProjectInfo, value))
+                {
+                    _projectBLL?.SetCurrentProjectInfo(value);
+                    _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Publish();
+                }
+            }
+        }
 
         public ProjectDetailView ProjectDetailView
         {
@@ -42,6 +69,10 @@ namespace KSW.ATE01.Start.ViewModels
         #endregion
 
         #region Command
+        private AsyncDelegateCommand _loadingCommand;
+        public AsyncDelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
+
         private DelegateCommand _newProjectCommand;
         public DelegateCommand NewProjectCommand =>
             _newProjectCommand ?? (_newProjectCommand = new DelegateCommand(ExecuteNewProjectCommand));
@@ -72,15 +103,33 @@ namespace KSW.ATE01.Start.ViewModels
         /// 构造函数
         /// </summary>
         public ProjectViewModel(
-            IContainerExtension containerProvider) : base(containerProvider)
+            IContainerExtension containerProvider,
+            IEventAggregator eventAggregator,
+            IRegionManager regionManager,
+            IProjectBLL projectBLL) : base(containerProvider)
         {
             _containerProvider = containerProvider;
-            _projectBLL = containerProvider.Resolve<IProjectBLL>() ?? throw new ArgumentNullException(nameof(IProjectBLL));
+            _eventAggregator = eventAggregator;
+            _regionManager = regionManager;
+            _projectBLL = projectBLL;
+
             #region 加载页面
             _projectDetailView = _containerProvider.Resolve<ProjectDetailView>();
             #endregion
         }
 
+        private async Task ExecuteLoadingCommand()
+        {
+            var list = await _projectBLL?.GetListAsync();
+            ProjectList = new ObservableCollection<ProjectInfoModel>(list);
+            foreach (var item in _projectList)
+            {
+                item.DelelopCommand = DelelopCommand;
+                item.RunCommand = RunCommand;
+            }
+
+            _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(ChannelSettingView));
+        }
 
         private void ExecuteNewProjectCommand()
         {

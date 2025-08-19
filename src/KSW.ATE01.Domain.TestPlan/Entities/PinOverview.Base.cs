@@ -1,4 +1,5 @@
 ﻿using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +10,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 引脚总览
     /// </summary>
     [Description("引脚总览")]
-    public partial class PinOverview : AggregateRoot<PinOverview>, IDelete, IVersion
+    public partial class PinOverview : AggregateRoot<PinOverview>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -43,7 +44,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -62,7 +63,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         {
             AddChange(t => t.ProjectInfoId, other.ProjectInfoId);
             AddChange(t => t.SiteCount, other.SiteCount);
-            AddChange(t => t.CreateTime, other.CreateTime);
+            AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }

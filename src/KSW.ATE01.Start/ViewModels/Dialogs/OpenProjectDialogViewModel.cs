@@ -87,7 +87,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             IDialogService dialogService) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
-            _projectBLL = ContainerProvider.Resolve<IProjectBLL>();
+            //_projectBLL = ContainerProvider.Resolve<IProjectBLL>();
             _testPlanBLL = ContainerProvider.Resolve<ITestPlanBLL>();
             _dialogService = dialogService;
         }

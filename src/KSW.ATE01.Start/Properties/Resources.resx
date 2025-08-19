@@ -545,4 +545,104 @@
     <value>Project Management</value>
     <comment>项目管理</comment>
   </data>
+  <data name="SaveTestPlan" xml:space="preserve">
+    <value>Save TestPlan</value>
+    <comment>保存测试计划</comment>
+  </data>
+  <data name="ChannelSetting" xml:space="preserve">
+    <value>Channel Setting</value>
+    <comment>通道设置</comment>
+  </data>
+  <data name="GroupSetting" xml:space="preserve">
+    <value>Group Setting</value>
+    <comment>组设置</comment>
+  </data>
+  <data name="ComfirmSiteCount" xml:space="preserve">
+    <value>Comfirm SiteCount</value>
+    <comment>确认站点数</comment>
+  </data>
+  <data name="AddChannel" xml:space="preserve">
+    <value>Add Channel</value>
+    <comment>添加通道</comment>
+  </data>
+  <data name="DeleteChannel" xml:space="preserve">
+    <value>Delete Channel</value>
+    <comment>删除通道</comment>
+  </data>
+  <data name="PinName" xml:space="preserve">
+    <value>Pin Name</value>
+    <comment>引脚名称</comment>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>Pin Type</value>
+    <comment>引脚类型</comment>
+  </data>
+  <data name="SiteSetting" xml:space="preserve">
+    <value>Site Setting</value>
+    <comment>站点设置</comment>
+  </data>
+  <data name="FieldIsRequired" xml:space="preserve">
+    <value>Field Is Required.</value>
+    <comment>字段为必填项.</comment>
+  </data>
+  <data name="FieldAlreadyExists" xml:space="preserve">
+    <value>The {0} already exists</value>
+    <comment>{0}已存在</comment>
+  </data>
+  <data name="FieldValueSame" xml:space="preserve">
+    <value>{0} have the same {1} value</value>
+    <comment>{0}的{1}值相同</comment>
+  </data>
+  <data name="ChannelName" xml:space="preserve">
+    <value>Channel Name</value>
+    <comment>通道名称</comment>
+  </data>
+  <data name="GroupName" xml:space="preserve">
+    <value>Group Name</value>
+    <comment>组名称</comment>
+  </data>
+  <data name="AddPin" xml:space="preserve">
+    <value>Add Pin</value>
+    <comment>添加引脚</comment>
+  </data>
+  <data name="DeletePin" xml:space="preserve">
+    <value>Delete Pin</value>
+    <comment>删除引脚</comment>
+  </data>
+  <data name="EditPin" xml:space="preserve">
+    <value>Edit Pin</value>
+    <comment>编辑引脚</comment>
+  </data>
+  <data name="ConfirmTheDelete" xml:space="preserve">
+    <value>Are you sure delete?</value>
+    <comment>你确定删除吗？</comment>
+  </data>
+  <data name="AddGroupName" xml:space="preserve">
+    <value>Add GroupName</value>
+    <comment>添加组名</comment>
+  </data>
+  <data name="OperationSuccessful" xml:space="preserve">
+    <value>Operation Successful</value>
+    <comment>操作成功</comment>
+  </data>
+  <data name="PleaseEnterAgain" xml:space="preserve">
+    <value>Please enter again</value>
+    <comment>请重新输入</comment>
+  </data>
+  <data name="Notsaved" xml:space="preserve">
+    <value>Not Saved</value>
+    <comment>未保存</comment>
+  </data>
+  <data name="MoveRight" xml:space="preserve">
+    <value>Move Right</value>
+    <comment>右移</comment>
+  </data>
+  <data name="MoveLeft" xml:space="preserve">
+    <value>Move Left</value>
+    <comment>左移</comment>
+  </data>
+  <data name="EditPinGroup" xml:space="preserve">
+    <value>Edit Pin Group</value>
+    <comment>编辑引脚组</comment>
+  </data>
 </root>

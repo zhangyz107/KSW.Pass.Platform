@@ -7,18 +7,63 @@
              xmlns:language="clr-namespace:KSW.ATE01.Start"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <UserControl.Resources>
+        <Style x:Key="CenterTextBlock"  TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MaterialDesignDataGridTextColumnStyle}">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="TabItem" BasedOn="{StaticResource MaterialDesignTabItem}">
+            <Setter Property="Header" Value="{Binding DataContext.Title,UpdateSourceTrigger=PropertyChanged}" />
+        </Style>
+    </UserControl.Resources>
+
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="6"></ColumnDefinition>
-            <ColumnDefinition Width="6*"></ColumnDefinition>
+            <ColumnDefinition Width="5*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <GroupBox Header="{language:L ProjectManagement}" Style="{StaticResource MaterialDesignCardGroupBox}">
-
+            <DataGrid ItemsSource="{Binding ProjectList}" AutoGenerateColumns="False" CanUserAddRows="False" ScrollViewer.HorizontalScrollBarVisibility="Visible" materialDesign:DataGridAssist.CellPadding="2" Background="{DynamicResource MaterialDesignLightSeparatorBackground}" SelectedValue="{Binding SelectProjectInfo}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{language:L ProjectName}" Binding="{Binding ProjectName}" ElementStyle="{StaticResource CenterTextBlock}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTemplateColumn Header="{language:L Operate}" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Content="{language:L Edit}" Style="{StaticResource MaterialDesignFlatButton}" Padding="8,4"></Button>
+                                    <Button Grid.Column="1" Content="{language:L Develop}" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding DelelopCommand}" Padding="8,4"></Button>
+                                    <Button Grid.Column="2" Content="{language:L Run}" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding RunCommand}" Padding="8,4"></Button>
+                                    <Button Grid.Column="3" Content="{language:L Delete}" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding RunCommand}" Padding="8,4" Foreground="Red"></Button>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
         </GroupBox>
         <GridSplitter  Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></GridSplitter>
 
@@ -29,7 +74,37 @@
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <GroupBox Header="{language:L TestPlan}" Style="{StaticResource MaterialDesignCardGroupBox}">
-
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="ContentSaveEditOutline" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{language:L SaveTestPlan}" VerticalAlignment="Center"></TextBlock>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button Margin="0,0,6,0" Grid.Column="2" Style="{StaticResource MaterialDesignOutlinedButton}">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Import" VerticalAlignment="Center"/>
+                                    <TextBlock Text="导入数据" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+                    <TabControl Grid.Row="1" Margin="0,8,0,0" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.TestPlanContent}" TabStripPlacement="Left" Style="{StaticResource MaterialDesignFilledTabControl}"></TabControl>
+                </Grid>
             </GroupBox>
             <GridSplitter  Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></GridSplitter>
             <GroupBox Grid.Row="2" Header="{language:L ProjectDetail}" Style="{StaticResource MaterialDesignCardGroupBox}">

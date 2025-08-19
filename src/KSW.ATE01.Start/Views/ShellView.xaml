@@ -12,6 +12,8 @@
         mc:Ignorable="d"
         d:Background="White"
         d:DataContext="{d:DesignInstance viewmodel:ShellViewModel}"
+        d:Width="1200"
+        d:Height="800"
         Title="{Binding Title}"
         WindowState="Maximized"
         prism:ViewModelLocator.AutoWireViewModel="True">
@@ -26,29 +28,52 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <materialDesign:ColorZone Padding="4" Mode="PrimaryMid">
-            <Menu Style="{StaticResource MaterialDesignMenu}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}">
-                <MenuItem Header="{language:L Project}">
-                    <MenuItem Header="{language:L NewProject}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding NewProjectCommand}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Menu Style="{StaticResource MaterialDesignMenu}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}">
+                    <MenuItem Header="{language:L Project}">
+                        <MenuItem Header="{language:L NewProject}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding NewProjectCommand}">
+                        </MenuItem>
+                        <MenuItem Header="{language:L SaveAs}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding SaveAsCommand}">
+                        </MenuItem>
+                        <MenuItem Header="{language:L Release}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding ReleaseCommand}">
+                        </MenuItem>
                     </MenuItem>
-                    <MenuItem Header="{language:L SaveAs}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding SaveAsCommand}">
+                    <MenuItem Header="{language:L Help}">
+                        <MenuItem Header="{language:L Language}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+                            <MenuItem Header="简体中文" IsCheckable="True" IsChecked="{Binding IsChinese}"></MenuItem>
+                            <MenuItem Header="English" IsCheckable="True" IsChecked="{Binding IsChinese,Converter={StaticResource InvertBooleanConverter}}"></MenuItem>
+                        </MenuItem>
+                        <MenuItem Header="{language:L AboutUs}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+                        </MenuItem>
                     </MenuItem>
-                    <MenuItem Header="{language:L Release}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding ReleaseCommand}">
-                    </MenuItem>
-                </MenuItem>
-                <MenuItem Header="{language:L Help}">
-                    <MenuItem Header="{language:L Language}" Foreground="{DynamicResource MaterialDesignLightForeground}">
-                        <MenuItem Header="简体中文" IsCheckable="True" IsChecked="{Binding IsChinese}"></MenuItem>
-                        <MenuItem Header="English" IsCheckable="True" IsChecked="{Binding IsChinese,Converter={StaticResource InvertBooleanConverter}}"></MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="{language:L AboutUs}" Foreground="{DynamicResource MaterialDesignLightForeground}">
-                    </MenuItem>
-                </MenuItem>
-            </Menu>
+                </Menu>
+
+                <ToolBarTray Grid.Row="1" Background="Transparent" Style="{StaticResource MaterialDesignToolBarTray}">
+                    <ToolBar Style="{StaticResource MaterialDesignToolBar}" Background="Transparent">
+                        <Button Content="{materialDesign:PackIcon Kind=CreateNewFolder}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" ToolTip="{language:L NewProject}" Command="{Binding NewProjectCommand}"></Button>
+                        <Button Content="{materialDesign:PackIcon Kind=ContentSavePlusOutline}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" ToolTip="{language:L SaveAs}" Command="{Binding SaveAsCommand}"></Button>
+                        <Button Content="{materialDesign:PackIcon Kind=Publish}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" ToolTip="{language:L Release}" Command="{Binding ReleaseCommand}"></Button>
+                        <Separator></Separator>
+                        <Button Content="{materialDesign:PackIcon Kind=PlayBoxEditOutline}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" ToolTip="{language:L Develop}" Command="{Binding DelelopCommand}"></Button>
+                        <Button Content="{materialDesign:PackIcon Kind=Play}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" ToolTip="{language:L Run}" Command="{Binding RunCommand}"></Button>
+                    </ToolBar>
+                </ToolBarTray>
+            </Grid>
         </materialDesign:ColorZone>
 
-        <ContentControl Margin="0,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.ProjectViewContent}"></ContentControl>
+        <ContentControl Margin="4,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.ProjectViewContent}"></ContentControl>
+
+        <materialDesign:ColorZone Grid.Row="2" Padding="4" Mode="PrimaryMid">
+            <TextBlock  Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></TextBlock>
+        </materialDesign:ColorZone>
     </Grid>
 
 </Window>

@@ -79,6 +79,33 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Add Channel 的本地化字符串。
+        /// </summary>
+        internal static string AddChannel {
+            get {
+                return ResourceManager.GetString("AddChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Add GroupName 的本地化字符串。
+        /// </summary>
+        internal static string AddGroupName {
+            get {
+                return ResourceManager.GetString("AddGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Add Pin 的本地化字符串。
+        /// </summary>
+        internal static string AddPin {
+            get {
+                return ResourceManager.GetString("AddPin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Alert Highlight 的本地化字符串。
         /// </summary>
         internal static string AlertHighlight {
@@ -133,6 +160,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Channel Name 的本地化字符串。
+        /// </summary>
+        internal static string ChannelName {
+            get {
+                return ResourceManager.GetString("ChannelName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Channel Setting 的本地化字符串。
+        /// </summary>
+        internal static string ChannelSetting {
+            get {
+                return ResourceManager.GetString("ChannelSetting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Clear All 的本地化字符串。
         /// </summary>
         internal static string ClearAll {
@@ -160,6 +205,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Comfirm SiteCount 的本地化字符串。
+        /// </summary>
+        internal static string ComfirmSiteCount {
+            get {
+                return ResourceManager.GetString("ComfirmSiteCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Configuration 的本地化字符串。
         /// </summary>
         internal static string Configuration {
@@ -174,6 +228,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string Configure {
             get {
                 return ResourceManager.GetString("Configure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Are you sure delete? 的本地化字符串。
+        /// </summary>
+        internal static string ConfirmTheDelete {
+            get {
+                return ResourceManager.GetString("ConfirmTheDelete", resourceCulture);
             }
         }
         
@@ -241,6 +304,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Delete Channel 的本地化字符串。
+        /// </summary>
+        internal static string DeleteChannel {
+            get {
+                return ResourceManager.GetString("DeleteChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Delete Pin 的本地化字符串。
+        /// </summary>
+        internal static string DeletePin {
+            get {
+                return ResourceManager.GetString("DeletePin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Develop 的本地化字符串。
         /// </summary>
         internal static string Develop {
@@ -255,6 +336,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string Edit {
             get {
                 return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Edit Pin 的本地化字符串。
+        /// </summary>
+        internal static string EditPin {
+            get {
+                return ResourceManager.GetString("EditPin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Edit Pin Group 的本地化字符串。
+        /// </summary>
+        internal static string EditPinGroup {
+            get {
+                return ResourceManager.GetString("EditPinGroup", resourceCulture);
             }
         }
         
@@ -291,6 +390,33 @@ namespace KSW.ATE01.Start.Properties {
         internal static string FailCount {
             get {
                 return ResourceManager.GetString("FailCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The {0} already exists 的本地化字符串。
+        /// </summary>
+        internal static string FieldAlreadyExists {
+            get {
+                return ResourceManager.GetString("FieldAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Field Is Required. 的本地化字符串。
+        /// </summary>
+        internal static string FieldIsRequired {
+            get {
+                return ResourceManager.GetString("FieldIsRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 {0} have the same {1} value 的本地化字符串。
+        /// </summary>
+        internal static string FieldValueSame {
+            get {
+                return ResourceManager.GetString("FieldValueSame", resourceCulture);
             }
         }
         
@@ -390,6 +516,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string GotoPreviousHighlight {
             get {
                 return ResourceManager.GetString("GotoPreviousHighlight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Group Name 的本地化字符串。
+        /// </summary>
+        internal static string GroupName {
+            get {
+                return ResourceManager.GetString("GroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Group Setting 的本地化字符串。
+        /// </summary>
+        internal static string GroupSetting {
+            get {
+                return ResourceManager.GetString("GroupSetting", resourceCulture);
             }
         }
         
@@ -529,6 +673,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Move Left 的本地化字符串。
+        /// </summary>
+        internal static string MoveLeft {
+            get {
+                return ResourceManager.GetString("MoveLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Move Right 的本地化字符串。
+        /// </summary>
+        internal static string MoveRight {
+            get {
+                return ResourceManager.GetString("MoveRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 New Project 的本地化字符串。
         /// </summary>
         internal static string NewProject {
@@ -561,6 +723,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string NotFound {
             get {
                 return ResourceManager.GetString("NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Not Saved 的本地化字符串。
+        /// </summary>
+        internal static string Notsaved {
+            get {
+                return ResourceManager.GetString("Notsaved", resourceCulture);
             }
         }
         
@@ -619,6 +790,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Operation Successful 的本地化字符串。
+        /// </summary>
+        internal static string OperationSuccessful {
+            get {
+                return ResourceManager.GetString("OperationSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Option 的本地化字符串。
         /// </summary>
         internal static string Option {
@@ -633,6 +813,33 @@ namespace KSW.ATE01.Start.Properties {
         internal static string PauseWindow {
             get {
                 return ResourceManager.GetString("PauseWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pin Name 的本地化字符串。
+        /// </summary>
+        internal static string PinName {
+            get {
+                return ResourceManager.GetString("PinName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pin Type 的本地化字符串。
+        /// </summary>
+        internal static string PinType {
+            get {
+                return ResourceManager.GetString("PinType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Please enter again 的本地化字符串。
+        /// </summary>
+        internal static string PleaseEnterAgain {
+            get {
+                return ResourceManager.GetString("PleaseEnterAgain", resourceCulture);
             }
         }
         
@@ -844,6 +1051,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Save TestPlan 的本地化字符串。
+        /// </summary>
+        internal static string SaveTestPlan {
+            get {
+                return ResourceManager.GetString("SaveTestPlan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Search Down 的本地化字符串。
         /// </summary>
         internal static string SearchDown {
@@ -903,6 +1119,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string SiteInformation {
             get {
                 return ResourceManager.GetString("SiteInformation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Site Setting 的本地化字符串。
+        /// </summary>
+        internal static string SiteSetting {
+            get {
+                return ResourceManager.GetString("SiteSetting", resourceCulture);
             }
         }
         

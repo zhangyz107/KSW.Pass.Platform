@@ -59,7 +59,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
                 newProjectInfo.ProjectPath = targetDir;
                 //newProjectInfo.TestPlanType = testPlanType;
                 newProjectInfo.ReleasePath = Path.Combine(targetDir, _releaseDirName);
-                newProjectInfo.CreateTime = DateTime.Now;
                 _projectBLL?.SaveProjectInfo(newProjectInfo);
                 #endregion
 

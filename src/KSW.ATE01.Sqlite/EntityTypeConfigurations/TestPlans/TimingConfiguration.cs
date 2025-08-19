@@ -72,8 +72,8 @@ namespace KSW.ATE01.Sqlite.EntityTypeConfigurations.TestPlans
             builder.Property(t => t.StrobeB)
                 .HasColumnName("StrobeB")
                 .HasComment("选通结束时间");
-            builder.Property(t => t.CreateTime)
-                .HasColumnName("CreateTime")
+            builder.Property(t => t.CreationTime)
+                .HasColumnName("CreationTime")
                 .HasComment("创建时间");
             builder.Property(t => t.LastModificationTime)
                 .HasColumnName("LastModificationTime")

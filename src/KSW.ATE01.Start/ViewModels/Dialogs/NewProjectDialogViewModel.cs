@@ -13,7 +13,6 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
-using KSW.ATE01.Application.BLLs.Implements.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
@@ -102,13 +101,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _eventAggregator = eventAggregator;
             _dialogService = dialogService;
-            _projectBLL = ContainerProvider.Resolve<IProjectBLL>();
-            _testPlanBLL = ContainerProvider.Resolve<ITestPlanBLL>();
+            _projectBLL = containerProvider?.Resolve<IProjectBLL>();
+            _testPlanBLL = containerProvider?.Resolve<ITestPlanBLL>();
 
-            _projectInfo = new ProjectInfoModel()
-            {
-                //TestPlanType = TestPlanType.Excel,
-            };
+            _projectInfo = new ProjectInfoModel();
             _projectInfo.PropertyChanged += ProjectInfo_PropertyChanged;
         }
 
@@ -160,7 +156,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
                     //创建项目
-                    var result = await _projectBLL.CreateProjectAsync(_projectInfo);
+                    var result = await _projectBLL?.CreateProjectInfoAsync(_projectInfo);
 
                     if (result)
                     {

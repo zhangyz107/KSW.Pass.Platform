@@ -10,7 +10,7 @@ namespace KSW.ATE01.Domain.TestPlan.Core.Enums
     /// <summary>
     /// 通道类型
     /// </summary>
-    public enum ChannelType
+    public enum PinType
     {
         /// <summary>
         /// I/O

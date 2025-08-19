@@ -1,12 +1,9 @@
-﻿using KSW.Domain;
+﻿using KSW.ATE01.Domain.TestPlan.Core.Enums;
+using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Domain.TestPlan.Entities
 {
@@ -14,7 +11,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 引脚信息
     /// </summary>
     [Description("引脚信息")]
-    public partial class PinInfo : AggregateRoot<PinInfo>, IDelete, IVersion
+    public partial class PinInfo : AggregateRoot<PinInfo>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -50,13 +47,13 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 引脚类型
         /// </summary>
         [DisplayName("引脚类型")]
-        public int? PinType { get; set; }
+        public PinType? PinType { get; set; }
 
         /// <summary>
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -76,7 +73,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
             AddChange(t => t.PinOverviewId, other.PinOverviewId);
             AddChange(t => t.PinName, other.PinName);
             AddChange(t => t.PinType, other.PinType);
-            AddChange(t => t.CreateTime, other.CreateTime);
+            AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }

@@ -438,4 +438,79 @@
   <data name="ProjectManagement" xml:space="preserve">
     <value>项目管理</value>
   </data>
+  <data name="SaveTestPlan" xml:space="preserve">
+    <value>保存测试计划</value>
+  </data>
+  <data name="ChannelSetting" xml:space="preserve">
+    <value>通道设置</value>
+  </data>
+  <data name="GroupSetting" xml:space="preserve">
+    <value>组设置</value>
+  </data>
+  <data name="ComfirmSiteCount" xml:space="preserve">
+    <value>确认站点数</value>
+  </data>
+  <data name="AddChannel" xml:space="preserve">
+    <value>添加通道</value>
+  </data>
+  <data name="DeleteChannel" xml:space="preserve">
+    <value>删除通道</value>
+  </data>
+  <data name="PinName" xml:space="preserve">
+    <value>引脚名称</value>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>引脚类型</value>
+  </data>
+  <data name="SiteSetting" xml:space="preserve">
+    <value>站点设置</value>
+  </data>
+  <data name="FieldIsRequired" xml:space="preserve">
+    <value>字段为必填项.</value>
+  </data>
+  <data name="FieldAlreadyExists" xml:space="preserve">
+    <value>{0}已存在</value>
+  </data>
+  <data name="FieldValueSame" xml:space="preserve">
+    <value>{0}的{1}值相同</value>
+  </data>
+  <data name="ChannelName" xml:space="preserve">
+    <value>通道名称</value>
+  </data>
+  <data name="GroupName" xml:space="preserve">
+    <value>组名称</value>
+  </data>
+  <data name="AddPin" xml:space="preserve">
+    <value>添加引脚</value>
+  </data>
+  <data name="DeletePin" xml:space="preserve">
+    <value>删除引脚</value>
+  </data>
+  <data name="EditPin" xml:space="preserve">
+    <value>编辑引脚</value>
+  </data>
+  <data name="ConfirmTheDelete" xml:space="preserve">
+    <value>你确定删除吗？</value>
+  </data>
+  <data name="AddGroupName" xml:space="preserve">
+    <value>添加组名</value>
+  </data>
+  <data name="OperationSuccessful" xml:space="preserve">
+    <value>操作成功</value>
+  </data>
+  <data name="PleaseEnterAgain" xml:space="preserve">
+    <value>请重新输入</value>
+  </data>
+  <data name="Notsaved" xml:space="preserve">
+    <value>未保存</value>
+  </data>
+  <data name="MoveRight" xml:space="preserve">
+    <value>右移</value>
+  </data>
+  <data name="MoveLeft" xml:space="preserve">
+    <value>左移</value>
+  </data>
+  <data name="EditPinGroup" xml:space="preserve">
+    <value>编辑引脚组</value>
+  </data>
 </root>

@@ -1,4 +1,5 @@
 ﻿using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -6,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 namespace KSW.ATE01.Domain.Projects.Entities
 {
     [Description("项目信息")]
-    public partial class ProjectInfo : AggregateRoot<ProjectInfo>, IDelete, IVersion
+    public partial class ProjectInfo : AggregateRoot<ProjectInfo>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -118,7 +119,7 @@ namespace KSW.ATE01.Domain.Projects.Entities
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -149,7 +150,7 @@ namespace KSW.ATE01.Domain.Projects.Entities
             AddChange(t => DelayBetweenLoops, other.DelayBetweenLoops);
             AddChange(t => StopOnFail, other.StopOnFail);
             AddChange(t => ReleasePath, other.ReleasePath);
-            AddChange(t => CreateTime, other.CreateTime);
+            AddChange(t => CreationTime, other.CreationTime);
             AddChange(t => LastModificationTime, other.LastModificationTime);
         }
     }

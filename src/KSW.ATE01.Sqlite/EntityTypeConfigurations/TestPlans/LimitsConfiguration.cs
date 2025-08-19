@@ -69,8 +69,8 @@ namespace KSW.ATE01.Sqlite.EntityTypeConfigurations.TestPlans
             builder.Property(t => t.DutResult)
                 .HasColumnName("DutResult")
                 .HasComment("被测物结果");
-            builder.Property(t => t.CreateTime)
-                .HasColumnName("CreateTime")
+            builder.Property(t => t.CreationTime)
+                .HasColumnName("CreationTime")
                 .HasComment("创建时间");
             builder.Property(t => t.LastModificationTime)
                 .HasColumnName("LastModificationTime")

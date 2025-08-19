@@ -26,7 +26,6 @@ using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
@@ -177,7 +176,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             IEventAggregator eventAggregator) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
-            _projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
+            //_projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
             _testPlanBLL = ContainerProvider?.Resolve<ITestPlanBLL>();
         }
 
@@ -191,9 +190,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             return !_isRunning;
         }
 
-        public void OnDialogClosed()
+        public async void OnDialogClosed()
         {
-            if (_projectInfo != null && _projectBLL.SaveProjectInfo(_projectInfo))
+            var saveResult = await _projectBLL.SaveProjectInfo(_projectInfo);
+            if (_projectInfo != null && saveResult)
             {
                 _projectBLL.SetCurrentProjectInfo(_projectInfo);
                 _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();

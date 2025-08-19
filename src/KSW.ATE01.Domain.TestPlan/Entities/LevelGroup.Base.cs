@@ -1,4 +1,5 @@
 ﻿using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +10,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 测试项电平组
     /// </summary>
     [Description("测试项电平组")]
-    public partial class LevelGroup : AggregateRoot<LevelGroup>, IDelete, IVersion
+    public partial class LevelGroup : AggregateRoot<LevelGroup>, IDelete, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -44,7 +45,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -63,7 +64,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         {
             AddChange(t => t.ProjectInfoId, other.ProjectInfoId);
             AddChange(t => t.LevelGroupName, other.LevelGroupName);
-            AddChange(t => t.CreateTime, other.CreateTime);
+            AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }

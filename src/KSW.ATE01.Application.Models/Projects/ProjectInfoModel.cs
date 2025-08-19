@@ -1,6 +1,7 @@
 ﻿using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Dtos;
 using System.Configuration;
+using System.Windows.Input;
 
 namespace KSW.ATE01.Application.Models.Projects
 {
@@ -25,8 +26,11 @@ namespace KSW.ATE01.Application.Models.Projects
         private int _failCount;
         private bool _stopOnFail;
         private string _releasePath;
-        private DateTime? _createTime;
+        private DateTime? _creationTime;
         private DateTime? _lastModificationTime;
+        private ICommand _editCommand;
+        private ICommand _developCommand;
+        private ICommand _runCommand;
 
         public ProjectInfoModel()
         {
@@ -195,19 +199,19 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 发布路径
         /// </summary>
-        public string ReleasePath 
+        public string ReleasePath
         {
-            get => _releasePath; 
+            get => _releasePath;
             set => SetProperty(ref _releasePath, value);
         }
 
         /// <summary>
         /// 创建时间
         /// </summary>
-        public DateTime? CreateTime
+        public DateTime? CreationTime
         {
-            get => _createTime;
-            set => SetProperty(ref _createTime, value);
+            get => _creationTime;
+            set => SetProperty(ref _creationTime, value);
         }
 
         /// <summary>
@@ -238,5 +242,33 @@ namespace KSW.ATE01.Application.Models.Projects
         /// 执行程序扩展名
         /// </summary>
         public string ExecuteExtension => ".dll";
+
+        /// <summary>
+        /// 编辑命令
+        /// </summary>
+        public ICommand EditCommand
+        {
+            get => _editCommand;
+            set => SetProperty(ref _editCommand, value);
+        }
+
+        /// <summary>
+        /// 开发命令
+        /// </summary>
+        public ICommand DelelopCommand
+        {
+            get => _developCommand;
+            set => SetProperty(ref _developCommand, value);
+        }
+
+        /// <summary>
+        /// 执行命令
+        /// </summary>
+        public ICommand RunCommand
+        {
+            get => _runCommand;
+            set => SetProperty(ref _runCommand, value);
+        }
+
     }
 }

@@ -140,11 +140,20 @@ namespace KSW.Application
             oldEntity.CheckNull(nameof(oldEntity));
             entity.CheckNull(nameof(entity));
             var changes = oldEntity.GetChanges(entity);
+            await UpdateAsync(entity);
+            await CommitAsync();
+            await UpdateCommitAfterAsync(entity, changes);
+        }
+
+        /// <summary>
+        /// 修改实体
+        /// </summary>
+        /// <param name="entity">实体</param>
+        private async Task UpdateAsync(TEntity entity)
+        {
             await UpdateBeforeAsync(entity);
             await _repository.UpdateAsync(entity);
             await UpdateAfterAsync(entity);
-            await CommitAsync();
-            await UpdateCommitAfterAsync(entity, changes);
         }
 
         /// <summary>
@@ -175,6 +184,128 @@ namespace KSW.Application
             return Task.CompletedTask;
         }
 
+        #endregion
+
+        #region SaveAsync(批量保存)
+        /// <summary>
+        /// 批量保存
+        /// </summary>
+        /// <param name="creationList">新增列表</param>
+        /// <param name="updateList">修改列表</param>
+        /// <param name="deleteList">删除列表</param>
+        public virtual async Task<List<TEntity>> SaveAsync(List<TEntity> creationList, List<TEntity> updateList, List<TEntity> deleteList)
+        {
+            if (creationList == null && updateList == null && deleteList == null)
+                return new List<TEntity>();
+
+            await SaveBeforeAsync(creationList, updateList, deleteList);
+            await AddListAsync(creationList);
+            var changeValues = await UpdateListAsync(updateList);
+            await DeleteListAsync(deleteList);
+            await SaveAfterAsync(creationList, updateList, deleteList);
+            await CommitAsync();
+            await SaveCommitAfterAsync(creationList, updateList, deleteList, changeValues);
+            return GetResult(creationList, updateList);
+        }
+
+        /// <summary>
+        /// 保存前操作
+        /// </summary>
+        /// <param name="creationList">新增列表</param>
+        /// <param name="updateList">修改列表</param>
+        /// <param name="deleteList">删除列表</param>
+        protected virtual Task SaveBeforeAsync(List<TEntity> creationList, List<TEntity> updateList, List<TEntity> deleteList)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 添加实体列表
+        /// </summary>
+        private async Task AddListAsync(List<TEntity> list)
+        {
+            if (list.Count == 0)
+                return;
+            foreach (var entity in list)
+                await CreateAsync(entity);
+        }
+
+        /// <summary>
+        /// 更新实体列表
+        /// </summary>
+        private async Task<List<Tuple<TEntity, ChangeValueCollection>>> UpdateListAsync(List<TEntity> list)
+        {
+            var result = new List<Tuple<TEntity, ChangeValueCollection>>();
+            if (list.Count == 0)
+                return result;
+            var oldEntities = await FindOldEntities(list);
+            foreach (var entity in list)
+            {
+                var oldEntity = oldEntities.Find(t => t.Id.Equals(entity.Id));
+                if (oldEntity != null)
+                    result.Add(new Tuple<TEntity, ChangeValueCollection>(entity, oldEntity.GetChanges(entity)));
+                await UpdateAsync(entity);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 查找旧实体集合
+        /// </summary>
+        private async Task<List<TEntity>> FindOldEntities(List<TEntity> list)
+        {
+            return await _repository.FindAllAsync(item => list.Select(t => t.Id).Contains(item.Id));
+        }
+
+        /// <summary>
+        /// 删除实体列表
+        /// </summary>
+        private async Task DeleteListAsync(List<TEntity> list)
+        {
+            if (list.Count == 0)
+                return;
+            foreach (var entity in list)
+                await DeleteChildrenAsync(entity);
+        }
+
+        /// <summary>
+        /// 删除子节点集合
+        /// </summary>
+        protected virtual async Task DeleteChildrenAsync(TEntity parent)
+        {
+            await _repository.RemoveAsync(parent.Id);
+        }
+
+        /// <summary>
+        /// 保存后操作
+        /// </summary>
+        /// <param name="creationList">新增列表</param>
+        /// <param name="updateList">修改列表</param>
+        /// <param name="deleteList">删除列表</param>
+        protected virtual Task SaveAfterAsync(List<TEntity> creationList, List<TEntity> updateList, List<TEntity> deleteList)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 保存提交后操作
+        /// </summary>
+        /// <param name="creationList">新增列表</param>
+        /// <param name="updateList">修改列表</param>
+        /// <param name="deleteList">删除列表</param>
+        /// <param name="changeValues">变更值集合</param>
+        protected virtual Task SaveCommitAfterAsync(List<TEntity> creationList, List<TEntity> updateList, List<TEntity> deleteList, List<Tuple<TEntity, ChangeValueCollection>> changeValues)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 获取结果
+        /// </summary>
+        protected virtual List<TEntity> GetResult(List<TEntity> creationList, List<TEntity> updateList)
+        {
+            return creationList.Concat(updateList).ToList();
+        }
         #endregion
     }
 }

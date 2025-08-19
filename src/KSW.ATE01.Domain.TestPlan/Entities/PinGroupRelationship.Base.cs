@@ -1,12 +1,8 @@
 ﻿using KSW.Domain;
+using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Domain.TestPlan.Entities
 {
@@ -14,7 +10,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 引脚与组关系
     /// </summary>
     [Description("引脚与组关系")]
-    public partial class PinGroupRelationship : AggregateRoot<PinGroupRelationship>, IDelete, IVersion
+    public partial class PinGroupRelationship : AggregateRoot<PinGroupRelationship>, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -49,7 +45,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreationTime { get; set; }
 
         /// <summary>
         /// 最后修改时间
@@ -57,18 +53,12 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         [DisplayName("最后修改时间")]
         public DateTime? LastModificationTime { get; set; }
 
-        /// <summary>
-        /// 是否删除
-        /// </summary>
-        [DisplayName("是否删除")]
-        [Required]
-        public bool IsDeleted { get; set; }
 
         protected override void AddChanges(PinGroupRelationship other)
         {
             AddChange(t => t.PinInfoId, other.PinInfoId);
             AddChange(t => t.GroupInfoId, other.GroupInfoId);
-            AddChange(t => t.CreateTime, other.CreateTime);
+            AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }
     }

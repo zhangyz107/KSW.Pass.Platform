@@ -16,6 +16,9 @@ namespace KSW.ATE01.Start.ViewModels
         /// </summary>
         public static string ProjectViewContent = "ProjectView";
 
+        /// <summary>
+        /// 测试计划内容
+        /// </summary>
         public static string TestPlanContent = "TestPlan";
 
         /// <summary>

@@ -14,15 +14,19 @@
 
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.BLLs.Implements.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
+using KSW.ATE01.Start.Views.TestPlans;
+using KSW.Helpers;
 using KSW.Ui;
 using MaterialDesignColors;
 using MaterialDesignColors.ColorManipulation;
 using MaterialDesignColors.Recommended;
 using MaterialDesignThemes.Wpf;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Windows.Media;
 
@@ -35,8 +39,8 @@ namespace KSW.ATE01.Start.ViewModels
     {
         private readonly IRegionManager _regionManager;
         private readonly IEventAggregator _eventAggregator;
-        private readonly IProjectBLL _projectBLL;
         private readonly PaletteHelper _paletteHelper = new();
+        private IProjectBLL _projectBLL;
         private bool _isChinese;
 
         #region Properties
@@ -71,18 +75,26 @@ namespace KSW.ATE01.Start.ViewModels
         private DelegateCommand _releaseCommand;
         public DelegateCommand ReleaseCommand =>
             _releaseCommand ?? (_releaseCommand = new DelegateCommand(ExecuteReleaseCommand, () => _projectBLL?.GetCurrentProjectInfo() != null));
+
+        private DelegateCommand _delelopCommand;
+        public DelegateCommand DelelopCommand =>
+            _delelopCommand ?? (_delelopCommand = new DelegateCommand(ExecuteDelelopCommand, () => _projectBLL?.GetCurrentProjectInfo() != null));
+
+        private DelegateCommand _runCommand;
+        public DelegateCommand RunCommand =>
+            _runCommand ?? (_runCommand = new DelegateCommand(ExecuteRunCommand, () => _projectBLL?.GetCurrentProjectInfo() != null));
         #endregion
 
         public ShellViewModel(
             IContainerExtension containerProvider,
             IRegionManager regionManager,
-            IEventAggregator eventAggregator,
-            IProjectBLL projectBLL
+            IEventAggregator eventAggregator
             ) : base(containerProvider)
         {
             _regionManager = regionManager;
             _eventAggregator = eventAggregator;
-            _projectBLL = projectBLL;
+
+            //_projectBLL = new Lazy<IProjectBLL>(()=> containerProvider?.Resolve<IProjectBLL>());
 
             _regionManager.RegisterViewWithRegion(RegionNameManagement.ProjectViewContent, typeof(ProjectView));
 
@@ -99,17 +111,22 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void RegisterEvent()
         {
-            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Subscribe(ProjectInfoUpdate);
+            _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
         }
 
-        private void ProjectInfoUpdate()
+        private void SelectedProjectInfo()
         {
             SaveAsCommand.RaiseCanExecuteChanged();
             ReleaseCommand.RaiseCanExecuteChanged();
+            DelelopCommand.RaiseCanExecuteChanged();
+            RunCommand.RaiseCanExecuteChanged();
+
         }
 
         private void ExecuteLoadingCommand()
         {
+            _projectBLL = ContainerProvider?.Resolve<ProjectBLL>();
+
             ChangePrimaryColor(BlueSwatch.Blue300);
 
             var currentCulture = CultureInfo.CurrentCulture;
@@ -157,6 +174,30 @@ namespace KSW.ATE01.Start.ViewModels
         private void ExecuteReleaseCommand()
         {
             DialogService.ShowDialog(nameof(ReleaseDialog));
+        }
+
+        private void ExecuteDelelopCommand()
+        {
+            try
+            {
+                _projectBLL.RunProjecctByVS();
+            }
+            catch (Exception e)
+            {
+                DialogService.ShowMessageDialog(e.Message);
+                Log?.LogError(e, e.Message);
+            }
+        }
+
+        private async void ExecuteRunCommand()
+        {
+            var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
+            if (currentProjectInfo == null)
+            {
+                await DialogService.ShowMessageDialog("未打开项目!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+            DialogService.ShowDialog(nameof(RunDialog));
         }
     }
 }

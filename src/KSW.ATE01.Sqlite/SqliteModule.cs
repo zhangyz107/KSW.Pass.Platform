@@ -20,15 +20,7 @@ namespace KSW.ATE01.Sqlite
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            var connectStatement = DbConnect.GetDbConnectStatement();
 
-            // 使用自定义选项创建 DbContextOptions
-            var options = new DbContextOptionsBuilder()
-                              .UseSqlite(connectStatement)
-                              .Options;
-
-            containerRegistry.RegisterInstance(options);
-            containerRegistry.RegisterScoped<ISystemUnitOfWork, SystemUnitOfWork>();
         }
     }
 }

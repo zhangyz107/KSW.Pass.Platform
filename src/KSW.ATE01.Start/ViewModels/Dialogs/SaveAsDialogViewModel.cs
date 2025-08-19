@@ -11,22 +11,19 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.ATE01.Application.BLLs.Abstractions.Managers;
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
-using KSW.Ui;
-using Microsoft.Win32;
-using Microsoft.Extensions.Logging;
-using System.IO;
-using System.Windows;
+using KSW.ATE01.Project.Base.Helpers;
 using KSW.Exceptions;
 using KSW.Helpers;
-using KSW.ATE01.Application.Events.Projects;
-using KSW.ATE01.Application.BLLs.Abstractions.Projects;
-using KSW.ATE01.Application.BLLs.Abstractions.Managers;
-using KSW.ATE01.Application.BLLs.Implements.Managers;
-using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
-using KSW.ATE01.Application.BLLs.Implements.TestPlans;
-using KSW.ATE01.Project.Base.Helpers;
+using KSW.Ui;
+using Microsoft.Win32;
+using System.IO;
+using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs
 {
@@ -116,7 +113,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
-            _projectBLL = ContainerProvider.IsRegistered<IProjectBLL>() ? ContainerProvider.Resolve<IProjectBLL>() : null;
+            //_projectBLL = ContainerProvider.IsRegistered<IProjectBLL>() ? ContainerProvider.Resolve<IProjectBLL>() : null;
             _testPlanBLL = ContainerProvider.IsRegistered<ITestPlanBLL>() ? ContainerProvider.Resolve<ITestPlanBLL>() : null;
             _projectTestPlanManager = ContainerProvider.IsRegistered<IProjectTestPlanManager>() ? ContainerProvider.Resolve<IProjectTestPlanManager>() : null;
             LoadData();
