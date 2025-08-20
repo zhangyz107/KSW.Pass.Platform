@@ -50,9 +50,6 @@ namespace KSW.ATE01.Sqlite.EntityTypeConfigurations.TestPlans
             builder.Property(t => t.LastModificationTime)
                 .HasColumnName("LastModificationTime")
                 .HasComment("最后修改时间");
-            builder.Property(t => t.IsDeleted)
-                .HasColumnName("IsDeleted")
-                .HasComment("是否删除");
         }
     }
 }

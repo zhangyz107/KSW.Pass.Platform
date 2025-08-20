@@ -29,11 +29,11 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         }
 
         /// <summary>
-        /// 测试项Id
+        /// 项目信息Id
         /// </summary>
-        [DisplayName("测试项信息Id")]
+        [DisplayName("项目信息Id")]
         [Required]
-        public Guid TestItemInfoId { get; set; }
+        public Guid ProjectInfoId { get; set; }
 
         /// <summary>
         /// 测试编号
@@ -118,7 +118,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
 
         protected override void AddChanges(Limits other)
         {
-            AddChange(t => t.TestItemInfoId, other.TestItemInfoId);
+            AddChange(t => t.ProjectInfoId, other.ProjectInfoId);
             AddChange(t => t.TestNumber, other.TestNumber);
             AddChange(t => t.LowLimit, other.LowLimit);
             AddChange(t => t.HighLimit, other.HighLimit);

@@ -9,44 +9,43 @@ using System.Threading.Tasks;
 namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
 {
     /// <summary>
-    /// 组信息业务逻辑层接口
+    /// 测试计划电平逻辑层接口
     /// </summary>
-    public interface IGroupInfoBLL : IService
+    public interface ILevelBLL : IService
     {
         /// <summary>
-        /// 通过Id获取组信息
+        /// 通过Id获取电平信息
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<GroupInfoModel> GetByIdAsync(string id);
+        Task<LevelModel> GetByIdAsync(string id);
 
         /// <summary>
-        /// 通过概览Id获取组信息列表
+        /// 通过分组Id获取电平列表
         /// </summary>
-        /// <param name="overviewId"></param>
+        /// <param name="groupId"></param>
         /// <returns></returns>
-        Task<List<GroupInfoModel>> GetListByOverviewIdAsync(string overviewId);
+        Task<List<LevelModel>> GetListByGroupIdAsync(string groupId);
 
         /// <summary>
-        /// 保存组信息
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        Task<string> CreateAsync(GroupInfoModel model);
-
-        /// <summary>
-        /// 更新组信息
+        /// 创建门限信息
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        Task<GroupInfoModel> UpdateAsync(GroupInfoModel model);
+        Task<string> CreateAsync(LevelModel model);
 
         /// <summary>
-        /// 删除组信息
+        /// 更新门限信息
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        Task DeleteWithDetailAsync(string id);
+        Task<LevelModel> UpdateAsync(LevelModel model);
 
+        /// <summary>
+        /// 删除门限信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task DeleteAsync(string id);
     }
 }

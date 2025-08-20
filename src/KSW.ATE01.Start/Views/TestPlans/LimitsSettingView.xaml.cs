@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace KSW.ATE01.Start.Views.TestPlans
 {
     /// <summary>
-    /// GroupInfoSettingView.xaml 的交互逻辑
+    /// LimitsSettingView.xaml 的交互逻辑
     /// </summary>
-    public partial class GroupInfoSettingView : UserControl
+    public partial class LimitsSettingView : UserControl
     {
-        public GroupInfoSettingView()
+        public LimitsSettingView()
         {
             InitializeComponent();
         }

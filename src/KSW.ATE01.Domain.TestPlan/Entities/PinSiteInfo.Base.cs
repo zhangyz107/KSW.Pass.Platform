@@ -10,7 +10,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 引脚站点信息
     /// </summary>
     [Description("引脚站点信息")]
-    public partial class PinSiteInfo : AggregateRoot<PinSiteInfo>, IDelete, IVersion, IAudited
+    public partial class PinSiteInfo : AggregateRoot<PinSiteInfo>, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -66,13 +66,6 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// </summary>
         [DisplayName("最后修改时间")]
         public DateTime? LastModificationTime { get; set; }
-
-        /// <summary>
-        /// 是否删除
-        /// </summary>
-        [DisplayName("是否删除")]
-        [Required]
-        public bool IsDeleted { get; set; }
 
         protected override void AddChanges(PinSiteInfo other)
         {

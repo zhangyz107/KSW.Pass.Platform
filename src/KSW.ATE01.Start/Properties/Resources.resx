@@ -645,4 +645,100 @@
     <value>Edit Pin Group</value>
     <comment>编辑引脚组</comment>
   </data>
+  <data name="AddLimit" xml:space="preserve">
+    <value>Add Limit</value>
+    <comment>添加门限</comment>
+  </data>
+  <data name="DeleteGroupName" xml:space="preserve">
+    <value>Delete GroupName</value>
+    <comment>删除组名</comment>
+  </data>
+  <data name="DeleteLimit" xml:space="preserve">
+    <value>Delete Limit</value>
+    <comment>删除门限</comment>
+  </data>
+  <data name="LimitName" xml:space="preserve">
+    <value>Limit Name</value>
+    <comment>门限名称</comment>
+  </data>
+  <data name="TestNumber" xml:space="preserve">
+    <value>Test Number</value>
+    <comment>测试编号</comment>
+  </data>
+  <data name="LowLimit" xml:space="preserve">
+    <value>Low Limit</value>
+    <comment>测试下限</comment>
+  </data>
+  <data name="HighLimit" xml:space="preserve">
+    <value>High Limit</value>
+    <comment>测试上限</comment>
+  </data>
+  <data name="Units" xml:space="preserve">
+    <value>Units</value>
+    <comment>单位</comment>
+  </data>
+  <data name="FailSoftwareBin" xml:space="preserve">
+    <value>Fail SoftwareBin</value>
+    <comment>软件失效分档</comment>
+  </data>
+  <data name="PassSoftwareBin" xml:space="preserve">
+    <value>Pass SoftwareBin</value>
+    <comment>软件成功分档</comment>
+  </data>
+  <data name="FailHardwareBin" xml:space="preserve">
+    <value>Fail HardwareBin</value>
+    <comment>硬件失效分档</comment>
+  </data>
+  <data name="PassHardwareBin" xml:space="preserve">
+    <value>Pass HardwareBin</value>
+    <comment>硬件成功分档</comment>
+  </data>
+  <data name="DutResult" xml:space="preserve">
+    <value>Dut Result</value>
+    <comment>被测物结果</comment>
+  </data>
+  <data name="EditLimit" xml:space="preserve">
+    <value>Edit Limit</value>
+    <comment>编辑门限</comment>
+  </data>
+  <data name="LimitSetting" xml:space="preserve">
+    <value>Limit Setting</value>
+    <comment>门限设置</comment>
+  </data>
+  <data name="LimitValueError" xml:space="preserve">
+    <value>The lower limit cannot exceed the upper limit</value>
+    <comment>下限不能超过上限</comment>
+  </data>
+  <data name="AddLevelGroup" xml:space="preserve">
+    <value>Add LevelGroup</value>
+    <comment>添加电平组</comment>
+  </data>
+  <data name="LevelGroupName" xml:space="preserve">
+    <value>Level GroupName</value>
+    <comment>电平组名</comment>
+  </data>
+  <data name="AddLevel" xml:space="preserve">
+    <value>Add Level</value>
+    <comment>添加电平</comment>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Comment</value>
+    <comment>注释</comment>
+  </data>
+  <data name="PinOrGroupName" xml:space="preserve">
+    <value>Pin Or ProupName</value>
+    <comment>引脚或组名</comment>
+  </data>
+  <data name="LevelSetting" xml:space="preserve">
+    <value>Level Setting</value>
+    <comment>电平设置</comment>
+  </data>
+  <data name="EditLevel" xml:space="preserve">
+    <value>Edit Level</value>
+    <comment>编辑电平</comment>
+  </data>
+  <data name="ExceedValueError" xml:space="preserve">
+    <value>{0} more than {1}</value>
+    <comment>{0}超过{1}</comment>
+  </data>
 </root>

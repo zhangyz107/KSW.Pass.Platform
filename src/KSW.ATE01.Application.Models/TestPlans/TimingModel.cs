@@ -1,0 +1,167 @@
+﻿using KSW.ATE01.Domain.TestPlan.Core.Enums;
+using KSW.Dtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace KSW.ATE01.Application.Models.TestPlans
+{
+    /// <summary>
+    /// 测试项时钟模型
+    /// </summary>
+    public class TimingModel : DtoBase
+    {
+        private Guid _timingGroupId;
+        private string _timingName;
+        private int? _period;
+        private Guid? _groupOrPinId;
+        private int? _waveformFormat;
+        private int? _driveA;
+        private int? _driveB;
+        private int? _driveC;
+        private int? _driveD;
+        private StrobeModeType? _strobeMode;
+        private int? _strobeA;
+        private int? _strobeB;
+        private DateTime? _creationTime;
+        private DateTime? _lastModificationTime;
+
+        /// <summary>
+        /// 测试项时钟组Id
+        /// </summary>
+        public Guid TimingGroupId
+        {
+            get => _timingGroupId;
+            set => SetProperty(ref _timingGroupId, value);
+        }
+
+        /// <summary>
+        /// 时钟名称
+        /// </summary>
+        public string TimingName
+        {
+            get => _timingName;
+            set => SetProperty(ref _timingName, value);
+        }
+
+        /// <summary>
+        /// 周期
+        /// </summary>
+        public int? Period
+        {
+            get => _period;
+            set => SetProperty(ref _period, value);
+        }
+
+        /// <summary>
+        /// 组或引脚Id
+        /// </summary>
+        public Guid? GroupOrPinId
+        {
+            get => _groupOrPinId;
+            set => SetProperty(ref _groupOrPinId, value);
+        }
+
+        /// <summary>
+        /// 波形格式
+        /// </summary>
+        public int? WaveformFormat
+        {
+            get => _waveformFormat;
+            set => SetProperty(ref _waveformFormat, value);
+        }
+
+        /// <summary>
+        /// 环绕边缘
+        /// </summary>
+        public int? DriveA
+        {
+            get => _driveA;
+            set => SetProperty(ref _driveA, value);
+        }
+
+        /// <summary>
+        /// 起始边缘
+        /// </summary>
+        public int? DriveB
+        {
+            get => _driveB;
+            set => SetProperty(ref _driveB, value);
+        }
+
+        /// <summary>
+        /// 返回边缘
+        /// </summary>
+        public int? DriveC
+        {
+            get => _driveC;
+            set => SetProperty(ref _driveC, value);
+        }
+
+        /// <summary>
+        /// 关闭边缘
+        /// </summary>
+        public int? DriveD
+        {
+            get => _driveD;
+            set => SetProperty(ref _driveD, value);
+        }
+
+        /// <summary>
+        /// 选通模式
+        /// </summary>
+        public StrobeModeType? StrobeMode
+        {
+            get => _strobeMode;
+            set => SetProperty(ref _strobeMode, value);
+        }
+
+        /// <summary>
+        /// 选通开始时间
+        /// </summary>
+        public int? StrobeA
+        {
+            get => _strobeA;
+            set => SetProperty(ref _strobeA, value);
+        }
+
+        /// <summary>
+        /// 选通结束时间
+        /// </summary>
+        public int? StrobeB
+        {
+            get => _strobeB;
+            set => SetProperty(ref _strobeB, value);
+        }
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTime? CreationTime
+        {
+            get => _creationTime;
+            set => SetProperty(ref _creationTime, value);
+        }
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTime? LastModificationTime
+        {
+            get => _lastModificationTime;
+            set => SetProperty(ref _lastModificationTime, value);
+        }
+
+        /// <summary>
+        /// 是否删除
+        /// </summary>
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
+        /// 版本号
+        ///</summary>
+        public byte[] Version { get; set; }
+    }
+}

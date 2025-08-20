@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
 {
     /// <summary>
-    /// 引脚概览业务逻辑接口
+    /// 引脚概览业务逻辑层接口
     /// </summary>
     public interface IPinOverviewBLL : IService
     {

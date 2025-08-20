@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
 {
     /// <summary>
-    /// 站点信息业务逻辑接口
+    /// 站点信息业务逻辑层接口
     /// </summary>
     public interface ISiteInfoBLL : IService
     {

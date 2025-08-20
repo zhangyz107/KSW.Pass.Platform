@@ -513,4 +513,76 @@
   <data name="EditPinGroup" xml:space="preserve">
     <value>编辑引脚组</value>
   </data>
+  <data name="AddLimit" xml:space="preserve">
+    <value>添加门限</value>
+  </data>
+  <data name="DeleteGroupName" xml:space="preserve">
+    <value>删除组名</value>
+  </data>
+  <data name="DeleteLimit" xml:space="preserve">
+    <value>删除门限</value>
+  </data>
+  <data name="LimitName" xml:space="preserve">
+    <value>门限名称</value>
+  </data>
+  <data name="TestNumber" xml:space="preserve">
+    <value>测试编号</value>
+  </data>
+  <data name="LowLimit" xml:space="preserve">
+    <value>测试下限</value>
+  </data>
+  <data name="HighLimit" xml:space="preserve">
+    <value>测试上限</value>
+  </data>
+  <data name="Units" xml:space="preserve">
+    <value>单位</value>
+  </data>
+  <data name="FailSoftwareBin" xml:space="preserve">
+    <value>软件失效分档</value>
+  </data>
+  <data name="PassSoftwareBin" xml:space="preserve">
+    <value>软件成功分档</value>
+  </data>
+  <data name="FailHardwareBin" xml:space="preserve">
+    <value>硬件失效分档</value>
+  </data>
+  <data name="PassHardwareBin" xml:space="preserve">
+    <value>硬件成功分档</value>
+  </data>
+  <data name="DutResult" xml:space="preserve">
+    <value>被测物结果</value>
+  </data>
+  <data name="EditLimit" xml:space="preserve">
+    <value>编辑门限</value>
+  </data>
+  <data name="LimitSetting" xml:space="preserve">
+    <value>门限设置</value>
+  </data>
+  <data name="LimitValueError" xml:space="preserve">
+    <value>下限不能超过上限</value>
+  </data>
+  <data name="AddLevelGroup" xml:space="preserve">
+    <value>添加电平组</value>
+  </data>
+  <data name="LevelGroupName" xml:space="preserve">
+    <value>电平组名</value>
+  </data>
+  <data name="AddLevel" xml:space="preserve">
+    <value>添加电平</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>注释</value>
+  </data>
+  <data name="PinOrGroupName" xml:space="preserve">
+    <value>引脚或组名</value>
+  </data>
+  <data name="LevelSetting" xml:space="preserve">
+    <value>电平设置</value>
+  </data>
+  <data name="EditLevel" xml:space="preserve">
+    <value>编辑电平</value>
+  </data>
+  <data name="ExceedValueError" xml:space="preserve">
+    <value>{0}超过{1}</value>
+  </data>
 </root>

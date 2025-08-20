@@ -154,8 +154,12 @@ namespace KSW.ATE01.Platform
             containerRegistry.RegisterDialog<AddPinDialogView, AddPinDialogViewModel>();
             containerRegistry.RegisterDialog<GroupSettingDialogView, GroupSettingDialogViewModel>();
             containerRegistry.RegisterDialog<EditPinGroupDialogView, EditPinGroupDialogViewModel>();
+            containerRegistry.RegisterDialog<AddLimitDialogView, AddLimitDialogViewModel>();
+            containerRegistry.RegisterDialog<AddLevelDialogView, AddLevelDialogViewModel>();
 
             containerRegistry.RegisterForNavigation<ChannelSettingView>();
+            containerRegistry.RegisterForNavigation<LimitsSettingView>();
+            containerRegistry.RegisterForNavigation<LevelSettingView>();
             #endregion
         }
 

@@ -93,11 +93,6 @@ namespace KSW.ATE01.Application.Models.TestPlans
         }
 
         /// <summary>
-        /// 是否删除
-        /// </summary>
-        public bool IsDeleted { get; set; }
-
-        /// <summary>
         /// 版本号
         ///</summary>
         public byte[] Version { get; set; }

@@ -109,7 +109,7 @@
             </DataGrid>
         </GroupBox>
 
-        <GroupBox Grid.Row="1" Grid.Column="1"  Margin="0,6" Header="{language:L PinName}" Style="{StaticResource MaterialDesignCardGroupBox}">
+        <GroupBox Grid.Row="1" Grid.Column="1"  Margin="0,6" Header="{language:L GroupName}" Style="{StaticResource MaterialDesignCardGroupBox}">
             <DataGrid VerticalContentAlignment="Center"
                AutoGenerateColumns="False" 
                CanUserAddRows="False" 

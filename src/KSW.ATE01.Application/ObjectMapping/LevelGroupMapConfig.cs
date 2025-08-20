@@ -1,0 +1,15 @@
+﻿using AutoMapper;
+using KSW.ATE01.Application.Models.TestPlans;
+using KSW.ATE01.Domain.TestPlan.Entities;
+using KSW.ObjectMapping.AutoMapper;
+
+namespace KSW.ATE01.Application.ObjectMapping
+{
+    public class LevelGroupMapConfig : IAutoMapperConfig
+    {
+        public void Config(IMapperConfigurationExpression expression)
+        {
+            expression.CreateMap<LevelGroup, LevelGroupModel>();
+        }
+    }
+}

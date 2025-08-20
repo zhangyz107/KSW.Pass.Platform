@@ -3,6 +3,7 @@ using System;
 using KSW.ATE01.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KSW.ATE01.Sqlite.Migrations
 {
     [DbContext(typeof(SystemUnitOfWork))]
-    partial class SystemUnitOfWorkModelSnapshot : ModelSnapshot
+    [Migration("20250819025011_20250819_1050")]
+    partial class _20250819_1050
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -466,10 +469,10 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnName("PassSoftwareBin")
                         .HasComment("软件成功分档");
 
-                    b.Property<Guid>("ProjectInfoId")
+                    b.Property<Guid>("TestItemInfoId")
                         .HasColumnType("TEXT")
-                        .HasColumnName("ProjectInfoId")
-                        .HasComment("项目信息Id");
+                        .HasColumnName("TestItemInfoId")
+                        .HasComment("测试项信息Id");
 
                     b.Property<int>("TestNumber")
                         .HasColumnType("INTEGER")

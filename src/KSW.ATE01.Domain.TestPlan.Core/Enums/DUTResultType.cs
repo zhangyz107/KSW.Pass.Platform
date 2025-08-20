@@ -13,6 +13,11 @@ namespace KSW.ATE01.Domain.TestPlan.Core.Enums
     public enum DUTResultType
     {
         /// <summary>
+        /// None
+        /// </summary>
+        [Description("None")]
+        None = 0,
+        /// <summary>
         /// Pass
         /// </summary>
         [Description("Pass")]

@@ -24,6 +24,8 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Configuration;
 using System.Text;
+using LevelModel = KSW.ATE01.Project.Base.Models.TestPlans.LevelModel;
+using TimingModel = KSW.ATE01.Project.Base.Models.TestPlans.TimingModel;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
@@ -937,12 +939,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                     #region 通道头
                     var header = new List<string>
                     {
-                        nameof(LimitsModel.TestItemName),
-                        nameof(LimitsModel.TestNumber),
-                        nameof(LimitsModel.LowLimit),
-                        nameof(LimitsModel.HighLimit),
-                        nameof(LimitsModel.Units),
-                        nameof(LimitsModel.LimitName),
+                        nameof(Project.Base.Models.TestPlans.LimitsModel.TestItemName),
+                        nameof(Project.Base.Models.TestPlans.LimitsModel.TestNumber),
+                        nameof(Project.Base.Models.TestPlans.LimitsModel.LowLimit),
+                        nameof(Project.Base.Models.TestPlans.LimitsModel.HighLimit),
+                        nameof(Project.Base.Models.TestPlans.LimitsModel.Units),
+                        nameof(Project.Base.Models.TestPlans.LimitsModel.LimitName),
                     };
 
                     writer.WriteLine(string.Join(",", header.ToArray()));

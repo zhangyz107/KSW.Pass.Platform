@@ -3,16 +3,17 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Start.Views.Dialogs.TestPlans;
 using KSW.Helpers;
 using KSW.Ui;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels.TestPlans
 {
+    /// <summary>
+    /// 通道设置视图模型
+    /// </summary>
     public class ChannelSettingViewModel : ViewModelBase, INavigationAware
     {
         #region Fields

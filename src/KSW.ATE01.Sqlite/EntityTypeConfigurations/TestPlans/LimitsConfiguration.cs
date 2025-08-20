@@ -36,9 +36,9 @@ namespace KSW.ATE01.Sqlite.EntityTypeConfigurations.TestPlans
         /// </summary>
         private void ConfigProperties(EntityTypeBuilder<Limits> builder)
         {
-            builder.Property(t => t.TestItemInfoId)
-                .HasColumnName("TestItemInfoId")
-                .HasComment("测试项信息Id");
+            builder.Property(t => t.ProjectInfoId)
+                .HasColumnName("ProjectInfoId")
+                .HasComment("项目信息Id");
             builder.Property(t => t.TestNumber)
                 .HasColumnName("TestNumber")
                 .HasComment("测试编号");

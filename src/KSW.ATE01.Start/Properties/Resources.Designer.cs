@@ -97,6 +97,33 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Add Level 的本地化字符串。
+        /// </summary>
+        internal static string AddLevel {
+            get {
+                return ResourceManager.GetString("AddLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Add LevelGroup 的本地化字符串。
+        /// </summary>
+        internal static string AddLevelGroup {
+            get {
+                return ResourceManager.GetString("AddLevelGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Add Limit 的本地化字符串。
+        /// </summary>
+        internal static string AddLimit {
+            get {
+                return ResourceManager.GetString("AddLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Add Pin 的本地化字符串。
         /// </summary>
         internal static string AddPin {
@@ -214,6 +241,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Comment 的本地化字符串。
+        /// </summary>
+        internal static string Comment {
+            get {
+                return ResourceManager.GetString("Comment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Configuration 的本地化字符串。
         /// </summary>
         internal static string Configuration {
@@ -313,6 +349,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Delete GroupName 的本地化字符串。
+        /// </summary>
+        internal static string DeleteGroupName {
+            get {
+                return ResourceManager.GetString("DeleteGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Delete Limit 的本地化字符串。
+        /// </summary>
+        internal static string DeleteLimit {
+            get {
+                return ResourceManager.GetString("DeleteLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Delete Pin 的本地化字符串。
         /// </summary>
         internal static string DeletePin {
@@ -331,11 +385,38 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Dut Result 的本地化字符串。
+        /// </summary>
+        internal static string DutResult {
+            get {
+                return ResourceManager.GetString("DutResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Edit 的本地化字符串。
         /// </summary>
         internal static string Edit {
             get {
                 return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Edit Level 的本地化字符串。
+        /// </summary>
+        internal static string EditLevel {
+            get {
+                return ResourceManager.GetString("EditLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Edit Limit 的本地化字符串。
+        /// </summary>
+        internal static string EditLimit {
+            get {
+                return ResourceManager.GetString("EditLimit", resourceCulture);
             }
         }
         
@@ -367,6 +448,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 {0} more than {1} 的本地化字符串。
+        /// </summary>
+        internal static string ExceedValueError {
+            get {
+                return ResourceManager.GetString("ExceedValueError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Executable 的本地化字符串。
         /// </summary>
         internal static string Executable {
@@ -390,6 +480,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string FailCount {
             get {
                 return ResourceManager.GetString("FailCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Fail HardwareBin 的本地化字符串。
+        /// </summary>
+        internal static string FailHardwareBin {
+            get {
+                return ResourceManager.GetString("FailHardwareBin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Fail SoftwareBin 的本地化字符串。
+        /// </summary>
+        internal static string FailSoftwareBin {
+            get {
+                return ResourceManager.GetString("FailSoftwareBin", resourceCulture);
             }
         }
         
@@ -547,6 +655,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 High Limit 的本地化字符串。
+        /// </summary>
+        internal static string HighLimit {
+            get {
+                return ResourceManager.GetString("HighLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Index 的本地化字符串。
         /// </summary>
         internal static string Index {
@@ -597,6 +714,51 @@ namespace KSW.ATE01.Start.Properties {
         internal static string Language {
             get {
                 return ResourceManager.GetString("Language", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Level GroupName 的本地化字符串。
+        /// </summary>
+        internal static string LevelGroupName {
+            get {
+                return ResourceManager.GetString("LevelGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Level Setting 的本地化字符串。
+        /// </summary>
+        internal static string LevelSetting {
+            get {
+                return ResourceManager.GetString("LevelSetting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Limit Name 的本地化字符串。
+        /// </summary>
+        internal static string LimitName {
+            get {
+                return ResourceManager.GetString("LimitName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Limit Setting 的本地化字符串。
+        /// </summary>
+        internal static string LimitSetting {
+            get {
+                return ResourceManager.GetString("LimitSetting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The lower limit cannot exceed the upper limit 的本地化字符串。
+        /// </summary>
+        internal static string LimitValueError {
+            get {
+                return ResourceManager.GetString("LimitValueError", resourceCulture);
             }
         }
         
@@ -660,6 +822,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string LoopsExecuted {
             get {
                 return ResourceManager.GetString("LoopsExecuted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Low Limit 的本地化字符串。
+        /// </summary>
+        internal static string LowLimit {
+            get {
+                return ResourceManager.GetString("LowLimit", resourceCulture);
             }
         }
         
@@ -808,6 +979,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Pass HardwareBin 的本地化字符串。
+        /// </summary>
+        internal static string PassHardwareBin {
+            get {
+                return ResourceManager.GetString("PassHardwareBin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pass SoftwareBin 的本地化字符串。
+        /// </summary>
+        internal static string PassSoftwareBin {
+            get {
+                return ResourceManager.GetString("PassSoftwareBin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Pause Window 的本地化字符串。
         /// </summary>
         internal static string PauseWindow {
@@ -822,6 +1011,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string PinName {
             get {
                 return ResourceManager.GetString("PinName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pin Or ProupName 的本地化字符串。
+        /// </summary>
+        internal static string PinOrGroupName {
+            get {
+                return ResourceManager.GetString("PinOrGroupName", resourceCulture);
             }
         }
         
@@ -1186,6 +1384,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Test Number 的本地化字符串。
+        /// </summary>
+        internal static string TestNumber {
+            get {
+                return ResourceManager.GetString("TestNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 TestPlan 的本地化字符串。
         /// </summary>
         internal static string TestPlan {
@@ -1218,6 +1425,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string ToggleBookmark {
             get {
                 return ResourceManager.GetString("ToggleBookmark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Units 的本地化字符串。
+        /// </summary>
+        internal static string Units {
+            get {
+                return ResourceManager.GetString("Units", resourceCulture);
             }
         }
         

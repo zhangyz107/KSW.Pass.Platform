@@ -1,0 +1,167 @@
+﻿<UserControl x:Class="KSW.ATE01.Start.Views.TestPlans.LevelSettingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KSW.ATE01.Start.Views.TestPlans"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:language="clr-namespace:KSW.ATE01.Start"
+             xmlns:viewmodel ="clr-namespace:KSW.ATE01.Start.ViewModels.TestPlans"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance viewmodel:LevelSettingViewModel}"
+             d:Background="White"
+             d:DesignHeight="450" d:DesignWidth="800"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <UserControl.Resources>
+        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+        </Style>
+        <Style x:Key="CellTextBlock" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MaterialDesignDataGridTextColumnStyle}">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style x:Key="CellEditTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="6,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Command="{Binding AddLevelGroupCommand}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
+                        <TextBlock Text="{language:L AddLevelGroup}"></TextBlock>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </Grid>
+
+        <Border Grid.Row="1" Margin="0,6,6,0" BorderThickness="1" BorderBrush="{DynamicResource MaterialDesign.Brush.Foreground}" CornerRadius="4">
+            <DataGrid AutoGenerateColumns="False" 
+                      CanUserAddRows="False" 
+                      ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                      materialDesign:DataGridAssist.CellPadding="4"
+                      VirtualizingPanel.VirtualizationMode="Recycling"
+                      VirtualizingPanel.IsContainerVirtualizable="True"
+                      CanUserReorderColumns="False"
+                      ItemsSource="{Binding LevelGroupList}"
+                      SelectedValue="{Binding SelectLevelGroup}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{language:L LevelGroupName}" Binding="{Binding LevelGroupName,UpdateSourceTrigger=LostFocus}" EditingElementStyle="{StaticResource CellEditTextBox}" ElementStyle="{StaticResource CellTextBlock}" Width="*"/>
+
+                    <DataGridTemplateColumn Width="*" Header="{language:L Operate}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Style="{StaticResource MaterialDesignFlatButton}" Content="{language:L OK}" Command="{Binding DataContext.SureLevelGroupNameCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=UserControl}}" CommandParameter="{Binding }"></Button>
+
+                                    <Button Grid.Column="1" Style="{StaticResource MaterialDesignFlatButton}" Content="{language:L Delete}" Command="{Binding DataContext.RemoveLevelGroupNameCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=UserControl}}" CommandParameter="{Binding }" Foreground="Red"></Button>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+
+            </DataGrid>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Button Command="{Binding AddLevelCommand}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
+                        <TextBlock Text="{language:L AddLevel}"></TextBlock>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </Grid>
+
+        <Border Grid.Row="1" Grid.Column="1" Margin="0,6,6,0" BorderThickness="1" BorderBrush="{DynamicResource MaterialDesign.Brush.Foreground}" CornerRadius="4">
+            <DataGrid AutoGenerateColumns="False" 
+                      CanUserAddRows="False" 
+                      ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                      materialDesign:DataGridAssist.CellPadding="4"
+                      VirtualizingPanel.VirtualizationMode="Recycling"
+                      VirtualizingPanel.IsContainerVirtualizable="True"
+                      CanUserReorderColumns="False"
+                      ItemsSource="{Binding LevelList}"
+                      SelectedValue="{Binding SelectLevel}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{language:L Index}" Binding="{Binding SortId}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="{language:L PinOrGroupName}" Binding="{Binding PinOrGroupName}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Vil" Binding="{Binding Vil}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Vih" Binding="{Binding Vih}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Vol" Binding="{Binding Vol}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Voh" Binding="{Binding Voh}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Iol" Binding="{Binding Iol}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Ioh" Binding="{Binding Ioh}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Vt" Binding="{Binding Vt}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Vcl" Binding="{Binding Vcl}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Vch" Binding="{Binding Vch}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Ps" Binding="{Binding Ps}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="I" Binding="{Binding I}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Tdelay" Binding="{Binding Tdelay}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="Sequence" Binding="{Binding Sequence}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTextColumn Header="{language:L Comment}" Binding="{Binding Comment}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
+
+                    <DataGridTemplateColumn Width="*" Header="{language:L Operate}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Style="{StaticResource MaterialDesignFlatButton}" Content="{language:L Edit}" Command="{Binding DataContext.EditLevelCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=UserControl}}" CommandParameter="{Binding }"></Button>
+
+                                    <Button Grid.Column="1" Style="{StaticResource MaterialDesignFlatButton}" Content="{language:L Delete}" Command="{Binding DataContext.RemoveLevelCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=UserControl}}" CommandParameter="{Binding }" Foreground="Red"></Button>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>
