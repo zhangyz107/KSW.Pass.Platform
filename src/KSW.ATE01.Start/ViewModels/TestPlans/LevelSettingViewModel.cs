@@ -1,23 +1,32 @@
-﻿using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+﻿/*--------------------------------------------------------------
+// Copyright (C) KSW-Tech
+// 版权所有。
+//
+// 文件名称：LevelSettingViewModel.cs
+// 功能描述：测试计划电平设置视图模型
+//
+// 作者：zhangyingzhong
+// 日期：2025/08/20 10:41
+// 修改记录(Revision History)
+//
+//------------------------------------------------------------*/
+
+
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
-using KSW.ATE01.Application.BLLs.Implements.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Start.Views.Dialogs.TestPlans;
 using KSW.Helpers;
 using KSW.Ui;
-using NPOI.OpenXmlFormats.Dml.Chart;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Start.ViewModels.TestPlans
 {
+    /// <summary>
+    /// 测试计划电平设置视图模型
+    /// </summary>
     public class LevelSettingViewModel : ViewModelBase, INavigationAware
     {
         #region Fields
@@ -215,19 +224,19 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             await DialogService.ShowMessageDialog(L["OperationSuccessful"], System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
 
-        private void UpdateLevelGroupModel(LevelGroupModel model, LevelGroupModel newGroup)
+        private void UpdateLevelGroupModel(LevelGroupModel model, LevelGroupModel newModel)
         {
-            model.Id = newGroup.Id;
-            model.LevelGroupName = newGroup.LevelGroupName;
-            model.Version = newGroup.Version;
-            model.CreationTime = newGroup.CreationTime;
-            model.LastModificationTime = newGroup.LastModificationTime;
+            model.Id = newModel.Id;
+            model.LevelGroupName = newModel.LevelGroupName;
+            model.Version = newModel.Version;
+            model.CreationTime = newModel.CreationTime;
+            model.LastModificationTime = newModel.LastModificationTime;
             model.IsNew = false;
         }
 
         private async Task ExecuteRemoveLevelGroupNameCommand(LevelGroupModel model)
         {
-            var dialogResult = await DialogService.ShowMessageDialog(string.Format(L["DeleteConfirm"], model.LevelGroupName), System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+            var dialogResult = await DialogService.ShowMessageDialog(L["ConfirmTheDelete"], System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
             if (dialogResult.Result != ButtonResult.Yes)
                 return;
 
@@ -242,7 +251,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             var level = new LevelModel
             {
                 LevelGroupId = _selectLevelGroup?.Id.ToGuid(),
-                LevelGroupName = _selectLevelGroup.LevelGroupName,
+                LevelGroupName = _selectLevelGroup?.LevelGroupName,
                 IsNew = true,
             };
 
@@ -265,7 +274,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         private async Task ExecuteRemoveLevelCommand(LevelModel model)
         {
-            var dialogResult = await DialogService.ShowMessageDialog(string.Format(L["DeleteConfirm"], model.LevelGroupName), System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+            var dialogResult = await DialogService.ShowMessageDialog(L["ConfirmTheDelete"], System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
             if (dialogResult.Result != ButtonResult.Yes) 
                 return;
 

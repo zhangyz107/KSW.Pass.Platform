@@ -47,7 +47,11 @@ namespace KSW.ATE01.Application.Models.TestPlans
         public Guid? LevelGroupId
         {
             get => _levelGroupId;
-            set => SetProperty(ref _levelGroupId, value);
+            set
+            {
+                if (value != null)
+                    SetProperty(ref _levelGroupId, value);
+            }
         }
 
         /// <summary>

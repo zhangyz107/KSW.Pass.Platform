@@ -14,14 +14,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace KSW.ATE01.Start.Views.TestPlans
+namespace KSW.ATE01.Start.Views.Dialogs.TestPlans
 {
     /// <summary>
-    /// TimingSettingView.xaml 的交互逻辑
+    /// AddTimingDialogView.xaml 的交互逻辑
     /// </summary>
-    public partial class TimingSettingView : IView
+    public partial class AddTimingDialogView : IView
     {
-        public TimingSettingView()
+        public AddTimingDialogView()
         {
             InitializeComponent();
         }

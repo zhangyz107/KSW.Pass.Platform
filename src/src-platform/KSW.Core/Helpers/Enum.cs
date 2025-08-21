@@ -164,4 +164,17 @@ public static class Enum {
         // 如果未找到匹配的描述，抛出异常
         throw new ArgumentException($"No enum value found for description '{description}'", nameof(description));
     }
+
+    /// <summary>
+    /// 获取枚举及描述字典
+    /// </summary>
+    /// <typeparam name="TEnum"></typeparam>
+    /// <returns></returns>
+    public static Dictionary<TEnum,string> GetEnumAndDescriptionDictionary<TEnum>() where TEnum : System.Enum
+    {
+        return System.Enum.GetValues(typeof(TEnum)).Cast<TEnum>().ToDictionary(
+            e => e,
+            e => GetDescription(typeof(TEnum), e)
+        );
+    }
 }

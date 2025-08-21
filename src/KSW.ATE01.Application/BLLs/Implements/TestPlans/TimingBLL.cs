@@ -2,15 +2,14 @@
 // Copyright (C) KSW-Tech
 // 版权所有。
 //
-// 文件名称：LevelBLL.cs
-// 功能描述：测试计划电平逻辑层
+// 文件名称：TimingBLL.cs
+// 功能描述：时钟逻辑层
 //
 // 作者：zhangyingzhong
-// 日期：2025/08/20 13:41
+// 日期：2025/08/21 10:43
 // 修改记录(Revision History)
 //
 //------------------------------------------------------------*/
-
 
 using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
@@ -22,48 +21,47 @@ using KSW.ATE01.Domain.TestPlan.Repositories;
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
     /// <summary>
-    /// 测试计划电平逻辑层
+    /// 时钟逻辑层
     /// </summary>
-    public class LevelBLL : CrudServiceBase<Level>, ILevelBLL
+    public class TimingBLL : CrudServiceBase<Timing>, ITimingBLL
     {
-        private readonly ILevelRepository _repository;
-        private readonly ILevelGroupRepository _levelGroupRepository;
+        private readonly ITimingRepository _repository;
+        private readonly ITimingGroupRepository _timingGroupRepository;
         private readonly IGroupInfoRepository _groupInfoRepository;
         private readonly IPinInfoRepository _pinInfoRepository;
 
-        public LevelBLL(
+        public TimingBLL(
             IContainerProvider containerProvider,
             ISystemUnitOfWork unitOfWork,
-            ILevelRepository repository,
-            ILevelGroupRepository levelGroupRepository,
+            ITimingRepository repository,
+            ITimingGroupRepository timingGroupRepository,
             IGroupInfoRepository groupInfoRepository,
             IPinInfoRepository pinInfoRepository) : base(containerProvider, unitOfWork, repository)
         {
             _repository = repository;
-            _levelGroupRepository = levelGroupRepository;
+            _timingGroupRepository = timingGroupRepository;
             _groupInfoRepository = groupInfoRepository;
             _pinInfoRepository = pinInfoRepository;
         }
 
-        public async Task<LevelModel> GetByIdAsync(string id)
+        public Task<TimingModel> GetByIdAsync(string id)
         {
-            var entity = await _repository.FindByIdAsync(id);
-            return entity?.MapTo<LevelModel>();
+            throw new NotImplementedException();
         }
 
-        public async Task<List<LevelModel>> GetListByGroupIdAsync(string groupId)
+        public async Task<List<TimingModel>> GetListByGroupIdAsync(string groupId)
         {
-            var list = await _repository.FindAllAsync(x => x.LevelGroupId.Equals(groupId.ToGuid()));
-            var levelGroupIds = list.Select(x => x.LevelGroupId).Distinct().ToList();
-            var levelGroups = await _levelGroupRepository.FindAllAsync(x => levelGroupIds.Contains(x.Id));
+            var list = await _repository.FindAllAsync(x => x.TimingGroupId.Equals(groupId.ToGuid()));
+            var timingGroupIds = list.Select(x => x.TimingGroupId).Distinct().ToList();
+            var timingGroups = await _timingGroupRepository.FindAllAsync(x => timingGroupIds.Contains(x.Id));
             var ids = list.Select(x => x.GroupOrPinId).Distinct().ToList();
             var groups = await _groupInfoRepository.FindAllAsync(x => ids.Contains(x.Id));
             var pins = await _pinInfoRepository.FindAllAsync(x => ids.Contains(x.Id));
-            var result = list?.MapToList<LevelModel>();
+            var result = list?.MapToList<TimingModel>();
 
             foreach (var item in result)
             {
-                item.LevelGroupName = levelGroups.FirstOrDefault(x => x.Id.Equals(item.LevelGroupId))?.LevelGroupName;
+                item.TimingGroupName = timingGroups.FirstOrDefault(x => x.Id.Equals(item.TimingGroupId))?.TimingGroupName;
                 item.PinOrGroupName = groups.FirstOrDefault(x => x.Id.Equals(item.GroupOrPinId))?.GroupName;
                 if (item.PinOrGroupName.IsEmpty())
                     item.PinOrGroupName = pins.FirstOrDefault(x => x.Id.Equals(item.GroupOrPinId))?.PinName;
@@ -72,16 +70,16 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             return result;
         }
 
-        public async Task<string> CreateAsync(LevelModel model)
+        public async Task<string> CreateAsync(TimingModel model)
         {
-            var entity = model.MapTo<Level>();
+            var entity = model.MapTo<Timing>();
             await CreateAsync(entity);
             return entity.Id.SafeString();
         }
 
-        public async Task<LevelModel> UpdateAsync(LevelModel model)
+        public async Task<TimingModel> UpdateAsync(TimingModel model)
         {
-            var entity = model.MapTo<Level>();
+            var entity = model.MapTo<Timing>();
             await UpdateAsync(model.Id, entity);
             return await GetByIdAsync(model.Id);
         }
@@ -91,5 +89,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             await _repository.RemoveAsync(id);
             await CommitAsync();
         }
+
     }
 }

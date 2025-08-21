@@ -741,4 +741,36 @@
     <value>{0} more than {1}</value>
     <comment>{0}超过{1}</comment>
   </data>
+  <data name="AddTiming" xml:space="preserve">
+    <value>Add Timing</value>
+    <comment>添加时钟</comment>
+  </data>
+  <data name="AddTimingGroup" xml:space="preserve">
+    <value>Add TimingGroup</value>
+    <comment>添加时钟组</comment>
+  </data>
+  <data name="TimingGroupName" xml:space="preserve">
+    <value>Timing GroupName</value>
+    <comment>时钟组名</comment>
+  </data>
+  <data name="TimingName" xml:space="preserve">
+    <value>Timing Name</value>
+    <comment>时钟名称</comment>
+  </data>
+  <data name="TimingSetting" xml:space="preserve">
+    <value>Timing Setting</value>
+    <comment>时钟设置</comment>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>Period</value>
+    <comment>周期</comment>
+  </data>
+  <data name="WaveformFormat" xml:space="preserve">
+    <value>WaveformFormat</value>
+    <comment>波形</comment>
+  </data>
+  <data name="EditTiming" xml:space="preserve">
+    <value>Edit Timing</value>
+    <comment>编辑时钟</comment>
+  </data>
 </root>

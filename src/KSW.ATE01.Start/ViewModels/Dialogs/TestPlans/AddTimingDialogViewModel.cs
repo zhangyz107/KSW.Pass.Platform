@@ -2,44 +2,54 @@
 // Copyright (C) KSW-Tech
 // 版权所有。
 //
-// 文件名称：AddLevelDialogViewModel.cs
-// 功能描述：添加电平弹窗视图模型
+// 文件名称：AddTimingDialogViewModel.cs
+// 功能描述：添加时钟弹窗视图模型
 //
 // 作者：zhangyingzhong
-// 日期：2025/08/20 11:41
+// 日期：2025/08/21 11:19
 // 修改记录(Revision History)
 //
 //------------------------------------------------------------*/
 
-
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.BLLs.Implements.Projects;
+using KSW.ATE01.Application.BLLs.Implements.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
+using KSW.ATE01.Domain.TestPlan.Core.Enums;
+using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Start.Styles;
 using KSW.Ui;
+using MaterialDesignColors.Recommended;
 using MaterialDesignThemes.Wpf;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
     /// <summary>
-    /// 添加电平弹窗视图模型
+    /// 添加时钟弹窗视图模型
     /// </summary>
-    public class AddLevelDialogViewModel : ViewModelBase, IDialogAware
+    public class AddTimingDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
         private readonly IProjectBLL _projectBLL;
         private readonly IPinOverviewBLL _pinOverviewBLL;
         private readonly IGroupInfoBLL _groupInfoBLL;
         private readonly IPinInfoBLL _pinInfoBLL;
-        private readonly ILevelBLL _levelBLL;
-        private LevelModel _level;
+        private readonly ITimingBLL _timingBLL;
+        private TimingModel _timing;
         private SolidColorBrush _messageBackground;
         private SnackbarMessageQueue _messageQueue;
-        private string _editString;
         private ICollectionView _filteredItems;
+        private string _editString;
         #endregion
 
         #region Properties
@@ -51,12 +61,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         public string Title { get; private set; }
 
         /// <summary>
-        /// 电平
+        /// 时钟
         /// </summary>
-        public LevelModel Level
+        public TimingModel Timing
         {
-            get => _level;
-            set => SetProperty(ref _level, value);
+            get => _timing;
+            set => SetProperty(ref _timing, value);
         }
 
         /// <summary>
@@ -100,11 +110,19 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             set
             {
                 if (SetProperty(ref _editString, value))
-                {
                     FilteredItems.Refresh();
-                }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Dictionary<TimingformatType, string> TimingformatDic { get; private set; } = Helpers.Enum.GetEnumAndDescriptionDictionary<TimingformatType>();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Dictionary<StrobeModeType, string> StrobeModeDic { get; private set; } = Helpers.Enum.GetEnumAndDescriptionDictionary<StrobeModeType>();
 
         #endregion
 
@@ -126,24 +144,24 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         private DelegateCommand _cancelCommand;
         public DelegateCommand CancelCommand =>
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
-
         #endregion
 
-        public AddLevelDialogViewModel(
+        public AddTimingDialogViewModel(
             IContainerProvider containerProvider,
             IProjectBLL projectBLL,
             IPinOverviewBLL pinOverviewBLL,
             IGroupInfoBLL groupInfoBLL,
             IPinInfoBLL pinInfoBLL,
-            ILevelBLL levelBLL) : base(containerProvider)
+            ITimingBLL timingBLL) : base(containerProvider)
         {
             _projectBLL = projectBLL;
             _pinOverviewBLL = pinOverviewBLL;
             _groupInfoBLL = groupInfoBLL;
             _pinInfoBLL = pinInfoBLL;
-            _levelBLL = levelBLL;
+            _timingBLL = timingBLL;
 
             _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
+
         }
 
         private void ExecuteLoadingCommand()
@@ -155,17 +173,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         private bool CheckInputValue()
         {
             var result = true;
-
-            result &= !_level.GroupOrPinId.IsEmpty();
-            result &= !(_level.Vil == null);
-            result &= !(_level.Vih == null);
-            result &= !(_level.Vol == null);
-            result &= !(_level.Voh == null);
-            result &= !(_level.Iol == null);
-            result &= !(_level.Ioh == null);
-            result &= !(_level.Vt == null);
-            result &= !(_level.Vcl == null);
-            result &= !(_level.Vch == null);
+            result &= !_timing.GroupOrPinId.IsEmpty();
+            result &= !_timing.TimingName.IsEmpty();
+            result &= !(_timing.Period == null);
+            result &= !(_timing.WaveformFormat == null);
+            result &= !(_timing.DriveA == null);
+            result &= !(_timing.DriveB == null);
+            result &= !(_timing.DriveC == null);
+            result &= !(_timing.DriveD == null);
 
             return result;
         }
@@ -174,17 +189,23 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         {
             var message = string.Empty;
 
-            if (_level.Vil > _level.Vih)
-                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vil), nameof(LevelModel.Vih));
+            if (_timing.Period < _timing.DriveA)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveA), nameof(TimingModel.Period));
 
-            if (_level.Vol > _level.Voh)
-                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vol), nameof(LevelModel.Voh));
+            if (_timing.Period < _timing.DriveB)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveB), nameof(TimingModel.Period));
 
-            if (_level.Iol > _level.Ioh)
-                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Iol), nameof(LevelModel.Ioh));
+            if (_timing.Period < _timing.DriveC)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveC), nameof(TimingModel.Period));
 
-            if (_level.Vcl > _level.Vch)
-                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vcl), nameof(LevelModel.Vch));
+            if (_timing.Period < _timing.DriveD)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveD), nameof(TimingModel.Period));
+
+            if (_timing.Period < _timing.StrobeA)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.StrobeA), nameof(TimingModel.Period));
+
+            if (_timing.Period < _timing.StrobeB)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.StrobeB), nameof(TimingModel.Period));
 
             if (!message.IsEmpty())
             {
@@ -193,10 +214,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 return;
             }
 
-            if (_level.Id.IsEmpty())
-                await _levelBLL?.CreateAsync(_level);
+            if (_timing.Id.IsEmpty())
+                await _timingBLL?.CreateAsync(_timing);
             else
-                await _levelBLL?.UpdateAsync(_level);
+                await _timingBLL?.UpdateAsync(_timing);
 
             RaiseRequestClose(new DialogResult(ButtonResult.OK));
         }
@@ -205,6 +226,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         {
             RaiseRequestClose(new DialogResult(ButtonResult.Cancel));
         }
+
 
         public bool CanCloseDialog()
         {
@@ -218,9 +240,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         public async void OnDialogOpened(IDialogParameters parameters)
         {
-            Level = parameters.GetValue<LevelModel>("LevelModel");
-            _level.PropertyChanged += LevelPropertyChanged;
-            Title = Level.Id == null ? L["AddLevel"] : L["EditLevel"];
+            Timing = parameters.GetValue<TimingModel>("TimingModel");
+            _timing.PropertyChanged += TimingPropertyChanged;
+            Title = Timing.Id == null ? L["AddTiming"] : L["EditTiming"];
 
             var projectInfo = _projectBLL?.GetCurrentProjectInfo();
             var ovewview = await _pinOverviewBLL?.GetPinOverviewFromProjectIdAsync(projectInfo.Id);
@@ -246,7 +268,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             }
         }
 
-        private void LevelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void TimingPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             OKCommand.RaiseCanExecuteChanged();
         }

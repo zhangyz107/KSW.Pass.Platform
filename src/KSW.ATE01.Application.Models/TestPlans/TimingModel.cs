@@ -13,11 +13,12 @@ namespace KSW.ATE01.Application.Models.TestPlans
     /// </summary>
     public class TimingModel : DtoBase
     {
-        private Guid _timingGroupId;
+        private int _sortId;
+        private Guid? _timingGroupId;
         private string _timingName;
         private int? _period;
         private Guid? _groupOrPinId;
-        private int? _waveformFormat;
+        private TimingformatType? _waveformFormat;
         private int? _driveA;
         private int? _driveB;
         private int? _driveC;
@@ -25,17 +26,33 @@ namespace KSW.ATE01.Application.Models.TestPlans
         private StrobeModeType? _strobeMode;
         private int? _strobeA;
         private int? _strobeB;
+        private string _comment;
         private DateTime? _creationTime;
         private DateTime? _lastModificationTime;
 
         /// <summary>
+        /// 排序
+        /// </summary>
+        public int SortId
+        {
+            get => _sortId;
+            set => SetProperty(ref _sortId, value);
+        }
+
+
+        /// <summary>
         /// 测试项时钟组Id
         /// </summary>
-        public Guid TimingGroupId
+        public Guid? TimingGroupId
         {
             get => _timingGroupId;
             set => SetProperty(ref _timingGroupId, value);
         }
+
+        /// <summary>
+        /// 时钟组名称
+        /// </summary>
+        public string TimingGroupName { get; set; }
 
         /// <summary>
         /// 时钟名称
@@ -61,17 +78,31 @@ namespace KSW.ATE01.Application.Models.TestPlans
         public Guid? GroupOrPinId
         {
             get => _groupOrPinId;
-            set => SetProperty(ref _groupOrPinId, value);
+            set
+            {
+                if (value != null)
+                    SetProperty(ref _groupOrPinId, value);
+            }
         }
+
+        /// <summary>
+        /// 引脚或组名称
+        /// </summary>
+        public string PinOrGroupName { get; set; }
 
         /// <summary>
         /// 波形格式
         /// </summary>
-        public int? WaveformFormat
+        public TimingformatType? WaveformFormat
         {
             get => _waveformFormat;
             set => SetProperty(ref _waveformFormat, value);
         }
+
+        /// <summary>
+        /// 波形格式描述
+        /// </summary>
+        public string WaveformFormatDescription => _waveformFormat?.Description();
 
         /// <summary>
         /// 环绕边缘
@@ -119,6 +150,11 @@ namespace KSW.ATE01.Application.Models.TestPlans
         }
 
         /// <summary>
+        /// 选通模式描述
+        /// </summary>
+        public string StrobeModeDescription => _strobeMode?.Description();
+
+        /// <summary>
         /// 选通开始时间
         /// </summary>
         public int? StrobeA
@@ -134,6 +170,15 @@ namespace KSW.ATE01.Application.Models.TestPlans
         {
             get => _strobeB;
             set => SetProperty(ref _strobeB, value);
+        }
+
+        /// <summary>
+        /// 注释
+        /// </summary>
+        public string? Comment
+        {
+            get => _comment;
+            set => SetProperty(ref _comment, value);
         }
 
         /// <summary>
@@ -163,5 +208,10 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 版本号
         ///</summary>
         public byte[] Version { get; set; }
+
+        /// <summary>
+        /// 是否是新增
+        /// </summary>
+        public bool IsNew { get; set; }
     }
 }

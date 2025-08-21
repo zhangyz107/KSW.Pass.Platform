@@ -47,7 +47,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
             var id = model.Id ?? entity.Id.SafeString();
             return await GetByIdAsync(id);
-
         }
 
         public async Task DeleteWithChildrenAsync(string id)

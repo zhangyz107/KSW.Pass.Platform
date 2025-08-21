@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="KSW.ATE01.Start.Views.Dialogs.TestPlans.AddLevelDialogView"
+﻿<UserControl x:Class="KSW.ATE01.Start.Views.Dialogs.TestPlans.AddTimingDialogView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -10,7 +10,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance viewmodel:AddLevelDialogViewModel}"
+             d:DataContext="{d:DesignInstance viewmodel:AddTimingDialogViewModel}"
              d:Background="White"
              d:DesignHeight="450" d:DesignWidth="800">
 
@@ -73,51 +73,43 @@
                     <ColumnDefinition Width="auto"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
+
+                <TextBlock Margin="0,6,0,0" Grid.Row="1" Text="{language:L TimingName}"></TextBlock>
+                <TextBox Text="{Binding Timing.TimingName}" Grid.Row="1" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+
                 <TextBlock Text="{language:L PinOrGroupName}"></TextBlock>
-                <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Column="1" Margin="6,0,0,0" SelectedValue="{Binding Level.GroupOrPinId}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">
+                <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Column="1" Margin="6,0,0,0" SelectedValue="{Binding Timing.GroupOrPinId}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">
                 </ComboBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="1" Text="Vil"></TextBlock>
-                <TextBox Text="{Binding Level.Vil}" Grid.Row="1" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="2" Text="{language:L Period}"></TextBlock>
+                <TextBox Text="{Binding Timing.Period}" Grid.Row="2" Grid.Column="1" Margin="6,6,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="2" Text="Vih"></TextBlock>
-                <TextBox Text="{Binding Level.Vih}" Grid.Row="2" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="3" Text="{language:L WaveformFormat}"></TextBlock>
+                <ComboBox Grid.Row="3" Grid.Column="1" Margin="6,6,0,0" ItemsSource="{Binding TimingformatDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.WaveformFormat}" Padding="4"></ComboBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="3" Text="Vol"></TextBlock>
-                <TextBox Text="{Binding Level.Vol}" Grid.Row="3" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="4" Text="DriveA"></TextBlock>
+                <TextBox Text="{Binding Timing.DriveA}" Grid.Row="4" Grid.Column="1" Margin="6,6,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="4" Text="Voh"></TextBlock>
-                <TextBox Text="{Binding Level.Voh}" Grid.Row="4" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="5" Text="DriveB"></TextBlock>
+                <TextBox Text="{Binding Timing.DriveB}" Grid.Row="5" Grid.Column="1" Margin="6,6,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="5" Text="Iol"></TextBlock>
-                <TextBox Text="{Binding Level.Iol}" Grid.Row="5" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="6" Text="DriveC"></TextBlock>
+                <TextBox Text="{Binding Timing.DriveC}" Grid.Row="6" Grid.Column="1" Margin="6,6,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="6" Text="Ioh"></TextBlock>
-                <TextBox Text="{Binding Level.Ioh}" Grid.Row="6" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="7" Text="DriveD"></TextBlock>
+                <TextBox Text="{Binding Timing.DriveD}" Grid.Row="7" Grid.Column="1" Margin="6,6,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="7" Text="Vt"></TextBlock>
-                <TextBox Text="{Binding Level.Vt}" Grid.Row="7" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="8" Text="StrobeMode"></TextBlock>
+                <ComboBox Grid.Row="8" Grid.Column="1" Margin="6,6,0,0" ItemsSource="{Binding StrobeModeDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.StrobeMode}" Padding="4"></ComboBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="8" Text="Vcl"></TextBlock>
-                <TextBox Text="{Binding Level.Vcl}" Grid.Row="8" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="9" Text="StrobeA"></TextBlock>
+                <TextBox Text="{Binding Timing.StrobeA}" Grid.Row="9" Grid.Column="1" Margin="6,6,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="9" Text="Vch"></TextBlock>
-                <TextBox Text="{Binding Level.Vch}" Grid.Row="9" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="10" Text="StrobeB"></TextBlock>
+                <TextBox Text="{Binding Timing.StrobeB}" Grid.Row="10" Grid.Column="1" Margin="6,6,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="10" Text="Ps"></TextBlock>
-                <TextBox Text="{Binding Level.Ps}" Grid.Row="10" Grid.Column="1" Margin="6,6,0,0"></TextBox>
-
-                <TextBlock Margin="0,6,0,0" Grid.Row="11" Text="I"></TextBlock>
-                <TextBox Text="{Binding Level.I}" Grid.Row="11" Grid.Column="1" Margin="6,6,0,0"></TextBox>
-
-                <TextBlock Margin="0,6,0,0" Grid.Row="12" Text="Tdelay"></TextBlock>
-                <TextBox Text="{Binding Level.Tdelay}" Grid.Row="12" Grid.Column="1" Margin="6,6,0,0"></TextBox>
-
-                <TextBlock Margin="0,6,0,0" Grid.Row="13" Text="Sequence"></TextBlock>
-                <TextBox Text="{Binding Level.Sequence}" Grid.Row="13" Grid.Column="1" Margin="6,6,0,0"></TextBox>
-
-                <TextBlock Margin="0,6,0,0" Grid.Row="14" Text="{language:L Comment}"></TextBlock>
-                <TextBox Text="{Binding Level.Comment}" Grid.Row="14" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="11" Text="{language:L Comment}"></TextBlock>
+                <TextBox Text="{Binding Timing.Comment}" Grid.Row="11" Grid.Column="1" Margin="6,6,0,0"></TextBox>
             </Grid>
         </ScrollViewer>
 

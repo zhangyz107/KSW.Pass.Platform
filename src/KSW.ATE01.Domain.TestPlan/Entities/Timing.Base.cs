@@ -58,7 +58,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 波形格式
         /// </summary>
         [DisplayName("波形格式")]
-        public int? WaveformFormat { get; set; }
+        public TimingformatType? WaveformFormat { get; set; }
 
         /// <summary>
         /// 环绕边缘
@@ -103,6 +103,12 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         public int? StrobeB { get; set; }
 
         /// <summary>
+        /// 注释
+        /// </summary>
+        [DisplayName("注释")]
+        public string? Comment { get; set; }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
@@ -135,6 +141,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
             AddChange(t => t.StrobeMode, other.StrobeMode);
             AddChange(t => t.StrobeA, other.StrobeA);
             AddChange(t => t.StrobeB, other.StrobeB);
+            AddChange(t => t.Comment, other.Comment);
             AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }

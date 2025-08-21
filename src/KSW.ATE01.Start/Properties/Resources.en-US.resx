@@ -585,4 +585,28 @@
   <data name="ExceedValueError" xml:space="preserve">
     <value>{0} more than {1}</value>
   </data>
+  <data name="AddTiming" xml:space="preserve">
+    <value>Add Timing</value>
+  </data>
+  <data name="AddTimingGroup" xml:space="preserve">
+    <value>Add TimingGroup</value>
+  </data>
+  <data name="TimingGroupName" xml:space="preserve">
+    <value>Timing GroupName</value>
+  </data>
+  <data name="TimingName" xml:space="preserve">
+    <value>Timing Name</value>
+  </data>
+  <data name="TimingSetting" xml:space="preserve">
+    <value>Timing Setting</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="WaveformFormat" xml:space="preserve">
+    <value>WaveformFormat</value>
+  </data>
+  <data name="EditTiming" xml:space="preserve">
+    <value>Edit Timing</value>
+  </data>
 </root>

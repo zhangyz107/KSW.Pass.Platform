@@ -133,6 +133,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Add Timing 的本地化字符串。
+        /// </summary>
+        internal static string AddTiming {
+            get {
+                return ResourceManager.GetString("AddTiming", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Add TimingGroup 的本地化字符串。
+        /// </summary>
+        internal static string AddTimingGroup {
+            get {
+                return ResourceManager.GetString("AddTimingGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Alert Highlight 的本地化字符串。
         /// </summary>
         internal static string AlertHighlight {
@@ -435,6 +453,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string EditPinGroup {
             get {
                 return ResourceManager.GetString("EditPinGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Edit Timing 的本地化字符串。
+        /// </summary>
+        internal static string EditTiming {
+            get {
+                return ResourceManager.GetString("EditTiming", resourceCulture);
             }
         }
         
@@ -1006,6 +1033,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Period 的本地化字符串。
+        /// </summary>
+        internal static string Period {
+            get {
+                return ResourceManager.GetString("Period", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Pin Name 的本地化字符串。
         /// </summary>
         internal static string PinName {
@@ -1420,6 +1456,33 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Timing GroupName 的本地化字符串。
+        /// </summary>
+        internal static string TimingGroupName {
+            get {
+                return ResourceManager.GetString("TimingGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Timing Name 的本地化字符串。
+        /// </summary>
+        internal static string TimingName {
+            get {
+                return ResourceManager.GetString("TimingName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Timing Setting 的本地化字符串。
+        /// </summary>
+        internal static string TimingSetting {
+            get {
+                return ResourceManager.GetString("TimingSetting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Toggle Bookmark 的本地化字符串。
         /// </summary>
         internal static string ToggleBookmark {
@@ -1452,6 +1515,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string ViewOptions {
             get {
                 return ResourceManager.GetString("ViewOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 WaveformFormat 的本地化字符串。
+        /// </summary>
+        internal static string WaveformFormat {
+            get {
+                return ResourceManager.GetString("WaveformFormat", resourceCulture);
             }
         }
         

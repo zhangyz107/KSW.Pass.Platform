@@ -585,4 +585,28 @@
   <data name="ExceedValueError" xml:space="preserve">
     <value>{0}超过{1}</value>
   </data>
+  <data name="AddTiming" xml:space="preserve">
+    <value>添加时钟</value>
+  </data>
+  <data name="AddTimingGroup" xml:space="preserve">
+    <value>添加时钟组</value>
+  </data>
+  <data name="TimingGroupName" xml:space="preserve">
+    <value>时钟组名</value>
+  </data>
+  <data name="TimingName" xml:space="preserve">
+    <value>时钟名称</value>
+  </data>
+  <data name="TimingSetting" xml:space="preserve">
+    <value>时钟设置</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>周期</value>
+  </data>
+  <data name="WaveformFormat" xml:space="preserve">
+    <value>波形</value>
+  </data>
+  <data name="EditTiming" xml:space="preserve">
+    <value>编辑时钟</value>
+  </data>
 </root>
