@@ -1,4 +1,5 @@
-﻿using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+﻿using KSW.ATE01.Application.BLLs.Abstractions.Managers;
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
@@ -22,6 +23,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         private readonly IPinOverviewBLL _pinOverviewBLL;
         private readonly ISiteInfoBLL _siteInfoBLL;
         private readonly IPinInfoBLL _pinInfoBLL;
+        private readonly IPinChannelManager _pinChannelManager;
         private List<int> _siteCountList;
         private string _title;
         private ProjectInfoModel _projectInfo;
@@ -132,7 +134,8 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             IPinOverviewBLL pinOverviewBLL,
             IProjectBLL projectBLL,
             ISiteInfoBLL siteInfoBLL,
-            IPinInfoBLL pinInfoBLL) : base(containerProvider)
+            IPinInfoBLL pinInfoBLL,
+            IPinChannelManager pinChannelManager) : base(containerProvider)
         {
             Title = L["ChannelSetting"];
             L.PropertyChanged += (sender, args) =>
@@ -144,6 +147,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             _projectBLL = projectBLL;
             _siteInfoBLL = siteInfoBLL;
             _pinInfoBLL = pinInfoBLL;
+            _pinChannelManager = pinChannelManager;
 
             InitList();
             InitEvent();
@@ -254,7 +258,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
             if (result?.Result == ButtonResult.Yes && _pinInfo != null)
             {
-                _pinInfoBLL?.DeletePinAndDetailsByIdAsync(_pinInfo?.Id);
+                await _pinChannelManager?.DeletePinAndSiteInfoByIdAsync(_pinInfo?.Id);
 
                 await ReloadPinList();
             }

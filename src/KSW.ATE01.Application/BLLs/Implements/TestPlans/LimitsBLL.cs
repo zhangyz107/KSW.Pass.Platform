@@ -72,7 +72,19 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         {
             await _repository.RemoveAsync(id);
             await CommitAsync();
-            return;
         }
+
+        #region 创建前事件
+        protected override async Task CreateBeforeAsync(Limits entity)
+        {
+            var message = string.Empty;
+            if (entity.LowLimit > entity.HighLimit)
+                message = L["LimitValueError"];
+
+            var existLimit = await _repository.FindAllAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.LimitName.Equals(entity.LimitName));
+            if (!existLimit.IsEmpty())
+                message = string.Format(L["FieldAlreadyExists"], entity.LimitName);
+        }
+        #endregion
     }
 }

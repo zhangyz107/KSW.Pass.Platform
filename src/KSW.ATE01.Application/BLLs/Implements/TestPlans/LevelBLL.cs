@@ -18,6 +18,7 @@ using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
+using KSW.ATE01.Project.Base.Models.Errors;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
@@ -91,5 +92,80 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             await _repository.RemoveAsync(id);
             await CommitAsync();
         }
+
+        #region 创建前事件
+        protected override async Task CreateBeforeAsync(Level entity)
+        {
+            var message = string.Empty;
+            if (entity.Vil > entity.Vih)
+                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vil), nameof(LevelModel.Vih));
+
+            if (entity.Vol > entity.Voh)
+                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vol), nameof(LevelModel.Voh));
+
+            if (entity.Iol > entity.Ioh)
+                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Iol), nameof(LevelModel.Ioh));
+
+            if (entity.Vcl > entity.Vch)
+                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vcl), nameof(LevelModel.Vch));
+
+            if (!message.IsEmpty())
+                throw new ArgumentException(message);
+
+            var existPinOrGroup = await _repository.ExistsAsync(x => x.Id != entity.Id && x.LevelGroupId.Equals(entity.LevelGroupId) && x.GroupOrPinId.Equals(entity.GroupOrPinId));
+            if (existPinOrGroup)
+            {
+                var name = string.Empty;
+                var group = await _groupInfoRepository.FindByIdAsync(entity.GroupOrPinId);
+                if (group == null)
+                {
+                    var pin = await _pinInfoRepository.FindByIdAsync(entity.GroupOrPinId);
+                    name = pin?.PinName;
+                }
+                else
+                    name = group?.GroupName;
+                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], name));
+            }
+            base.CreateBeforeAsync(entity);
+        }
+        #endregion
+
+        #region 更新前事件
+        protected override async Task UpdateBeforeAsync(Level entity)
+        {
+            var message = string.Empty;
+            if (entity.Vil > entity.Vih)
+                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vil), nameof(LevelModel.Vih));
+
+            if (entity.Vol > entity.Voh)
+                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vol), nameof(LevelModel.Voh));
+
+            if (entity.Iol > entity.Ioh)
+                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Iol), nameof(LevelModel.Ioh));
+
+            if (entity.Vcl > entity.Vch)
+                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vcl), nameof(LevelModel.Vch));
+
+            if (!message.IsEmpty())
+                throw new ArgumentException(message);
+
+            var existPinOrGroup = await _repository.ExistsAsync(x => x.Id != entity.Id && x.GroupOrPinId.Equals(entity.GroupOrPinId));
+            if (existPinOrGroup)
+            {
+                var name = string.Empty;
+                var group = await _groupInfoRepository.FindByIdAsync(entity.GroupOrPinId);
+                if (group == null)
+                {
+                    var pin = await _pinInfoRepository.FindByIdAsync(entity.GroupOrPinId);
+                    name = pin?.PinName;
+                }
+                else
+                    name = group?.GroupName;
+                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], name));
+            }
+            base.CreateBeforeAsync(entity);
+        }
+        #endregion
+
     }
 }

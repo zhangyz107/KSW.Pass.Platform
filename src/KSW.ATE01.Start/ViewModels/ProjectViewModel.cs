@@ -132,6 +132,10 @@ namespace KSW.ATE01.Start.ViewModels
             _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(LimitsSettingView));
             _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(LevelSettingView));
             _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(TimingSettingView));
+            _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(TestItemSettingView));
+
+            // 回到通道设置
+            _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(ChannelSettingView));
         }
 
         private void ExecuteNewProjectCommand()

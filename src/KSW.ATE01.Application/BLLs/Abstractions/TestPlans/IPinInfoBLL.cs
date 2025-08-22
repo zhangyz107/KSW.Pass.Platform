@@ -20,19 +20,5 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         /// <param name="ids">需要过滤掉的引脚Id</param>
         /// <returns></returns>
         Task<List<PinInfoModel>> GetPinInfosFromOvewviewIdAsync(string overviewId, List<string> ids = null);
-
-        /// <summary>
-        /// 创建引脚信息
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        Task<string> SaveAsync(PinInfoModel model);
-
-        /// <summary>
-        /// 通过引脚Id删除引脚和明细
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        Task DeletePinAndDetailsByIdAsync(string id);
     }
 }

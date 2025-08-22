@@ -152,6 +152,20 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             FilteredItems.Filter = FilterItems;
         }
 
+        private bool FilterItems(object obj)
+        {
+            if (_editString.IsEmpty())
+                return true;
+
+            if (obj is KeyValuePair<Guid, string> pair)
+            {
+                return pair.Value.IndexOf(_editString, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+            else
+                return false;
+
+        }
+
         private bool CheckInputValue()
         {
             var result = true;
@@ -172,33 +186,20 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         private async Task ExecuteOKCommand()
         {
-            var message = string.Empty;
+            try
+            {
+                if (_level.Id.IsEmpty())
+                    await _levelBLL?.CreateAsync(_level);
+                else
+                    await _levelBLL?.UpdateAsync(_level);
 
-            if (_level.Vil > _level.Vih)
-                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vil), nameof(LevelModel.Vih));
-
-            if (_level.Vol > _level.Voh)
-                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vol), nameof(LevelModel.Voh));
-
-            if (_level.Iol > _level.Ioh)
-                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Iol), nameof(LevelModel.Ioh));
-
-            if (_level.Vcl > _level.Vch)
-                message = string.Format(L["ExceedValueError"], nameof(LevelModel.Vcl), nameof(LevelModel.Vch));
-
-            if (!message.IsEmpty())
+                RaiseRequestClose(new DialogResult(ButtonResult.OK));
+            }
+            catch (Exception e)
             {
                 MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(message);
-                return;
+                MessageQueue.Enqueue(e.Message);
             }
-
-            if (_level.Id.IsEmpty())
-                await _levelBLL?.CreateAsync(_level);
-            else
-                await _levelBLL?.UpdateAsync(_level);
-
-            RaiseRequestClose(new DialogResult(ButtonResult.OK));
         }
 
         private void ExecuteCancelCommand()
@@ -249,20 +250,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         private void LevelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             OKCommand.RaiseCanExecuteChanged();
-        }
-
-        private bool FilterItems(object obj)
-        {
-            if (_editString.IsEmpty())
-                return true;
-
-            if (obj is KeyValuePair<Guid, string> pair)
-            {
-                return pair.Value.IndexOf(_editString, StringComparison.OrdinalIgnoreCase) >= 0;
-            }
-            else
-                return false;
-
         }
 
         public virtual void RaiseRequestClose(IDialogResult dialogResult)

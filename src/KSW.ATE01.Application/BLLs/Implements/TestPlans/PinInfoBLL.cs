@@ -2,7 +2,6 @@
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
-using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
 
@@ -47,7 +46,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                 var index = 0;
                 foreach (var item in result)
                 {
-                    var channelNames = pinSites.Where(x => x.PinInfoId.SafeString()?.Equals(item.Id) == true).Select(y => y.ChannelName);
+                    var channelNames = pinSites.Where(x => x.PinInfoId.SafeString()?.Equals(item.Id) == true).OrderBy(x => x.SortId).Select(y => y.ChannelName);
                     item.SortId = ++index;
                     item.ChannelName = string.Join(", ", channelNames);
                 }
@@ -61,7 +60,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                 {
                     var itemGroupIds = pinGroups.Where(x => x.PinInfoId.Equals(item.Id.ToGuid())).Select(x => x.GroupInfoId);
                     var itemGroupsName = groups.Where(x => itemGroupIds.Contains(x.Id)).OrderBy(x => x.CreationTime).Select(x => x.GroupName);
-                    item.GroupName = string.Join(",", itemGroupsName);
+                    if (itemGroupsName.Any())
+                        item.GroupName = string.Join(",", itemGroupsName);
                 }
                 #endregion
 
@@ -89,12 +89,34 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             return entity.Id.SafeString();
         }
 
-        public async Task DeletePinAndDetailsByIdAsync(string id)
+        #region 创建前事件
+        protected override async Task CreateBeforeAsync(PinInfo entity)
         {
-            var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => x.PinInfoId.Equals(id.ToGuid()));
-            await _pinSiteInfoRepository.RemoveAsync(pinSiteInfos);
-            await _repository.RemoveAsync(id);
-            await CommitAsync();
+            var message = string.Empty;
+            var existPin = await _repository.ExistsAsync(x => x.Id != entity.Id && x.PinOverviewId.Equals(entity.PinOverviewId) && x.PinName.Equals(entity.PinName));
+            if (existPin)
+                message = string.Format(L["FieldAlreadyExists"], L["PinName"]);
+
+            if (!message.IsEmpty())
+                throw new ArgumentException(message);
+
+            base.CreateBeforeAsync(entity);
         }
+        #endregion
+
+        #region 更新前事件
+        protected override async Task UpdateBeforeAsync(PinInfo entity)
+        {
+            var message = string.Empty;
+            var existPin = await _repository.ExistsAsync(x => x.Id != entity.Id && x.PinOverviewId.Equals(entity.PinOverviewId) && x.PinName.Equals(entity.PinName));
+            if (existPin)
+                message = string.Format(L["FieldAlreadyExists"], L["PinName"]);
+
+            if (!message.IsEmpty())
+                throw new ArgumentException(message);
+
+            base.UpdateBeforeAsync(entity);
+        }
+        #endregion
     }
 }

@@ -17,6 +17,7 @@ using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
+using System.Windows.Media;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
@@ -90,5 +91,34 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             await CommitAsync();
         }
 
+        #region 创建时事件
+        protected override async Task CreateBeforeAsync(Timing entity)
+        {
+            var message = string.Empty;
+
+            if (entity.Period < entity.DriveA)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveA), nameof(TimingModel.Period));
+
+            if (entity.Period < entity.DriveB)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveB), nameof(TimingModel.Period));
+
+            if (entity.Period < entity.DriveC)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveC), nameof(TimingModel.Period));
+
+            if (entity.Period < entity.DriveD)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveD), nameof(TimingModel.Period));
+
+            if (entity.Period < entity.StrobeA)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.StrobeA), nameof(TimingModel.Period));
+
+            if (entity.Period < entity.StrobeB)
+                message = string.Format(L["ExceedValueError"], nameof(TimingModel.StrobeB), nameof(TimingModel.Period));
+
+            if (!message.IsEmpty())
+                throw new ArgumentException(message);
+
+            await base.CreateBeforeAsync(entity);
+        }
+        #endregion
     }
 }

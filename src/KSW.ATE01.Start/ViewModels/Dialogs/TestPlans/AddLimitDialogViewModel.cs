@@ -1,4 +1,18 @@
-﻿using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+﻿
+/*--------------------------------------------------------------
+// Copyright (C) KSW-Tech
+// 版权所有。
+//
+// 文件名称：AddLimitDialogViewModel.cs
+// 功能描述：添加门限对话框视图模型
+//
+// 作者：zhangyingzhong
+// 日期：2025/08/19 15:38
+// 修改记录(Revision History)
+//
+//------------------------------------------------------------*/
+
+using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
@@ -11,6 +25,9 @@ using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
+    /// <summary>
+    /// 添加门限对话框视图模型
+    /// </summary>
     public class AddLimitDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
@@ -25,6 +42,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         #region Properties
         public DialogCloseListener RequestClose { get; }
 
+        /// <summary>
+        /// 标题
+        /// </summary>
         public string Title { get; private set; }
 
         /// <summary>
@@ -57,13 +77,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         /// <summary>
         /// 被测物结果类型字典
         /// </summary>
-        public Dictionary<DUTResultType, string> DutResultDic { get; } = new Dictionary<DUTResultType, string>()
-        {
-            {DUTResultType.None, DUTResultType.None.Description()},
-            {DUTResultType.Pass, DUTResultType.Pass.Description()},
-            {DUTResultType.Fail, DUTResultType.Fail.Description()},
-            {DUTResultType.Error, DUTResultType.Error.Description()}
-        };
+        public Dictionary<DUTResultType, string> DutResultDic { get; } = Helpers.Enum.GetEnumAndDescriptionDictionary<DUTResultType>();
         #endregion
 
         #region Commands
@@ -111,27 +125,21 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         private async Task ExecuteOKCommand()
         {
-            var message = string.Empty;
-            if (_limit.LowLimit > _limit.HighLimit)
-                message = L["LimitValueError"];
+            try
+            {
+                if (_limit.Id.IsEmpty())
+                    await _limitsBLL?.CreateAsync(_limit);
+                else
+                    await _limitsBLL?.UpdateAsync(_limit);
 
-            var limitList = await _limitsBLL?.GetListByProjectIdAsync(_projectInfo?.Id);
-            if (!limitList.IsEmpty() && limitList.Any(x => x.LimitName == _limit.LimitName && x.Id != _limit.Id))
-                message = string.Format(L["FieldAlreadyExists"], _limit.LimitName);
-
-            if (!message.IsEmpty())
+                RaiseRequestClose(new DialogResult(ButtonResult.OK));
+            }
+            catch (Exception e)
             {
                 MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(message);
-                return;
+                MessageQueue.Enqueue(e.Message);
             }
 
-            if (_limit.Id.IsEmpty())
-                await _limitsBLL?.CreateAsync(_limit);
-            else
-                await _limitsBLL?.UpdateAsync(_limit);
-
-            RaiseRequestClose(new DialogResult(ButtonResult.OK));
         }
 
         private void ExecuteCancelCommand()
@@ -158,7 +166,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             if (id == null)
             {
                 Title = L["AddLimit"];
-                Limit = new LimitsModel() 
+                Limit = new LimitsModel()
                 {
                     ProjectInfoId = projectInfo?.Id.ToGuid(),
                 };

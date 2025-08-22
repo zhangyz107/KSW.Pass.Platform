@@ -91,7 +91,7 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <Button Command="{Binding AddLevelCommand}">
+            <Button Command="{Binding AddLevelCommand}" Style="{StaticResource MaterialDesignOutlinedButton}">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
@@ -104,7 +104,7 @@
         <Border Grid.Row="1" Grid.Column="1" Margin="0,6,6,0" BorderThickness="1" BorderBrush="{DynamicResource MaterialDesign.Brush.Foreground}" CornerRadius="4">
             <DataGrid AutoGenerateColumns="False" 
                       CanUserAddRows="False" 
-                      ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto" 
                       materialDesign:DataGridAssist.CellPadding="4"
                       VirtualizingPanel.VirtualizationMode="Recycling"
                       VirtualizingPanel.IsContainerVirtualizable="True"

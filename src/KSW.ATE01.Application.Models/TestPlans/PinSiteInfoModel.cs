@@ -96,5 +96,10 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 版本号
         ///</summary>
         public byte[] Version { get; set; }
+
+        /// <summary>
+        /// 是否是新增
+        /// </summary>
+        public bool IsNew { get; set; }
     }
 }

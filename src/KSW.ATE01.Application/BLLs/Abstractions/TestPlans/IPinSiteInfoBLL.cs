@@ -27,12 +27,5 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         /// <param name="pinId"></param>
         /// <returns></returns>
         Task<List<PinSiteInfoModel>> GetPinSiteByPinIdAsync(string pinId);
-
-        /// <summary>
-        /// 保存引脚站点
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        Task SaveAsync(List<PinSiteInfoModel> createList, List<PinSiteInfoModel> updateList, List<PinSiteInfoModel> deleteList);
     }
 }

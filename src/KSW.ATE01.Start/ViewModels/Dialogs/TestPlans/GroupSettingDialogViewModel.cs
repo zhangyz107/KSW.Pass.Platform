@@ -320,15 +320,22 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
             var id = await _pinGroupRelationshipBLL?.SaveAsync(model);
             var newModel = await _pinGroupRelationshipBLL?.GetByIdAsync(id);
-            model.IsNew = false;
-            model.Id = newModel.Id;
-            model.CreationTime = newModel.CreationTime;
-            model.Version = newModel.Version;
+            UpdateModel(model, newModel);
 
             message = $"{L["OperationSuccessful"]}!";
             MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
             MessageQueue.Enqueue(message);
             AddPinNameCommand.RaiseCanExecuteChanged();
+        }
+
+        private void UpdateModel(PinGroupRelationshipModel oldModel, PinGroupRelationshipModel newModel)
+        {
+            oldModel.Id = newModel.Id;
+            oldModel.GroupName = newModel.GroupName;
+            oldModel.CreationTime = newModel.CreationTime;
+            oldModel.LastModificationTime = newModel.LastModificationTime;
+            oldModel.IsNew = newModel.IsNew;
+            oldModel.Version = newModel.Version;
         }
 
         private async Task ExecuteDeletePinNameCommand(PinGroupRelationshipModel model)

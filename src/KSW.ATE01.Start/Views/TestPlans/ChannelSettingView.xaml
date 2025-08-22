@@ -77,7 +77,7 @@
                 ItemsSource="{Binding PinList}"
                 AutoGenerateColumns="False" 
                 CanUserAddRows="False" 
-                ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                ScrollViewer.HorizontalScrollBarVisibility="Auto" 
                 materialDesign:DataGridAssist.CellPadding="6"
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 VirtualizingPanel.IsContainerVirtualizable="True"

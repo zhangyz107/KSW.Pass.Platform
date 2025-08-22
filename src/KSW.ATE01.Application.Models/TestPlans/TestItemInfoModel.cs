@@ -12,6 +12,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
     /// </summary>
     public class TestItemInfoModel : DtoBase
     {
+        private int? _sortId;
         private Guid? _projectInfoId;
         private string _testItemName;
         private string _functionName;
@@ -23,6 +24,15 @@ namespace KSW.ATE01.Application.Models.TestPlans
         private string _additionInfo;
         private DateTime? _creationTime;
         private DateTime? _lastModificationTime;
+
+        /// <summary>
+        /// 排序
+        /// </summary>
+        public int? SortId
+        {
+            get => _sortId;
+            set=> SetProperty(ref _sortId, value);
+        }
 
         /// <summary>
         /// 项目信息Id
@@ -70,6 +80,11 @@ namespace KSW.ATE01.Application.Models.TestPlans
         }
 
         /// <summary>
+        /// 引脚或组名称
+        /// </summary>
+        public string PinOrGroupName { get; set; }
+
+        /// <summary>
         /// 测试项门限Id
         /// </summary>
         public Guid? LimitsId
@@ -77,6 +92,11 @@ namespace KSW.ATE01.Application.Models.TestPlans
             get => _limitsId;
             set => SetProperty(ref _limitsId, value);
         }
+
+        /// <summary>
+        /// 门限名称
+        /// </summary>
+        public string LimitName { get; set; }
 
         /// <summary>
         /// 测试项电平组Id
@@ -88,6 +108,11 @@ namespace KSW.ATE01.Application.Models.TestPlans
         }
 
         /// <summary>
+        /// 电平组名
+        /// </summary>
+        public string LevelGroupName { get; set; }
+
+        /// <summary>
         /// 测试项时钟组Id
         /// </summary>
         public Guid? TimingGroupId
@@ -95,6 +120,11 @@ namespace KSW.ATE01.Application.Models.TestPlans
             get => _timingGroupId;
             set => SetProperty(ref _timingGroupId, value);
         }
+
+        /// <summary>
+        /// 时钟组名
+        /// </summary>
+        public string TimingGroupName { get; set; }
 
         /// <summary>
         /// 附加信息

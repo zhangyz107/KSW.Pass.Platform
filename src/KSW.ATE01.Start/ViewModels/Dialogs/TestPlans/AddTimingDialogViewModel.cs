@@ -187,39 +187,20 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         private async Task ExecuteOKCommand()
         {
-            var message = string.Empty;
+            try
+            {
+                if (_timing.Id.IsEmpty())
+                    await _timingBLL?.CreateAsync(_timing);
+                else
+                    await _timingBLL?.UpdateAsync(_timing);
 
-            if (_timing.Period < _timing.DriveA)
-                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveA), nameof(TimingModel.Period));
-
-            if (_timing.Period < _timing.DriveB)
-                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveB), nameof(TimingModel.Period));
-
-            if (_timing.Period < _timing.DriveC)
-                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveC), nameof(TimingModel.Period));
-
-            if (_timing.Period < _timing.DriveD)
-                message = string.Format(L["ExceedValueError"], nameof(TimingModel.DriveD), nameof(TimingModel.Period));
-
-            if (_timing.Period < _timing.StrobeA)
-                message = string.Format(L["ExceedValueError"], nameof(TimingModel.StrobeA), nameof(TimingModel.Period));
-
-            if (_timing.Period < _timing.StrobeB)
-                message = string.Format(L["ExceedValueError"], nameof(TimingModel.StrobeB), nameof(TimingModel.Period));
-
-            if (!message.IsEmpty())
+                RaiseRequestClose(new DialogResult(ButtonResult.OK));
+            }
+            catch (Exception e)
             {
                 MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(message);
-                return;
+                MessageQueue.Enqueue(e.Message);
             }
-
-            if (_timing.Id.IsEmpty())
-                await _timingBLL?.CreateAsync(_timing);
-            else
-                await _timingBLL?.UpdateAsync(_timing);
-
-            RaiseRequestClose(new DialogResult(ButtonResult.OK));
         }
 
         private void ExecuteCancelCommand()

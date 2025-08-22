@@ -11,12 +11,17 @@
 //
 //------------------------------------------------------------*/
 
+using KSW.ATE01.Application.BLLs.Abstractions.Managers;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
+using KSW.ATE01.Project.Base.Models.Errors;
+using KSW.ATE01.Start.Styles;
 using KSW.Helpers;
 using KSW.Ui;
+using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
+using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
@@ -30,9 +35,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         private readonly ISiteInfoBLL _siteInfoBLL;
         private readonly IPinInfoBLL _pinInfoBLL;
         private readonly IPinSiteInfoBLL _pinSiteInfoBLL;
+        private readonly IPinChannelManager _pinChannelManager;
         private string _title;
         private PinOverviewModel _pinOverview;
         private PinInfoModel _pinInfo;
+        private SnackbarMessageQueue _messageQueue;
+        private SolidColorBrush _messageBackground;
         private ObservableCollection<PinSiteInfoModel> _pinSiteList = new ObservableCollection<PinSiteInfoModel>();
         #endregion
 
@@ -74,6 +82,24 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             { PinType.DPS, PinType.DPS.Description() },
             { PinType.VNA, PinType.VNA.Description() },
         };
+
+        /// <summary>
+        /// 提示消息
+        /// </summary>
+        public SnackbarMessageQueue MessageQueue
+        {
+            get => _messageQueue;
+            set => SetProperty(ref _messageQueue, value);
+        }
+
+        /// <summary>
+        /// 提示消息的背景色
+        /// </summary>
+        public SolidColorBrush MessageBackground
+        {
+            get => _messageBackground;
+            set => SetProperty(ref _messageBackground, value);
+        }
         #endregion
 
         #region Commands
@@ -91,12 +117,16 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             IPinOverviewBLL pinOverviewBLL,
             IPinInfoBLL pinInfoBLL,
             ISiteInfoBLL siteInfoBLL,
-            IPinSiteInfoBLL pinSiteInfoBLL) : base(containerProvider)
+            IPinSiteInfoBLL pinSiteInfoBLL,
+            IPinChannelManager pinChannelManager) : base(containerProvider)
         {
             _pinOverviewBLL = pinOverviewBLL;
             _pinInfoBLL = pinInfoBLL;
             _siteInfoBLL = siteInfoBLL;
             _pinSiteInfoBLL = pinSiteInfoBLL;
+            _pinChannelManager = pinChannelManager;
+
+            _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
         }
 
         public DialogCloseListener RequestClose { get; }
@@ -146,6 +176,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                                 PinInfoId = PinInfo.Id.ToGuid(),
                                 ChannelName = string.Empty,
                                 SortId = index++,
+                                IsNew = true
                             };
                             pinSiteInfo.PropertyChanged += (sender, args) =>
                             {
@@ -182,35 +213,48 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         private async Task ExecuteOKCommand()
         {
-            var pinInfos = await _pinInfoBLL?.GetPinInfosFromOvewviewIdAsync(_pinOverview.Id);
-            if (!pinInfos.IsEmpty() && pinInfos.Any(x => x.PinName.Equals(_pinInfo.PinName)))
-            {
-                await DialogService.ShowMessageDialog(string.Format(L["FieldAlreadyExists"], L["PinName"]));
-                return;
-            }
-
             var channelNameList = PinSiteList.GroupBy(x => x.ChannelName).Where(y => y.Count() > 1);
             if (!channelNameList.IsEmpty())
             {
                 var siteNames = string.Join(",", channelNameList.FirstOrDefault()?.Select(x => x.SiteName));
-                await DialogService.ShowMessageDialog(string.Format(L["FieldValueSame"], siteNames, L["ChannelName"]));
+                var message = string.Format(L["FieldValueSame"], siteNames, L["ChannelName"]);
+                SendMessage(message);
                 return;
             }
 
-            var pinSiteInfos = await _pinSiteInfoBLL?.GetAllPinSiteByOverviewIdAsync(_pinOverview?.Id);
-            var channelNames = pinSiteInfos.Select(x => x.ChannelName).ToList();
-            var pinSiteInfo = pinSiteInfos.Where(x => channelNames.Any(y => y.Equals(x.ChannelName))).Select(x => x)?.FirstOrDefault();
-            if (!pinSiteInfos.IsEmpty() && pinSiteInfo != null)
+            //var pinSiteInfos = await _pinSiteInfoBLL?.GetAllPinSiteByOverviewIdAsync(_pinOverview?.Id);
+            //var channelNames = pinSiteInfos.Select(x => x.ChannelName).ToList();
+            //var pinSiteInfo = pinSiteInfos.Where(x => channelNames.Any(y => y.Equals(x.ChannelName))).Select(x => x)?.FirstOrDefault();
+            //if (!pinSiteInfos.IsEmpty() && pinSiteInfo != null)
+            //{
+            //    message = string.Format(L["FieldAlreadyExists"], $"{pinSiteInfo.SiteName}:{L["ChannelName"]}");
+            //    SendMessage(message);
+            //    return;
+            //}
+
+            try
             {
-                await DialogService.ShowMessageDialog(string.Format(L["FieldAlreadyExists"], $"{pinSiteInfo.SiteName}:{L["ChannelName"]}"));
-                return;
+                var createPinSiteList = _pinSiteList.Where(x => x.IsNew).ToList();
+                var updatePinSiteList = _pinSiteList.Where(x => !x.IsNew).ToList();
+
+                if (_pinInfo?.IsNew == true)
+                    await _pinChannelManager?.CreatePinAndSiteInfoAsync(_pinInfo, createPinSiteList);
+                else
+                    await _pinChannelManager?.UpdatePinAndSiteInfoAsync(_pinInfo, updatePinSiteList);
+
+                RaiseRequestClose(new DialogResult(ButtonResult.OK));
             }
+            catch (Exception e)
+            {
+                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
+                MessageQueue.Enqueue(e.Message);
+            }
+        }
 
-            var pinInfoId = await _pinInfoBLL?.SaveAsync(PinInfo);
-            if (!pinInfoId.IsEmpty())
-                await _pinSiteInfoBLL?.SaveAsync(PinSiteList.ToList(), null, null);
-
-            RaiseRequestClose(new DialogResult(ButtonResult.OK));
+        private void SendMessage(string message)
+        {
+            MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
+            MessageQueue.Enqueue(message);
         }
 
         private bool CheckAllSiteChannelName()

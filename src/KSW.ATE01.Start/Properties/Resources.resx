@@ -773,4 +773,40 @@
     <value>Edit Timing</value>
     <comment>编辑时钟</comment>
   </data>
+  <data name="AddTestItem" xml:space="preserve">
+    <value>Add TestItem</value>
+    <comment>添加测试项</comment>
+  </data>
+  <data name="DeleteTestItem" xml:space="preserve">
+    <value>Delete TestItem</value>
+    <comment>删除测试项</comment>
+  </data>
+  <data name="EditTestItem" xml:space="preserve">
+    <value>Edit TestItem</value>
+    <comment>编辑测试项</comment>
+  </data>
+  <data name="TestItemName" xml:space="preserve">
+    <value>TestItem Name</value>
+    <comment>测试项名称</comment>
+  </data>
+  <data name="FunctionName" xml:space="preserve">
+    <value>Function Name</value>
+    <comment>方法名</comment>
+  </data>
+  <data name="Force" xml:space="preserve">
+    <value>Force</value>
+    <comment>激励</comment>
+  </data>
+  <data name="AdditionalParameters" xml:space="preserve">
+    <value>AdditionalParameters</value>
+    <comment>附加参数</comment>
+  </data>
+  <data name="TestItemSetting" xml:space="preserve">
+    <value>TestItem Setting</value>
+    <comment>测试项设置</comment>
+  </data>
+  <data name="AddAdditionalParameters" xml:space="preserve">
+    <value>Add AdditionalParameters</value>
+    <comment>添加附加参数</comment>
+  </data>
 </root>

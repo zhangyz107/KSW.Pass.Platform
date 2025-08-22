@@ -57,7 +57,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                 return result;
 
             var pinSiteInfos = await _repository.FindAllAsync(x => x.PinInfoId.Equals(pinId.ToGuid()));
-            result = pinSiteInfos?.MapToList<PinSiteInfoModel>();
+            result = pinSiteInfos?.OrderBy(x => x.SortId).MapToList<PinSiteInfoModel>();
 
             var pinInfo = await _pinInfoRepository.FindByIdAsync(pinId);
             if (pinInfo != null)
@@ -70,19 +70,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             }
 
             return result;
-        }
-
-        public async Task SaveAsync(List<PinSiteInfoModel> createList, List<PinSiteInfoModel> updateList, List<PinSiteInfoModel> deleteList)
-        {
-            createList ??= new List<PinSiteInfoModel>();
-            updateList ??= new List<PinSiteInfoModel>();
-            deleteList ??= new List<PinSiteInfoModel>();
-
-            var ceateEntity = createList.MapToList<PinSiteInfo>();
-            var updateEntity = updateList.MapToList<PinSiteInfo>();
-            var deleteEntity = deleteList.MapToList<PinSiteInfo>();
-
-            await base.SaveAsync(ceateEntity, updateEntity, deleteEntity);
         }
     }
 }

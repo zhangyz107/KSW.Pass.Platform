@@ -79,6 +79,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Add AdditionalParameters 的本地化字符串。
+        /// </summary>
+        internal static string AddAdditionalParameters {
+            get {
+                return ResourceManager.GetString("AddAdditionalParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Add Channel 的本地化字符串。
         /// </summary>
         internal static string AddChannel {
@@ -93,6 +102,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string AddGroupName {
             get {
                 return ResourceManager.GetString("AddGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 AdditionalParameters 的本地化字符串。
+        /// </summary>
+        internal static string AdditionalParameters {
+            get {
+                return ResourceManager.GetString("AdditionalParameters", resourceCulture);
             }
         }
         
@@ -129,6 +147,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string AddPin {
             get {
                 return ResourceManager.GetString("AddPin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Add TestItem 的本地化字符串。
+        /// </summary>
+        internal static string AddTestItem {
+            get {
+                return ResourceManager.GetString("AddTestItem", resourceCulture);
             }
         }
         
@@ -394,6 +421,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Delete TestItem 的本地化字符串。
+        /// </summary>
+        internal static string DeleteTestItem {
+            get {
+                return ResourceManager.GetString("DeleteTestItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Develop 的本地化字符串。
         /// </summary>
         internal static string Develop {
@@ -453,6 +489,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string EditPinGroup {
             get {
                 return ResourceManager.GetString("EditPinGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Edit TestItem 的本地化字符串。
+        /// </summary>
+        internal static string EditTestItem {
+            get {
+                return ResourceManager.GetString("EditTestItem", resourceCulture);
             }
         }
         
@@ -633,6 +678,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string FindTarget {
             get {
                 return ResourceManager.GetString("FindTarget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Force 的本地化字符串。
+        /// </summary>
+        internal static string Force {
+            get {
+                return ResourceManager.GetString("Force", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Function Name 的本地化字符串。
+        /// </summary>
+        internal static string FunctionName {
+            get {
+                return ResourceManager.GetString("FunctionName", resourceCulture);
             }
         }
         
@@ -1416,6 +1479,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string TestItem {
             get {
                 return ResourceManager.GetString("TestItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 TestItem Name 的本地化字符串。
+        /// </summary>
+        internal static string TestItemName {
+            get {
+                return ResourceManager.GetString("TestItemName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 TestItem Setting 的本地化字符串。
+        /// </summary>
+        internal static string TestItemSetting {
+            get {
+                return ResourceManager.GetString("TestItemSetting", resourceCulture);
             }
         }
         
