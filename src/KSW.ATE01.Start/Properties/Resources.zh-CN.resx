@@ -636,4 +636,25 @@
   <data name="AddAdditionalParameters" xml:space="preserve">
     <value>添加附加参数</value>
   </data>
+  <data name="AddGlobalParameters" xml:space="preserve">
+    <value>添加全局参数</value>
+  </data>
+  <data name="PatternFile" xml:space="preserve">
+    <value>向量文件</value>
+  </data>
+  <data name="EditGlobalParameters" xml:space="preserve">
+    <value>编辑全局参数</value>
+  </data>
+  <data name="GlobalParameters" xml:space="preserve">
+    <value>全局参数</value>
+  </data>
+  <data name="DeleteGlobalParameters" xml:space="preserve">
+    <value>删除全局参数</value>
+  </data>
+  <data name="IsOccupiedBy" xml:space="preserve">
+    <value>{0}被{1}占用</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>电平</value>
+  </data>
 </root>

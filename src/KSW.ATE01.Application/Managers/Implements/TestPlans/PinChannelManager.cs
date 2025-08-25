@@ -14,23 +14,14 @@
 
 
 using KSW.Application;
-using KSW.ATE01.Application.BLLs.Abstractions.Managers;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
-using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
-using KSW.ATE01.Project.Base.Models.Errors;
-using KSW.Data.EntityFrameworkCore;
 using KSW.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
 
-namespace KSW.ATE01.Application.BLLs.Implements.Managers
+namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 {
     /// <summary>
     /// 引脚通道管理
@@ -41,21 +32,31 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
         private readonly ISystemUnitOfWork _systemUnitOfWork;
         private readonly IPinInfoRepository _pinInfoRepository;
         private readonly IPinSiteInfoRepository _pinSiteInfoRepository;
+        private readonly ILevelRepository _levelRepository;
+        private readonly ITimingRepository _timingRepository;
+        private readonly ITestItemInfoRepository _testItemInfoRepository;
         #endregion
 
         public PinChannelManager(
             IContainerProvider containerProvider,
             ISystemUnitOfWork systemUnitOfWork,
             IPinInfoRepository pinInfoRepository,
-            IPinSiteInfoRepository pinSiteInfoRepository) : base(containerProvider)
+            IPinSiteInfoRepository pinSiteInfoRepository,
+            ILevelRepository levelRepository,
+            ITimingRepository timingRepository,
+            ITestItemInfoRepository testItemInfoRepository) : base(containerProvider)
         {
             _systemUnitOfWork = systemUnitOfWork;
             _pinInfoRepository = pinInfoRepository;
             _pinSiteInfoRepository = pinSiteInfoRepository;
+            _levelRepository = levelRepository;
+            _timingRepository = timingRepository;
+            _testItemInfoRepository = testItemInfoRepository;
         }
 
-        public async Task CreatePinAndSiteInfoAsync(PinInfoModel pinInfo, IEnumerable<PinSiteInfoModel> pinSiteInfos)
+        public async Task<string> CreatePinAndSiteInfoAsync(PinInfoModel pinInfo)
         {
+            var pinSiteInfos = pinInfo?.PinSiteInfos;
             await CreatePinInfoBeforeAsync(pinInfo);
             await CreatePinSiteInfoBeforeAsync(pinSiteInfos);
 
@@ -72,10 +73,13 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
                 await _pinSiteInfoRepository.AddAsync(pinSiteInfoEntity);
             }
             await _systemUnitOfWork.CommitAsync();
+
+            return pinInfoEntity.Id.ToString();
         }
 
-        public async Task UpdatePinAndSiteInfoAsync(PinInfoModel pinInfo, IEnumerable<PinSiteInfoModel> pinSiteInfos)
+        public async Task UpdatePinAndSiteInfoAsync(PinInfoModel pinInfo)
         {
+            var pinSiteInfos = pinInfo?.PinSiteInfos;
             await UpdatePinInfoBeforeAsync(pinInfo);
             await UpdatePinSiteInfoBeforeAsync(pinSiteInfos);
 
@@ -90,6 +94,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
 
         public async Task DeletePinAndSiteInfoByIdAsync(string pinId)
         {
+            if (pinId.IsEmpty())
+                return;
+
+            var entities = await _pinInfoRepository.FindByIdsAsync(pinId);
+            await ValidateDeleteAsync(entities);
+
             var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => x.PinInfoId.Equals(pinId.ToGuid()));
             await _pinSiteInfoRepository.RemoveAsync(pinSiteInfos);
             await _pinInfoRepository.RemoveAsync(pinId);
@@ -112,6 +122,9 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
 
         private async Task CreatePinSiteInfoBeforeAsync(IEnumerable<PinSiteInfoModel> pinSiteInfos)
         {
+            if (pinSiteInfos.IsEmpty())
+                return;
+
             var siteGroups = pinSiteInfos?.GroupBy(x => x.SiteInfoId);
             foreach (var sitePins in siteGroups)
             {
@@ -155,6 +168,36 @@ namespace KSW.ATE01.Application.BLLs.Implements.Managers
                     {
                         throw new ArgumentException(string.Format(L["FieldAlreadyExists"], $"{channel?.SiteName}:{channel?.ChannelName}"));
                     }
+                }
+            }
+        }
+
+        #endregion
+
+        #region 删除前事件
+        private async Task ValidateDeleteAsync(List<PinInfo> pinInfos)
+        {
+            foreach (var pinInfo in pinInfos)
+            {
+                var levels = await _levelRepository?.FindAllAsync(x => x.GroupOrPinId.Equals(pinInfo.Id));
+                if (!levels.IsEmpty())
+                {
+                    var level = levels.FirstOrDefault();
+                    throw new Exception(string.Format(L["IsOccupiedBy"], pinInfo.PinName, L["Level"]));
+                }
+
+                var timings = await _timingRepository?.FindAllAsync(x => x.GroupOrPinId.Equals(pinInfo.Id));
+                if (!timings.IsEmpty())
+                {
+                    var timing = timings.FirstOrDefault();
+                    throw new Exception(string.Format(L["IsOccupiedBy"], pinInfo.PinName, $"{L["TimingName"]}-{timing?.TimingName}"));
+                }
+
+                var testItems = await _testItemInfoRepository?.FindAllAsync(x => x.GroupOrPinId.Equals(pinInfo.Id));
+                if (!testItems.IsEmpty())
+                {
+                    var testItem = testItems.FirstOrDefault();
+                    throw new Exception(string.Format(L["IsOccupiedBy"], pinInfo.PinName, $"{L["TestItemName"]}-{testItem?.TestItemName}"));
                 }
             }
         }

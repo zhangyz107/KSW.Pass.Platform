@@ -54,7 +54,9 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             set => SetProperty(ref _projectInfo, value);
         }
 
-
+        /// <summary>
+        /// 测试项列表
+        /// </summary>
         public ObservableCollection<TestItemInfoModel> TestItemList
         {
             get => _testItemList;
@@ -64,6 +66,13 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         #endregion
 
         #region Commands
+        /// <summary>
+        /// 加载命令
+        /// </summary>
+        private AsyncDelegateCommand _loadingCommand;
+        public AsyncDelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
+
         /// <summary>
         /// 添加测试项命令
         /// </summary>
@@ -118,6 +127,11 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
         }
 
+        private async Task ExecuteLoadingCommand()
+        {
+            await ReloadList();
+        }
+
         private async void SelectedProjectInfo()
         {
             var projectInfo = _projectBLL?.GetCurrentProjectInfo();
@@ -138,14 +152,14 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         private async Task ReloadList()
         {
-            var testItemList = await _testItemInfoBLL?.GetListByProjectIdAsync(_projectInfo.Id);
+            _testItemList.Clear();
+            var testItemList = await _testItemInfoBLL?.GetListByProjectIdAsync(_projectInfo?.Id);
             if (!testItemList.IsEmpty())
             {
-                TestItemList.Clear();
                 var index = 0;
                 foreach (var item in testItemList)
                     item.SortId = ++index;
-                TestItemList.AddRange(testItemList);
+                _testItemList.AddRange(testItemList);
             }
         }
 
@@ -174,6 +188,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             model.TimingGroupName = newModel.TimingGroupName;
             model.AdditionInfo = newModel.AdditionInfo;
             model.LastModificationTime = newModel.LastModificationTime;
+            model.Version = newModel.Version;
         }
 
         private async Task ExecuteRemoveTestItemCommand()

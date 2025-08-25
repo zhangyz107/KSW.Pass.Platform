@@ -1,13 +1,8 @@
 ﻿using KSW.Domain;
 using KSW.Domain.Auditing;
 using KSW.Domain.Entities;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Domain.TestPlan.Entities
 {
@@ -15,7 +10,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
     /// 全局参数
     /// </summary>
     [Description("全局参数")]
-    public partial class GlobalParameter : AggregateRoot<GlobalParameter>, IDelete, IVersion, IAudited
+    public partial class GlobalParameter : AggregateRoot<GlobalParameter>, IVersion, IAudited
     {
         /// <summary>
         /// 初始化配置
@@ -63,13 +58,6 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// </summary>
         [DisplayName("最后修改时间")]
         public DateTime? LastModificationTime { get; set; }
-
-        /// <summary>
-        /// 是否删除
-        /// </summary>
-        [DisplayName("是否删除")]
-        [Required]
-        public bool IsDeleted { get; set; }
 
         protected override void AddChanges(GlobalParameter other)
         {

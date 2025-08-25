@@ -41,6 +41,13 @@
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Visibility" Value="Collapsed"></Setter>
         </Style>
+        <Style x:Key="CellTextBlock" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MaterialDesignDataGridTextColumnStyle}">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style x:Key="CellEditTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}">
+            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid Margin="6">
@@ -91,11 +98,11 @@
                     </ComboBox>
 
                     <TextBlock VerticalAlignment="Center" Margin="0,6,0,0" Text="{language:L LevelGroupName}" Grid.Row="5"></TextBlock>
-                    <ComboBox ItemsSource="{Binding LevelGroupDic}" Grid.Row="5" Grid.Column="1" Margin="6,6,0,0" SelectedValue="{Binding TestItem.LevelGroupId}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4">
+                    <ComboBox ItemsSource="{Binding LevelGroupDic}" Grid.Row="5" Grid.Column="1" Margin="6,6,0,0" SelectedValue="{Binding TestItem.LevelGroupId}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" materialDesign:TextFieldAssist.HasClearButton="True">
                     </ComboBox>
 
                     <TextBlock VerticalAlignment="Center" Margin="0,6,0,0" Text="{language:L TimingGroupName}" Grid.Row="6"></TextBlock>
-                    <ComboBox ItemsSource="{Binding TimingGroupDic}" Grid.Row="6" Grid.Column="1" Margin="6,6,0,0" SelectedValue="{Binding TestItem.TimingGroupId}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4">
+                    <ComboBox ItemsSource="{Binding TimingGroupDic}" Grid.Row="6" Grid.Column="1" Margin="6,6,0,0" SelectedValue="{Binding TestItem.TimingGroupId}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" materialDesign:TextFieldAssist.HasClearButton="True">
                     </ComboBox>
 
                 </Grid>
@@ -131,7 +138,11 @@
                                   CanUserReorderColumns="False"
                                   ItemsSource="{Binding ParameterList}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding Parameter,UpdateSourceTrigger=PropertyChanged}" Width="*" ></DataGridTextColumn>
+                                <DataGridTextColumn 
+                                    Binding="{Binding Parameter,UpdateSourceTrigger=PropertyChanged}" 
+                                    Width="*" 
+                                    EditingElementStyle="{StaticResource CellEditTextBox}"
+                                    ElementStyle="{StaticResource CellTextBlock}"></DataGridTextColumn>
                                 <DataGridTemplateColumn Width="*" Header="{language:L Operate}">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>

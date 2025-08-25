@@ -1,0 +1,133 @@
+﻿<UserControl x:Class="KSW.ATE01.Start.Views.Dialogs.TestPlans.AddGlobalParametersDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KSW.ATE01.Start.Views.Dialogs.TestPlans"
+             xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels.Dialogs.TestPlans"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:language="clr-namespace:KSW.ATE01.Start"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance viewmodel:AddGlobalParametersDialogViewModel}"
+             d:Background="White"
+             d:DesignHeight="450" d:DesignWidth="800"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignTextBlock}">
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+            <Setter Property="Padding" Value="4"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Visibility" Value="Collapsed"></Setter>
+        </Style>
+        <Style x:Key="CellTextBlock" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MaterialDesignDataGridTextColumnStyle}">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style x:Key="CellEditTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}">
+            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="WindowStyle" Value="ToolWindow"></Setter>
+            <Setter Property="Height" Value="500"></Setter>
+            <Setter Property="Width" Value="300"></Setter>
+            <Setter Property="ResizeMode" Value="NoResize"></Setter>
+            <Setter Property="ShowInTaskbar" Value="False"></Setter>
+        </Style>
+    </prism:Dialog.WindowStyle>
+     
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <materialDesign:Snackbar Padding="4" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+        </materialDesign:Snackbar>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{language:L PatternFile}" VerticalAlignment="Center"></TextBlock>
+            <TextBox Text="{Binding GlobalParameter.PatternFile}" Grid.Column="1" Margin="6,0,0,0"></TextBox>
+
+            <GroupBox Margin="0,6" Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignCardGroupBox}" Header="{language:L AdditionalParameters}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" Padding="0" Command="{Binding AddCommand}">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
+                                <TextBlock Text="{language:L AddAdditionalParameters}"></TextBlock>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <DataGrid Margin="0,6,0,0" 
+                  Grid.Row="1"
+                  Grid.ColumnSpan="2"
+                  VerticalContentAlignment="Center"
+                  AutoGenerateColumns="False" 
+                  CanUserAddRows="False" 
+                  ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                  materialDesign:DataGridAssist.CellPadding="4"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  VirtualizingPanel.IsContainerVirtualizable="True"
+                  CanUserReorderColumns="False"
+                  ItemsSource="{Binding ParameterList}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn 
+                                Binding="{Binding Parameter,UpdateSourceTrigger=PropertyChanged}" 
+                                Width="*"
+                                EditingElementStyle="{StaticResource CellEditTextBox}"
+                                ElementStyle="{StaticResource CellTextBlock}"></DataGridTextColumn>
+                            <DataGridTemplateColumn Width="*" Header="{language:L Operate}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid HorizontalAlignment="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Button Grid.Column="1" Style="{StaticResource MaterialDesignFlatButton}" Content="{language:L Delete}" Command="{Binding DataContext.DeleteCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=UserControl}}" CommandParameter="{Binding }" Foreground="Red"></Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </GroupBox>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="1" Margin="0,0,6,0" Content="{language:L OK}" Command="{Binding OKCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
+
+            <Button Grid.Column="2" Content="{language:L Cancel}" Style="{StaticResource MaterialDesignPaperButton}" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"></Button>
+        </Grid>
+    </Grid>
+</UserControl>

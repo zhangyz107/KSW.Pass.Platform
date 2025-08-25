@@ -11,13 +11,11 @@
 //
 //------------------------------------------------------------*/
 
-using KSW.ATE01.Application.BLLs.Abstractions.Managers;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
-using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Start.Styles;
-using KSW.Helpers;
 using KSW.Ui;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
@@ -31,13 +29,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
     public class AddPinDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
-        private readonly IPinOverviewBLL _pinOverviewBLL;
-        private readonly ISiteInfoBLL _siteInfoBLL;
         private readonly IPinInfoBLL _pinInfoBLL;
-        private readonly IPinSiteInfoBLL _pinSiteInfoBLL;
-        private readonly IPinChannelManager _pinChannelManager;
+        private readonly ISiteInfoBLL _siteInfoBLL;
         private string _title;
-        private PinOverviewModel _pinOverview;
         private PinInfoModel _pinInfo;
         private SnackbarMessageQueue _messageQueue;
         private SolidColorBrush _messageBackground;
@@ -114,17 +108,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         public AddPinDialogViewModel(
             IContainerProvider containerProvider,
-            IPinOverviewBLL pinOverviewBLL,
             IPinInfoBLL pinInfoBLL,
             ISiteInfoBLL siteInfoBLL,
             IPinSiteInfoBLL pinSiteInfoBLL,
             IPinChannelManager pinChannelManager) : base(containerProvider)
         {
-            _pinOverviewBLL = pinOverviewBLL;
             _pinInfoBLL = pinInfoBLL;
             _siteInfoBLL = siteInfoBLL;
-            _pinSiteInfoBLL = pinSiteInfoBLL;
-            _pinChannelManager = pinChannelManager;
 
             _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
         }
@@ -148,7 +138,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             var pinInfo = parameters.GetValue<PinInfoModel>("PinInfoModel");
             if (pinInfo != null)
             {
-                _pinOverview = await _pinOverviewBLL?.GetByIdAsync(pinInfo?.PinOverviewId.SafeString());
                 var siteInfos = await _siteInfoBLL?.GetSiteInfosFromPinOverviewId(pinInfo?.PinOverviewId.SafeString());
 
                 PinInfo = pinInfo;
@@ -189,10 +178,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 }
                 else
                 {
-                    var pinSiteInfos = await _pinSiteInfoBLL?.GetPinSiteByPinIdAsync(_pinInfo?.Id);
-                    if (pinSiteInfos != null)
+                    if (_pinInfo?.PinSiteInfos.IsEmpty() == false)
                     {
-                        foreach (var pinSiteInfo in pinSiteInfos)
+                        foreach (var pinSiteInfo in _pinInfo?.PinSiteInfos)
                         {
                             pinSiteInfo.PropertyChanged += (sender, args) =>
                             {
@@ -238,9 +226,15 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 var updatePinSiteList = _pinSiteList.Where(x => !x.IsNew).ToList();
 
                 if (_pinInfo?.IsNew == true)
-                    await _pinChannelManager?.CreatePinAndSiteInfoAsync(_pinInfo, createPinSiteList);
+                {
+                    _pinInfo.PinSiteInfos = createPinSiteList;
+                    await _pinInfoBLL?.CreateAsync(_pinInfo);
+                }
                 else
-                    await _pinChannelManager?.UpdatePinAndSiteInfoAsync(_pinInfo, updatePinSiteList);
+                {
+                    _pinInfo.PinSiteInfos = updatePinSiteList;
+                    await _pinInfoBLL?.UpdateAsync(_pinInfo);
+                }
 
                 RaiseRequestClose(new DialogResult(ButtonResult.OK));
             }

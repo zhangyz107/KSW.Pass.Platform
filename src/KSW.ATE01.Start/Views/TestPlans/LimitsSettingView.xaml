@@ -8,11 +8,19 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:language="clr-namespace:KSW.ATE01.Start"
              xmlns:viewmodel ="clr-namespace:KSW.ATE01.Start.ViewModels.TestPlans"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewmodel:LimitsSettingViewModel}"
              d:Background="White"
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True">
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
     <UserControl.Resources>
         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>

@@ -20,7 +20,9 @@ namespace KSW.ATE01.Application.Models.TestPlans
         private Guid? _groupOrPinId;
         private Guid? _limitsId;
         private Guid? _levelGroupId;
+        private string _levelGroupName;
         private Guid? _timingGroupId;
+        private string _timingGroupName;
         private string _additionInfo;
         private DateTime? _creationTime;
         private DateTime? _lastModificationTime;
@@ -31,7 +33,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         public int? SortId
         {
             get => _sortId;
-            set=> SetProperty(ref _sortId, value);
+            set => SetProperty(ref _sortId, value);
         }
 
         /// <summary>
@@ -110,7 +112,11 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 电平组名
         /// </summary>
-        public string LevelGroupName { get; set; }
+        public string LevelGroupName
+        {
+            get => _levelGroupName;
+            set => SetProperty(ref _levelGroupName, value);
+        }
 
         /// <summary>
         /// 测试项时钟组Id
@@ -124,7 +130,11 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 时钟组名
         /// </summary>
-        public string TimingGroupName { get; set; }
+        public string TimingGroupName
+        {
+            get => _timingGroupName;
+            set => SetProperty(ref _timingGroupName, value);
+        }
 
         /// <summary>
         /// 附加信息

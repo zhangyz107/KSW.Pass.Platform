@@ -158,12 +158,14 @@ namespace KSW.ATE01.Platform
             containerRegistry.RegisterDialog<AddLevelDialogView, AddLevelDialogViewModel>();
             containerRegistry.RegisterDialog<AddTimingDialogView, AddTimingDialogViewModel>();
             containerRegistry.RegisterDialog<AddTestItemDialogView, AddTestItemDialogViewModel>();
+            containerRegistry.RegisterDialog<AddGlobalParametersDialogView, AddGlobalParametersDialogViewModel>();
 
             containerRegistry.RegisterForNavigation<ChannelSettingView>();
             containerRegistry.RegisterForNavigation<LimitsSettingView>();
             containerRegistry.RegisterForNavigation<LevelSettingView>();
             containerRegistry.RegisterForNavigation<TimingSettingView>();
             containerRegistry.RegisterForNavigation<TestItemSettingView>();
+            containerRegistry.RegisterForNavigation<GlobalSettingView>();
             #endregion
         }
 

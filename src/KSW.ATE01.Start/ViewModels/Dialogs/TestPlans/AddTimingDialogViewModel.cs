@@ -13,22 +13,12 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
-using KSW.ATE01.Application.BLLs.Implements.Projects;
-using KSW.ATE01.Application.BLLs.Implements.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
-using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Start.Styles;
 using KSW.Ui;
-using MaterialDesignColors.Recommended;
 using MaterialDesignThemes.Wpf;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 

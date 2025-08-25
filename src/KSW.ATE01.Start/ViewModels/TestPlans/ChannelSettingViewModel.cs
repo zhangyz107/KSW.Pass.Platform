@@ -1,7 +1,7 @@
-﻿using KSW.ATE01.Application.BLLs.Abstractions.Managers;
-using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+﻿using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Start.Views.Dialogs.TestPlans;
@@ -23,7 +23,6 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         private readonly IPinOverviewBLL _pinOverviewBLL;
         private readonly ISiteInfoBLL _siteInfoBLL;
         private readonly IPinInfoBLL _pinInfoBLL;
-        private readonly IPinChannelManager _pinChannelManager;
         private List<int> _siteCountList;
         private string _title;
         private ProjectInfoModel _projectInfo;
@@ -102,6 +101,10 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         #endregion
 
         #region Commands
+        private AsyncDelegateCommand _loadingCommand;
+        public AsyncDelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
+
         private AsyncDelegateCommand _sureSiteCountCommand;
         public AsyncDelegateCommand SureSiteCountCommand =>
             _sureSiteCountCommand ?? (_sureSiteCountCommand = new AsyncDelegateCommand(ExecuteSureSiteCountCommand, () => CanEdit));
@@ -147,7 +150,6 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             _projectBLL = projectBLL;
             _siteInfoBLL = siteInfoBLL;
             _pinInfoBLL = pinInfoBLL;
-            _pinChannelManager = pinChannelManager;
 
             InitList();
             InitEvent();
@@ -165,6 +167,11 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         private void InitEvent()
         {
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
+        }
+
+        private async Task ExecuteLoadingCommand()
+        {
+            await ReloadPinList();
         }
 
         private async void SelectedProjectInfo()
@@ -197,10 +204,11 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         private async Task ReloadPinList()
         {
-            var pinInfos = await _pinInfoBLL?.GetPinInfosFromOvewviewIdAsync(PinOverview.Id);
+            var pinInfos = await _pinInfoBLL?.GetPinInfosFromOvewviewIdAsync(_pinOverview?.Id);
 
             _pinList.Clear();
-            _pinList.AddRange(pinInfos);
+            if (!pinInfos.IsEmpty())
+                _pinList.AddRange(pinInfos);
         }
 
         private void PinOverview_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -258,9 +266,17 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
             if (result?.Result == ButtonResult.Yes && _pinInfo != null)
             {
-                await _pinChannelManager?.DeletePinAndSiteInfoByIdAsync(_pinInfo?.Id);
+                try
+                {
+                    await _pinInfoBLL?.DeleteAsync(_pinInfo?.Id);
 
-                await ReloadPinList();
+                    await ReloadPinList();
+                }
+                catch (Exception e)
+                {
+                    DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
             }
         }
 

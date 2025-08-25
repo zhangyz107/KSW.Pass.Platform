@@ -1,5 +1,6 @@
 ﻿using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
 using KSW.ATE01.Domain.TestPlan.Entities;
@@ -14,15 +15,18 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
     {
         private readonly ILevelGroupRepository _repository;
         private readonly ILevelRepository _levelRepository;
+        private readonly ILevelGroupManager _levelGroupManager;
 
         public LevelGroupBLL(
             IContainerProvider containerProvider,
             ISystemUnitOfWork unitOfWork,
             ILevelGroupRepository repository,
-            ILevelRepository levelRepository) : base(containerProvider, unitOfWork, repository)
+            ILevelRepository levelRepository,
+            ILevelGroupManager levelGroupManager) : base(containerProvider, unitOfWork, repository)
         {
             _repository = repository;
-            _levelRepository  = levelRepository;
+            _levelRepository = levelRepository;
+            _levelGroupManager = levelGroupManager;
         }
 
         public async Task<LevelGroupModel> GetByIdAsync(string id)
@@ -51,6 +55,9 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         public async Task DeleteWithChildrenAsync(string id)
         {
+            var entities = await _repository.FindByIdsAsync(id);
+            await DeleteBeforeAsync(entities);
+
             var levels = await _levelRepository.FindAllAsync(x => x.LevelGroupId.Equals(id.ToGuid()));
             if (!levels.IsEmpty())
                 await _levelRepository.RemoveAsync(levels);
@@ -58,6 +65,13 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             await _repository.RemoveAsync(id);
             await CommitAsync();
         }
+
+        #region 删除前事件
+        private async Task DeleteBeforeAsync(List<LevelGroup> entities)
+        {
+            await _levelGroupManager?.ValidateDeleteAsync(entities);
+        }
+        #endregion
 
     }
 }

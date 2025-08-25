@@ -1,17 +1,10 @@
 ﻿using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
-using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
-using KSW.Data.Abstractions;
-using KSW.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
@@ -22,15 +15,18 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
     {
         private readonly ITimingGroupRepository _repository;
         private readonly ITimingRepository _timingRepository;
+        private readonly ITimingGroupManager _timingGroupManager;
 
         public TimingGroupBLL(
             IContainerProvider containerProvider,
             ISystemUnitOfWork unitOfWork,
             ITimingGroupRepository repository,
-            ITimingRepository timingRepository) : base(containerProvider, unitOfWork, repository)
+            ITimingRepository timingRepository,
+            ITimingGroupManager timingGroupManager) : base(containerProvider, unitOfWork, repository)
         {
             _repository = repository;
             _timingRepository = timingRepository;
+            _timingGroupManager = timingGroupManager;
         }
 
         public async Task<TimingGroupModel> GetByIdAsync(string id)
@@ -59,12 +55,20 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         public async Task DeleteWithChildrenAsync(string id)
         {
-            var levels = await _timingRepository.FindAllAsync(x => x.TimingGroupId.Equals(id.ToGuid()));
-            if (!levels.IsEmpty())
-                await _timingRepository.RemoveAsync(levels);
+            var entities = await _repository.FindByIdsAsync(id);
+            await DeleteBeforeAsync(entities);
+
+            var timings = await _timingRepository.FindAllAsync(x => x.TimingGroupId.Equals(id.ToGuid()));
+            if (!timings.IsEmpty())
+                await _timingRepository.RemoveAsync(timings);
 
             await _repository.RemoveAsync(id);
             await CommitAsync();
+        }
+
+        private async Task DeleteBeforeAsync(List<TimingGroup> entities)
+        {
+            await _timingGroupManager?.ValidateDeleteAsync(entities);
         }
     }
 }

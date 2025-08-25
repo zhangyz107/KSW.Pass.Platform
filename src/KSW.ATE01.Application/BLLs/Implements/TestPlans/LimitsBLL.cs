@@ -13,17 +13,11 @@
 
 using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
-using KSW.Data.Abstractions;
-using KSW.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
@@ -33,13 +27,16 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
     public class LimitsBLL : CrudServiceBase<Limits>, ILimitsBLL
     {
         private readonly ILimitsRepository _repository;
+        private readonly ILimitsManager _limitsManager;
 
         public LimitsBLL(
             IContainerProvider containerProvider,
             ISystemUnitOfWork unitOfWork,
-            ILimitsRepository repository) : base(containerProvider, unitOfWork, repository)
+            ILimitsRepository repository,
+            ILimitsManager limitsManager) : base(containerProvider, unitOfWork, repository)
         {
             _repository = repository;
+            _limitsManager = limitsManager;
         }
 
         public async Task<LimitsModel> GetByIdAsync(string id)
@@ -70,6 +67,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         public async Task DeleteAsync(string id)
         {
+            var entities = await _repository.FindByIdsAsync(id);
+            await DeleteBeforeAsync(entities);
             await _repository.RemoveAsync(id);
             await CommitAsync();
         }
@@ -84,6 +83,26 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             var existLimit = await _repository.FindAllAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.LimitName.Equals(entity.LimitName));
             if (!existLimit.IsEmpty())
                 message = string.Format(L["FieldAlreadyExists"], entity.LimitName);
+        }
+        #endregion
+
+        #region 更新前事件
+        protected override async Task UpdateBeforeAsync(Limits entity)
+        {
+            var message = string.Empty;
+            if (entity.LowLimit > entity.HighLimit)
+                message = L["LimitValueError"];
+
+            var existLimit = await _repository.FindAllAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.LimitName.Equals(entity.LimitName));
+            if (!existLimit.IsEmpty())
+                message = string.Format(L["FieldAlreadyExists"], entity.LimitName);
+        }
+        #endregion
+
+        #region 删除前事件
+        private async Task DeleteBeforeAsync(List<Limits> entities)
+        {
+            await _limitsManager?.ValidateDeleteAsync(entities);
         }
         #endregion
     }

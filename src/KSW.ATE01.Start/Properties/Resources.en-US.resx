@@ -636,4 +636,25 @@
   <data name="AddAdditionalParameters" xml:space="preserve">
     <value>Add AdditionalParameters</value>
   </data>
+  <data name="AddGlobalParameters" xml:space="preserve">
+    <value>Add GlobalParameters</value>
+  </data>
+  <data name="PatternFile" xml:space="preserve">
+    <value>PatternFile</value>
+  </data>
+  <data name="EditGlobalParameters" xml:space="preserve">
+    <value>Edit GlobalParameters</value>
+  </data>
+  <data name="GlobalParameters" xml:space="preserve">
+    <value>GlobalParameters</value>
+  </data>
+  <data name="DeleteGlobalParameters" xml:space="preserve">
+    <value>Delete GlobalParameters</value>
+  </data>
+  <data name="IsOccupiedBy" xml:space="preserve">
+    <value>{0} is occupied by {1}</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
 </root>

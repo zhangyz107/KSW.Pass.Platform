@@ -11,17 +11,16 @@
 //
 //------------------------------------------------------------*/
 
-
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.ATE01.Start.Views.Dialogs.TestPlans;
 using KSW.Helpers;
 using KSW.Ui;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace KSW.ATE01.Start.ViewModels.TestPlans
 {
@@ -109,6 +108,13 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         #region Commands
         /// <summary>
+        /// 加载命令
+        /// </summary>
+        private AsyncDelegateCommand _loadingCommand;
+        public AsyncDelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
+
+        /// <summary>
         /// 添加时钟组
         /// </summary>
         private AsyncDelegateCommand _addTimingGroupCommand;
@@ -177,20 +183,29 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
         }
 
+        private async Task ExecuteLoadingCommand()
+        {
+            await ReloadList();
+        }
+
         private async void SelectedProjectInfo()
         {
             var projectInfo = _projectBLL?.GetCurrentProjectInfo();
             if (projectInfo != null)
                 ProjectInfo = projectInfo;
 
+            await ReloadList();
+            AddTimingGroupCommand.RaiseCanExecuteChanged();
+        }
 
-            var levelGroupList = await _timingGroupBLL?.GetListByProjectIdAsync(projectInfo.Id);
+        private async Task ReloadList()
+        {
+            _timingGroupList.Clear();
+            var levelGroupList = await _timingGroupBLL?.GetListByProjectIdAsync(_projectInfo?.Id);
             if (!levelGroupList.IsEmpty())
             {
-                TimingGroupList.Clear();
-                TimingGroupList.AddRange(levelGroupList);
+                _timingGroupList.AddRange(levelGroupList);
             }
-            AddTimingGroupCommand.RaiseCanExecuteChanged();
         }
 
         private async Task ExecuteAddTimingGroupCommand()
@@ -243,10 +258,17 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             if (dialogResult.Result != ButtonResult.Yes)
                 return;
 
-            if (!model.IsNew)
-                await _timingGroupBLL?.DeleteWithChildrenAsync(model.Id);
+            try
+            {
+                if (!model.IsNew)
+                    await _timingGroupBLL?.DeleteWithChildrenAsync(model.Id);
 
-            _timingGroupList.Remove(model);
+                _timingGroupList.Remove(model);
+            }
+            catch (Exception e)
+            {
+                await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
 
         }
 

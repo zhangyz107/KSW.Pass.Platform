@@ -97,6 +97,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Add GlobalParameters 的本地化字符串。
+        /// </summary>
+        internal static string AddGlobalParameters {
+            get {
+                return ResourceManager.GetString("AddGlobalParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Add GroupName 的本地化字符串。
         /// </summary>
         internal static string AddGroupName {
@@ -394,6 +403,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Delete GlobalParameters 的本地化字符串。
+        /// </summary>
+        internal static string DeleteGlobalParameters {
+            get {
+                return ResourceManager.GetString("DeleteGlobalParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Delete GroupName 的本地化字符串。
         /// </summary>
         internal static string DeleteGroupName {
@@ -453,6 +471,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string Edit {
             get {
                 return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Edit GlobalParameters 的本地化字符串。
+        /// </summary>
+        internal static string EditGlobalParameters {
+            get {
+                return ResourceManager.GetString("EditGlobalParameters", resourceCulture);
             }
         }
         
@@ -700,6 +727,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 GlobalParameters 的本地化字符串。
+        /// </summary>
+        internal static string GlobalParameters {
+            get {
+                return ResourceManager.GetString("GlobalParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Goto Next Highlight 的本地化字符串。
         /// </summary>
         internal static string GotoNextHighlight {
@@ -781,6 +817,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 {0} is occupied by {1} 的本地化字符串。
+        /// </summary>
+        internal static string IsOccupiedBy {
+            get {
+                return ResourceManager.GetString("IsOccupiedBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Keyword 的本地化字符串。
         /// </summary>
         internal static string Keyword {
@@ -804,6 +849,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string Language {
             get {
                 return ResourceManager.GetString("Language", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Level 的本地化字符串。
+        /// </summary>
+        internal static string Level {
+            get {
+                return ResourceManager.GetString("Level", resourceCulture);
             }
         }
         
@@ -1083,6 +1137,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string PassSoftwareBin {
             get {
                 return ResourceManager.GetString("PassSoftwareBin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 PatternFile 的本地化字符串。
+        /// </summary>
+        internal static string PatternFile {
+            get {
+                return ResourceManager.GetString("PatternFile", resourceCulture);
             }
         }
         

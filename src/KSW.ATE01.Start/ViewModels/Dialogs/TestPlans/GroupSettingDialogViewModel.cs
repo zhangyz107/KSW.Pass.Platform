@@ -44,7 +44,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 if (SetProperty(ref _groupInfo, value))
                 {
                     AddPinNameCommand.RaiseCanExecuteChanged();
-                    ChangeRelationShipList(value.Id);
+                    ChangeRelationShipList(value?.Id);
                 }
             }
         }
@@ -190,54 +190,30 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         private async Task ExecuteSureGroupNameCommand(GroupInfoModel model)
         {
-            var message = string.Empty;
-
-            if (model.GroupName.IsEmpty())
+            try
             {
-                message = $"{L["GroupName"]}{L["CanNotBeEmpty"]}";
-                AddGroupNameCommand.RaiseCanExecuteChanged();
-                AddPinNameCommand.RaiseCanExecuteChanged();
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(message);
-                return;
-            }
-
-            var isRepeate = false;
-            foreach (var item in _groupInfoList)
-            {
-                if (item.Id != model.Id && item.GroupName.Equals(model.GroupName))
+                if (model.IsNew)
                 {
-                    isRepeate = true;
-                    break;
+                    var id = await _groupInfoBLL?.CreateAsync(model);
+                    var newModel = await _groupInfoBLL?.GetByIdAsync(id);
+                    UpdateModel(model, newModel);
                 }
-            }
-            if (isRepeate)
-            {
-                message = $"{string.Format(L["FieldAlreadyExists"], model.GroupName)},{L["PleaseEnterAgain"]}";
-                model.GroupName = string.Empty;
+                else
+                {
+                    var newModel = await _groupInfoBLL?.UpdateAsync(model);
+                    UpdateModel(model, newModel);
+                }
                 AddGroupNameCommand.RaiseCanExecuteChanged();
                 AddPinNameCommand.RaiseCanExecuteChanged();
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
+                var message = $"{L["OperationSuccessful"]}!";
+                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
                 MessageQueue.Enqueue(message);
-                return;
             }
-
-            if (model.IsNew)
+            catch (Exception e)
             {
-                var id = await _groupInfoBLL?.CreateAsync(model);
-                var newModel = await _groupInfoBLL?.GetByIdAsync(id);
-                UpdateModel(model, newModel);
+                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
+                MessageQueue.Enqueue(e.Message);
             }
-            else
-            {
-                var newModel = await _groupInfoBLL?.UpdateAsync(model);
-                UpdateModel(model, newModel);
-            }
-            AddGroupNameCommand.RaiseCanExecuteChanged();
-            AddPinNameCommand.RaiseCanExecuteChanged();
-            message = $"{L["OperationSuccessful"]}!";
-            MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-            MessageQueue.Enqueue(message);
         }
 
         private void UpdateModel(GroupInfoModel oldModel, GroupInfoModel newModel)
@@ -252,28 +228,39 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         private async Task ExecuteDeleteGroupNameCommand(GroupInfoModel model)
         {
-            if (model.IsNew)
-                _groupInfoList.Remove(model);
-            else
+            try
             {
-                await _groupInfoBLL?.DeleteWithDetailAsync(model.Id);
-                _groupInfoList.Remove(model);
-            }
+                if (model.IsNew)
+                    _groupInfoList.Remove(model);
+                else
+                {
+                    await _groupInfoBLL?.DeleteWithDetailAsync(model.Id);
+                    _groupInfoList.Remove(model);
+                }
 
-            AddGroupNameCommand.RaiseCanExecuteChanged();
-            var message = $"{L["OperationSuccessful"]}!";
-            MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-            MessageQueue.Enqueue(message);
+                AddGroupNameCommand.RaiseCanExecuteChanged();
+                var message = $"{L["OperationSuccessful"]}!";
+                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
+                MessageQueue.Enqueue(message);
+            }
+            catch (Exception e)
+            {
+                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
+                MessageQueue.Enqueue(e.Message);
+            }
         }
 
         private async Task ChangeRelationShipList(string groupId)
         {
             var index = 0;
             var relationList = await _pinGroupRelationshipBLL?.GetListByGroupIdAsync(groupId);
-            foreach (var relation in relationList)
-                relation.SortId = ++index;
             _relationshipList.Clear();
-            _relationshipList.AddRange(relationList);
+            if (!relationList.IsEmpty())
+            {
+                foreach (var relation in relationList)
+                    relation.SortId = ++index;
+                _relationshipList.AddRange(relationList);
+            }
         }
 
         private async Task ExecuteAddPinNameCommand()

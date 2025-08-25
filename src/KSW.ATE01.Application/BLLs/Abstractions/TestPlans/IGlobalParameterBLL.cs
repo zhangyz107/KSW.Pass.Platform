@@ -9,41 +9,40 @@ using System.Threading.Tasks;
 namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
 {
     /// <summary>
-    /// 引脚信息业务逻辑层接口
+    /// 全局参数逻辑层接口
     /// </summary>
-    public interface IPinInfoBLL : IService
+    public interface IGlobalParameterBLL : IService
     {
         /// <summary>
-        /// 通过Id获取引脚信息
+        /// 通过Id获取全局参数
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<PinInfoModel> GetByIdAsync(string id);
+        Task<GlobalParameterModel> GetByIdAsync(string id);
 
         /// <summary>
-        /// 通过引脚概览Id获取引脚信息列表
+        /// 通过项目Id获取门限列表
         /// </summary>
-        /// <param name="overviewId">概览Id</param>
-        /// <param name="ids">需要过滤掉的引脚Id</param>
+        /// <param name="projectId"></param>
         /// <returns></returns>
-        Task<List<PinInfoModel>> GetPinInfosFromOvewviewIdAsync(string overviewId, List<string> ids = null);
+        Task<List<GlobalParameterModel>> GetListByProjectIdAsync(string projectId);
 
         /// <summary>
-        /// 创建引脚信息
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        Task<string> CreateAsync(PinInfoModel model);
-
-        /// <summary>
-        /// 修改引脚信息
+        /// 创建全局参数
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        Task<PinInfoModel> UpdateAsync(PinInfoModel model);
+        Task<string> CreateAsync(GlobalParameterModel model);
 
         /// <summary>
-        /// 删除引脚信息
+        /// 更新全局参数
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        Task<GlobalParameterModel> UpdateAsync(GlobalParameterModel model);
+
+        /// <summary>
+        /// 删除测试项信息
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

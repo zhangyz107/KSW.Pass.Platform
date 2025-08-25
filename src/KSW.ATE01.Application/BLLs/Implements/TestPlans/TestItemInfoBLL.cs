@@ -14,16 +14,8 @@ using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
-using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
-using KSW.Data.Abstractions;
-using KSW.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
@@ -128,14 +120,14 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         #region 创建前事件
         protected override async Task CreateBeforeAsync(TestItemInfo entity)
         {
-            var exsistTestItemName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.TestItemName.Equals(entity.TestItemName));
-            if (exsistTestItemName)
+            var existTestItemName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.TestItemName.Equals(entity.TestItemName));
+            if (existTestItemName)
             {
                 throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.TestItemName));
             }
 
-            var exsistFunctionName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.FunctionName.Equals(entity.FunctionName));
-            if (exsistFunctionName)
+            var existFunctionName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.FunctionName.Equals(entity.FunctionName));
+            if (existFunctionName)
             {
                 throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.FunctionName));
             }

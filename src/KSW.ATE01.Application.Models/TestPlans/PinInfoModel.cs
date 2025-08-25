@@ -109,5 +109,10 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// </summary>
         public bool IsNew { get; set; } = false;
 
+        /// <summary>
+        /// 引脚站点信息
+        /// </summary>
+        public List<PinSiteInfoModel> PinSiteInfos { get; set; }
+
     }
 }

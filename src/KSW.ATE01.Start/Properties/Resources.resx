@@ -809,4 +809,32 @@
     <value>Add AdditionalParameters</value>
     <comment>添加附加参数</comment>
   </data>
+  <data name="AddGlobalParameters" xml:space="preserve">
+    <value>Add GlobalParameters</value>
+    <comment>添加全局参数</comment>
+  </data>
+  <data name="PatternFile" xml:space="preserve">
+    <value>PatternFile</value>
+    <comment>向量文件</comment>
+  </data>
+  <data name="EditGlobalParameters" xml:space="preserve">
+    <value>Edit GlobalParameters</value>
+    <comment>编辑全局参数</comment>
+  </data>
+  <data name="GlobalParameters" xml:space="preserve">
+    <value>GlobalParameters</value>
+    <comment>全局参数</comment>
+  </data>
+  <data name="DeleteGlobalParameters" xml:space="preserve">
+    <value>Delete GlobalParameters</value>
+    <comment>删除全局参数</comment>
+  </data>
+  <data name="IsOccupiedBy" xml:space="preserve">
+    <value>{0} is occupied by {1}</value>
+    <comment>{0}被{1}占用</comment>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Level</value>
+    <comment>电平</comment>
+  </data>
 </root>

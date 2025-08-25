@@ -108,6 +108,13 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         #region Commands
         /// <summary>
+        /// 加载命令
+        /// </summary>
+        private AsyncDelegateCommand _loadingCommand;
+        public AsyncDelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
+
+        /// <summary>
         /// 添加电平组
         /// </summary>
         private AsyncDelegateCommand _addLevelGroupCommand;
@@ -176,20 +183,27 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
         }
 
+        private async Task ExecuteLoadingCommand()
+        {
+            await ReloadList();
+        }
+
         private async void SelectedProjectInfo()
         {
             var projectInfo = _projectBLL?.GetCurrentProjectInfo();
             if (projectInfo != null)
                 ProjectInfo = projectInfo;
 
-
-            var levelGroupList = await _levelGroupBLL?.GetListByProjectIdAsync(projectInfo.Id);
-            if (!levelGroupList.IsEmpty())
-            {
-                LevelGroupList.Clear();
-                LevelGroupList.AddRange(levelGroupList);
-            }
+            await ReloadList();
             AddLevelGroupCommand.RaiseCanExecuteChanged();
+        }
+
+        private async Task ReloadList()
+        {
+            _levelGroupList.Clear();
+            var levelGroupList = await _levelGroupBLL?.GetListByProjectIdAsync(_projectInfo?.Id);
+            if (!levelGroupList.IsEmpty())
+                _levelGroupList.AddRange(levelGroupList);
         }
 
         private async Task ExecuteAddLevelGroupCommand()
@@ -240,10 +254,17 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             if (dialogResult.Result != ButtonResult.Yes)
                 return;
 
-            if (!model.IsNew)
-                await _levelGroupBLL?.DeleteWithChildrenAsync(model.Id);
+            try
+            {
+                if (!model.IsNew)
+                    await _levelGroupBLL?.DeleteWithChildrenAsync(model.Id);
 
-            _levelGroupList.Remove(model);
+                _levelGroupList.Remove(model);
+            }
+            catch (Exception e)
+            {
+                await DialogService.ShowMessageDialog(e.Message, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
         }
 
         private async Task ExecuteAddLevelCommand()
@@ -275,7 +296,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         private async Task ExecuteRemoveLevelCommand(LevelModel model)
         {
             var dialogResult = await DialogService.ShowMessageDialog(L["ConfirmTheDelete"], System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
-            if (dialogResult.Result != ButtonResult.Yes) 
+            if (dialogResult.Result != ButtonResult.Yes)
                 return;
 
             await _levelBLL?.DeleteAsync(model.Id);
@@ -284,13 +305,13 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         private async Task ReloadLevelList()
         {
+            _levelList.Clear();
             var list = await _levelBLL?.GetListByGroupIdAsync(_selectLevelGroup?.Id);
             if (!list.IsEmpty())
             {
                 var index = 0;
                 foreach (var item in list)
                     item.SortId = ++index;
-                _levelList.Clear();
                 _levelList.AddRange(list);
             }
         }

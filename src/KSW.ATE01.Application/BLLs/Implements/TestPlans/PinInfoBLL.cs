@@ -1,5 +1,6 @@
 ﻿using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
 using KSW.ATE01.Domain.TestPlan.Entities;
@@ -13,6 +14,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         private readonly IPinSiteInfoRepository _pinSiteInfoRepository;
         private readonly IGroupInfoRepository _groupInfoRepository;
         private readonly IPinGroupRelationshipRepositoy _pinGroupRelationshipRepositoy;
+        private readonly IPinChannelManager _pinChannelManager;
 
         public PinInfoBLL(
             IContainerProvider containerProvider,
@@ -20,12 +22,45 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             IPinInfoRepository repository,
             IPinSiteInfoRepository pinSiteInfoRepository,
             IGroupInfoRepository groupInfoRepository,
-            IPinGroupRelationshipRepositoy pinGroupRelationshipRepositoy) : base(containerProvider, unitOfWork, repository)
+            IPinGroupRelationshipRepositoy pinGroupRelationshipRepositoy,
+            IPinChannelManager pinChannelManager) : base(containerProvider, unitOfWork, repository)
         {
             _repository = repository;
             _pinSiteInfoRepository = pinSiteInfoRepository;
             _groupInfoRepository = groupInfoRepository;
             _pinGroupRelationshipRepositoy = pinGroupRelationshipRepositoy;
+            _pinChannelManager = pinChannelManager;
+        }
+
+        public async Task<PinInfoModel> GetByIdAsync(string id)
+        {
+            var entity = await _repository?.FindByIdAsync(id);
+            var model = entity?.MapTo<PinInfoModel>();
+            await GetDetailAsync(model);
+            return model;
+        }
+
+        private async Task GetDetailAsync(PinInfoModel? model)
+        {
+            var pinSites = await _pinSiteInfoRepository.FindAllAsync(x => x.PinInfoId.Equals(model.Id.ToGuid()));
+            model.PinSiteInfos = pinSites?.MapToList<PinSiteInfoModel>();
+        }
+
+        public async Task<string> CreateAsync(PinInfoModel model)
+        {
+            var id = await _pinChannelManager?.CreatePinAndSiteInfoAsync(model);
+            return id;
+        }
+
+        public async Task<PinInfoModel> UpdateAsync(PinInfoModel model)
+        {
+            await _pinChannelManager?.UpdatePinAndSiteInfoAsync(model);
+            return await GetByIdAsync(model.Id);
+        }
+
+        public async Task DeleteAsync(string id)
+        {
+            await _pinChannelManager?.DeletePinAndSiteInfoByIdAsync(id);
         }
 
         public async Task<List<PinInfoModel>> GetPinInfosFromOvewviewIdAsync(string overviewId, List<string> ids = null)

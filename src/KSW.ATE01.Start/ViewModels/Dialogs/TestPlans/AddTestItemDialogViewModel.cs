@@ -14,13 +14,9 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
-using KSW.ATE01.Application.BLLs.Implements.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Domain.TestPlan.Entities;
-using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Start.Styles;
-using KSW.Dtos;
 using KSW.Ui;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
@@ -388,20 +384,5 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         {
             RequestClose.Invoke(dialogResult);
         }
-    }
-
-    /// <summary>
-    /// 附加参数
-    /// </summary>
-    public class AdditionalParameters : BindableBase
-    {
-        private string _parameter;
-
-        public string Parameter
-        {
-            get => _parameter;
-            set => SetProperty(ref _parameter, value);
-        }
-
     }
 }

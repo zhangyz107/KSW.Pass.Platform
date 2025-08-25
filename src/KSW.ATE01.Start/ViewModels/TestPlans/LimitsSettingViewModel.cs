@@ -70,6 +70,12 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         #region Commands
         /// <summary>
+        /// 加载命令
+        /// </summary>
+        private AsyncDelegateCommand _loadingCommand;
+        public AsyncDelegateCommand LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
+        /// <summary>
         /// 添加门限命令
         /// </summary>
         private DelegateCommand _addLimitCommand;
@@ -122,22 +128,32 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
         }
 
+        private async Task ExecuteLoadingCommand()
+        {
+            await ReloadList();
+        }
+
         private async void SelectedProjectInfo()
         {
             var projectInfo = _projectBLL?.GetCurrentProjectInfo();
             if (projectInfo != null)
                 ProjectInfo = projectInfo;
 
-            var limitList = await _limitsBLL?.GetListByProjectIdAsync(projectInfo.Id);
+            await ReloadList();
+            AddLimitCommand.RaiseCanExecuteChanged();
+        }
+
+        private async Task ReloadList()
+        {
+            _limitList.Clear();
+            var limitList = await _limitsBLL?.GetListByProjectIdAsync(_projectInfo?.Id);
             if (!limitList.IsEmpty())
             {
-                LimitList.Clear();
                 var index = 0;
                 foreach (var item in limitList)
                     item.SortId = ++index;
-                LimitList.AddRange(limitList);
+                _limitList.AddRange(limitList);
             }
-            AddLimitCommand.RaiseCanExecuteChanged();
         }
 
         private async void ExecuteAddLimitCommand()
@@ -156,38 +172,39 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         private async Task ExecuteRemoveLimitCommand()
         {
-            if (await CheckLimitOccupancy(_selectLimit))
-            {
-                var dialogResult = await DialogService.ShowMessageDialog(L["ConfirmTheDelete"], MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var dialogResult = await DialogService.ShowMessageDialog(L["ConfirmTheDelete"], MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                if (dialogResult?.Result == ButtonResult.Yes)
+            if (dialogResult?.Result == ButtonResult.Yes)
+            {
+                try
                 {
                     await _limitsBLL?.DeleteAsync(_selectLimit.Id);
                     _limitList.Remove(_selectLimit);
                     RemoveLimitCommand.RaiseCanExecuteChanged();
+                }
+                catch (Exception e)
+                {
+                    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
         private async Task ExecuteDeleteLimitCommand(LimitsModel model)
         {
-            if (await CheckLimitOccupancy(model))
+            var dialogResult = await DialogService.ShowMessageDialog(L["ConfirmTheDelete"], MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (dialogResult?.Result == ButtonResult.Yes)
             {
-                var dialogResult = await DialogService.ShowMessageDialog(L["ConfirmTheDelete"], MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (dialogResult?.Result == ButtonResult.Yes)
+                try
                 {
                     await _limitsBLL?.DeleteAsync(model.Id);
                     _limitList.Remove(_selectLimit);
                     RemoveLimitCommand.RaiseCanExecuteChanged();
                 }
+                catch (Exception e)
+                {
+                    await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-        }
-
-        private async Task<bool> CheckLimitOccupancy(LimitsModel model)
-        {
-            var result = true;
-
-            return result;
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
