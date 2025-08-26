@@ -25,5 +25,10 @@ namespace KSW.ATE01.Start.ViewModels
         /// 组信息内容
         /// </summary>
         public static string GroupInfoContent = "GroupInfo"; 
+
+        /// <summary>
+        /// 项目详情内容
+        /// </summary>
+        public static string ProjectDetailContent = "ProjectDetail";
     }
 }

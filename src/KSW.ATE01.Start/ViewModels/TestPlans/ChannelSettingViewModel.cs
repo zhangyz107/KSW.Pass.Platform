@@ -208,7 +208,12 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
             _pinList.Clear();
             if (!pinInfos.IsEmpty())
+            {
+                var index = 0;
+                foreach (var item in pinInfos)
+                    item.SortId = ++index;
                 _pinList.AddRange(pinInfos);
+            }
         }
 
         private void PinOverview_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -229,18 +234,12 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
                 PinOverview = pinOvewview;
                 PinOverview.PropertyChanged += PinOverview_PropertyChanged;
 
-                for (int i = 0; i < _pinOverview.SiteCount; i++)
-                {
-                    var siteInfo = new SiteInfoModel();
-                    siteInfo.PinOverviewId = PinOverview.Id.ToGuid();
-                    siteInfo.SortId = i;
-                    siteInfo.SiteName = $"Site {i}";
-
-                    await _siteInfoBLL?.CreateAsync(siteInfo);
-                }
+                await _siteInfoBLL?.CreateSiteByCountAsync(_pinOverview?.Id, _pinOverview?.SiteCount);
             }
             AddPinCommand.RaiseCanExecuteChanged();
             RemovePinCommand.RaiseCanExecuteChanged();
+
+            await DialogService.ShowMessageDialog(L["OperationSuccessful"], MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private async Task ExecuteAddPinCommand()

@@ -13,10 +13,9 @@
 
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
-using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.ATE01.Project.Base.Helpers;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
@@ -34,7 +33,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private readonly IEventAggregator _eventAggregator;
         private readonly IDialogService _dialogService;
         private readonly IProjectBLL _projectBLL;
-        private readonly ITestPlanBLL _testPlanBLL;
+        private readonly ITestPlanManager _testPlanBLL;
         private List<ProjectInfoModel> _projectList = new List<ProjectInfoModel>();
         private ProjectInfoModel _selectProject;
 
@@ -76,7 +75,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _oKCommand ?? (_oKCommand = new DelegateCommand(ExecuteOKCommand));
 
         private DelegateCommand _cancelCommand;
-
         public DelegateCommand CancelCommand =>
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
         #endregion
@@ -88,7 +86,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _eventAggregator = eventAggregator;
             //_projectBLL = ContainerProvider.Resolve<IProjectBLL>();
-            _testPlanBLL = ContainerProvider.Resolve<ITestPlanBLL>();
+            _testPlanBLL = ContainerProvider.Resolve<ITestPlanManager>();
             _dialogService = dialogService;
         }
 
@@ -108,7 +106,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
             if ((!currentProjectInfo?.ProjectPath.IsEmpty()) == true && Directory.Exists(currentProjectInfo?.ProjectPath))
             {
-                ProjectList = _projectBLL?.ScanProjects(Path.GetDirectoryName(currentProjectInfo.ProjectPath));
+                //ProjectList = _projectBLL?.ScanProjects(Path.GetDirectoryName(currentProjectInfo.ProjectPath));
             }
         }
 
@@ -134,7 +132,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 var folderName = folderDialog.FolderName;
                 FolderPath = folderName;
 
-                ProjectList = _projectBLL?.ScanProjects(folderName);
+                //ProjectList = _projectBLL?.ScanProjects(folderName);
             }
         }
 
@@ -148,10 +146,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
 
             _projectBLL?.SetCurrentProjectInfo(_selectProject);
-
-            var testPlanFilePath = _testPlanBLL?.GetTestPlanFilePathFromProject(_selectProject);
-
-            ATE01ShareMemory.TestPlanFilePath = testPlanFilePath;
 
             _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
             RaiseRequestClose(new DialogResult(ButtonResult.OK));

@@ -301,12 +301,12 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         private async Task ReloadTimingList()
         {
             var list = await _timingBLL?.GetListByGroupIdAsync(_selectTimingGroup?.Id);
+            _timingList.Clear();
             if (!list.IsEmpty())
             {
                 var index = 0;
                 foreach (var item in list)
                     item.SortId = ++index;
-                _timingList.Clear();
                 _timingList.AddRange(list);
             }
         }

@@ -19,7 +19,6 @@ using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
-using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Helpers;
 using KSW.Ui;
 using MaterialDesignColors;
@@ -64,9 +63,9 @@ namespace KSW.ATE01.Start.ViewModels
         public DelegateCommand LoadingCommand =>
             _loadingCommand ?? (_loadingCommand = new DelegateCommand(ExecuteLoadingCommand));
 
-        private DelegateCommand _newProjectCommand;
-        public DelegateCommand NewProjectCommand =>
-            _newProjectCommand ?? (_newProjectCommand = new DelegateCommand(ExecuteNewProjectCommand));
+        private AsyncDelegateCommand _newProjectCommand;
+        public AsyncDelegateCommand NewProjectCommand =>
+            _newProjectCommand ?? (_newProjectCommand = new AsyncDelegateCommand(ExecuteNewProjectCommand));
 
         private DelegateCommand _saveAsCommand;
         public DelegateCommand SaveAsCommand =>
@@ -94,9 +93,8 @@ namespace KSW.ATE01.Start.ViewModels
             _regionManager = regionManager;
             _eventAggregator = eventAggregator;
 
-            //_projectBLL = new Lazy<IProjectBLL>(()=> containerProvider?.Resolve<IProjectBLL>());
-
             _regionManager.RegisterViewWithRegion(RegionNameManagement.ProjectViewContent, typeof(ProjectView));
+            _regionManager.RegisterViewWithRegion(RegionNameManagement.ProjectDetailContent, typeof(ProjectDetailView));
 
             Theme theme = _paletteHelper.GetTheme();
 
@@ -161,9 +159,12 @@ namespace KSW.ATE01.Start.ViewModels
             _paletteHelper.SetTheme(theme);
         }
 
-        private void ExecuteNewProjectCommand()
+        private async Task ExecuteNewProjectCommand()
         {
-            DialogService.ShowDialog(nameof(NewProjectDialog));
+            if ((await DialogService.ShowDialogAsync(nameof(NewProjectDialog)))?.Result == ButtonResult.OK)
+            {
+                _eventAggregator.GetEvent<RefreshProjectListEvent>().Publish();
+            }
         }
 
         private void ExecuteSaveAsCommand()

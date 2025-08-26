@@ -657,4 +657,10 @@
   <data name="Level" xml:space="preserve">
     <value>电平</value>
   </data>
+  <data name="ProjectInfo" xml:space="preserve">
+    <value>项目信息</value>
+  </data>
+  <data name="EditProject" xml:space="preserve">
+    <value>编辑项目</value>
+  </data>
 </root>

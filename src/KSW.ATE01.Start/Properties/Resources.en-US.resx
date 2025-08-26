@@ -657,4 +657,10 @@
   <data name="Level" xml:space="preserve">
     <value>Level</value>
   </data>
+  <data name="ProjectInfo" xml:space="preserve">
+    <value>ProjectInfo</value>
+  </data>
+  <data name="EditProject" xml:space="preserve">
+    <value>Edit Project</value>
+  </data>
 </root>

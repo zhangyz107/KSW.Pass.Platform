@@ -12,10 +12,9 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
-using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.Exceptions;
 using KSW.Helpers;
@@ -35,24 +34,24 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private readonly IEventAggregator _eventAggregator;
         private readonly IDialogService _dialogService;
         private readonly IProjectBLL _projectBLL;
-        private readonly ITestPlanBLL _testPlanBLL;
+        private readonly ITestPlanManager _testPlanBLL;
+        private string _title;
         private ProjectInfoModel _projectInfo;
-        private bool _isProjectPathEnable;
-        private string _configurationName;
         private string _executeName;
+        private bool _canEditProjectName = true;
 
         #endregion
 
         #region Properties
         public DialogCloseListener RequestClose { get; }
-
-        public string Title => L["NewProject"];
-
-        public Dictionary<TestPlanType, string> TestPlanTypeCbItems => new Dictionary<TestPlanType, string>()
+        /// <summary>
+        /// 标题
+        /// </summary>
+        public string Title
         {
-            { TestPlanType.Excel,TestPlanType.Excel.Description()},
-            { TestPlanType.Csv,TestPlanType.Csv.Description()}
-        };
+            get => _title;
+            set => SetProperty(ref _title, value);
+        }
 
         public ProjectInfoModel ProjectInfo
         {
@@ -60,23 +59,21 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             private set => SetProperty(ref _projectInfo, value);
         }
 
-        public bool IsProjectPathEnable
-        {
-            get => _isProjectPathEnable;
-            set => SetProperty(ref _isProjectPathEnable, value);
-        }
-
-        public string ConfigurationName
-        {
-            get => _configurationName;
-            set => SetProperty(ref _configurationName, value);
-        }
-
         public string ExecuteName
         {
             get => _executeName;
             set => SetProperty(ref _executeName, value);
         }
+
+        /// <summary>
+        /// 是否可以编辑项目名
+        /// </summary>
+        public bool CanEditProjectName
+        {
+            get => _canEditProjectName;
+            set => SetProperty(ref _canEditProjectName, value);
+        }
+
         #endregion
 
         #region Command
@@ -86,10 +83,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private DelegateCommand _oKCommand;
         public DelegateCommand OKCommand =>
-            _oKCommand ?? (_oKCommand = new DelegateCommand(ExecuteOKCommand));
+            _oKCommand ?? (_oKCommand = new DelegateCommand(ExecuteOKCommand, CanCreateProject));
 
         private DelegateCommand _cancelCommand;
-
         public DelegateCommand CancelCommand =>
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
         #endregion
@@ -102,10 +98,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _eventAggregator = eventAggregator;
             _dialogService = dialogService;
             _projectBLL = containerProvider?.Resolve<IProjectBLL>();
-            _testPlanBLL = containerProvider?.Resolve<ITestPlanBLL>();
-
-            _projectInfo = new ProjectInfoModel();
-            _projectInfo.PropertyChanged += ProjectInfo_PropertyChanged;
+            _testPlanBLL = containerProvider?.Resolve<ITestPlanManager>();
         }
 
         public bool CanCloseDialog()
@@ -120,7 +113,25 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
+            var projectId = parameters.GetValue<string>("ProjectId");
 
+            if (projectId.IsEmpty())
+            {
+                Title = L["NewProject"];
+                ProjectInfo = new ProjectInfoModel();
+                _projectInfo.ProjectVersion = new Version("1.0.0000.1").ToString();
+            }
+            else
+            {
+                Title = L["EditProject"];
+                ProjectInfo = _projectBLL?.GetCurrentProjectInfo();
+                ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
+                CanEditProjectName = false;
+            }
+
+            if (_projectInfo != null)
+                _projectInfo.PropertyChanged += ProjectInfo_PropertyChanged;
+            OKCommand.RaiseCanExecuteChanged();
         }
 
         public virtual void RaiseRequestClose(IDialogResult dialogResult)
@@ -143,6 +154,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
         }
 
+        private bool CanCreateProject()
+        {
+            if (_projectInfo == null)
+                return false;
+
+            return !_projectInfo.ProjectName.IsEmpty() && !_projectInfo.ProjectPath.IsEmpty();
+        }
+
         private async void ExecuteOKCommand()
         {
             await ExecuteWithExceptionHandling(async () =>
@@ -155,27 +174,30 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-                    //创建项目
-                    var result = await _projectBLL?.CreateProjectInfoAsync(_projectInfo);
-
-                    if (result)
+                    if (_projectInfo.Id.IsEmpty())
                     {
-                        //生成Release文件夹
-                        result = await _projectBLL?.ReleaseSolutionAsync(_projectInfo, false);
+                        //创建项目
+                        var result = await _projectBLL?.CreateAsync(_projectInfo);
 
-                        //拷贝测试计划
-                        result = await _projectBLL?.CopyTestPlanAsync(_projectInfo);
+                        if (!result.IsEmpty())
+                        {
+                            //生成Release文件夹
+                            await _projectBLL?.ReleaseSolutionAsync(_projectInfo, false);
 
-                        var testPlanFilePath = _testPlanBLL?.GetTestPlanFilePathFromProject(_projectInfo);
+                            //拷贝测试计划
+                            //result = await _projectBLL?.CopyTestPlanAsync(_projectInfo);
 
-                        ATE01ShareMemory.TestPlanFilePath = testPlanFilePath;
-
-                        _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
-                        RaiseRequestClose(new DialogResult(ButtonResult.OK));
+                            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+                        }
+                    }
+                    else
+                    {
+                        await _projectBLL?.UpdateAsync(_projectInfo);
                     }
                 });
 
                 await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
+                RaiseRequestClose(new DialogResult(ButtonResult.OK));
             }, async (e) => await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
 
@@ -186,18 +208,15 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private void ProjectInfo_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            OKCommand.RaiseCanExecuteChanged();
             if (!e.PropertyName.IsEmpty() && e.PropertyName.Equals(nameof(ProjectInfoModel.ProjectName)))
             {
                 if (!_projectInfo.ProjectName.IsEmpty())
                 {
-                    IsProjectPathEnable = true;
-                    ConfigurationName = _projectInfo.ProjectName + _projectInfo.ConfigurationExtension;
                     ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
                 }
                 else
                 {
-                    IsProjectPathEnable = false;
-                    ConfigurationName = string.Empty;
                     ExecuteName = string.Empty;
                 }
             }

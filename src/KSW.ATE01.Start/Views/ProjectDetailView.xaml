@@ -18,41 +18,35 @@
     </i:Interaction.Triggers>
 
     <GroupBox Header="{language:L ProjectDetail}" Style="{StaticResource MaterialDesignCardGroupBox}">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-            </Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="0.5*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                
+                <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{language:L Project}"></TextBlock>
+                <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ProjectInfo.ProjectName}"></TextBlock>
 
-            <Label VerticalAlignment="Center" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{language:L Project}"></Label>
-            <Label VerticalAlignment="Center" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.ProjectName}"></Label>
+                <TextBlock VerticalAlignment="Center" Grid.Column="2" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{language:L Version}"></TextBlock>
+                <TextBlock VerticalAlignment="Center" Grid.Column="3" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ProjectInfo.ProjectVersion}"></TextBlock>
 
-            <Label VerticalAlignment="Center" Grid.Row="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{language:L Version}"></Label>
-            <Label VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.ProjectVersion}"></Label>
+                <TextBlock VerticalAlignment="Center" Grid.Row="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{language:L Date}"></TextBlock>
+                <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ProjectInfo.CreationTime,StringFormat={}{0:yyyy-MM-dd HH:mm}}"></TextBlock>
 
-            <Label VerticalAlignment="Center" Grid.Row="2" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{language:L Date}"></Label>
-            <Label VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.CreateTime}"></Label>
+                <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="2" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{language:L FilePath}"></TextBlock>
+                <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="3" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ProjectInfo.ProjectPath}"></TextBlock>
 
-            <Label VerticalAlignment="Center" Grid.Row="3" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{language:L FilePath}"></Label>
-            <Label VerticalAlignment="Center" Grid.Row="3" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.ProjectPath}"></Label>
-
-            <Label VerticalAlignment="Center" Grid.Row="4" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{language:L Executable}"></Label>
-            <Label VerticalAlignment="Center" Grid.Row="4" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ExecuteName}"></Label>
-
-            <Label VerticalAlignment="Center" Grid.Row="5" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{language:L TestPlan}"></Label>
-            <Label VerticalAlignment="Center" Grid.Row="5" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding TestPlanName}"></Label>
-
-            <Label VerticalAlignment="Center" Grid.Row="6" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{language:L TestPlanType}"></Label>
-            <Label VerticalAlignment="Center" Grid.Row="6" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Content="{Binding ProjectInfo.TestPlanTypeDescription}"></Label>
-        </Grid>
+                <TextBlock VerticalAlignment="Center" Grid.Row="2" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{language:L Executable}"></TextBlock>
+                <TextBlock VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ExecuteName}"></TextBlock>
+            </Grid>
+        </ScrollViewer>
     </GroupBox>
 </UserControl>

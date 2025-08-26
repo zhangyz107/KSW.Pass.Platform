@@ -158,7 +158,8 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
         private async void ExecuteAddLimitCommand()
         {
-            await DialogService.ShowDialogAsync(nameof(AddLimitDialogView));
+            if ((await DialogService.ShowDialogAsync(nameof(AddLimitDialogView)))?.Result == ButtonResult.OK)
+                await ReloadList();
         }
 
         private async void ExecuteEditLimitCommand(LimitsModel model)

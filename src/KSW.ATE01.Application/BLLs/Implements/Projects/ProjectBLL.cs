@@ -14,6 +14,7 @@ using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Helpers;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
@@ -46,6 +47,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectInfoRepository _repository;
+        private readonly ITestPlanManager _testPlanManager;
         private ProjectInfoModel _currentProjectInfo;
         private readonly string _logDirName = "Log";
         private readonly string _releaseDirName = "Release";
@@ -58,6 +60,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private FlowStatus _flowStatus;
         private CancellationTokenSource _tokenSource;
         private int _loopTargeCount = 0;
+
         #region Properties
         public FlowStatus FlowStatus
         {
@@ -71,13 +74,23 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             ISystemUnitOfWork unitOfWork,
             IProjectInfoRepository repository,
             IDialogService dialogService,
-            IEventAggregator eventAggregator) : base(containerProvider, unitOfWork, repository)
+            IEventAggregator eventAggregator,
+            ITestPlanManager testPlanManager) : base(containerProvider, unitOfWork, repository)
         {
             _repository = repository;
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
+            _testPlanManager = testPlanManager;
+
             _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
             _stopwatch = new Stopwatch();
+        }
+
+
+        public async Task<ProjectInfoModel> GetByIdAsync(string id)
+        {
+            var entity = await _repository.FindByIdAsync(id);
+            return entity?.MapTo<ProjectInfoModel>();
         }
 
         public async Task<List<ProjectInfoModel>> GetListAsync()
@@ -86,9 +99,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return list.MapToList<ProjectInfoModel>();
         }
 
-        public async Task<bool> CreateProjectInfoAsync(ProjectInfoModel projectInfo)
+        public async Task<string> CreateAsync(ProjectInfoModel projectInfo)
         {
-            bool result = false;
             try
             {
                 var templateName = ConfigurationManager.AppSettings["TemplateName"] ?? throw new ArgumentNullException("TemplateName");
@@ -100,7 +112,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 if (!Directory.Exists(projectInfo.ProjectPath))
                     Directory.CreateDirectory(projectInfo.ProjectPath);
                 else if (Directory.Exists(projectInfo.ProjectPath) && (await _dialogService.ShowMessageDialog($"当前路径下项目文件{projectInfo.ProjectName}已存在，是否进行覆盖", MessageBoxButton.YesNo, MessageBoxImage.Question))?.Result == ButtonResult.No)
-                    return result;
+                    return string.Empty;
 
                 await CreateProjectByTemplate(projectInfo, templateName, templatePath);
 
@@ -108,11 +120,17 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 ReplenishProjectInfo(projectInfo);
 
                 //保存项目信息
-                result = await SaveProjectInfo(projectInfo);
-                if (result)
-                    _currentProjectInfo = projectInfo;
 
-                return result;
+                var entity = projectInfo.MapTo<ProjectInfo>();
+                if (projectInfo.Id.IsEmpty())
+                {
+                    entity.Init();
+                    await CreateAsync(entity);
+                }
+
+                _currentProjectInfo = await GetByIdAsync(entity.Id.SafeString());
+
+                return entity.Id.SafeString();
             }
             catch (Exception e)
             {
@@ -192,29 +210,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
         }
 
-        public async Task<bool> SaveProjectInfo(ProjectInfoModel projectInfo)
+        public async Task<ProjectInfoModel> UpdateAsync(ProjectInfoModel projectInfo)
         {
-            var result = false;
-            try
-            {
-                var entity = projectInfo.MapTo<ProjectInfo>();
-                if (projectInfo.Id.IsEmpty())
-                {
-                    entity.Init();
-                    await CreateAsync(entity);
-                }
-                else
-                    await UpdateAsync(projectInfo.Id, entity);
-                //var configPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + projectInfo.ConfigurationExtension);
-                //KSW.Helpers.XmlHelper.SerializeToXml(entity, configPath);
-                result = true;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-            return result;
+            var entity = projectInfo.MapTo<ProjectInfo>();
+            await UpdateAsync(projectInfo.Id, entity);
+            _currentProjectInfo = await GetByIdAsync(projectInfo.Id);
+            return _currentProjectInfo;
         }
 
         public ProjectInfoModel LoadProjectInfo(string file)
@@ -239,8 +240,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
         public void SetCurrentProjectInfo(ProjectInfoModel projectInfo)
         {
-            if (projectInfo != null)
-                _currentProjectInfo = projectInfo;
+            //if (projectInfo != null)
+            _currentProjectInfo = projectInfo;
         }
 
         public async Task<bool> ReleaseSolutionAsync(ProjectInfoModel projectInfo = null, bool openReleaseDir = false)
@@ -461,7 +462,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             {
                 if (projectInfo.LoopExecuted >= _loopTargeCount)
                 {
-                    _loopTargeCount = projectInfo.LoopExecuted + projectInfo.LoopCount;
+                    _loopTargeCount = projectInfo.LoopExecuted ?? 0 + projectInfo.LoopCount ?? 0;
                 }
 
                 while (projectInfo.LoopExecuted < _loopTargeCount)
@@ -470,13 +471,13 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     //运行FlowStart
                     var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, flows, out int failCount);
                     projectInfo.FailCount += failCount;
-                    var failFlag = projectInfo.StopOnFail && failCount > 0;
+                    var failFlag = projectInfo.StopOnFail == true && failCount > 0;
                     projectInfo.LoopExecuted++;
 
                     if (token.IsCancellationRequested && failFlag)
                         break;
 
-                    await Task.Delay(projectInfo.DelayBetweenLoops * 1000);
+                    await Task.Delay(projectInfo.DelayBetweenLoops ?? 0 * 1000);
                 }
             }
             catch (Exception)
@@ -560,11 +561,11 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         throw new Warning(L["TemplateInstalledFailed"]);
                 }
 
-                //var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.TestPlanType, projectInfo.ProjectPath, templateName);
-                //if (createResult)
-                //    Log?.LogInformation(L["ProjectCreatedSuccessfully"]);
-                //else
-                //    throw new Warning(L["ProjectCreatedFailed"]);
+                var createResult = await ProjectTemplateHelper.CreateSolutionByTemplateAsync(projectInfo.ProjectPath, templateName);
+                if (createResult)
+                    Log?.LogInformation(L["ProjectCreatedSuccessfully"]);
+                else
+                    throw new Warning(L["ProjectCreatedFailed"]);
             }
             catch (Exception)
             {
@@ -576,7 +577,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private void ReplenishProjectInfo(ProjectInfoModel projectInfo)
         {
             //完善项目相关信息
-            projectInfo.ProjectVersion = new Version("1.0.0000.1").ToString();
             projectInfo.DatalogPath = Path.Combine(projectInfo.ProjectPath, _logDirName);
             projectInfo.ReleasePath = Path.Combine(projectInfo.ProjectPath, _releaseDirName);
         }
@@ -748,7 +748,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             try
             {
                 result = ExecuteFunction(ProcessStage.FlowStart, instance, classType, startFlowMethod, null);
-                if (projectInfo.IsPrintTime)
+                if (projectInfo.IsPrintTime == true)
                 {
                     var message = $"====== Flow Start time : {_stopwatch.ElapsedMilliseconds - spendTime} ms ====== ";
                     spendTime = _stopwatch.ElapsedMilliseconds;
@@ -765,7 +765,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         ++failCount;
                 }
 
-                if (projectInfo.IsPrintTime)
+                if (projectInfo.IsPrintTime == true)
                 {
                     var message = $"====== The whole flow time : {_stopwatch.ElapsedMilliseconds - spendTime} ms ====== ";
                     spendTime = _stopwatch.ElapsedMilliseconds;
@@ -782,7 +782,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             {
                 result = ExecuteFunction(ProcessStage.FlowEnd, instance, classType, endFlowMethod, null);
                 _stopwatch.Stop();
-                if (projectInfo.IsPrintTime)
+                if (projectInfo.IsPrintTime == true)
                 {
                     var message = $"====== Flow End time : {_stopwatch.ElapsedMilliseconds - spendTime} ms ====== ";
                     spendTime = _stopwatch.ElapsedMilliseconds;
@@ -808,6 +808,16 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 commonData.TestItemArgs = testItem.Args;
                 commonData.TestItemLimit = limits.IsEmpty() ? null : limits.FirstOrDefault(x => x.TestItemId.Equals(testItem.Id.ToGuid()));
             }
+        }
+
+        public async Task DeleteAsync(string id)
+        {
+            if (id.IsEmpty())
+                return;
+
+            await _repository?.RemoveAsync(id);
+            await _testPlanManager?.DeleteTestPlanByProjectIdAsync(id);
+            await CommitAsync();
         }
     }
 }

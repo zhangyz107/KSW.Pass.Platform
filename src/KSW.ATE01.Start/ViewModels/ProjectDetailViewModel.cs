@@ -12,7 +12,6 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
-using KSW.ATE01.Application.BLLs.Implements.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Start.Views.Dialogs;
@@ -78,14 +77,19 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void RegisterEvent()
         {
+            _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
             _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Subscribe(ProjectInfoUpdate);
             _eventAggregator.GetEvent<LoadProjectFromArgsEvent>().Subscribe(LoadProjectFromArgs);
+        }
+
+        private void SelectedProjectInfo()
+        {
+            ProjectInfoUpdate();
         }
 
         private void ProjectInfoUpdate()
         {
             ProjectInfo = _projectBLL?.GetCurrentProjectInfo();
-            //TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
             ExecuteName = _projectInfo?.ProjectName + _projectInfo?.ExecuteExtension;
         }
 
@@ -100,7 +104,7 @@ namespace KSW.ATE01.Start.ViewModels
                     var cfgFile = cfgs.FirstOrDefault();
                     if (cfgFile != null)
                     {
-                        ProjectInfo = _projectBLL.LoadProjectInfo(cfgFile.FullName);
+                        //ProjectInfo = _projectBLL.LoadProjectInfo(cfgFile.FullName);
                         _projectBLL.SetCurrentProjectInfo(ProjectInfo);
                         //TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
                         ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;

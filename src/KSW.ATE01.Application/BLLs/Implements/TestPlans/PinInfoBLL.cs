@@ -3,14 +3,18 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
+using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
+using NPOI.SS.Formula.Atp;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
     public class PinInfoBLL : CrudServiceBase<PinInfo>, IPinInfoBLL
     {
         private readonly IPinInfoRepository _repository;
+        private readonly ISiteInfoRepository _siteInfoRepository;
         private readonly IPinSiteInfoRepository _pinSiteInfoRepository;
         private readonly IGroupInfoRepository _groupInfoRepository;
         private readonly IPinGroupRelationshipRepositoy _pinGroupRelationshipRepositoy;
@@ -20,12 +24,14 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             IContainerProvider containerProvider,
             ISystemUnitOfWork unitOfWork,
             IPinInfoRepository repository,
+            ISiteInfoRepository siteInfoRepository,
             IPinSiteInfoRepository pinSiteInfoRepository,
             IGroupInfoRepository groupInfoRepository,
             IPinGroupRelationshipRepositoy pinGroupRelationshipRepositoy,
             IPinChannelManager pinChannelManager) : base(containerProvider, unitOfWork, repository)
         {
             _repository = repository;
+            _siteInfoRepository = siteInfoRepository;
             _pinSiteInfoRepository = pinSiteInfoRepository;
             _groupInfoRepository = groupInfoRepository;
             _pinGroupRelationshipRepositoy = pinGroupRelationshipRepositoy;
@@ -42,8 +48,24 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         private async Task GetDetailAsync(PinInfoModel? model)
         {
+            if (model == null)
+                return;
+
             var pinSites = await _pinSiteInfoRepository.FindAllAsync(x => x.PinInfoId.Equals(model.Id.ToGuid()));
-            model.PinSiteInfos = pinSites?.MapToList<PinSiteInfoModel>();
+            var siteIds = pinSites.Select(x => x.SiteInfoId).Distinct().ToList();
+            var sites = await _siteInfoRepository.FindAllAsync(x => siteIds.Contains(x.Id));
+            model.PinSiteInfos = pinSites.OrderBy(x => x.SortId).MapToList<PinSiteInfoModel>();
+            foreach (var pinSite in model.PinSiteInfos)
+            {
+                var site = sites.FirstOrDefault(x => x.Id.Equals(pinSite.SiteInfoId));
+                pinSite.SiteName = site?.SiteName;
+            }
+            model.ChannelName = string.Join(", ", pinSites.OrderBy(x => x.SortId).Select(x => x.ChannelName));
+
+            var pinGroups = await _pinGroupRelationshipRepositoy.FindAllAsync(x => x.PinInfoId.Equals(model.Id.ToGuid()));
+            var groupIds = pinGroups.Select(x => x.GroupInfoId).Distinct().ToList();
+            var groups = await _groupInfoRepository.FindAllAsync(x => groupIds.Contains(x.Id));
+            model.GroupName = string.Join(", ", groups.Select(x => x.GroupName));
         }
 
         public async Task<string> CreateAsync(PinInfoModel model)
@@ -73,36 +95,46 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                 pinInfos = pinInfos.Where(x => !ids.Contains(x.Id.SafeString())).ToList();
 
             var result = pinInfos?.MapToList<PinInfoModel>();
-            if (!result.IsEmpty())
-            {
-                var pinIds = pinInfos.Select(x => x.Id).ToList();
-                #region 获得引脚站点信息
-                var pinSites = await _pinSiteInfoRepository.FindAllAsync(x => pinIds.Contains(x.PinInfoId));
-                var index = 0;
-                foreach (var item in result)
-                {
-                    var channelNames = pinSites.Where(x => x.PinInfoId.SafeString()?.Equals(item.Id) == true).OrderBy(x => x.SortId).Select(y => y.ChannelName);
-                    item.SortId = ++index;
-                    item.ChannelName = string.Join(", ", channelNames);
-                }
-                #endregion
+            await GetDetailAsync(result);
+            //if (!result.IsEmpty())
+            //{
+            //    var pinIds = pinInfos.Select(x => x.Id).ToList();
+            //    #region 获得引脚站点信息
+            //    var pinSites = await _pinSiteInfoRepository.FindAllAsync(x => pinIds.Contains(x.PinInfoId));
+            //    var index = 0;
+            //    foreach (var item in result)
+            //    {
+            //        var channelNames = pinSites.Where(x => x.PinInfoId.SafeString()?.Equals(item.Id) == true).OrderBy(x => x.SortId).Select(y => y.ChannelName);
+            //        item.SortId = ++index;
+            //        item.ChannelName = string.Join(", ", channelNames);
+            //    }
+            //    #endregion
 
-                #region 获得引脚和组信息
-                var pinGroups = await _pinGroupRelationshipRepositoy.FindAllAsync(x => pinIds.Contains(x.PinInfoId));
-                var groupIds = pinGroups.Select(x => x.GroupInfoId).Distinct().ToList();
-                var groups = await _groupInfoRepository.FindAllAsync(x => groupIds.Contains(x.Id));
-                foreach (var item in result)
-                {
-                    var itemGroupIds = pinGroups.Where(x => x.PinInfoId.Equals(item.Id.ToGuid())).Select(x => x.GroupInfoId);
-                    var itemGroupsName = groups.Where(x => itemGroupIds.Contains(x.Id)).OrderBy(x => x.CreationTime).Select(x => x.GroupName);
-                    if (itemGroupsName.Any())
-                        item.GroupName = string.Join(",", itemGroupsName);
-                }
-                #endregion
+            //    #region 获得引脚和组信息
+            //    var pinGroups = await _pinGroupRelationshipRepositoy.FindAllAsync(x => pinIds.Contains(x.PinInfoId));
+            //    var groupIds = pinGroups.Select(x => x.GroupInfoId).Distinct().ToList();
+            //    var groups = await _groupInfoRepository.FindAllAsync(x => groupIds.Contains(x.Id));
+            //    foreach (var item in result)
+            //    {
+            //        var itemGroupIds = pinGroups.Where(x => x.PinInfoId.Equals(item.Id.ToGuid())).Select(x => x.GroupInfoId);
+            //        var itemGroupsName = groups.Where(x => itemGroupIds.Contains(x.Id)).OrderBy(x => x.CreationTime).Select(x => x.GroupName);
+            //        if (itemGroupsName.Any())
+            //            item.GroupName = string.Join(",", itemGroupsName);
+            //    }
+            //    #endregion
 
-            }
+            //}
 
             return result;
+        }
+
+        private async Task GetDetailAsync(List<PinInfoModel> models)
+        {
+            if (models.IsEmpty())
+                return;
+
+            foreach (var model in models)
+                await GetDetailAsync(model);
         }
 
         public async Task<string> SaveAsync(PinInfoModel model)

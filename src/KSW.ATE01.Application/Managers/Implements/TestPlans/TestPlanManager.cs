@@ -13,10 +13,13 @@
 
 
 using KSW.Application;
-using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
+using KSW.ATE01.Data;
+using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.Projects.Core.Enums;
+using KSW.ATE01.Domain.TestPlan.Repositories;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.TestPlans;
 using KSW.Exceptions;
@@ -27,12 +30,12 @@ using System.Text;
 using LevelModel = KSW.ATE01.Project.Base.Models.TestPlans.LevelModel;
 using TimingModel = KSW.ATE01.Project.Base.Models.TestPlans.TimingModel;
 
-namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
+namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 {
     /// <summary>
     /// 测试计划业务逻辑层
     /// </summary>
-    public class TestPlanBLL : ServiceBase, ITestPlanBLL
+    public class TestPlanManager : ServiceBase, ITestPlanManager
     {
         #region Fields
         private readonly string _channelDataStartCell = "A4";
@@ -50,11 +53,55 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         private readonly string _levelSheetName = "Level";
         private readonly string _timingSheetName = "Timing";
         private readonly string _excelExtension;
+        private readonly ISystemUnitOfWork _unitOfWork;
+        private readonly IPinOverviewRepository _pinOverviewRepository;
+        private readonly ISiteInfoRepository _siteInfoRepository;
+        private readonly IPinInfoRepository _pinInfoRepository;
+        private readonly IGroupInfoRepository _groupInfoRepository;
+        private readonly IPinGroupRelationshipRepositoy _pinGroupRelationshipRepositoy;
+        private readonly IPinSiteInfoRepository _pinSiteInfoRepository;
+        private readonly ITestItemInfoRepository _testItemInfoRepository;
+        private readonly ILimitsRepository _limitsRepository;
+        private readonly ILevelGroupRepository _levelGroupRepository;
+        private readonly ITimingGroupRepository _timingGroupRepository;
+        private readonly ILevelRepository _levelRepository;
+        private readonly ITimingRepository _timingRepository;
+        private readonly IGlobalParameterRepository _globalParameterRepository;
         #endregion
 
-        public TestPlanBLL(IContainerProvider containerProvider) : base(containerProvider)
+        public TestPlanManager(
+            IContainerProvider containerProvider,
+            ISystemUnitOfWork unitOfWork,
+            IPinOverviewRepository pinOverviewRepository,
+            ISiteInfoRepository siteInfoRepository,
+            IPinInfoRepository pinInfoRepository,
+            IGroupInfoRepository groupInfoRepository,
+            IPinGroupRelationshipRepositoy pinGroupRelationshipRepositoy,
+            IPinSiteInfoRepository pinSiteInfoRepository,
+            ITestItemInfoRepository testItemInfoRepository,
+            ILimitsRepository limitsRepository,
+            ILevelGroupRepository levelGroupRepository,
+            ITimingGroupRepository timingGroupRepository,
+            ILevelRepository levelRepository,
+            ITimingRepository timingRepository,
+            IGlobalParameterRepository globalParameterRepository) : base(containerProvider)
         {
             _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
+
+            _unitOfWork = unitOfWork;
+            _pinOverviewRepository = pinOverviewRepository;
+            _siteInfoRepository = siteInfoRepository;
+            _pinInfoRepository = pinInfoRepository;
+            _groupInfoRepository = groupInfoRepository;
+            _pinGroupRelationshipRepositoy = pinGroupRelationshipRepositoy;
+            _pinSiteInfoRepository = pinSiteInfoRepository;
+            _testItemInfoRepository = testItemInfoRepository;
+            _limitsRepository = limitsRepository;
+            _levelGroupRepository = levelGroupRepository;
+            _timingGroupRepository = timingGroupRepository;
+            _levelRepository = levelRepository;
+            _timingRepository = timingRepository;
+            _globalParameterRepository = globalParameterRepository;
         }
 
         #region 加载测试项
@@ -1221,6 +1268,81 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                 throw;
             }
         }
+
         #endregion
+
+        public async Task DeleteTestPlanByProjectIdAsync(string projectId)
+        {
+            #region 引脚总览
+            var pinOverviews = await _pinOverviewRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var pinOverviewIds = pinOverviews?.Select(x => x.Id);
+            await _pinOverviewRepository.RemoveAsync(pinOverviews);
+            #endregion
+
+            #region 组信息
+            var groupInfos = await _groupInfoRepository.FindAllAsync(x => pinOverviewIds.Contains(x.PinOverviewId));
+            var groupInfoIds = groupInfos?.Select(x => x.Id);
+            await _groupInfoRepository.RemoveAsync(groupInfos);
+            #endregion
+
+            #region 引脚与组关系
+            var pinGroupRelationships = await _pinGroupRelationshipRepositoy.FindAllAsync(x => groupInfoIds.Contains(x.GroupInfoId));
+            await _pinGroupRelationshipRepositoy.RemoveAsync(pinGroupRelationships);
+            #endregion
+
+            #region 引脚信息
+            var pinInfos = await _pinInfoRepository.FindAllAsync(x => pinOverviewIds.Contains(x.PinOverviewId));
+            var pinInfoIds = pinInfos?.Select(x => x.Id);
+            await _pinInfoRepository.RemoveAsync(pinInfos);
+            #endregion
+
+            #region 站点信息
+            var siteInfos = await _siteInfoRepository.FindAllAsync(x => pinOverviewIds.Contains(x.PinOverviewId));
+            var siteInfoIds = siteInfos?.Select(x => x.Id);
+            await _siteInfoRepository.RemoveAsync(siteInfos);
+            #endregion
+
+            #region 引脚站点信息
+            var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => siteInfoIds.Contains(x.SiteInfoId));
+            await _pinSiteInfoRepository.RemoveAsync(pinSiteInfos);
+            #endregion
+
+            #region 测试项信息
+            var testItems = await _testItemInfoRepository.FindAllAsync(x =>x.ProjectInfoId.Equals(projectId.ToGuid()));
+            await _testItemInfoRepository.RemoveAsync(testItems);
+            #endregion
+
+            #region 测试项门限
+            var limits = await _limitsRepository.FindAllAsync(x =>x.ProjectInfoId.Equals(projectId.ToGuid()));
+            await _limitsRepository.RemoveAsync(limits);
+            #endregion
+
+            #region 测试项电平组
+            var levelGroups = await _levelGroupRepository.FindAllAsync(x =>x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var levelGroupIds = levelGroups?.Select(x => x.Id);
+            await _levelGroupRepository.RemoveAsync(levelGroups);
+            #endregion
+
+            #region 测试项电平
+            var levels = await _levelRepository.FindAllAsync(x => levelGroupIds.Contains(x.LevelGroupId));
+            await _levelRepository.RemoveAsync(levels);
+            #endregion
+
+            #region 测试项时钟组
+            var timingGroups = await _timingGroupRepository.FindAllAsync(x =>x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var timingGroupIds = timingGroups?.Select(x => x.Id);
+            await _timingGroupRepository.RemoveAsync(timingGroups);
+            #endregion
+
+            #region 测试项时钟
+            var timings = await _timingRepository.FindAllAsync(x => timingGroupIds.Contains(x.TimingGroupId));
+            await _timingRepository.RemoveAsync(timings);
+            #endregion
+
+            #region 全局参数
+            var globalParameters = await _globalParameterRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            await _globalParameterRepository.RemoveAsync(globalParameters);
+            #endregion
+        }
     }
 }

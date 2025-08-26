@@ -68,7 +68,7 @@
         <Border Grid.Row="1" Margin="0,6,6,0" BorderThickness="1" BorderBrush="{DynamicResource MaterialDesign.Brush.Foreground}" CornerRadius="4">
             <DataGrid  AutoGenerateColumns="False" 
                        CanUserAddRows="False" 
-                       ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                       ScrollViewer.HorizontalScrollBarVisibility="Auto" 
                        materialDesign:DataGridAssist.CellPadding="4"
                        VirtualizingPanel.VirtualizationMode="Recycling"
                        VirtualizingPanel.IsContainerVirtualizable="True"
@@ -94,6 +94,10 @@
                                         Header="{language:L Force}"></DataGridTextColumn>
                     <DataGridTextColumn Header="{language:L PinOrGroupName}" 
                                         Binding="{Binding PinOrGroupName}"
+                                        IsReadOnly="True" 
+                                        ElementStyle="{StaticResource CellTextBlock}"/>
+                    <DataGridTextColumn Header="{language:L Limits}" 
+                                        Binding="{Binding LimitName}"
                                         IsReadOnly="True" 
                                         ElementStyle="{StaticResource CellTextBlock}"/>
                     <DataGridTextColumn Header="{language:L LevelGroupName}" 

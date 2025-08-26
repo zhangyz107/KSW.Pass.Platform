@@ -837,4 +837,12 @@
     <value>Level</value>
     <comment>电平</comment>
   </data>
+  <data name="ProjectInfo" xml:space="preserve">
+    <value>ProjectInfo</value>
+    <comment>项目信息</comment>
+  </data>
+  <data name="EditProject" xml:space="preserve">
+    <value>Edit Project</value>
+    <comment>编辑项目</comment>
+  </data>
 </root>

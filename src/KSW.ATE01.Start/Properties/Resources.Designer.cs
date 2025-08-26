@@ -520,6 +520,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Edit Project 的本地化字符串。
+        /// </summary>
+        internal static string EditProject {
+            get {
+                return ResourceManager.GetString("EditProject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Edit TestItem 的本地化字符串。
         /// </summary>
         internal static string EditTestItem {
@@ -1272,6 +1281,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string ProjectFolder {
             get {
                 return ResourceManager.GetString("ProjectFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 ProjectInfo 的本地化字符串。
+        /// </summary>
+        internal static string ProjectInfo {
+            get {
+                return ResourceManager.GetString("ProjectInfo", resourceCulture);
             }
         }
         

@@ -35,7 +35,7 @@ namespace KSW.ATE01.Start.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly IRegionManager _regionManager;
         private readonly IProjectBLL _projectBLL;
-        private ObservableCollection<ProjectInfoModel> _projectList;
+        private ObservableCollection<ProjectInfoModel> _projectList = new ObservableCollection<ProjectInfoModel>();
         private ProjectDetailView _projectDetailView;
         private ProjectInfoModel _selectProjectInfo;
         #endregion
@@ -73,25 +73,29 @@ namespace KSW.ATE01.Start.ViewModels
         public AsyncDelegateCommand LoadingCommand =>
             _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
 
-        private DelegateCommand _newProjectCommand;
-        public DelegateCommand NewProjectCommand =>
-            _newProjectCommand ?? (_newProjectCommand = new DelegateCommand(ExecuteNewProjectCommand));
-
-        private DelegateCommand _openProjectCommand;
-        public DelegateCommand OpenProjectCommand =>
-            _openProjectCommand ?? (_openProjectCommand = new DelegateCommand(ExecuteOpenProjectCommand));
+        private AsyncDelegateCommand _newProjectCommand;
+        public AsyncDelegateCommand NewProjectCommand =>
+            _newProjectCommand ?? (_newProjectCommand = new AsyncDelegateCommand(ExecuteNewProjectCommand));
 
         private DelegateCommand _saveAsCommand;
         public DelegateCommand SaveAsCommand =>
             _saveAsCommand ?? (_saveAsCommand = new DelegateCommand(ExecuteSaveAsCommand));
 
-        private DelegateCommand _delelopCommand;
-        public DelegateCommand DelelopCommand =>
-            _delelopCommand ?? (_delelopCommand = new DelegateCommand(ExecuteDelelopCommand));
+        private AsyncDelegateCommand<ProjectInfoModel> _editCommand;
+        public AsyncDelegateCommand<ProjectInfoModel> EditCommand =>
+            _editCommand ?? (_editCommand = new AsyncDelegateCommand<ProjectInfoModel>(ExecuteEditCommand));
 
-        private DelegateCommand _runCommand;
-        public DelegateCommand RunCommand =>
-            _runCommand ?? (_runCommand = new DelegateCommand(ExecuteRunCommand));
+        private DelegateCommand<ProjectInfoModel> _delelopCommand;
+        public DelegateCommand<ProjectInfoModel> DevelopCommand =>
+            _delelopCommand ?? (_delelopCommand = new DelegateCommand<ProjectInfoModel>(ExecuteDevelopCommand));
+
+        private AsyncDelegateCommand<ProjectInfoModel> _runCommand;
+        public AsyncDelegateCommand<ProjectInfoModel> RunCommand =>
+            _runCommand ?? (_runCommand = new AsyncDelegateCommand<ProjectInfoModel>(ExecuteRunCommand));
+
+        private AsyncDelegateCommand<ProjectInfoModel> _deleteCommand;
+        public AsyncDelegateCommand<ProjectInfoModel> DeleteCommand =>
+            _deleteCommand ?? (_deleteCommand = new AsyncDelegateCommand<ProjectInfoModel>(ExecuteDeleteCommand));
 
         private DelegateCommand _releaseCommand;
         public DelegateCommand ReleaseCommand =>
@@ -116,17 +120,18 @@ namespace KSW.ATE01.Start.ViewModels
             #region 加载页面
             _projectDetailView = _containerProvider.Resolve<ProjectDetailView>();
             #endregion
+
+            InitEvent();
+        }
+
+        private void InitEvent()
+        {
+            _eventAggregator.GetEvent<RefreshProjectListEvent>().Subscribe(async ()=> await ReloadList());
         }
 
         private async Task ExecuteLoadingCommand()
         {
-            var list = await _projectBLL?.GetListAsync();
-            ProjectList = new ObservableCollection<ProjectInfoModel>(list);
-            foreach (var item in _projectList)
-            {
-                item.DelelopCommand = DelelopCommand;
-                item.RunCommand = RunCommand;
-            }
+            await ReloadList();
 
             _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(ChannelSettingView));
             _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(LimitsSettingView));
@@ -139,21 +144,67 @@ namespace KSW.ATE01.Start.ViewModels
             _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(ChannelSettingView));
         }
 
-        private void ExecuteNewProjectCommand()
+        private async Task ReloadList()
         {
-            DialogService.ShowDialog(nameof(NewProjectDialog));
+            _projectList.Clear();
+            var list = await _projectBLL?.GetListAsync();
+            _projectList.AddRange(list);
+            foreach (var item in _projectList)
+            {
+                item.EditCommand = EditCommand;
+                item.DevelopCommand = DevelopCommand;
+                item.RunCommand = RunCommand;
+                item.DeleteCommand = DeleteCommand;
+            }
         }
 
-        private void ExecuteOpenProjectCommand()
+        private async Task ExecuteNewProjectCommand()
         {
-            DialogService.ShowDialog(nameof(OpenProjectDialog));
+            await DialogService.ShowDialogAsync(nameof(NewProjectDialog));
+
+            await ReloadList();
         }
+
         private void ExecuteSaveAsCommand()
         {
             DialogService.ShowDialog(nameof(SaveAsDialog));
         }
 
-        private void ExecuteDelelopCommand()
+        private async Task ExecuteEditCommand(ProjectInfoModel model)
+        {
+            var parameters = new DialogParameters();
+            parameters.Add("ProjectId", model.Id);
+
+            await DialogService.ShowDialogAsync(nameof(NewProjectDialog), parameters);
+
+            var projectInfo = await _projectBLL?.GetByIdAsync(model.Id);
+            UpdateModel(model, projectInfo);
+        }
+
+        private void UpdateModel(ProjectInfoModel model, ProjectInfoModel newModel)
+        {
+            model.Id = newModel.Id;
+            model.ProjectName = newModel.ProjectName;
+            model.ProjectPath = newModel.ProjectPath;
+            model.ProjectVersion = newModel.ProjectVersion;
+            model.SaveRealTimeText = newModel.SaveRealTimeText;
+            model.SaveSummary = newModel.SaveSummary;
+            model.SaveCsv = newModel.SaveCsv;
+            model.SaveStdf = newModel.SaveStdf;
+            model.DatalogPath = newModel.DatalogPath;
+            model.IsDoAll = newModel.IsDoAll;
+            model.IsPrintTime = newModel.IsPrintTime;
+            model.LoopCount = newModel.LoopCount;
+            model.DelayBetweenLoops = newModel.DelayBetweenLoops;
+            model.LoopExecuted = newModel.LoopExecuted;
+            model.FailCount = newModel.FailCount;
+            model.StopOnFail = newModel.StopOnFail;
+            model.ReleasePath = newModel.ReleasePath;
+            model.CreationTime = newModel.CreationTime;
+            model.LastModificationTime = newModel.LastModificationTime;
+        }
+
+        private void ExecuteDevelopCommand(ProjectInfoModel projectInfo)
         {
             try
             {
@@ -165,7 +216,7 @@ namespace KSW.ATE01.Start.ViewModels
                 Log?.LogError(e, e.Message);
             }
         }
-        private async void ExecuteRunCommand()
+        private async Task ExecuteRunCommand(ProjectInfoModel model)
         {
             var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
             if (currentProjectInfo == null)
@@ -174,6 +225,17 @@ namespace KSW.ATE01.Start.ViewModels
                 return;
             }
             DialogService.ShowDialog(nameof(RunDialog));
+        }
+
+        private async Task ExecuteDeleteCommand(ProjectInfoModel model)
+        {
+            if ((await DialogService.ShowMessageDialog("是否删除?", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question))?.Result == ButtonResult.Yes)
+            {
+                await _projectBLL?.DeleteAsync(model?.Id);
+                _projectList.Remove(model);
+                _projectBLL?.SetCurrentProjectInfo(null);
+                _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Publish();
+            }
         }
 
         private void ExecuteReleaseCommand()

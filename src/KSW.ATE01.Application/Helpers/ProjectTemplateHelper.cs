@@ -36,7 +36,7 @@ namespace KSW.ATE01.Application.Helpers
         /// <param name="templateName"></param>
         /// <param name="isCover"></param>
         /// <returns></returns>
-        public static async Task<bool> CreateSolutionByTemplateAsync(TestPlanType testPlanType, string targetDir, string templateName, bool isCover = true)
+        public static async Task<bool> CreateSolutionByTemplateAsync(string targetDir, string templateName, bool isCover = true)
         {
             var result = false;
             try
@@ -51,7 +51,7 @@ namespace KSW.ATE01.Application.Helpers
                         var commandExecute = "cmd.exe";
 
                         var nameSpace = Path.GetFileName(targetDir);
-                        var commandParams = $"/C cd /d {targetDir} && {_commandExecute} new {templateName} -N {nameSpace} -T {testPlanType.ToString()} --force";
+                        var commandParams = $"/C cd /d {targetDir} && {_commandExecute} new {templateName} -N {nameSpace} --force";
                         var output = await CommandLineHelper.SendCommandLine(commandExecute, commandParams);
                         result = true;
                     }

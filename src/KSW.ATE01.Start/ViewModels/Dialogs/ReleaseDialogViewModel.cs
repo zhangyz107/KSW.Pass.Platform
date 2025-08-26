@@ -78,12 +78,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public async void OnDialogClosed()
         {
-            var saveResult = await _projectBLL.SaveProjectInfo(_projectInfo);
-            if (_projectInfo != null && saveResult)
-            {
-                _projectBLL.SetCurrentProjectInfo(_projectInfo);
-                _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
-            }
+            var saveResult = await _projectBLL.UpdateAsync(_projectInfo);
+            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
         }
 
         public void OnDialogOpened(IDialogParameters parameters)

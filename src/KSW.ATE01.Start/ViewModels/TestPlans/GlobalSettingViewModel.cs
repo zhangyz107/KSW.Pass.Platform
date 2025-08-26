@@ -158,13 +158,13 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         private async Task ReloadList()
         {
             var globalParameterList = await _globalParameterBLL?.GetListByProjectIdAsync(_projectInfo?.Id);
+            _globalParameterList.Clear();
             if (!globalParameterList.IsEmpty())
             {
-                GlobalParameterList.Clear();
                 var index = 0;
                 foreach (var item in globalParameterList)
                     item.SortId = ++index;
-                GlobalParameterList.AddRange(globalParameterList);
+                _globalParameterList.AddRange(globalParameterList);
             }
         }
 

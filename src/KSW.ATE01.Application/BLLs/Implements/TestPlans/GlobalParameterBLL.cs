@@ -73,7 +73,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         #region 创建前事件
         protected override async Task CreateBeforeAsync(GlobalParameter entity)
         {
-            var exist = await _repository.ExistsAsync(x => x.Id != entity.Id && x.PatternFile.Equals(entity.PatternFile));
+            var exist = await _repository.ExistsAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.PatternFile.Equals(entity.PatternFile));
             if (exist)
             {
                 throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.PatternFile));
@@ -84,7 +84,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         #region 更新前事件
         protected override async Task UpdateBeforeAsync(GlobalParameter entity)
         {
-            var exist = await _repository.ExistsAsync(x => x.Id != entity.Id && x.PatternFile.Equals(entity.PatternFile));
+            var exist = await _repository.ExistsAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.PatternFile.Equals(entity.PatternFile));
             if (exist)
             {
                 throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.PatternFile));

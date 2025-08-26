@@ -12,8 +12,8 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
-using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Project.Base.Helpers;
@@ -39,7 +39,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Fields
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
-        private readonly ITestPlanBLL _testPlanBLL;
+        private readonly ITestPlanManager _testPlanBLL;
         private ProjectInfoModel _projectInfo;
         private TestPlanModel _testPlan;
         private ObservableCollection<FlowInfoModel> _flowList = new ObservableCollection<FlowInfoModel>();
@@ -177,7 +177,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             _eventAggregator = eventAggregator;
             //_projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
-            _testPlanBLL = ContainerProvider?.Resolve<ITestPlanBLL>();
+            _testPlanBLL = ContainerProvider?.Resolve<ITestPlanManager>();
         }
 
         private void ExecuteLoadingCommand()
@@ -192,12 +192,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public async void OnDialogClosed()
         {
-            var saveResult = await _projectBLL.SaveProjectInfo(_projectInfo);
-            if (_projectInfo != null && saveResult)
-            {
-                _projectBLL.SetCurrentProjectInfo(_projectInfo);
-                _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
-            }
+            var saveResult = await _projectBLL.UpdateAsync(_projectInfo);
+            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -241,7 +237,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 _canLoadTestPlan = false;
                 ChangeCommandsState();
 
-                _testPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
+                //_testPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
 
                 ATE01ShareMemory.LoadedTestPlanFilePath = (Path.IsPathRooted(ATE01ShareMemory.TestPlanFilePath) ? ATE01ShareMemory.TestPlanFilePath : Path.Combine(Path.GetDirectoryName(_projectInfo.ProjectPath), ATE01ShareMemory.TestPlanFilePath));
 
@@ -323,7 +319,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             await ExecuteWithExceptionHandling(() =>
               {
-                  var result = _testPlanBLL?.SetTestPlanFlow(FlowList, _projectInfo);
+                  //var result = _testPlanBLL?.SetTestPlanFlow(FlowList, _projectInfo);
               }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
 
         }
@@ -351,7 +347,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                         var commonData = CommonData.Instance;
                         var globalSetting = GlobalSetting.Instance;
 
-                        PrintResultLog.PrintRealTimeTxt = _projectInfo.SaveRealTimeText;
+                        PrintResultLog.PrintRealTimeTxt = _projectInfo.SaveRealTimeText == true;
                         if (commonData != null)
                         {
                             globalSetting.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();

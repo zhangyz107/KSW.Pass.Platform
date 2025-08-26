@@ -120,16 +120,16 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         #region 创建前事件
         protected override async Task CreateBeforeAsync(TestItemInfo entity)
         {
-            var existTestItemName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.TestItemName.Equals(entity.TestItemName));
+            var existTestItemName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.TestItemName.Equals(entity.TestItemName));
             if (existTestItemName)
             {
-                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.TestItemName));
+                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], $"{L["TestItemName"]}:{entity.TestItemName}"));
             }
 
-            var existFunctionName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.FunctionName.Equals(entity.FunctionName));
+            var existFunctionName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.FunctionName.Equals(entity.FunctionName));
             if (existFunctionName)
             {
-                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.FunctionName));
+                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], $"{L["FunctionName"]}:{entity.FunctionName}"));
             }
 
             await base.CreateBeforeAsync(entity);
@@ -139,16 +139,16 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         #region 更新前事件
         protected override async Task UpdateBeforeAsync(TestItemInfo entity)
         {
-            var existTestItemName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.TestItemName.Equals(entity.TestItemName));
+            var existTestItemName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.TestItemName.Equals(entity.TestItemName));
             if (existTestItemName)
             {
-                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.TestItemName));
+                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], $"{L["TestItemName"]}:{entity.TestItemName}"));
             }
 
-            var existFunctionName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.FunctionName.Equals(entity.FunctionName));
+            var existFunctionName = await _repository.ExistsAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.FunctionName.Equals(entity.FunctionName));
             if (existFunctionName)
             {
-                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.FunctionName));
+                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], $"{L["FunctionName"]}:{entity.FunctionName}"));
             }
 
             await base.UpdateBeforeAsync(entity);

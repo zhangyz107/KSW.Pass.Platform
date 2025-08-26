@@ -40,16 +40,34 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             return orderList?.MapToList<SiteInfoModel>();
         }
 
-        public async Task<string> CreateAsync(SiteInfoModel model)
+        public async Task CreateSiteByCountAsync(string id, int? count)
         {
-            if (model == null)
-                return null;
+            if (count == null || count == 0)
+                return;
 
-            var entity = model.MapTo<SiteInfo>();
-            entity.Init();
-            await CreateAsync(entity);
-
-            return entity.Id.SafeString();
+            var list = await _repository.FindAllAsync(x => x.PinOverviewId.Equals(id.ToGuid()));
+            if (list.Count > count)
+            {
+                var removeList = list.Skip(count ?? 0).ToList();
+                await _repository.RemoveAsync(removeList);
+                await CommitAsync();
+            }
+            else if (list.Count < count)
+            {
+                var addList = new List<SiteInfo>();
+                var addCount = count - list.Count;
+                for (int i = 0; i < addCount; i++)
+                {
+                    var entity = new SiteInfo();
+                    entity.Init();
+                    entity.PinOverviewId = id.ToGuid();
+                    entity.SortId = list.Count + i;
+                    entity.SiteName = $"Site {entity.SortId}";
+                    addList.Add(entity);
+                }
+                await _repository.AddAsync(addList);
+                await CommitAsync();
+            }
         }
     }
 }

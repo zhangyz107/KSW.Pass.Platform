@@ -25,6 +25,6 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        Task<string> CreateAsync(SiteInfoModel model);
+        Task CreateSiteByCountAsync(string pinOverviewId, int? count);
     }
 }

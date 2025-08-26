@@ -12,6 +12,13 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
     public interface IProjectBLL : IService
     {
         /// <summary>
+        /// 通过id获取项目信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<ProjectInfoModel> GetByIdAsync(string id);
+
+        /// <summary>
         /// 获取项目列表
         /// </summary>
         /// <returns></returns>
@@ -20,7 +27,7 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// <summary>
         /// 创建项目
         /// </summary>
-        Task<bool> CreateProjectInfoAsync(ProjectInfoModel projectInfo);
+        Task<string> CreateAsync(ProjectInfoModel projectInfo);
 
         /// <summary>
         /// 通过VS运行当前项目
@@ -35,17 +42,17 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// <summary>
         /// 扫描目标文件夹下的所有项目
         /// </summary>
-        List<ProjectInfoModel> ScanProjects(string folderName);
+        //List<ProjectInfoModel> ScanProjects(string folderName);
 
         /// <summary>
         /// 保存项目信息
         /// </summary>
-        Task<bool> SaveProjectInfo(ProjectInfoModel projectInfo);
+        Task<ProjectInfoModel> UpdateAsync(ProjectInfoModel projectInfo);
 
         /// <summary>
         /// 从项目配置文件中加载项目信息
         /// </summary>
-        ProjectInfoModel LoadProjectInfo(string file);
+        //ProjectInfoModel LoadProjectInfo(string file);
 
         /// <summary>
         /// 设置当前项目信息
@@ -82,5 +89,12 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// 停止循环
         /// </summary>
         void StopLooping();
+
+        /// <summary>
+        /// 通过id删除项目
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task DeleteAsync(string id);
     }
 }
