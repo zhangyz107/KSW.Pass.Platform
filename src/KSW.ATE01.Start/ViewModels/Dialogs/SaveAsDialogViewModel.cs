@@ -12,6 +12,7 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.BLLs.Implements.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Managers.Abstractions.Projects;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
@@ -36,11 +37,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
-        private readonly ITestPlanManager _testPlanBLL;
-        private readonly IProjectManager _projectTestPlanManager;
         private TestPlanType? _testPlanType;
         private ProjectInfoModel _currentProjectInfo;
         private string _currentProjectPath;
+        private string _version;
         private string _saveAsDir;
         private string _saveAsName;
 
@@ -49,20 +49,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Properties
         public DialogCloseListener RequestClose { get; }
         public string Title => L["SaveAs"];
-        public Dictionary<TestPlanType, string> TestPlanTypeCbItems => new Dictionary<TestPlanType, string>()
-        {
-            { Domain.Projects.Core.Enums.TestPlanType.Excel,Domain.Projects.Core.Enums.TestPlanType.Excel.Description()},
-            { Domain.Projects.Core.Enums.TestPlanType.Csv,Domain.Projects.Core.Enums.TestPlanType.Csv.Description()}
-        };
-
-        /// <summary>
-        /// 测试计划类型
-        /// </summary>
-        public TestPlanType? TestPlanType
-        {
-            get => _testPlanType;
-            set => SetProperty(ref _testPlanType, value);
-        }
 
         /// <summary>
         /// 当前项目路径
@@ -89,7 +75,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             set => SetProperty(ref _saveAsName, value);
         }
 
-
+        /// <summary>
+        /// 版本
+        /// </summary>
+        public string Version
+        {
+            get => _version;
+            set => SetProperty(ref _version, value);
+        }
         #endregion
 
         #region Command
@@ -109,20 +102,20 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public SaveAsDialogViewModel(
             IContainerProvider containerProvider,
             IDialogService dialogService,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IEventAggregator eventAggregator,
+            IProjectBLL projectBLL) : base(containerProvider)
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
-            //_projectBLL = ContainerProvider.IsRegistered<IProjectBLL>() ? ContainerProvider.Resolve<IProjectBLL>() : null;
-            _testPlanBLL = ContainerProvider.IsRegistered<ITestPlanManager>() ? ContainerProvider.Resolve<ITestPlanManager>() : null;
-            _projectTestPlanManager = ContainerProvider.IsRegistered<IProjectManager>() ? ContainerProvider.Resolve<IProjectManager>() : null;
+            _projectBLL = projectBLL;
+
             LoadData();
         }
 
         private void LoadData()
         {
             _currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
-            //_testPlanType = _currentProjectInfo?.TestPlanType;
+            _version = _currentProjectInfo?.ProjectVersion;
             _currentProjectPath = _currentProjectInfo?.ProjectPath;
             _saveAsDir = Path.GetDirectoryName(_currentProjectInfo?.ProjectPath);
         }
@@ -169,6 +162,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 if (_currentProjectInfo == null)
                     throw new Warning(string.Format("{0}{1}", L["SelectProject"], L["IsEmpty"]));
 
+                if (_version.IsEmpty())
+                    throw new Warning(string.Format("{0}{1}", L["Version"], L["CanNotBeEmpty"]));
+
                 if (_saveAsDir.IsEmpty())
                     throw new Warning(string.Format("{0}{1}", L["SaveAsPath"], L["CanNotBeEmpty"]));
 
@@ -185,16 +181,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-                    var result = await _projectTestPlanManager?.SaveAsProjectInfoAsync(_saveAsDir, _saveAsName);
-
-                    if (result)
-                    {
-                        _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
-                        RaiseRequestClose(new DialogResult(ButtonResult.OK));
-                    }
-
+                    var result = await _projectBLL?.CopyAsync(_saveAsDir, _saveAsName, _version);
                 });
                 await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
+                RaiseRequestClose(new DialogResult(ButtonResult.OK));
             }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
 

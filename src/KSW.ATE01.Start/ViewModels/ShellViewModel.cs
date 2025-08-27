@@ -67,9 +67,9 @@ namespace KSW.ATE01.Start.ViewModels
         public AsyncDelegateCommand NewProjectCommand =>
             _newProjectCommand ?? (_newProjectCommand = new AsyncDelegateCommand(ExecuteNewProjectCommand));
 
-        private DelegateCommand _saveAsCommand;
-        public DelegateCommand SaveAsCommand =>
-            _saveAsCommand ?? (_saveAsCommand = new DelegateCommand(ExecuteSaveAsCommand, () => _projectBLL?.GetCurrentProjectInfo() != null));
+        private AsyncDelegateCommand _saveAsCommand;
+        public AsyncDelegateCommand SaveAsCommand =>
+            _saveAsCommand ?? (_saveAsCommand = new AsyncDelegateCommand(ExecuteSaveAsCommand, () => _projectBLL?.GetCurrentProjectInfo() != null));
 
         private DelegateCommand _releaseCommand;
         public DelegateCommand ReleaseCommand =>
@@ -167,9 +167,12 @@ namespace KSW.ATE01.Start.ViewModels
             }
         }
 
-        private void ExecuteSaveAsCommand()
+        private async Task ExecuteSaveAsCommand()
         {
-            DialogService.ShowDialog(nameof(SaveAsDialog));
+            if ((await DialogService.ShowDialogAsync(nameof(SaveAsDialog)))?.Result == ButtonResult.OK)
+            {
+                _eventAggregator.GetEvent<RefreshProjectListEvent>().Publish();
+            }        
         }
 
         private void ExecuteReleaseCommand()

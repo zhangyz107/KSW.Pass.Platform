@@ -66,9 +66,9 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         Task<bool> ReleaseSolutionAsync(ProjectInfoModel projectInfo = null, bool openReleaseDir = false);
 
         /// <summary>
-        /// 拷贝测试计划
+        /// 拷贝项目
         /// </summary>
-        Task<bool> CopyTestPlanAsync(ProjectInfoModel projectInfo = null);
+        Task<bool> CopyAsync(string saveAsDir, string saveAsName, string version, ProjectInfoModel projectInfo = null);
 
         /// <summary>
         /// 开始测试

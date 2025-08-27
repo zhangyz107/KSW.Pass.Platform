@@ -78,8 +78,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public async void OnDialogClosed()
         {
-            var saveResult = await _projectBLL.UpdateAsync(_projectInfo);
-            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -127,11 +126,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-                    if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo, true))
-                        RaiseRequestClose(new DialogResult(ButtonResult.OK));
+                    await _projectBLL?.ReleaseSolutionAsync(_projectInfo, true);
 
                 });
                 await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
+                RaiseRequestClose(new DialogResult(ButtonResult.OK));
             }, async (e) => await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }
 

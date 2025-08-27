@@ -71,18 +71,21 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
         public async Task<string> CreateAsync(PinInfoModel model)
         {
             var id = await _pinChannelManager?.CreatePinAndSiteInfoAsync(model);
+            await CommitAsync();
             return id;
         }
 
         public async Task<PinInfoModel> UpdateAsync(PinInfoModel model)
         {
             await _pinChannelManager?.UpdatePinAndSiteInfoAsync(model);
+            await CommitAsync();
             return await GetByIdAsync(model.Id);
         }
 
         public async Task DeleteAsync(string id)
         {
             await _pinChannelManager?.DeletePinAndSiteInfoByIdAsync(id);
+            await CommitAsync();
         }
 
         public async Task<List<PinInfoModel>> GetPinInfosFromOvewviewIdAsync(string overviewId, List<string> ids = null)

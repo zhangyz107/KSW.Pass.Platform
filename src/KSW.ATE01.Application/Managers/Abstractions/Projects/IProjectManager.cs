@@ -11,6 +11,6 @@ namespace KSW.ATE01.Application.Managers.Abstractions.Projects
         /// <summary>
         /// 另存为项目信息
         /// </summary>
-        Task<bool> SaveAsProjectInfoAsync(string saveAsDir, string saveAsName);
+        Task<string> SaveAsProjectInfoAsync(string projectId, string saveAsDir, string saveAsName, string version);
     }
 }

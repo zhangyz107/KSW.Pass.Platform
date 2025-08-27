@@ -1,38 +1,37 @@
 ﻿using KSW.Application;
-using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Managers.Abstractions.Projects;
-using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
+using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Domain.Projects.Entities;
+using KSW.ATE01.Domain.Projects.Repositories;
 using KSW.Exceptions;
-using KSW.Helpers;
+using NPOI.Util;
 using System.Configuration;
 
 namespace KSW.ATE01.Application.Managers.Implements.Projects
 {
     public class ProjectManager : ServiceBase, IProjectManager
     {
-        private readonly IProjectBLL _projectBLL;
-        private readonly ITestPlanManager _testPlanBLL;
-        private readonly string _csprojExt = ".csproj";
+        private readonly IProjectInfoRepository _projectInfoRepository;
         private readonly string _releaseDirName = "Release";
         private readonly string _slnExt = ".sln";
 
-        public ProjectManager(IContainerProvider containerProvider) : base(containerProvider)
+        public ProjectManager(
+            IContainerProvider containerProvider,
+            IProjectInfoRepository projectInfoRepository) : base(containerProvider)
         {
-            _projectBLL = ContainerProvider.IsRegistered<IProjectBLL>() ? ContainerProvider?.Resolve<IProjectBLL>() : null;
-            _testPlanBLL = ContainerProvider.IsRegistered<ITestPlanManager>() ? ContainerProvider?.Resolve<ITestPlanManager>() : null;
+            _projectInfoRepository = projectInfoRepository;
         }
 
-        public async Task<bool> SaveAsProjectInfoAsync(string saveAsDir, string saveAsName)
+        public async Task<string> SaveAsProjectInfoAsync(string projectId, string saveAsDir, string saveAsName, string version)
         {
-            var result = false;
             try
             {
                 var templateName = ConfigurationManager.AppSettings["TemplateName"] ?? throw new ArgumentNullException("TemplateName");
                 var templateDirName = ConfigurationManager.AppSettings["TemplateDirName"] ?? throw new ArgumentNullException("TemplateDirName");
                 var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
 
-                var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
+                var currentProjectInfo = await _projectInfoRepository?.FindByIdAsync(projectId);
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 var templatePath = Path.Combine(baseDirectory, templateDirName);
                 if (currentProjectInfo == null)
@@ -49,17 +48,19 @@ namespace KSW.ATE01.Application.Managers.Implements.Projects
                 #endregion
 
                 #region 保存项目配置
-                var newProjectInfo = DeepCopy.Copy(currentProjectInfo);
-                newProjectInfo.Id = null;
-                newProjectInfo.ProjectName = saveAsName;
-                newProjectInfo.ProjectPath = targetDir;
-                newProjectInfo.ReleasePath = Path.Combine(targetDir, _releaseDirName);
-                _projectBLL?.CreateAsync(newProjectInfo);
+                var newProjectInfo = currentProjectInfo.Copy();
+                var projectInfoModel = newProjectInfo.MapTo<ProjectInfoModel>();
+                projectInfoModel.Id = null;
+                projectInfoModel.ProjectName = saveAsName;
+                projectInfoModel.ProjectPath = targetDir;
+                projectInfoModel.ProjectVersion = version;
+                projectInfoModel.ReleasePath = Path.Combine(targetDir, _releaseDirName);
+                var projectInfo = projectInfoModel.MapTo<ProjectInfo>();
+                projectInfo.Init();
+                await _projectInfoRepository?.AddAsync(projectInfo);
                 #endregion
 
-                _projectBLL?.SetCurrentProjectInfo(newProjectInfo);
-
-                result = true;
+                return projectInfo.Id.SafeString();
             }
             catch (Exception)
             {
@@ -67,7 +68,6 @@ namespace KSW.ATE01.Application.Managers.Implements.Projects
                 throw;
             }
 
-            return result;
         }
     }
 }

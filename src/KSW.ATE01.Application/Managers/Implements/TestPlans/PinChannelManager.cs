@@ -16,10 +16,8 @@
 using KSW.Application;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Data;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
-using KSW.Domain.Repositories;
 
 namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 {
@@ -29,7 +27,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
     public class PinChannelManager : ServiceBase, IPinChannelManager
     {
         #region Fields
-        private readonly ISystemUnitOfWork _systemUnitOfWork;
         private readonly IPinInfoRepository _pinInfoRepository;
         private readonly IPinSiteInfoRepository _pinSiteInfoRepository;
         private readonly ILevelRepository _levelRepository;
@@ -39,14 +36,12 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
         public PinChannelManager(
             IContainerProvider containerProvider,
-            ISystemUnitOfWork systemUnitOfWork,
             IPinInfoRepository pinInfoRepository,
             IPinSiteInfoRepository pinSiteInfoRepository,
             ILevelRepository levelRepository,
             ITimingRepository timingRepository,
             ITestItemInfoRepository testItemInfoRepository) : base(containerProvider)
         {
-            _systemUnitOfWork = systemUnitOfWork;
             _pinInfoRepository = pinInfoRepository;
             _pinSiteInfoRepository = pinSiteInfoRepository;
             _levelRepository = levelRepository;
@@ -72,7 +67,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 pinSiteInfoEntity.SortId = index++;
                 await _pinSiteInfoRepository.AddAsync(pinSiteInfoEntity);
             }
-            await _systemUnitOfWork.CommitAsync();
 
             return pinInfoEntity.Id.ToString();
         }
@@ -88,8 +82,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
             var pinSiteInfoEntities = pinSiteInfos.MapToList<PinSiteInfo>();
             await _pinSiteInfoRepository.UpdateAsync(pinSiteInfoEntities);
-
-            await _systemUnitOfWork.CommitAsync();
         }
 
         public async Task DeletePinAndSiteInfoByIdAsync(string pinId)
@@ -103,7 +95,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => x.PinInfoId.Equals(pinId.ToGuid()));
             await _pinSiteInfoRepository.RemoveAsync(pinSiteInfos);
             await _pinInfoRepository.RemoveAsync(pinId);
-            await _systemUnitOfWork.CommitAsync();
         }
 
 

@@ -16,15 +16,12 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
     /// </summary>
     public class LimitsManager : ServiceBase, ILimitsManager
     {
-        private readonly ISystemUnitOfWork _unitOfWork;
         private readonly ITestItemInfoRepository _testItemInfoRepository;
 
         public LimitsManager(
             IContainerProvider containerProvider,
-            ISystemUnitOfWork unitOfWork,
             ITestItemInfoRepository testItemInfoRepository) : base(containerProvider)
         {
-            _unitOfWork = unitOfWork;
             _testItemInfoRepository = testItemInfoRepository;
         }
 

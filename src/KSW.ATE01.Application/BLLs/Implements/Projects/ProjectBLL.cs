@@ -14,7 +14,9 @@ using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Helpers;
+using KSW.ATE01.Application.Managers.Abstractions.Projects;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
+using KSW.ATE01.Application.Managers.Implements.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
@@ -47,6 +49,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectInfoRepository _repository;
+        private readonly IProjectManager _projectManager;
         private readonly ITestPlanManager _testPlanManager;
         private ProjectInfoModel _currentProjectInfo;
         private readonly string _logDirName = "Log";
@@ -75,11 +78,13 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             IProjectInfoRepository repository,
             IDialogService dialogService,
             IEventAggregator eventAggregator,
+            IProjectManager projectManager,
             ITestPlanManager testPlanManager) : base(containerProvider, unitOfWork, repository)
         {
             _repository = repository;
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
+            _projectManager = projectManager;
             _testPlanManager = testPlanManager;
 
             _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
@@ -271,7 +276,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return result;
         }
 
-        public async Task<bool> CopyTestPlanAsync(ProjectInfoModel projectInfo = null)
+        public async Task<bool> CopyAsync(string saveAsDir, string saveAsName, string version, ProjectInfoModel projectInfo = null)
         {
             var result = false;
             try
@@ -280,14 +285,9 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 if (projectInfo == null)
                     throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
 
-                //switch (projectInfo.TestPlanType)
-                //{
-                //    case TestPlanType.Excel:
-                //        CopyExcelFile(projectInfo);
-                //        break;
-                //    case TestPlanType.Csv:
-                //        break;
-                //}
+                var projectId = await _projectManager.SaveAsProjectInfoAsync(projectInfo?.Id, saveAsDir, saveAsName, version);
+                await _testPlanManager.CopyTestPlanByProjectIdAsync(projectInfo.Id, projectId);
+                await CommitAsync();
 
                 result = true;
             }

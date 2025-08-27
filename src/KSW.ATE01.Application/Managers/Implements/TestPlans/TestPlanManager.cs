@@ -19,6 +19,7 @@ using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
 using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.Projects.Core.Enums;
+using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.TestPlans;
@@ -27,8 +28,6 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Configuration;
 using System.Text;
-using LevelModel = KSW.ATE01.Project.Base.Models.TestPlans.LevelModel;
-using TimingModel = KSW.ATE01.Project.Base.Models.TestPlans.TimingModel;
 
 namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 {
@@ -53,7 +52,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
         private readonly string _levelSheetName = "Level";
         private readonly string _timingSheetName = "Timing";
         private readonly string _excelExtension;
-        private readonly ISystemUnitOfWork _unitOfWork;
+
         private readonly IPinOverviewRepository _pinOverviewRepository;
         private readonly ISiteInfoRepository _siteInfoRepository;
         private readonly IPinInfoRepository _pinInfoRepository;
@@ -71,7 +70,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
         public TestPlanManager(
             IContainerProvider containerProvider,
-            ISystemUnitOfWork unitOfWork,
             IPinOverviewRepository pinOverviewRepository,
             ISiteInfoRepository siteInfoRepository,
             IPinInfoRepository pinInfoRepository,
@@ -88,7 +86,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
         {
             _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
 
-            _unitOfWork = unitOfWork;
             _pinOverviewRepository = pinOverviewRepository;
             _siteInfoRepository = siteInfoRepository;
             _pinInfoRepository = pinInfoRepository;
@@ -605,7 +602,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 return;
             try
             {
-                var levelDic = new Dictionary<TestItemModel, List<LevelModel>>();
+                var levelDic = new Dictionary<TestItemModel, List<Project.Base.Models.TestPlans.LevelModel>>();
                 var testItems = testPlan.TestItem.Where(x => !x.Levels.IsEmpty()).Select(x => x);
                 foreach (var testItem in testItems)
                     levelDic.Add(testItem, testItem.Levels);
@@ -621,7 +618,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             }
         }
 
-        private void SetLevelSheet(IWorkbook workbook, string levelSheetName, List<LevelModel> levels)
+        private void SetLevelSheet(IWorkbook workbook, string levelSheetName, List<Project.Base.Models.TestPlans.LevelModel> levels)
         {
 
             levelSheetName = _levelSheetName;
@@ -693,7 +690,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 return;
             try
             {
-                var timingDic = new Dictionary<TestItemModel, List<TimingModel>>();
+                var timingDic = new Dictionary<TestItemModel, List<Project.Base.Models.TestPlans.TimingModel>>();
                 var testItems = testPlan.TestItem.Where(x => !x.Timings.IsEmpty()).Select(x => x);
                 foreach (var testItem in testItems)
                     timingDic.Add(testItem, testItem.Timings);
@@ -709,7 +706,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             }
         }
 
-        private void SetTimingSheet(IWorkbook workbook, string timingSheetName, List<TimingModel> timings)
+        private void SetTimingSheet(IWorkbook workbook, string timingSheetName, List<Project.Base.Models.TestPlans.TimingModel> timings)
         {
             timingSheetName = _timingSheetName;
 
@@ -1084,7 +1081,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 return;
             try
             {
-                var levelDic = new Dictionary<TestItemModel, List<LevelModel>>();
+                var levelDic = new Dictionary<TestItemModel, List<Project.Base.Models.TestPlans.LevelModel>>();
                 var testItems = testPlan.TestItem.Where(x => !x.Levels.IsEmpty()).Select(x => x);
                 foreach (var testItem in testItems)
                     levelDic.Add(testItem, testItem.Levels);
@@ -1100,7 +1097,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             }
         }
 
-        private void SetLevelCsv(string testPlanDirPath, string sheetName, List<LevelModel> value)
+        private void SetLevelCsv(string testPlanDirPath, string sheetName, List<Project.Base.Models.TestPlans.LevelModel> value)
         {
             if (value.IsEmpty())
                 return;
@@ -1119,15 +1116,15 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                     var header = new List<string>
                     {
                         "Pin/Group",
-                        nameof(LevelModel.Vil),
-                        nameof(LevelModel.Vih),
-                        nameof(LevelModel.Vol),
-                        nameof(LevelModel.Voh),
-                        nameof(LevelModel.Iol),
-                        nameof(LevelModel.Ioh),
-                        nameof(LevelModel.Vt),
-                        nameof(LevelModel.Vcl),
-                        nameof(LevelModel.Vch)
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Vil),
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Vih),
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Vol),
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Voh),
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Iol),
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Ioh),
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Vt),
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Vcl),
+                        nameof(Project.Base.Models.TestPlans.LevelModel.Vch)
                     };
 
                     writer.WriteLine(string.Join(",", header.ToArray()));
@@ -1177,7 +1174,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 return;
             try
             {
-                var timingDic = new Dictionary<TestItemModel, List<TimingModel>>();
+                var timingDic = new Dictionary<TestItemModel, List<Project.Base.Models.TestPlans.TimingModel>>();
                 var testItems = testPlan.TestItem.Where(x => !x.Timings.IsEmpty()).Select(x => x);
                 foreach (var testItem in testItems)
                     timingDic.Add(testItem, testItem.Timings);
@@ -1193,7 +1190,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             }
         }
 
-        private void SetTimingCsv(string testPlanDirPath, string sheetName, List<TimingModel> value)
+        private void SetTimingCsv(string testPlanDirPath, string sheetName, List<Project.Base.Models.TestPlans.TimingModel> value)
         {
             if (value.IsEmpty())
                 return;
@@ -1211,15 +1208,15 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                     #region 通道头
                     var header = new List<string>
                     {
-                        nameof(TimingModel.TimingName),
-                        nameof(TimingModel.Period),
-                        nameof(TimingModel.PinName),
-                        nameof(TimingModel.PinSetup),
-                        nameof(TimingModel.Fmt),
-                        nameof(TimingModel.DriveA),
-                        nameof(TimingModel.DriveB),
-                        nameof(TimingModel.DriveC),
-                        nameof(TimingModel.DriveD)
+                        nameof(Project.Base.Models.TestPlans.TimingModel.TimingName),
+                        nameof(Project.Base.Models.TestPlans.TimingModel.Period),
+                        nameof(Project.Base.Models.TestPlans.TimingModel.PinName),
+                        nameof(Project.Base.Models.TestPlans.TimingModel.PinSetup),
+                        nameof(Project.Base.Models.TestPlans.TimingModel.Fmt),
+                        nameof(Project.Base.Models.TestPlans.TimingModel.DriveA),
+                        nameof(Project.Base.Models.TestPlans.TimingModel.DriveB),
+                        nameof(Project.Base.Models.TestPlans.TimingModel.DriveC),
+                        nameof(Project.Base.Models.TestPlans.TimingModel.DriveD)
                     };
 
                     writer.WriteLine(string.Join(",", header.ToArray()));
@@ -1271,6 +1268,315 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
         #endregion
 
+        public async Task CopyTestPlanByProjectIdAsync(string projectId, string newProjectId)
+        {
+            var pinInfoMapping = new Dictionary<Guid, Guid>();
+            var groupInfoMapping = new Dictionary<Guid, Guid>();
+            var limitsMapping = new Dictionary<Guid, Guid>();
+            var levelGroupMapping = new Dictionary<Guid, Guid>();
+            var timingGroupMapping = new Dictionary<Guid, Guid>();
+
+            #region 引脚总览
+            var pinOverviews = await _pinOverviewRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            foreach (var pinOverview in pinOverviews)
+            {
+                var pinOverviewEntity = await CopyPinOverviewAsync(pinOverview, newProjectId);
+
+                // 引脚信息
+                var pinInfos = await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id));
+                foreach (var pinInfo in pinInfos)
+                    await CopyPinInfoAsync(pinInfoMapping, pinOverviewEntity, pinInfo);
+
+                // 组信息
+                var groupInfos = await _groupInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id));
+                foreach (var groupInfo in groupInfos)
+                {
+                    var groupInfoEntity = await CopyGroupInfoAsync(groupInfoMapping, pinOverviewEntity, groupInfo);
+
+                    // 组与引脚关系
+                    var relationships = await _pinGroupRelationshipRepositoy.FindAllAsync(x => x.GroupInfoId.Equals(groupInfo.Id));
+                    foreach (var relationship in relationships)
+                        await CopyPinGroupRelationshipAsync(pinInfoMapping, groupInfoEntity, relationship);
+                }
+
+                // 站点信息
+                var siteInfos = await _siteInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id));
+                foreach (var siteInfo in siteInfos)
+                {
+                    var siteInfoEntity = await CopySiteInfoAsync(pinOverviewEntity, siteInfo);
+
+                    // 引脚站点信息
+                    var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => x.SiteInfoId.Equals(siteInfo.Id));
+                    foreach (var pinSiteInfo in pinSiteInfos)
+                        await CopyPinSiteInfoAsync(pinInfoMapping, siteInfoEntity, pinSiteInfo);
+                }
+
+            }
+            #endregion
+
+            #region 门限
+            var limits = await _limitsRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            foreach (var limit in limits)
+                await CopyLimitAsync(limitsMapping, limit, newProjectId);
+            #endregion
+
+            #region 电平组
+            var levelGroups = await _levelGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            foreach (var levelGroup in levelGroups)
+            {
+                var levelGroupEntity = await CopyLevelGroupAsync(levelGroupMapping, levelGroup, newProjectId);
+
+                // 电平
+                var levels = await _levelRepository.FindAllAsync(x => x.LevelGroupId.Equals(levelGroup.Id));
+                foreach (var level in levels)
+                    await CopyLevelAsync(pinInfoMapping, groupInfoMapping, levelGroupEntity, level);
+            }
+            #endregion
+
+            #region 时钟组
+            var timingGroups = await _timingGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            foreach (var timingGroup in timingGroups)
+            {
+                var timingGroupEntity = await CopyTimingGroupAsync(timingGroupMapping, timingGroup, newProjectId);
+
+                // 时钟
+                var timings = await _timingRepository.FindAllAsync(x => x.TimingGroupId.Equals(timingGroup.Id));
+                foreach (var timing in timings)
+                    await CopyTimingAsync(pinInfoMapping, groupInfoMapping, timingGroupEntity, timing);
+            }
+            #endregion
+
+            #region 测试项
+            var testItemInfos = await _testItemInfoRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            foreach (var testItemInfo in testItemInfos)
+                await CopyTestItemInfoAsync(pinInfoMapping, groupInfoMapping, limitsMapping, levelGroupMapping, timingGroupMapping, testItemInfo, newProjectId);
+            #endregion
+
+            #region 全局参数
+            var globalParameters = await _globalParameterRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            foreach (var globalParameter in globalParameters)
+                await CopyGlobalParameterAsync(globalParameter, newProjectId);
+            #endregion
+        }
+
+        private async Task<PinOverview> CopyPinOverviewAsync(PinOverview old, string newProjectId)
+        {
+            var newPinOverview = old.Clone();
+            var pinOverviewModel = newPinOverview.MapTo<PinOverviewModel>();
+            pinOverviewModel.Id = Guid.NewGuid().ToString();
+            pinOverviewModel.ProjectInfoId = newProjectId.ToGuid();
+            var pinOverviewEntity = pinOverviewModel.MapTo<PinOverview>();
+            await _pinOverviewRepository.AddAsync(pinOverviewEntity);
+            return pinOverviewEntity;
+        }
+
+        private async Task CopyPinInfoAsync(Dictionary<Guid, Guid> pinInfoMapping, PinOverview newPinOverview, PinInfo old)
+        {
+            var newPinInfo = old.Clone();
+            var pinInfoModel = newPinInfo.MapTo<PinInfoModel>();
+            pinInfoModel.Id = Guid.NewGuid().ToString();
+            pinInfoModel.PinOverviewId = newPinOverview.Id;
+            var pinInfoEntity = pinInfoModel.MapTo<PinInfo>();
+            await _pinInfoRepository.AddAsync(pinInfoEntity);
+
+            if (!pinInfoMapping.ContainsKey(old.Id))
+                pinInfoMapping.Add(old.Id, pinInfoEntity.Id);
+        }
+
+        private async Task<GroupInfo> CopyGroupInfoAsync(Dictionary<Guid, Guid> groupInfoMapping, PinOverview newPinOverview, GroupInfo old)
+        {
+            var newGroupInfo = old.Clone();
+            var groupInfoModel = newGroupInfo.MapTo<GroupInfoModel>();
+            groupInfoModel.Id = Guid.NewGuid().ToString();
+            groupInfoModel.PinOverviewId = newPinOverview.Id;
+            var groupInfoEntity = groupInfoModel.MapTo<GroupInfo>();
+            await _groupInfoRepository.AddAsync(groupInfoEntity);
+
+            if (!groupInfoMapping.ContainsKey(old.Id))
+                groupInfoMapping.Add(old.Id, groupInfoEntity.Id);
+
+            return groupInfoEntity;
+        }
+
+        private async Task CopyPinGroupRelationshipAsync(Dictionary<Guid, Guid> pinInfoMapping, GroupInfo newGroupInfo, PinGroupRelationship old)
+        {
+            var newRelationship = old.Clone();
+            var relationshipModel = newRelationship.MapTo<PinGroupRelationshipModel>();
+            relationshipModel.Id = Guid.NewGuid().ToString();
+            relationshipModel.GroupInfoId = newGroupInfo.Id;
+            var pinId = relationshipModel.PinInfoId ?? Guid.Empty;
+            if (pinInfoMapping.ContainsKey(pinId))
+                relationshipModel.PinInfoId = pinInfoMapping[pinId];
+            var relationshipEntity = relationshipModel.MapTo<PinGroupRelationship>();
+            await _pinGroupRelationshipRepositoy.AddAsync(relationshipEntity);
+        }
+
+        private async Task<SiteInfo> CopySiteInfoAsync(PinOverview newPinOverview, SiteInfo old)
+        {
+            var newSiteInfo = old.Clone();
+            var siteInfoModel = newSiteInfo.MapTo<SiteInfoModel>();
+            siteInfoModel.Id = Guid.NewGuid().ToString();
+            siteInfoModel.PinOverviewId = newPinOverview.Id;
+            var siteInfoEntity = siteInfoModel.MapTo<SiteInfo>();
+            await _siteInfoRepository.AddAsync(siteInfoEntity);
+
+            return siteInfoEntity;
+        }
+
+        private async Task CopyPinSiteInfoAsync(Dictionary<Guid, Guid> pinInfoMapping, SiteInfo siteInfoEntity, PinSiteInfo old)
+        {
+            var newPinSiteInfo = old.Clone();
+            var pinSiteModel = newPinSiteInfo.MapTo<PinSiteInfoModel>();
+            pinSiteModel.Id = Guid.NewGuid().ToString();
+            pinSiteModel.SiteInfoId = siteInfoEntity.Id;
+            var pinId = pinSiteModel.PinInfoId;
+            if (pinInfoMapping.ContainsKey(pinId))
+                pinSiteModel.PinInfoId = pinInfoMapping[pinId];
+            var pinSiteEntity = pinSiteModel.MapTo<PinSiteInfo>();
+            await _pinSiteInfoRepository.AddAsync(pinSiteEntity);
+        }
+
+        private async Task CopyLimitAsync(Dictionary<Guid, Guid> limitsMapping, Limits old, string newProjectId)
+        {
+            var newLimit = old.Clone();
+            var limitModel = newLimit.MapTo<Models.TestPlans.LimitsModel>();
+            limitModel.Id = Guid.NewGuid().ToString();
+            limitModel.ProjectInfoId = newProjectId.ToGuid();
+            var limitEntity = limitModel.MapTo<Limits>();
+            await _limitsRepository.AddAsync(limitEntity);
+
+            if (!limitsMapping.ContainsKey(old.Id))
+                limitsMapping.Add(old.Id, limitEntity.Id);
+        }
+
+        private async Task<LevelGroup> CopyLevelGroupAsync(Dictionary<Guid, Guid> levelGroupMapping, LevelGroup old, string newProjectId)
+        {
+            var newLevelGroup = old.Clone();
+            var levelGroupModel = newLevelGroup.MapTo<LevelGroupModel>();
+            levelGroupModel.Id = Guid.NewGuid().ToString();
+            levelGroupModel.ProjectInfoId = newProjectId.ToGuid();
+            var levelGroupEntity = levelGroupModel.MapTo<LevelGroup>();
+            await _levelGroupRepository.AddAsync(levelGroupEntity);
+
+            if (!levelGroupMapping.ContainsKey(old.Id))
+                levelGroupMapping.Add(old.Id, levelGroupEntity.Id);
+
+            return levelGroupEntity;
+        }
+
+        private async Task CopyLevelAsync(Dictionary<Guid, Guid> pinInfoMapping, Dictionary<Guid, Guid> groupInfoMapping, LevelGroup newLevelGroup, Level old)
+        {
+            var newLevel = old.Clone();
+            var levelModel = newLevel.MapTo<Models.TestPlans.LevelModel>();
+            levelModel.Id = Guid.NewGuid().ToString();
+            levelModel.LevelGroupId = newLevelGroup.Id;
+            var pinGroupId = old.GroupOrPinId ?? Guid.Empty;
+            if (groupInfoMapping.ContainsKey(pinGroupId))
+            {
+                levelModel.GroupOrPinId = groupInfoMapping[pinGroupId];
+            }
+            else if (pinInfoMapping.ContainsKey(pinGroupId))
+            {
+                levelModel.GroupOrPinId = pinInfoMapping[pinGroupId];
+            }
+            else
+                levelModel.GroupOrPinId = Guid.Empty;
+            var levelEntity = levelModel.MapTo<Level>();
+            await _levelRepository.AddAsync(levelEntity);
+
+        }
+
+        private async Task<TimingGroup> CopyTimingGroupAsync(Dictionary<Guid, Guid> timingGroupMapping, TimingGroup old, string newProjectId)
+        {
+            var newTimingGroup = old.Clone();
+            var timingGroupModel = newTimingGroup.MapTo<TimingGroupModel>();
+            timingGroupModel.Id = Guid.NewGuid().ToString();
+            timingGroupModel.ProjectInfoId = newProjectId.ToGuid();
+            var timingGroupEntity = timingGroupModel.MapTo<TimingGroup>();
+            await _timingGroupRepository.AddAsync(timingGroupEntity);
+
+            if (!timingGroupMapping.ContainsKey(old.Id))
+                timingGroupMapping.Add(old.Id, timingGroupEntity.Id);
+
+            return timingGroupEntity;
+        }
+
+        private async Task CopyTimingAsync(Dictionary<Guid, Guid> pinInfoMapping, Dictionary<Guid, Guid> groupInfoMapping, TimingGroup newTimingGroup, Timing old)
+        {
+            var newTiming = old.Clone();
+            var timingModel = newTiming.MapTo<Models.TestPlans.TimingModel>();
+            timingModel.Id = Guid.NewGuid().ToString();
+            timingModel.TimingGroupId = newTimingGroup.Id;
+            var pinGroupId = old.GroupOrPinId ?? Guid.Empty;
+            if (groupInfoMapping.ContainsKey(pinGroupId))
+            {
+                timingModel.GroupOrPinId = groupInfoMapping[pinGroupId];
+            }
+            else if (pinInfoMapping.ContainsKey(pinGroupId))
+            {
+                timingModel.GroupOrPinId = pinInfoMapping[pinGroupId];
+            }
+            else
+                timingModel.GroupOrPinId = Guid.Empty;
+            var timingEntity = timingModel.MapTo<Timing>();
+            await _timingRepository.AddAsync(timingEntity);
+        }
+
+        private async Task CopyTestItemInfoAsync(Dictionary<Guid, Guid> pinInfoMapping, Dictionary<Guid, Guid> groupInfoMapping, Dictionary<Guid, Guid> limitsMapping, Dictionary<Guid, Guid> levelGroupMapping, Dictionary<Guid, Guid> timingGroupMapping, TestItemInfo old, string newProjectId)
+        {
+            var newTestItemInfo = old.Clone();
+            var testItemInfoModel = newTestItemInfo.MapTo<TestItemInfoModel>();
+            testItemInfoModel.Id = Guid.NewGuid().ToString();
+            testItemInfoModel.ProjectInfoId = newProjectId.ToGuidOrNull();
+            var pinGroupId = old.GroupOrPinId ?? Guid.Empty;
+            if (groupInfoMapping.ContainsKey(pinGroupId))
+            {
+                testItemInfoModel.GroupOrPinId = groupInfoMapping[pinGroupId];
+            }
+            else if (pinInfoMapping.ContainsKey(pinGroupId))
+            {
+                testItemInfoModel.GroupOrPinId = pinInfoMapping[pinGroupId];
+            }
+            else
+                testItemInfoModel.GroupOrPinId = Guid.Empty;
+
+            var limitId = testItemInfoModel.LimitsId ?? Guid.Empty;
+            if (limitsMapping.ContainsKey(limitId))
+            {
+                testItemInfoModel.LimitsId = limitsMapping[limitId];
+            }
+            else
+                testItemInfoModel.LimitsId = Guid.Empty;
+
+            var levelGroupId = testItemInfoModel.LevelGroupId ?? Guid.Empty;
+            if (levelGroupMapping.ContainsKey(levelGroupId))
+            {
+                testItemInfoModel.LevelGroupId = levelGroupMapping[levelGroupId];
+            }
+            else
+                testItemInfoModel.LevelGroupId = Guid.Empty;
+
+            var timingGroupId = testItemInfoModel.TimingGroupId ?? Guid.Empty;
+            if (timingGroupMapping.ContainsKey(timingGroupId))
+            {
+                testItemInfoModel.TimingGroupId = timingGroupMapping[timingGroupId];
+            }
+            else
+                testItemInfoModel.TimingGroupId = Guid.Empty;
+            var testItemInfoEntity = testItemInfoModel.MapTo<TestItemInfo>();
+            await _testItemInfoRepository.AddAsync(testItemInfoEntity);
+        }
+
+        private async Task CopyGlobalParameterAsync(GlobalParameter old, string newProjectId)
+        {
+            var newGlobalParameter = old.Clone();
+            var globalParameterModel = newGlobalParameter.MapTo<GlobalParameterModel>();
+            globalParameterModel.Id = Guid.NewGuid().SafeString();
+            globalParameterModel.ProjectInfoId = newProjectId.ToGuidOrNull();
+            var globalParameterEntity = globalParameterModel.MapTo<GlobalParameter>();
+            await _globalParameterRepository.AddAsync(globalParameterEntity);
+        }
+
         public async Task DeleteTestPlanByProjectIdAsync(string projectId)
         {
             #region 引脚总览
@@ -1308,17 +1614,17 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             #endregion
 
             #region 测试项信息
-            var testItems = await _testItemInfoRepository.FindAllAsync(x =>x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var testItems = await _testItemInfoRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
             await _testItemInfoRepository.RemoveAsync(testItems);
             #endregion
 
             #region 测试项门限
-            var limits = await _limitsRepository.FindAllAsync(x =>x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var limits = await _limitsRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
             await _limitsRepository.RemoveAsync(limits);
             #endregion
 
             #region 测试项电平组
-            var levelGroups = await _levelGroupRepository.FindAllAsync(x =>x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var levelGroups = await _levelGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
             var levelGroupIds = levelGroups?.Select(x => x.Id);
             await _levelGroupRepository.RemoveAsync(levelGroups);
             #endregion
@@ -1329,7 +1635,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             #endregion
 
             #region 测试项时钟组
-            var timingGroups = await _timingGroupRepository.FindAllAsync(x =>x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var timingGroups = await _timingGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
             var timingGroupIds = timingGroups?.Select(x => x.Id);
             await _timingGroupRepository.RemoveAsync(timingGroups);
             #endregion

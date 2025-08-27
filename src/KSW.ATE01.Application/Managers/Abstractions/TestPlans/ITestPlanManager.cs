@@ -15,7 +15,15 @@ namespace KSW.ATE01.Application.Managers.Abstractions.TestPlans
         Task<TestPlanModel> LoadTestPlanAsync(ProjectInfoModel projectInfo);
 
         /// <summary>
-        /// 通过项目Id删除测试计划
+        /// 通过项目Id拷贝测试计划
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="newProjectId"></param>
+        /// <returns></returns>
+        Task CopyTestPlanByProjectIdAsync(string projectId, string newProjectId);
+
+        /// <summary>
+        /// 通过项目Id删除测试计划(不考虑任何级联关系)
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
