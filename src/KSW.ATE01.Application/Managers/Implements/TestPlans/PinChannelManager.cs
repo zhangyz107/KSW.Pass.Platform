@@ -16,6 +16,7 @@
 using KSW.Application;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
+using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
 
@@ -29,6 +30,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
         #region Fields
         private readonly IPinInfoRepository _pinInfoRepository;
         private readonly IPinSiteInfoRepository _pinSiteInfoRepository;
+        private readonly IPinGroupRelationshipRepositoy _pinGroupRelationshipRepositoy;
         private readonly ILevelRepository _levelRepository;
         private readonly ITimingRepository _timingRepository;
         private readonly ITestItemInfoRepository _testItemInfoRepository;
@@ -38,12 +40,14 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             IContainerProvider containerProvider,
             IPinInfoRepository pinInfoRepository,
             IPinSiteInfoRepository pinSiteInfoRepository,
+            IPinGroupRelationshipRepositoy pinGroupRelationshipRepositoy,
             ILevelRepository levelRepository,
             ITimingRepository timingRepository,
             ITestItemInfoRepository testItemInfoRepository) : base(containerProvider)
         {
             _pinInfoRepository = pinInfoRepository;
             _pinSiteInfoRepository = pinSiteInfoRepository;
+            _pinGroupRelationshipRepositoy = pinGroupRelationshipRepositoy;
             _levelRepository = levelRepository;
             _timingRepository = timingRepository;
             _testItemInfoRepository = testItemInfoRepository;
@@ -93,8 +97,12 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             await ValidateDeleteAsync(entities);
 
             var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => x.PinInfoId.Equals(pinId.ToGuid()));
-            await _pinSiteInfoRepository.RemoveAsync(pinSiteInfos);
+
+            var pinGroupRelationships = await _pinGroupRelationshipRepositoy.FindAllAsync(x => x.PinInfoId.Equals(pinId.ToGuid()));
+
             await _pinInfoRepository.RemoveAsync(pinId);
+            await _pinSiteInfoRepository.RemoveAsync(pinSiteInfos);
+            await _pinGroupRelationshipRepositoy.RemoveAsync(pinGroupRelationships);
         }
 
 
@@ -109,6 +117,10 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 var message = string.Format(L["FieldAlreadyExists"], L["PinName"]);
                 throw new ArgumentException(message);
             }
+
+            var pinInfos = await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(entity.PinOverviewId));
+
+            pinInfo.SortId = pinInfos.Count + 1;
         }
 
         private async Task CreatePinSiteInfoBeforeAsync(IEnumerable<PinSiteInfoModel> pinSiteInfos)

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:KSW.ATE01.Start.Views"
              xmlns:language="clr-namespace:KSW.ATE01.Start"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
@@ -31,7 +32,7 @@
                     <RowDefinition Height="auto"></RowDefinition>
                     <RowDefinition Height="auto"></RowDefinition>
                 </Grid.RowDefinitions>
-                
+
                 <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{language:L Project}"></TextBlock>
                 <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ProjectInfo.ProjectName}"></TextBlock>
 
@@ -42,7 +43,18 @@
                 <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ProjectInfo.CreationTime,StringFormat={}{0:yyyy-MM-dd HH:mm}}"></TextBlock>
 
                 <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="2" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{language:L FilePath}"></TextBlock>
-                <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="3" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ProjectInfo.ProjectPath}"></TextBlock>
+                <Grid Grid.Row="1" Grid.Column="3" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Text="{Binding ProjectInfo.ProjectPath}"></TextBlock>
+                    <Button Padding="6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" BorderThickness="0" ToolTip="{language:L OpenFolder}" Command="{Binding OpenFolderCommand}" VerticalAlignment="Center" Visibility="{Binding ProjectPathVaild,Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Content>
+                            <materialDesign:PackIcon Kind="FolderOpenOutline" />
+                        </Button.Content>
+                    </Button>
+                </Grid>
 
                 <TextBlock VerticalAlignment="Center" Grid.Row="2" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{language:L Executable}"></TextBlock>
                 <TextBlock VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="Bold" FontFamily="Microsoft YaHei UI" Margin="0,0,0,16" Text="{Binding ExecuteName}"></TextBlock>

@@ -35,9 +35,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     {
         #region Fields
         private readonly IDialogService _dialogService;
-        private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
-        private TestPlanType? _testPlanType;
         private ProjectInfoModel _currentProjectInfo;
         private string _currentProjectPath;
         private string _version;
@@ -102,11 +100,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public SaveAsDialogViewModel(
             IContainerProvider containerProvider,
             IDialogService dialogService,
-            IEventAggregator eventAggregator,
             IProjectBLL projectBLL) : base(containerProvider)
         {
             _dialogService = dialogService;
-            _eventAggregator = eventAggregator;
             _projectBLL = projectBLL;
 
             LoadData();

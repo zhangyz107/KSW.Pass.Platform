@@ -17,28 +17,27 @@ namespace KSW.UI.WPF.ViewModels
             private set => SetProperty(ref _isIndeterminate, value);
         }
 
-
         public string ProcessContent
         {
             get => _processContent;
             private set => SetProperty(ref _processContent, value);
         }
 
-
         public double ProcessRate
         {
             get => _processRate;
             private set => SetProperty(ref _processRate, value);
         }
-
-
         #endregion
 
         public DialogCloseListener RequestClose { get; }
 
         public virtual void RaiseRequestClose(IDialogResult dialogResult)
         {
-            RequestClose.Invoke(dialogResult);
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, () =>
+            {
+                RequestClose.Invoke(dialogResult);
+            });
         }
 
         public bool CanCloseDialog()
@@ -58,6 +57,7 @@ namespace KSW.UI.WPF.ViewModels
             ProcessContent = processBarParameters.ProcessContent;
             ProcessRate = processBarParameters.ProcessRate;
             Exception exception = null;
+
             try
             {
                 processBarParameters.UpdateProgress = (processRate, processContent) =>
@@ -70,18 +70,15 @@ namespace KSW.UI.WPF.ViewModels
                     }
                 };
                 await processBarParameters.DoWork();
+                return;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
                 exception = e;
             }
             finally
             {
-                RaiseRequestClose(new DialogResult(ButtonResult.Yes)
-                {
-                    Exception = exception
-                });
+                RaiseRequestClose(new DialogResult(ButtonResult.Yes) { Exception = exception });
             }
         }
     }

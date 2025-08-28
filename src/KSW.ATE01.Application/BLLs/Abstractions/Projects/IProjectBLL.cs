@@ -96,5 +96,10 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// <param name="id"></param>
         /// <returns></returns>
         Task DeleteAsync(string id);
+
+        /// <summary>
+        /// 打开项目所在目录
+        /// </summary>
+        void OpenFolder(ProjectInfoModel projectInfo = null);
     }
 }

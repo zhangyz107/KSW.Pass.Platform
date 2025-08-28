@@ -177,12 +177,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                     if (_projectInfo.Id.IsEmpty())
                     {
                         //创建项目
-                        var result = await _projectBLL?.CreateAsync(_projectInfo);
+                        var id = await _projectBLL?.CreateAsync(_projectInfo);
 
-                        if (!result.IsEmpty())
+                        if (!id.IsEmpty())
                         {
+                            var projectInfo = await _projectBLL?.GetByIdAsync(id);
                             //生成Release文件夹
-                            await _projectBLL?.ReleaseSolutionAsync(_projectInfo, false);
+                            await _projectBLL?.ReleaseSolutionAsync(projectInfo, false);
 
                             //拷贝测试计划
                             //result = await _projectBLL?.CopyTestPlanAsync(_projectInfo);
@@ -196,7 +197,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                     }
                 });
 
-                await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
+                var result = await ProcessBarHelper.ShowProcessBarDialogAsync(_dialogService, processBarParameters);
                 RaiseRequestClose(new DialogResult(ButtonResult.OK));
             }, async (e) => await _dialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
         }

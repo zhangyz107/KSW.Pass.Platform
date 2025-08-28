@@ -66,9 +66,11 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             await CommitAsync();
         }
 
+        #region 删除前处理
         private async Task DeleteBeforeAsync(List<TimingGroup> entities)
         {
             await _timingGroupManager?.ValidateDeleteAsync(entities);
         }
+        #endregion
     }
 }

@@ -16,7 +16,6 @@ using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Managers.Abstractions.Projects;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
-using KSW.ATE01.Application.Managers.Implements.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
@@ -35,6 +34,7 @@ using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Reflections;
 using Microsoft.Extensions.Logging;
+using NPOI.SS.Formula.Functions;
 using System.Configuration;
 using System.Diagnostics;
 using System.Windows;
@@ -57,6 +57,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly string _csprojExt = ".csproj";
         private readonly string _slnExt = ".sln";
         private readonly string _excelExtension;
+        private readonly bool _isDeleteProjectDir;
         private readonly Stopwatch _stopwatch;
         private bool _alreadyStartLot = false;
         private List<string> _errorMessageList = new List<string>();
@@ -88,6 +89,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             _testPlanManager = testPlanManager;
 
             _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
+            bool.TryParse(ConfigurationManager.AppSettings["IsDeleteProjectDir"], out bool flag);
+            _isDeleteProjectDir = flag;
             _stopwatch = new Stopwatch();
         }
 
@@ -110,6 +113,10 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             {
                 var templateName = ConfigurationManager.AppSettings["TemplateName"] ?? throw new ArgumentNullException("TemplateName");
                 var templateDirName = ConfigurationManager.AppSettings["TemplateDirName"] ?? throw new ArgumentNullException("TemplateDirName");
+
+                var isExist = await _repository.ExistsAsync(x => x.ProjectName.Equals(projectInfo.ProjectName));
+                if (isExist)
+                    throw new Warning(string.Format($"{L["FieldAlreadyExists"]}", projectInfo.ProjectName));
 
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 var templatePath = Path.Combine(baseDirectory, templateDirName);
@@ -262,6 +269,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 var slnPath = Path.Combine(projectInfo.ProjectPath, projectInfo.ProjectName + _slnExt);
                 if (!await ProjectTemplateHelper.ReleaseProjectAsync(slnPath, projectInfo.ReleasePath))
                     throw new Warning(L["PublishFailed"]);
+
+                await UpdateAsync(projectInfo);
 
                 //打开发布文件夹
                 if (openReleaseDir)
@@ -815,9 +824,23 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             if (id.IsEmpty())
                 return;
 
+            var projectInfo = await _repository.FindByIdAsync(id);
             await _repository?.RemoveAsync(id);
             await _testPlanManager?.DeleteTestPlanByProjectIdAsync(id);
             await CommitAsync();
+
+            if (_isDeleteProjectDir)
+            {
+                Directory.Delete(projectInfo?.ProjectPath, true);
+            }
+        }
+
+        public void OpenFolder(ProjectInfoModel projectInfo = null)
+        {
+            projectInfo = projectInfo ?? _currentProjectInfo;
+            if (projectInfo == null || projectInfo.ProjectPath.IsEmpty() || !Directory.Exists(projectInfo.ProjectPath))
+                return;
+            Process.Start("explorer.exe", projectInfo.ProjectPath);
         }
     }
 }

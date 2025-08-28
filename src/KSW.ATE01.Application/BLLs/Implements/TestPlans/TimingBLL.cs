@@ -52,7 +52,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         public async Task<List<TimingModel>> GetListByGroupIdAsync(string groupId)
         {
-            var list = await _repository.FindAllAsync(x => x.TimingGroupId.Equals(groupId.ToGuid()));
+            var list = (await _repository.FindAllAsync(x => x.TimingGroupId.Equals(groupId.ToGuid())))?.OrderBy(x => x.CreationTime);
             var timingGroupIds = list.Select(x => x.TimingGroupId).Distinct().ToList();
             var timingGroups = await _timingGroupRepository.FindAllAsync(x => timingGroupIds.Contains(x.Id));
             var ids = list.Select(x => x.GroupOrPinId).Distinct().ToList();
@@ -116,6 +116,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
             if (!message.IsEmpty())
                 throw new ArgumentException(message);
+
+            var timings = await _repository.FindAllAsync(x => x.TimingGroupId.Equals(entity.TimingGroupId));
 
             await base.CreateBeforeAsync(entity);
         }

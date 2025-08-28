@@ -112,7 +112,7 @@
                                         <ColumnDefinition Width="auto"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <Button Content="{language:L Edit}" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding DataContext.EditPinCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=UserControl}}" CommandParameter="{Binding}"></Button>
-                                    <Button Margin="6,0,0,0" Grid.Column="1" Content="{language:L DeletePin}" Style="{StaticResource MaterialDesignFlatButton}" Foreground="Red" Command="{Binding DataContext.RemovePinCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=UserControl}}"></Button>
+                                    <Button Margin="6,0,0,0" Grid.Column="1" Content="{language:L DeletePin}" Style="{StaticResource MaterialDesignFlatButton}" Foreground="Red" Command="{Binding DataContext.DeletePinCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=UserControl}}" CommandParameter="{Binding}"></Button>
                                 </Grid>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

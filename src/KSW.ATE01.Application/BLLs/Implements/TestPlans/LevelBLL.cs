@@ -54,7 +54,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         public async Task<List<LevelModel>> GetListByGroupIdAsync(string groupId)
         {
-            var list = await _repository.FindAllAsync(x => x.LevelGroupId.Equals(groupId.ToGuid()));
+            var list = (await _repository.FindAllAsync(x => x.LevelGroupId.Equals(groupId.ToGuid())))?.OrderBy(x=>x.CreationTime);
             var levelGroupIds = list.Select(x => x.LevelGroupId).Distinct().ToList();
             var levelGroups = await _levelGroupRepository.FindAllAsync(x => levelGroupIds.Contains(x.Id));
             var ids = list.Select(x => x.GroupOrPinId).Distinct().ToList();

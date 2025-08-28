@@ -96,7 +96,7 @@
                                         Binding="{Binding PinOrGroupName}"
                                         IsReadOnly="True" 
                                         ElementStyle="{StaticResource CellTextBlock}"/>
-                    <DataGridTextColumn Header="{language:L Limits}" 
+                    <DataGridTextColumn Header="{language:L LimitName}" 
                                         Binding="{Binding LimitName}"
                                         IsReadOnly="True" 
                                         ElementStyle="{StaticResource CellTextBlock}"/>

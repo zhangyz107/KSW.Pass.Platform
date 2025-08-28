@@ -1096,6 +1096,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Open Folder 的本地化字符串。
+        /// </summary>
+        internal static string OpenFolder {
+            get {
+                return ResourceManager.GetString("OpenFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Open Project 的本地化字符串。
         /// </summary>
         internal static string OpenProject {

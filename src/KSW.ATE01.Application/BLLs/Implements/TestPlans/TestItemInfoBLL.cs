@@ -59,7 +59,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         public async Task<List<TestItemInfoModel>> GetListByProjectIdAsync(string projectId)
         {
-            var list = await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var list = (await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid())))?.OrderBy(x => x.CreationTime);
             var models = list?.MapToList<TestItemInfoModel>();
             await GetDetailAsync(models);
             return models;
@@ -131,6 +131,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             {
                 throw new ArgumentException(string.Format(L["FieldAlreadyExists"], $"{L["FunctionName"]}:{entity.FunctionName}"));
             }
+
+            var testItems = await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(entity.ProjectInfoId));
 
             await base.CreateBeforeAsync(entity);
         }

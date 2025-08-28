@@ -663,4 +663,7 @@
   <data name="EditProject" xml:space="preserve">
     <value>编辑项目</value>
   </data>
+  <data name="OpenFolder" xml:space="preserve">
+    <value>打开文件夹</value>
+  </data>
 </root>

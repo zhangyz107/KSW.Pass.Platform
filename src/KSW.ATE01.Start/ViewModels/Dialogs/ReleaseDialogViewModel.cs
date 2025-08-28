@@ -30,7 +30,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     {
         #region Fields
         private readonly IDialogService _dialogService;
-        private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private ProjectInfoModel _projectInfo;
         #endregion
@@ -47,7 +46,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         }
         #endregion
 
-        #region Command;
+        #region Command
         private DelegateCommand _openFolderCommand;
         public DelegateCommand OpenFolderCommand =>
             _openFolderCommand ?? (_openFolderCommand = new DelegateCommand(ExecuteOpenFolderCommand));
@@ -61,14 +60,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public DelegateCommand CancelCommand =>
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
         #endregion
+
         public ReleaseDialogViewModel(
             IContainerProvider containerProvider,
             IDialogService dialogService,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IProjectBLL projectBLL) : base(containerProvider)
         {
             _dialogService = dialogService;
-            _eventAggregator = eventAggregator;
-            //_projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
+            _projectBLL = projectBLL;
         }
 
         public bool CanCloseDialog()
@@ -76,7 +75,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             return true;
         }
 
-        public async void OnDialogClosed()
+        public void OnDialogClosed()
         {
 
         }
@@ -94,7 +93,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private void LoadData()
         {
             var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
-            ProjectInfo = currentProjectInfo != null ? DeepCopy.Copy(currentProjectInfo) : null;
+            ProjectInfo = currentProjectInfo;
         }
 
         private void ExecuteOpenFolderCommand()

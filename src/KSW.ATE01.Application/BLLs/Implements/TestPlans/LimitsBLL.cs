@@ -47,7 +47,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         public async Task<List<LimitsModel>> GetListByProjectIdAsync(string projectId)
         {
-            var list = await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var list = (await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid())))?.OrderBy(x=>x.CreationTime);
             return list?.MapToList<LimitsModel>();
         }
 
@@ -83,6 +83,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             var existLimit = await _repository.FindAllAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.LimitName.Equals(entity.LimitName));
             if (!existLimit.IsEmpty())
                 message = string.Format(L["FieldAlreadyExists"], entity.LimitName);
+
+            var limits = await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(entity.ProjectInfoId));
         }
         #endregion
 

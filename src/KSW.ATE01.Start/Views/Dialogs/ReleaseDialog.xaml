@@ -7,7 +7,10 @@
              xmlns:language="clr-namespace:KSW.ATE01.Start"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels.Dialogs"
              mc:Ignorable="d" 
+             d:Background="White"
+             d:DataContext="{d:DesignInstance viewmodel:ReleaseDialogViewModel}"
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <prism:Dialog.WindowStyle>
@@ -57,11 +60,10 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Label Margin="0,0,0,6" Content="{language:L ProjectPath}" VerticalContentAlignment="Center"></Label>
-        <TextBox Padding="6" Margin="0,0,0,6" Grid.Column="1" IsReadOnly="True" Text="{Binding ProjectInfo.ProjectPath}" Style="{StaticResource MaterialDesignOutlinedTextBox}" ToolTip="{Binding Path=Text,RelativeSource={RelativeSource Mode=Self}}"></TextBox>
-
-        <Label Margin="0,0,0,6" Grid.Row="1" Content="{language:L ProjectReleaseTo}" VerticalContentAlignment="Center"></Label>
-        <TextBox Margin="0,0,0,6" Grid.Row="1" Grid.Column="1"  Text="{Binding ProjectInfo.ReleasePath}" Style="{StaticResource BrowseTextBlock}"></TextBox>
+        <TextBlock Margin="6,0,0,6" Text="{language:L ProjectPath}" VerticalAlignment="Center"></TextBlock>
+        <TextBox Padding="6" Margin="6,0,0,6" Grid.Column="1" IsReadOnly="True" Text="{Binding ProjectInfo.ProjectPath}" Style="{StaticResource MaterialDesignOutlinedTextBox}"></TextBox>
+        <TextBlock Margin="6,0,0,6" Grid.Row="1" Text="{language:L ProjectReleaseTo}" VerticalAlignment="Center"></TextBlock>
+        <TextBox Margin="6,0,0,6" Grid.Row="1" Grid.Column="1"  Text="{Binding ProjectInfo.ReleasePath}" Style="{StaticResource BrowseTextBlock}"></TextBox>
 
         <Grid Grid.Row="3" Grid.ColumnSpan="3" >
             <Grid.ColumnDefinitions>

@@ -3,11 +3,8 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
-using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
-using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
-using NPOI.SS.Formula.Atp;
 
 namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 {
@@ -93,7 +90,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             if (overviewId.IsEmpty())
                 return null;
 
-            var pinInfos = await _repository?.FindAllAsync(x => x.PinOverviewId.Equals(overviewId.ToGuid()));
+            var pinInfos = (await _repository?.FindAllAsync(x => x.PinOverviewId.Equals(overviewId.ToGuid())))?.OrderBy(x => x.CreationTime)?.ToList();
             if (!ids.IsEmpty())
                 pinInfos = pinInfos.Where(x => !ids.Contains(x.Id.SafeString())).ToList();
 

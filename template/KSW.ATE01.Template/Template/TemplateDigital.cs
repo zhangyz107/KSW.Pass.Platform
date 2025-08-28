@@ -18,8 +18,8 @@ namespace CustomerProgram
                 if (patternFiles == null && !patternFiles.Any())
                     return;
 
-                var commonData = CommonData.Instance;
-                if (commonData?.ProjectInfo != null && !string.IsNullOrEmpty(commonData?.ProjectInfo?.ReleasePath) && Directory.Exists(commonData?.ProjectInfo?.ReleasePath))
+                var globalSettings = GlobalSetting.Instance;
+                if (globalSettings?.ProjectInfo != null && !string.IsNullOrEmpty(globalSettings?.ProjectInfo?.ReleasePath) && Directory.Exists(globalSettings?.ProjectInfo?.ReleasePath))
                 {
                     var patternFilePaths = new List<string>();
                     foreach (string patternFile in patternFiles)
@@ -29,7 +29,7 @@ namespace CustomerProgram
                             loadFile = patternFile;
                         else
                         {
-                            loadFile = Path.Combine(commonData?.ProjectInfo?.ReleasePath, "Patterns", patternFile);
+                            loadFile = Path.Combine(globalSettings?.ProjectInfo?.ReleasePath, "Patterns", patternFile);
 
                             if (File.Exists(loadFile))
                             {

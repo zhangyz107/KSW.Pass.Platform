@@ -4,18 +4,9 @@
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<TestplanType>Test-Plan</TestplanType>
 		<RootNamespace>CustomerProgram</RootNamespace>
 		<UseWPF>true</UseWPF>
 	</PropertyGroup>
-
-	<Choose>
-		<When Condition="'$(TestplanType)'=='Csv'">
-			<ItemGroup>
-				<EmbeddedResource Include="TestPlan\*.csv" />
-			</ItemGroup>
-		</When>
-	</Choose>
 
 	<ItemGroup>
 	  <Compile Remove="Release\**" />
@@ -28,7 +19,7 @@
 	    <HintPath>D:\Src\KSW.ATE01.Platform\lib\KSW.ATE01.Instrument.IO\bin\Debug\net8.0-windows\KSW.ATE01.Instrument.IO.dll</HintPath>
 	  </Reference>
 	  <Reference Include="KSW.ATE01.Project.Base">
-	    <HintPath>D:\Src\KSW.ATE01.Platform\lib\KSW.ATE01.Project.Base\bin\Debug\net8.0-windows\KSW.ATE01.Project.Base.dll</HintPath>
+	    <HintPath>..\..\lib\KSW.ATE01.Project.Base\bin\Debug\net8.0-windows\KSW.ATE01.Project.Base.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 

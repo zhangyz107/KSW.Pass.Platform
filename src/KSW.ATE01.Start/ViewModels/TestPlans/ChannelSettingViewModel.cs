@@ -129,6 +129,10 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         public AsyncDelegateCommand<PinInfoModel> EditPinCommand =>
             _editPinCommand ?? (_editPinCommand = new AsyncDelegateCommand<PinInfoModel>(ExecuteEditPinCommand));
 
+        private AsyncDelegateCommand<PinInfoModel> _deletePinCommand;
+        public AsyncDelegateCommand<PinInfoModel> DeletePinCommand =>
+            _deletePinCommand ?? (_deletePinCommand = new AsyncDelegateCommand<PinInfoModel>(ExecuteDeletePinCommand));
+
         #endregion
 
         public ChannelSettingViewModel(
@@ -270,6 +274,9 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
                     await _pinInfoBLL?.DeleteAsync(_pinInfo?.Id);
 
                     await ReloadPinList();
+
+                    RaisePropertyChanged(nameof(CanEdit));
+                    SureSiteCountCommand.RaiseCanExecuteChanged();
                 }
                 catch (Exception e)
                 {
@@ -306,6 +313,29 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             await DialogService.ShowDialogAsync(nameof(AddPinDialogView), parameters);
 
             await ReloadPinList();
+        }
+
+        private async Task ExecuteDeletePinCommand(PinInfoModel model)
+        {
+            var result = await DialogService.ShowMessageDialog(L["ConfirmTheDelete"], MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result?.Result == ButtonResult.Yes && model != null)
+            {
+                try
+                {
+                    await _pinInfoBLL?.DeleteAsync(model?.Id);
+
+                    await ReloadPinList();
+
+                    RaisePropertyChanged(nameof(CanEdit));
+                    SureSiteCountCommand.RaiseCanExecuteChanged();
+                }
+                catch (Exception e)
+                {
+                    DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+            }
         }
 
         public void OnNavigatedTo(NavigationContext navigationContext)

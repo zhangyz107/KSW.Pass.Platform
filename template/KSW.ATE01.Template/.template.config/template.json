@@ -16,30 +16,6 @@
             "datatype":"text",
             "defaultValue": "KSW.ATE01.Template",
             "replaces": "KSW.ATE01.Template"
-        },
-        "Testplan":{
-           "type": "parameter",
-            "datatype":"string",
-            "defaultValue": "Excel",
-            "replaces": "Test-Plan",
-            "description":"TestPlan Type Setting"
         }
-    },
-    "sources": [
-        {
-            "modifiers": [
-                {
-                    "condition": "Testplan == Excel",
-                    "exclude": [
-                      "TestPlan/Channel.csv",
-                      "TestPlan/Flow.csv",
-                      "TestPlan/Level.csv",
-                      "TestPlan/Limits.csv",
-                      "TestPlan/TestItem.csv",
-                      "TestPlan/Timing.csv"
-                    ]
-                }
-            ]
-        }
-      ]  
+    }
   }

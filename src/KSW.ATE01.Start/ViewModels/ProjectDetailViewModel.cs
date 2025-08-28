@@ -16,6 +16,7 @@ using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Ui;
+using Microsoft.Win32;
 using System.IO;
 
 namespace KSW.ATE01.Start.ViewModels
@@ -32,6 +33,7 @@ namespace KSW.ATE01.Start.ViewModels
         private ProjectInfoModel _projectInfo;
         private string _testPlanName;
         private string _executeName;
+        private bool _projectPathVaild;
         #endregion
 
         #region Properties
@@ -52,12 +54,22 @@ namespace KSW.ATE01.Start.ViewModels
             get => _executeName;
             set => SetProperty(ref _executeName, value);
         }
+
+        /// <summary>
+        /// 项目路径是否有效
+        /// </summary>
+        public bool ProjectPathVaild =>  (_projectInfo?.ProjectPath?.IsEmpty() == false);
+
         #endregion
 
         #region Commands
         private AsyncDelegateCommand _loadingCommand;
         public AsyncDelegateCommand LoadingCommand =>
             _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
+
+        private DelegateCommand _openFolderCommand;
+        public DelegateCommand OpenFolderCommand =>
+            _openFolderCommand ?? (_openFolderCommand = new DelegateCommand(ExecuteOpenFolderCommand));
         #endregion
 
         public ProjectDetailViewModel(
@@ -91,6 +103,7 @@ namespace KSW.ATE01.Start.ViewModels
         {
             ProjectInfo = _projectBLL?.GetCurrentProjectInfo();
             ExecuteName = _projectInfo?.ProjectName + _projectInfo?.ExecuteExtension;
+            RaisePropertyChanged(nameof(ProjectPathVaild));
         }
 
         private void LoadProjectFromArgs(string dir)
@@ -112,6 +125,11 @@ namespace KSW.ATE01.Start.ViewModels
                     }
                 }
             }
+        }
+
+        private void ExecuteOpenFolderCommand()
+        {
+            _projectBLL?.OpenFolder();
         }
     }
 }

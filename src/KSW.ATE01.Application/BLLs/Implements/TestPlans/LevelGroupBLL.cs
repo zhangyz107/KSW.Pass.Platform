@@ -66,6 +66,30 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             await CommitAsync();
         }
 
+        #region 创建前事件
+        protected override async Task CreateBeforeAsync(LevelGroup entity)
+        {
+            var isExist = await _repository.ExistsAsync(x => x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.LevelGroupName.Equals(entity.LevelGroupName));
+            if (isExist)
+                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], $"{L["LevelGroupName"]}:{entity.LevelGroupName}"));
+
+            var levelGroups = await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(entity.ProjectInfoId));
+
+            await base.CreateBeforeAsync(entity);
+        }
+        #endregion
+
+        #region 更新前事件
+        protected override async Task UpdateBeforeAsync(LevelGroup entity)
+        {
+            var isExist = await _repository.ExistsAsync(x => x.Id != entity.Id && x.ProjectInfoId.Equals(entity.ProjectInfoId) && x.LevelGroupName.Equals(entity.LevelGroupName));
+            if (isExist)
+                throw new ArgumentException(string.Format(L["FieldAlreadyExists"], $"{L["LevelGroupName"]}:{entity.LevelGroupName}"));
+
+            await base.UpdateBeforeAsync(entity);
+        }
+        #endregion
+
         #region 删除前事件
         private async Task DeleteBeforeAsync(List<LevelGroup> entities)
         {

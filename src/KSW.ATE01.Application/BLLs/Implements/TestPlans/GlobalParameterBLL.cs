@@ -46,7 +46,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
         public async Task<List<GlobalParameterModel>> GetListByProjectIdAsync(string projectId)
         {
-            var list = await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var list = (await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid())))?.OrderBy(x => x.CreationTime);
             return list.MapToList<GlobalParameterModel>();
         }
 
@@ -78,6 +78,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             {
                 throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.PatternFile));
             }
+
+            var globalParameters = await _repository.FindAllAsync(x => x.ProjectInfoId.Equals(entity.ProjectInfoId));
         }
         #endregion
 

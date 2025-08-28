@@ -12,7 +12,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
     {
         private readonly IGroupInfoRepository _repository;
         private readonly IPinGroupRelationshipRepositoy _pinGroupRelationshipRepositoy;
-        private readonly IGroupInfoManager _groupInfoManager; 
+        private readonly IGroupInfoManager _groupInfoManager;
 
         public GroupInfoBLL(
             IContainerProvider containerProvider,
@@ -79,6 +79,9 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             {
                 throw new ArgumentException(string.Format(L["FieldAlreadyExists"], entity.GroupName));
             }
+
+            var groupInfos = await _repository.FindAllAsync(x => x.PinOverviewId.Equals(entity.PinOverviewId));
+
             base.CreateBeforeAsync(entity);
         }
         #endregion

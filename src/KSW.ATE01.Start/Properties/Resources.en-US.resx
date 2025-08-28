@@ -663,4 +663,7 @@
   <data name="EditProject" xml:space="preserve">
     <value>Edit Project</value>
   </data>
+  <data name="OpenFolder" xml:space="preserve">
+    <value>Open Folder</value>
+  </data>
 </root>
