@@ -34,7 +34,6 @@ using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Reflections;
 using Microsoft.Extensions.Logging;
-using NPOI.SS.Formula.Functions;
 using System.Configuration;
 using System.Diagnostics;
 using System.Windows;
@@ -841,6 +840,17 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             if (projectInfo == null || projectInfo.ProjectPath.IsEmpty() || !Directory.Exists(projectInfo.ProjectPath))
                 return;
             Process.Start("explorer.exe", projectInfo.ProjectPath);
+        }
+
+        public async Task ImportTestPlanAsync(string filePath, ProjectInfoModel projectInfo = null)
+        {
+            if (File.Exists(filePath))
+            {
+                projectInfo = projectInfo ?? _currentProjectInfo;
+                await _testPlanManager.ImportTestPlanAsync(filePath, projectInfo?.Id);
+
+                await CommitAsync();
+            }
         }
     }
 }

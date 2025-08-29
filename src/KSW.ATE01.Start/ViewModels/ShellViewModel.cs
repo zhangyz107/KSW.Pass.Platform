@@ -178,7 +178,7 @@ namespace KSW.ATE01.Start.ViewModels
         private async Task ExecuteReleaseCommand()
         {
             if ((await DialogService.ShowDialogAsync(nameof(ReleaseDialog)))?.Result == ButtonResult.OK)
-                _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+                _eventAggregator.GetEvent<UpdateProjectInfoEvent>().Publish();
         }
 
         private void ExecuteDelelopCommand()

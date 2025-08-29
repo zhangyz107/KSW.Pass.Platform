@@ -100,7 +100,7 @@
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button Margin="0,0,6,0" Grid.Column="2" Style="{StaticResource MaterialDesignOutlinedButton}">
+                        <Button Margin="0,0,6,0" Grid.Column="2" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding ImportCommand}">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
                                     <materialDesign:PackIcon Kind="Import" VerticalAlignment="Center"/>

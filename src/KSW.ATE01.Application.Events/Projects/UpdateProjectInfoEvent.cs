@@ -5,9 +5,9 @@ namespace KSW.ATE01.Application.Events.Projects
     /// <summary>
     /// 项目信息更新事件
     /// </summary>
-    public class ProjectInfoUpdateEvent : PubSubEvent
+    public class UpdateProjectInfoEvent : PubSubEvent
     {
-        public ProjectInfoUpdateEvent()
+        public UpdateProjectInfoEvent()
         {
         }
     }

@@ -12,7 +12,15 @@ namespace KSW.ATE01.Application.Managers.Abstractions.TestPlans
         /// <summary>
         /// 加载测试项
         /// </summary>
-        Task<TestPlanModel> LoadTestPlanAsync(ProjectInfoModel projectInfo);
+        Task<TestPlanModel> ConversionTestPlanAsync(string projectId);
+
+        /// <summary>
+        /// 导入测试计划
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        Task ImportTestPlanAsync(string filePath, string projectId);
 
         /// <summary>
         /// 通过项目Id拷贝测试计划

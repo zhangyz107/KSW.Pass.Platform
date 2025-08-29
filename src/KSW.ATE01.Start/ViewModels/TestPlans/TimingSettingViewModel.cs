@@ -14,6 +14,7 @@
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.Events.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Start.Views.Dialogs.TestPlans;
@@ -181,6 +182,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         private void InitEvent()
         {
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
+            _eventAggregator.GetEvent<UpdateTestPlanEvent>().Subscribe(SelectedProjectInfo);
         }
 
         private async Task ExecuteLoadingCommand()

@@ -90,7 +90,7 @@ namespace KSW.ATE01.Start.ViewModels
         private void RegisterEvent()
         {
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
-            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Subscribe(ProjectInfoUpdate);
+            _eventAggregator.GetEvent<UpdateProjectInfoEvent>().Subscribe(ProjectInfoUpdate);
             _eventAggregator.GetEvent<LoadProjectFromArgsEvent>().Subscribe(LoadProjectFromArgs);
         }
 

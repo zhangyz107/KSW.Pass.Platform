@@ -147,7 +147,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
             _projectBLL?.SetCurrentProjectInfo(_selectProject);
 
-            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+            _eventAggregator.GetEvent<UpdateProjectInfoEvent>().Publish();
             RaiseRequestClose(new DialogResult(ButtonResult.OK));
         }
 

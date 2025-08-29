@@ -39,7 +39,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Fields
         private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
-        private readonly ITestPlanManager _testPlanBLL;
         private ProjectInfoModel _projectInfo;
         private TestPlanModel _testPlan;
         private ObservableCollection<FlowInfoModel> _flowList = new ObservableCollection<FlowInfoModel>();
@@ -173,11 +172,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public RunDialogViewModel(
             IContainerProvider containerProvider,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IEventAggregator eventAggregator,
+            IProjectBLL projectBLL) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
-            //_projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
-            _testPlanBLL = ContainerProvider?.Resolve<ITestPlanManager>();
+            _projectBLL = projectBLL;
         }
 
         private void ExecuteLoadingCommand()
@@ -193,7 +192,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public async void OnDialogClosed()
         {
             var saveResult = await _projectBLL.UpdateAsync(_projectInfo);
-            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+            _eventAggregator.GetEvent<UpdateProjectInfoEvent>().Publish();
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -351,7 +350,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                         if (commonData != null)
                         {
                             globalSetting.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
-                            commonData.TestPlan = await _testPlanBLL.LoadTestPlanAsync(_projectInfo);
+
+                            //commonData.TestPlan = await _testPlanBLL.ConversionTestPlanAsync(_projectInfo);
                             commonData.UseSiteName = _siteList.Where(x => x.IsSelected).Select(x => x.SiteName).ToList();
                         }
 

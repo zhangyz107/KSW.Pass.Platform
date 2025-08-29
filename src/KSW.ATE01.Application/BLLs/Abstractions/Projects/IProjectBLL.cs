@@ -39,20 +39,11 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// </summary>
         ProjectInfoModel GetCurrentProjectInfo();
 
-        /// <summary>
-        /// 扫描目标文件夹下的所有项目
-        /// </summary>
-        //List<ProjectInfoModel> ScanProjects(string folderName);
 
         /// <summary>
         /// 保存项目信息
         /// </summary>
         Task<ProjectInfoModel> UpdateAsync(ProjectInfoModel projectInfo);
-
-        /// <summary>
-        /// 从项目配置文件中加载项目信息
-        /// </summary>
-        //ProjectInfoModel LoadProjectInfo(string file);
 
         /// <summary>
         /// 设置当前项目信息
@@ -101,5 +92,12 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// 打开项目所在目录
         /// </summary>
         void OpenFolder(ProjectInfoModel projectInfo = null);
+
+        /// <summary>
+        /// 导入测试计划
+        /// </summary>
+        /// <param name="projectInfo"></param>
+        /// <returns></returns>
+        Task ImportTestPlanAsync(string filePath, ProjectInfoModel projectInfo = null);
     }
 }

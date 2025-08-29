@@ -188,7 +188,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                             //拷贝测试计划
                             //result = await _projectBLL?.CopyTestPlanAsync(_projectInfo);
 
-                            _eventAggregator.GetEvent<ProjectInfoUpdateEvent>().Publish();
+                            _eventAggregator.GetEvent<UpdateProjectInfoEvent>().Publish();
                         }
                     }
                     else

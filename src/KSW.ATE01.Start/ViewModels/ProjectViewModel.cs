@@ -14,6 +14,7 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Application.Events.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
@@ -21,6 +22,7 @@ using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Extensions.Logging;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 
 namespace KSW.ATE01.Start.ViewModels
@@ -55,6 +57,7 @@ namespace KSW.ATE01.Start.ViewModels
                 if (SetProperty(ref _selectProjectInfo, value))
                 {
                     _projectBLL?.SetCurrentProjectInfo(value);
+                    ImportCommand.RaiseCanExecuteChanged();
                     _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Publish();
                 }
             }
@@ -80,6 +83,10 @@ namespace KSW.ATE01.Start.ViewModels
         private DelegateCommand _saveAsCommand;
         public DelegateCommand SaveAsCommand =>
             _saveAsCommand ?? (_saveAsCommand = new DelegateCommand(ExecuteSaveAsCommand));
+
+        private AsyncDelegateCommand _importCommand;
+        public AsyncDelegateCommand ImportCommand =>
+            _importCommand ?? (_importCommand = new AsyncDelegateCommand(ExecuteImportCommand, () => _selectProjectInfo != null));
 
         private AsyncDelegateCommand<ProjectInfoModel> _editCommand;
         public AsyncDelegateCommand<ProjectInfoModel> EditCommand =>
@@ -126,7 +133,7 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void InitEvent()
         {
-            _eventAggregator.GetEvent<RefreshProjectListEvent>().Subscribe(async ()=> await ReloadList());
+            _eventAggregator.GetEvent<RefreshProjectListEvent>().Subscribe(async () => await ReloadList());
         }
 
         private async Task ExecuteLoadingCommand()
@@ -168,6 +175,22 @@ namespace KSW.ATE01.Start.ViewModels
         private void ExecuteSaveAsCommand()
         {
             DialogService.ShowDialog(nameof(SaveAsDialog));
+        }
+
+        private async Task ExecuteImportCommand()
+        {
+            var fileDialog = new OpenFileDialog()
+            {
+                Filter = "testplan files(*.xlsm)|*.xlsm"
+            };
+            if (fileDialog.ShowDialog() == true)
+            {
+                var filePath = fileDialog.FileName;
+                await _projectBLL?.ImportTestPlanAsync(filePath);
+
+                _eventAggregator.GetEvent<UpdateTestPlanEvent>().Publish();
+            }
+
         }
 
         private async Task ExecuteEditCommand(ProjectInfoModel model)

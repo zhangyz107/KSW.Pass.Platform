@@ -16,14 +16,14 @@ using KSW.Application;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Data;
-using KSW.ATE01.Data.Repositories.TestPlans;
 using KSW.ATE01.Domain.Projects.Core.Enums;
+using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
+using KSW.ATE01.Project.Base.Enums.Results;
+using KSW.ATE01.Project.Base.Enums.TestPlans;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.TestPlans;
-using KSW.Exceptions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Configuration;
@@ -101,73 +101,331 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             _globalParameterRepository = globalParameterRepository;
         }
 
-        #region 加载测试项
-        public async Task<TestPlanModel> LoadTestPlanAsync(ProjectInfoModel projectInfo)
+        #region 转换测试计划
+        public async Task<TestPlanModel> ConversionTestPlanAsync(string projectId)
         {
+            if (projectId.IsEmpty())
+                return null;
+
+            var groupIdDict = new Dictionary<Guid, string>();
+            var pinIdDict = new Dictionary<Guid, string>();
+            var levelGroupDict = new Dictionary<Guid, List<Project.Base.Models.TestPlans.LevelModel>>();
+            var timingGroupDict = new Dictionary<Guid, List<Project.Base.Models.TestPlans.TimingModel>>();
+
             var result = new TestPlanModel();
+            // 引脚信息
+            await ConversionChannel(projectId, result, groupIdDict, pinIdDict);
 
-            try
-            {
-                var path = GetTestPlanFilePathFromProject(projectInfo);
-                //switch (projectInfo.TestPlanType)
-                //{
-                //    case TestPlanType.Excel:
-                //        result = await LoadTestPlanFromExcelAsync(path);
-                //        break;
-                //    case TestPlanType.Csv:
-                //        result = await LoadTestPlanFromCsvAsync(path);
-                //        break;
-                //}
-                return result;
-            }
-            catch (Exception)
-            {
+            // 电平
+            var levelGroups = await ConversionLevel(projectId, groupIdDict, pinIdDict, levelGroupDict);
 
-                throw;
-            }
+            // 时钟
+            var timingGroups = await ConversionTiming(projectId, groupIdDict, pinIdDict, timingGroupDict);
 
+            // 测试项
+            var testItems = await ConversionTestItem(projectId, groupIdDict, pinIdDict, levelGroupDict, timingGroupDict, levelGroups, timingGroups);
+
+            await ConversionLimits(projectId, result, testItems);
+
+            //全局参数
+            await ConversionGlobalParameter(projectId, result);
+
+            return result;
         }
 
-        private async Task<TestPlanModel> LoadTestPlanFromExcelAsync(string filePath)
+        private List<PinGroupModel> GetPinGroups(List<GroupInfo> groupInfos, List<Guid> groupIds)
         {
-            var result = new TestPlanModel();
-            try
+            if (groupInfos.IsEmpty() || groupIds.IsEmpty())
+                return null;
+
+            var result = new List<PinGroupModel>();
+            var groups = groupInfos.Where(x => groupIds.Contains(x.Id)).ToList();
+            foreach (var group in groups)
             {
-                if (!File.Exists(filePath))
-                    throw new Warning(L["FileDoesNotExist"]);
-
-                result = TestPlanHelper.LoadTestPlanFromExcel(filePath);
-
-                return result;
+                var tempGroup = new PinGroupModel();
+                tempGroup.Id = group.Id.SafeString();
+                tempGroup.Name = group.GroupName;
+                result.Add(tempGroup);
             }
-            catch (Exception)
-            {
+            return result;
+        }
 
-                throw;
+        private List<SiteModel> GetPinSites(List<SiteInfo> siteInfos, List<PinSiteInfo> pinSiteInfos, List<Guid> pinSiteIds)
+        {
+            if (siteInfos.IsEmpty() || pinSiteInfos.IsEmpty() || pinSiteIds.IsEmpty())
+                return null;
+
+
+            var result = new List<SiteModel>();
+            var sites = siteInfos.Where(x => pinSiteIds.Contains(x.Id)).ToList();
+
+            foreach (var site in sites)
+            {
+                var pinSites = pinSiteInfos.FirstOrDefault(x => x.SiteInfoId.Equals(site.Id));
+                var tempSite = new SiteModel();
+                tempSite.SiteName = site.SiteName;
+                tempSite.SiteValue = pinSites?.ChannelName;
+                result.Add(tempSite);
+            }
+            return result;
+        }
+
+        private async Task<List<LevelGroup>> ConversionLevel(string projectId, Dictionary<Guid, string> groupIdDict, Dictionary<Guid, string> pinIdDict, Dictionary<Guid, List<Project.Base.Models.TestPlans.LevelModel>> levelGroupDict)
+        {
+            var levelGroups = await _levelGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            if (!levelGroups.IsEmpty())
+            {
+                foreach (var levelGroup in levelGroups)
+                {
+                    var tempLevels = new List<Project.Base.Models.TestPlans.LevelModel>();
+                    var levels = await _levelRepository.FindAllAsync(x => x.LevelGroupId.Equals(levelGroup.Id));
+                    if (!levels.IsEmpty())
+                    {
+                        foreach (var level in levels)
+                        {
+                            var tempLevel = new Project.Base.Models.TestPlans.LevelModel();
+                            tempLevel.Id = level.Id.SafeString();
+                            var groupOrPinId = level.GroupOrPinId ?? Guid.Empty;
+                            if (groupIdDict.ContainsKey(groupOrPinId))
+                                tempLevel.PinGroupName = groupIdDict[groupOrPinId];
+                            else if (pinIdDict.ContainsKey(groupOrPinId))
+                                tempLevel.PinGroupName = pinIdDict[groupOrPinId];
+                            tempLevel.Vil = level.Vil ?? 0;
+                            tempLevel.Vih = level.Vih ?? 0;
+                            tempLevel.Vol = level.Vol ?? 0;
+                            tempLevel.Voh = level.Voh ?? 0;
+                            tempLevel.Iol = level.Iol ?? 0;
+                            tempLevel.Ioh = level.Ioh ?? 0;
+                            tempLevel.Vt = level.Vt ?? 0;
+                            tempLevel.Vcl = level.Vcl ?? 0;
+                            tempLevel.Vch = level.Vch ?? 0;
+                            tempLevel.PS = level.Ps ?? 0;
+                            tempLevel.I = level.I ?? 0;
+                            tempLevel.Tdelay = level.Tdelay ?? 0;
+                            tempLevel.Sequence = level.Sequence?.ToString();
+                            tempLevel.Comment = level.Comment;
+                            tempLevels.Add(tempLevel);
+                        }
+                    }
+
+                    if (!levelGroupDict.ContainsKey(levelGroup.Id))
+                        levelGroupDict.Add(levelGroup.Id, tempLevels);
+                }
+            }
+            return levelGroups;
+        }
+
+        private async Task<List<TimingGroup>> ConversionTiming(string projectId, Dictionary<Guid, string> groupIdDict, Dictionary<Guid, string> pinIdDict, Dictionary<Guid, List<Project.Base.Models.TestPlans.TimingModel>> timingGroupDict)
+        {
+            var timingGroups = await _timingGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            if (!timingGroups.IsEmpty())
+            {
+                foreach (var timingGroup in timingGroups)
+                {
+                    var tempTimings = new List<Project.Base.Models.TestPlans.TimingModel>();
+                    var timings = await _timingRepository.FindAllAsync(x => x.TimingGroupId.Equals(timingGroup.Id));
+                    if (!timings.IsEmpty())
+                    {
+                        foreach (var timing in timings)
+                        {
+                            var tempTiming = new Project.Base.Models.TestPlans.TimingModel();
+                            tempTiming.Id = timing.Id.SafeString();
+                            tempTiming.TimingName = timing.TimingName;
+                            tempTiming.Period = timing.Period ?? 0;
+                            tempTiming.PinId = timing.GroupOrPinId ?? Guid.Empty;
+                            var groupOrPinId = timing.GroupOrPinId ?? Guid.Empty;
+                            if (groupIdDict.ContainsKey(groupOrPinId))
+                                tempTiming.PinName = groupIdDict[groupOrPinId];
+                            else if (pinIdDict.ContainsKey(groupOrPinId))
+                                tempTiming.PinName = pinIdDict[groupOrPinId];
+                            tempTiming.PinSetup = "PAT";
+                            if (Enum.TryParse(timing.WaveformFormat.ToString(), out Timingformat timingformat))
+                                tempTiming.Fmt = timingformat;
+                            tempTiming.DriveA = timing.DriveA?.ToString();
+                            tempTiming.DriveB = timing.DriveB?.ToString();
+                            tempTiming.DriveC = timing.DriveC?.ToString();
+                            tempTiming.DriveD = timing.DriveD?.ToString();
+                            if (Enum.TryParse(timing.StrobeMode.ToString(), out Project.Base.Enums.TestPlans.StrobeModeType strobeMode))
+                                tempTiming.StrobeMode = strobeMode;
+                            tempTiming.StrobeA = timing.StrobeA ?? 0;
+                            tempTiming.StrobeB = timing.StrobeB ?? 0;
+                            tempTiming.Comment = timing.Comment;
+                        }
+                    }
+
+                    if (!timingGroupDict.ContainsKey(timingGroup.Id))
+                        timingGroupDict.Add(timingGroup.Id, tempTimings);
+                }
+            }
+            return timingGroups;
+        }
+
+        private async Task<List<TestItemInfo>> ConversionTestItem(string projectId, Dictionary<Guid, string> groupIdDict, Dictionary<Guid, string> pinIdDict, Dictionary<Guid, List<Project.Base.Models.TestPlans.LevelModel>> levelGroupDict, Dictionary<Guid, List<Project.Base.Models.TestPlans.TimingModel>> timingGroupDict, List<LevelGroup> levelGroups, List<TimingGroup> timingGroups)
+        {
+            var testItems = await _testItemInfoRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            if (!testItems.IsEmpty())
+            {
+                foreach (var testItem in testItems)
+                {
+                    var tempTestItem = new TestItemModel();
+                    tempTestItem.Id = testItem.Id.SafeString();
+                    tempTestItem.SheetName = "TestItem";
+                    tempTestItem.TestItemName = testItem.TestItemName;
+                    tempTestItem.FunctionName = testItem.FunctionName;
+                    tempTestItem.Force = testItem.Force;
+                    var groupOrPinId = testItem.GroupOrPinId ?? Guid.Empty;
+                    if (groupIdDict.ContainsKey(groupOrPinId))
+                        tempTestItem.Pins = groupIdDict[groupOrPinId];
+                    else if (pinIdDict.ContainsKey(groupOrPinId))
+                        tempTestItem.Pins = pinIdDict[groupOrPinId];
+
+                    // 电平
+                    var levelGroupId = testItem.LevelGroupId ?? Guid.Empty;
+                    var levelGroup = levelGroups.FirstOrDefault(x => x.Id.Equals(levelGroupId));
+                    tempTestItem.Level = levelGroup?.LevelGroupName;
+                    if (levelGroupDict.ContainsKey(levelGroupId))
+                        tempTestItem.Levels = levelGroupDict[levelGroupId];
+
+                    // 时钟
+                    var timingGroupId = testItem.TimingGroupId ?? Guid.Empty;
+                    var timingGroup = timingGroups.FirstOrDefault(x => x.Id.Equals(timingGroupId));
+                    tempTestItem.Timing = timingGroup?.TimingGroupName;
+                    if (timingGroupDict.ContainsKey(timingGroupId))
+                        tempTestItem.Timings = timingGroupDict[timingGroupId];
+
+                    // 附加参数
+                    if (!testItem.AdditionInfo.IsEmpty())
+                    {
+                        var args = testItem.AdditionInfo.Split(',');
+                        var index = 0;
+                        foreach (var arg in args)
+                        {
+                            var tempArg = new TestItemParamModel();
+                            tempArg.ParamName = $"Arg{index++}";
+                            tempArg.ParamValue = arg;
+                            tempTestItem.Args.Add(tempArg);
+                        }
+                    }
+                }
+            }
+
+            return testItems;
+        }
+
+        private async Task ConversionLimits(string projectId, TestPlanModel result, List<TestItemInfo> testItems)
+        {
+            var limits = await _limitsRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var limitsModels = new List<Project.Base.Models.TestPlans.LimitsModel>();
+            foreach (var limit in limits)
+            {
+                var testItem = testItems.FirstOrDefault(x => x.LimitsId.Equals(limit.Id));
+                var tempLimit = new Project.Base.Models.TestPlans.LimitsModel();
+                tempLimit.Id = limit.Id.SafeString();
+                if (testItem != null)
+                {
+                    tempLimit.TestItemId = testItem.Id;
+                    tempLimit.TestItemName = testItem.TestItemName;
+                }
+                tempLimit.LimitName = limit.LimitName;
+                tempLimit.TestNumber = (uint)limit.TestNumber;
+                tempLimit.LowLimit = System.Convert.ToDouble(limit.LowLimit);
+                tempLimit.HighLimit = System.Convert.ToDouble(limit.HighLimit);
+                tempLimit.Units = limit.Units;
+                tempLimit.FailHardwareBin = (uint)limit.FailHardwareBin;
+                tempLimit.PassHardwareBin = (uint)limit.PassHardwareBin;
+                tempLimit.FailSoftwareBin = (uint)limit.FailSoftwareBin;
+                tempLimit.PassSoftwareBin = (uint)limit.PassSoftwareBin;
+                tempLimit.DUTResult = Test.Fail;
+                switch (limit.DutResult)
+                {
+                    case Domain.TestPlan.Core.Enums.DUTResultType.Pass:
+                        tempLimit.DUTResult = Test.Pass;
+                        break;
+                    case Domain.TestPlan.Core.Enums.DUTResultType.Fail:
+                        tempLimit.DUTResult = Test.Fail;
+                        break;
+                    case Domain.TestPlan.Core.Enums.DUTResultType.Error:
+                        tempLimit.DUTResult = Test.Error;
+                        break;
+                }
+                limitsModels.Add(tempLimit);
+            }
+            result.Limits = limitsModels;
+        }
+
+        private async Task ConversionChannel(string projectId, TestPlanModel testPlanModel, Dictionary<Guid, string> groupIdDict, Dictionary<Guid, string> pinIdDict)
+        {
+            var ovewview = (await _pinOverviewRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid())))?.FirstOrDefault();
+            if (ovewview != null)
+            {
+                var pinInfos = await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(ovewview.Id));
+                foreach (var pinInfo in pinInfos)
+                {
+                    if (!pinIdDict.ContainsKey(pinInfo.Id))
+                        pinIdDict.Add(pinInfo.Id, pinInfo.PinName);
+                }
+
+                var groupInfos = await _groupInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(ovewview.Id));
+                foreach (var groupInfo in groupInfos)
+                {
+                    if (!groupIdDict.ContainsKey(groupInfo.Id))
+                        groupIdDict.Add(groupInfo.Id, groupInfo.GroupName);
+                }
+
+                var siteInfos = await _siteInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(ovewview.Id));
+
+                var channels = new List<ChannelModel>();
+                foreach (var pinInfo in pinInfos)
+                {
+                    var pinGroupRelationships = await _pinGroupRelationshipRepositoy.FindAllAsync(x => x.PinInfoId.Equals(pinInfo.Id));
+                    var groupIds = pinGroupRelationships.Select(x => x.GroupInfoId).ToList();
+                    var groups = GetPinGroups(groupInfos, groupIds);
+
+                    var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => x.PinInfoId.Equals(pinInfo.Id));
+                    var pinSiteIds = pinSiteInfos.Select(x => x.SiteInfoId).ToList();
+                    var sites = GetPinSites(siteInfos, pinSiteInfos, pinSiteIds);
+
+                    var tempChannel = new ChannelModel();
+                    tempChannel.Id = pinInfo.Id.SafeString();
+                    tempChannel.PinName = pinInfo.PinName;
+                    if (Enum.TryParse(pinInfo.PinType.ToString(), out ChannelType channelType))
+                    {
+                        tempChannel.Type = channelType;
+                    }
+                    tempChannel.Groups = groups;
+                    tempChannel.Sites = sites;
+                }
+                testPlanModel.Channel = channels;
             }
         }
 
-        private async Task<TestPlanModel> LoadTestPlanFromCsvAsync(string testPlanDir)
+        private async Task ConversionGlobalParameter(string projectId, TestPlanModel result)
         {
-            var result = new TestPlanModel();
-
-            try
+            var globalParameters = await _globalParameterRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            if (!globalParameters.IsEmpty())
             {
-                if (!Directory.Exists(testPlanDir))
-                    throw new Warning(L["FileDoesNotExist"]);
+                var global = new List<GlobalModel>();
+                foreach (var globalParameter in globalParameters)
+                {
+                    var tempGlobalParameter = new GlobalModel();
+                    tempGlobalParameter.Id = globalParameter.Id.SafeString();
+                    tempGlobalParameter.PatternFile = globalParameter.PatternFile;
+                    if (!globalParameter.AdditionInfo.IsEmpty())
+                    {
+                        var args = globalParameter.AdditionInfo.Split(',');
+                        var index = 0;
+                        foreach (var arg in args)
+                        {
+                            var tempArg = new GlobalParamModel();
+                            tempArg.ParamName = $"Default {++index}";
+                            tempArg.ParamValue = arg;
+                            tempGlobalParameter.Args.Add(tempArg);
+                        }
 
-                var csvFiles = Directory.GetFiles(testPlanDir, "*.csv");
-                if (csvFiles?.IsEmpty() == true)
-                    throw new Warning(L["FileDoesNotExist"]);
-
-                result = TestPlanHelper.LoadTestPlanFromCsv(testPlanDir);
-
-                return result;
-            }
-            catch (Exception)
-            {
-
-                throw;
+                    }
+                    global.Add(tempGlobalParameter);
+                }
+                result.Global = global;
             }
         }
         #endregion
@@ -1711,6 +1969,342 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var globalParameters = await _globalParameterRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
             await _globalParameterRepository.RemoveAsync(globalParameters);
             #endregion
+        }
+
+        public async Task ImportTestPlanAsync(string filePath, string projectId)
+        {
+            if (projectId.IsEmpty())
+                return;
+
+            var testPlan = TestPlanHelper.LoadTestPlanFromExcel(filePath);
+            if (testPlan != null)
+            {
+                // 删除项目已有的测试计划
+                await DeleteTestPlanByProjectIdAsync(projectId);
+
+                var groups = testPlan?.Channel?.SelectMany(x => x.Groups).DistinctBy(x => x.Name).ToList();
+                var sites = testPlan?.Channel?.SelectMany(x => x.Sites).DistinctBy(x => x.SiteName).ToList();
+                var levelGroups = testPlan?.TestItem?.Where(x => !x.Level.IsEmpty())?.Select(x => x.Level).Distinct().ToList();
+                var timingGroups = testPlan?.TestItem?.Where(x => !x.Timing.IsEmpty())?.Select(x => x.Timing).Distinct().ToList();
+
+                PinOverview pinOverview = await SavePinOverviewFromTestPlan(projectId, sites.Count);
+
+                // 站点
+                List<SiteInfo> siteList = await SaveSiteFromTestPlan(sites, pinOverview);
+
+                // 引脚组
+                List<GroupInfo> groupList = await SaveGroupFromTestPlan(groups, pinOverview);
+
+                // 引脚
+                List<PinInfo> pinList = await SavePinFromTestPlan(testPlan?.Channel, pinOverview, siteList, groupList);
+
+                // 门限
+                await SaveLimitsFromTestPlan(projectId, testPlan.Limits);
+
+                // 电平组
+                List<LevelGroup> levelGroupList = await SaveLevelGroupFromTestPlan(projectId, levelGroups);
+
+                // 时钟组
+                List<TimingGroup> timingGroupList = await SaveTimingGroupFromTestPlan(projectId, timingGroups);
+
+                // 测试项
+                await SaveTestItemsFromTestPlan(projectId, testPlan.TestItem, groupList, pinList, levelGroupList, timingGroupList);
+
+                // 全局参数
+                await SaveGlobalParameterFromTestPlan(projectId, testPlan.Global);
+
+            }
+        }
+
+        private async Task<PinOverview> SavePinOverviewFromTestPlan(string projectId, int siteCount)
+        {
+            var pinOverview = new PinOverview();
+            pinOverview.Init();
+            pinOverview.ProjectInfoId = projectId.ToGuid();
+            pinOverview.SiteCount = siteCount;
+            await _pinOverviewRepository.AddAsync(pinOverview);
+            return pinOverview;
+        }
+
+        private async Task<List<SiteInfo>> SaveSiteFromTestPlan(List<SiteModel> sites, PinOverview pinOverview)
+        {
+            var siteList = new List<SiteInfo>();
+            if (sites.IsEmpty())
+                return siteList;
+
+            for (int i = 0; i < sites.Count; i++)
+            {
+                var siteInfo = new SiteInfo();
+                siteInfo.Init();
+                siteInfo.PinOverviewId = pinOverview.Id;
+                siteInfo.SortId = i;
+                siteInfo.SiteName = sites[i].SiteName;
+                siteList.Add(siteInfo);
+            }
+            await _siteInfoRepository.AddAsync(siteList);
+
+            return siteList;
+        }
+
+        private async Task<List<GroupInfo>> SaveGroupFromTestPlan(List<PinGroupModel>? groups, PinOverview pinOverview)
+        {
+            var groupList = new List<GroupInfo>();
+            if (groups.IsEmpty())
+                return groupList;
+
+            for (int i = 0; i < groups.Count; i++)
+            {
+                var groupInfo = new GroupInfo();
+                groupInfo.Init();
+                groupInfo.PinOverviewId = pinOverview.Id;
+                groupInfo.GroupName = groups[i].Name;
+                groupList.Add(groupInfo);
+            }
+            await _groupInfoRepository.AddAsync(groupList);
+
+            return groupList;
+        }
+
+        private async Task<List<PinInfo>> SavePinFromTestPlan(List<ChannelModel>? channels, PinOverview pinOverview, List<SiteInfo> siteList, List<GroupInfo> groupList)
+        {
+            var pinList = new List<PinInfo>();
+            if (channels.IsEmpty())
+                return pinList;
+
+            foreach (var channel in channels)
+            {
+                var pinInfo = new PinInfo();
+                pinInfo.Init();
+                pinInfo.PinOverviewId = pinOverview.Id;
+                pinInfo.PinName = channel.PinName;
+                if (Enum.TryParse(channel.Type.ToString(), out PinType type))
+                    pinInfo.PinType = type;
+                pinList.Add(pinInfo);
+
+                if (!channel.Groups.IsEmpty())
+                {
+                    foreach (var group in channel.Groups)
+                    {
+                        var groupInfo = groupList.FirstOrDefault(x => x.GroupName.Equals(group.Name));
+                        var pinGroup = new PinGroupRelationship();
+                        pinGroup.Init();
+                        pinGroup.PinInfoId = pinInfo.Id;
+                        pinGroup.GroupInfoId = groupInfo.Id;
+                        await _pinGroupRelationshipRepositoy.AddAsync(pinGroup);
+                    }
+                }
+
+                if (!channel.Sites.IsEmpty())
+                {
+                    foreach (var site in channel.Sites)
+                    {
+                        var siteInfo = siteList.FirstOrDefault(x => x.SiteName.Equals(site.SiteName));
+                        var pinSite = new PinSiteInfo();
+                        pinSite.Init();
+                        pinSite.SortId = channel.Sites.IndexOf(site);
+                        pinSite.PinInfoId = pinInfo.Id;
+                        pinSite.SiteInfoId = siteInfo.Id;
+                        pinSite.ChannelName = site.SiteValue;
+                        await _pinSiteInfoRepository.AddAsync(pinSite);
+                    }
+                }
+            }
+            await _pinInfoRepository.AddAsync(pinList);
+
+            return pinList;
+        }
+
+        private async Task SaveLimitsFromTestPlan(string projectId, List<Project.Base.Models.TestPlans.LimitsModel> limits)
+        {
+            var limitList = new List<Limits>();
+            if (limits.IsEmpty())
+                return;
+
+            foreach (var limit in limits)
+            {
+                var limitInfo = new Limits();
+                limitInfo.Init();
+                limitInfo.ProjectInfoId = projectId.ToGuid();
+                limitInfo.TestNumber = (int)limit.TestNumber;
+                limitInfo.LowLimit = System.Convert.ToDecimal(limit.LowLimit);
+                limitInfo.HighLimit = System.Convert.ToDecimal(limit.HighLimit);
+                limitInfo.Units = limit.Units;
+                limitInfo.LimitName = limit.LimitName;
+                limitInfo.FailSoftwareBin = (int)limit.FailSoftwareBin;
+                limitInfo.PassSoftwareBin = (int)limit.PassSoftwareBin;
+                limitInfo.FailHardwareBin = (int)limit.FailHardwareBin;
+                limitInfo.PassHardwareBin = (int)limit.PassHardwareBin;
+                limitInfo.DutResult = Enum.TryParse(limit.DUTResult.ToString(), out DUTResultType type) ? type : DUTResultType.None;
+
+                limitList.Add(limitInfo);
+            }
+            await _limitsRepository.AddAsync(limitList);
+        }
+
+        private async Task<List<LevelGroup>> SaveLevelGroupFromTestPlan(string projectId, List<string>? levelGroups)
+        {
+            var levelGroupList = new List<LevelGroup>();
+            if (levelGroups.IsEmpty())
+                return levelGroupList;
+
+            foreach (var levelGroup in levelGroups)
+            {
+                var tempLevelGroup = new LevelGroup();
+                tempLevelGroup.Init();
+                tempLevelGroup.ProjectInfoId = projectId.ToGuid();
+                tempLevelGroup.LevelGroupName = levelGroup;
+                levelGroupList.Add(tempLevelGroup);
+            }
+            await _levelGroupRepository.AddAsync(levelGroupList);
+
+            return levelGroupList;
+        }
+
+        private async Task<List<TimingGroup>> SaveTimingGroupFromTestPlan(string projectId, List<string>? timingGroups)
+        {
+            var timingGroupList = new List<TimingGroup>();
+            if (timingGroups.IsEmpty())
+                return timingGroupList;
+
+            foreach (var timingGroup in timingGroups)
+            {
+                var tempTimingGroup = new TimingGroup();
+                tempTimingGroup.Init();
+                tempTimingGroup.ProjectInfoId = projectId.ToGuid();
+                tempTimingGroup.TimingGroupName = timingGroup;
+                timingGroupList.Add(tempTimingGroup);
+            }
+            await _timingGroupRepository.AddAsync(timingGroupList);
+
+            return timingGroupList;
+        }
+
+        private async Task SaveTestItemsFromTestPlan(string projectId, List<TestItemModel> testItems, List<GroupInfo> groupList, List<PinInfo> pinList, List<LevelGroup> levelGroupList, List<TimingGroup> timingGroupList)
+        {
+            var hasLevels = new List<string>();
+            var hasTimings = new List<string>();
+            var testItemList = new List<TestItemInfo>();
+            foreach (var testItem in testItems)
+            {
+                var testItemInfo = new TestItemInfo();
+                testItemInfo.Init();
+                testItemInfo.ProjectInfoId = projectId.ToGuid();
+                testItemInfo.TestItemName = testItem.TestItemName;
+                testItemInfo.FunctionName = testItem.FunctionName;
+                testItemInfo.Force = testItem.Force;
+                var group = groupList.FirstOrDefault(x => x.GroupName.Equals(testItem.Pins));
+                if (group == null)
+                {
+                    var pin = pinList.FirstOrDefault(x => x.PinName.Equals(testItem.Pins));
+                    testItemInfo.GroupOrPinId = pin?.Id ?? Guid.Empty;
+                }
+                else
+                    testItemInfo.GroupOrPinId = group.Id;
+
+                // 测试项电平
+                if (!testItem.Level.IsEmpty() && !testItem.Levels.IsEmpty())
+                {
+                    var levelGroup = levelGroupList.FirstOrDefault(x => x.LevelGroupName.Equals(testItem.Level));
+                    testItemInfo.LevelGroupId = levelGroup?.Id;
+
+                    foreach (var level in testItem.Levels)
+                    {
+                        if (!hasLevels.Contains(level.Id))
+                        {
+                            var tempLevel = new Level();
+                            tempLevel.Init();
+                            tempLevel.LevelGroupId = levelGroup?.Id ?? Guid.Empty;
+                            var pinGroup = groupList.FirstOrDefault(x => x.GroupName.Equals(level.PinGroupName));
+                            if (pinGroup == null)
+                            {
+                                var pin = pinList.FirstOrDefault(x => x.PinName.Equals(level.PinGroupName));
+                                tempLevel.GroupOrPinId = pin?.Id ?? Guid.Empty;
+                            }
+                            else
+                                tempLevel.GroupOrPinId = pinGroup.Id;
+                            tempLevel.Vil = level.Vil;
+                            tempLevel.Vih = level.Vih;
+                            tempLevel.Vol = level.Vol;
+                            tempLevel.Voh = level.Voh;
+                            tempLevel.Iol = level.Iol;
+                            tempLevel.Ioh = level.Ioh;
+                            tempLevel.Vt = level.Vt;
+                            tempLevel.Vcl = level.Vcl;
+                            tempLevel.Vch = level.Vch;
+                            tempLevel.Ps = level.PS;
+                            tempLevel.I = level.I;
+                            tempLevel.Tdelay = System.Convert.ToInt32(level.Tdelay);
+                            tempLevel.Sequence = int.TryParse(level.Sequence, out int sequence) ? sequence : 0;
+                            tempLevel.Comment = level.Comment;
+
+                            hasLevels.Add(level.Id);
+                            await _levelRepository.AddAsync(tempLevel);
+                        }
+
+                    }
+                }
+
+                // 测试项时钟
+                if (!testItem.Timing.IsEmpty() && !testItem.Timings.IsEmpty())
+                {
+                    var timingGroup = timingGroupList.FirstOrDefault(x => x.TimingGroupName.Equals(testItem.Timing));
+                    testItemInfo.TimingGroupId = timingGroup?.Id;
+                    foreach (var timing in testItem.Timings)
+                    {
+                        if (!hasTimings.Contains(timing.Id))
+                        {
+                            var tempTiming = new Timing();
+                            tempTiming.Init();
+                            tempTiming.TimingGroupId = timingGroup?.Id ?? Guid.Empty;
+                            tempTiming.TimingName = timing.TimingName;
+                            tempTiming.Period = timing.Period;
+                            var pinGroup = groupList.FirstOrDefault(x => x.GroupName.Equals(timing.PinName));
+                            if (pinGroup == null)
+                            {
+                                var pin = pinList.FirstOrDefault(x => x.PinName.Equals(timing.PinName));
+                                tempTiming.GroupOrPinId = pin?.Id ?? Guid.Empty;
+                            }
+                            else
+                                tempTiming.GroupOrPinId = pinGroup.Id;
+                            tempTiming.WaveformFormat = Enum.TryParse(timing.Fmt.ToString(), out TimingformatType fmt) ? fmt : TimingformatType.NR;
+                            tempTiming.DriveA = int.TryParse(timing.DriveA?.ToString(), out int driveA) ? driveA : 0;
+                            tempTiming.DriveB = int.TryParse(timing.DriveB?.ToString(), out int driveB) ? driveB : 0;
+                            tempTiming.DriveC = int.TryParse(timing.DriveC?.ToString(), out int driveC) ? driveB : 0;
+                            tempTiming.DriveD = int.TryParse(timing.DriveD?.ToString(), out int driveD) ? driveB : 0;
+                            tempTiming.StrobeMode = Enum.TryParse(timing.StrobeMode.ToString(), out Domain.TestPlan.Core.Enums.StrobeModeType strobeMode) ? strobeMode : Domain.TestPlan.Core.Enums.StrobeModeType.OFF;
+                            tempTiming.StrobeA = timing.StrobeA;
+                            tempTiming.StrobeB = timing.StrobeB;
+                            tempTiming.Comment = timing.Comment;
+                            hasTimings.Add(timing.Id);
+                            await _timingRepository.AddAsync(tempTiming);
+                        }
+                    }
+                }
+
+                if (!testItem.Args.IsEmpty())
+                    testItemInfo.AdditionInfo = string.Join(",", testItem.Args.Select(x => x.ParamValue));
+
+                testItemList.Add(testItemInfo);
+            }
+            await _testItemInfoRepository.AddAsync(testItemList);
+        }
+
+        private async Task SaveGlobalParameterFromTestPlan(string projectId, List<GlobalModel> globals)
+        {
+            if (globals.IsEmpty())
+                return;
+
+            var globalList = new List<GlobalParameter>();
+            foreach (var global in globals)
+            {
+                var globalInfo = new GlobalParameter();
+                globalInfo.Init();
+                globalInfo.ProjectInfoId = projectId.ToGuid();
+                globalInfo.PatternFile = global.PatternFile;
+                globalInfo.AdditionInfo = string.Join(",", global.Args.Select(x => x.ParamValue));
+                globalList.Add(globalInfo);
+            }
+            await _globalParameterRepository.AddAsync(globalList);
         }
     }
 }
