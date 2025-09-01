@@ -79,7 +79,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         #region Command
         private DelegateCommand _openFolderCommand;
         public DelegateCommand OpenFolderCommand =>
-            _openFolderCommand ?? (_openFolderCommand = new DelegateCommand(ExecuteOpenFolderCommand));
+            _openFolderCommand ?? (_openFolderCommand = new DelegateCommand(ExecuteOpenFolderCommand, () => _projectInfo?.ProjectName?.IsEmpty() == false));
 
         private DelegateCommand _oKCommand;
         public DelegateCommand OKCommand =>
@@ -150,7 +150,9 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             if (folderDialog.ShowDialog() == true)
             {
                 var folderName = folderDialog.FolderName;
-                _projectInfo.ProjectPath = Path.Combine(folderName, _projectInfo.ProjectName);
+                if (_projectInfo?.ProjectName?.IsEmpty() == false)
+                    _projectInfo.ProjectPath = Path.Combine(folderName, _projectInfo?.ProjectName);
+
             }
         }
 
@@ -210,6 +212,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         private void ProjectInfo_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             OKCommand.RaiseCanExecuteChanged();
+            OpenFolderCommand.RaiseCanExecuteChanged();
             if (!e.PropertyName.IsEmpty() && e.PropertyName.Equals(nameof(ProjectInfoModel.ProjectName)))
             {
                 if (!_projectInfo.ProjectName.IsEmpty())

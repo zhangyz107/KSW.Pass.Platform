@@ -142,12 +142,13 @@ namespace KSW.ATE01.Platform
             containerRegistry.Register<ProjectView>();
             containerRegistry.Register<HelpView>();
             containerRegistry.Register<ProjectDetailView>();
+            containerRegistry.Register<RunDialog>();
 
             containerRegistry.RegisterDialog<NewProjectDialog, NewProjectDialogViewModel>();
             containerRegistry.RegisterDialog<OpenProjectDialog, OpenProjectDialogViewModel>();
             containerRegistry.RegisterDialog<SaveAsDialog, SaveAsDialogViewModel>();
             containerRegistry.RegisterDialog<ReleaseDialog, ReleaseDialogViewModel>();
-            containerRegistry.RegisterDialog<RunDialog, RunDialogViewModel>();
+            //containerRegistry.RegisterDialog<RunDialog, RunDialogViewModel>();
             containerRegistry.RegisterDialog<ConfigureDialog, ConfigureDialogViewModel>();
 
             #region TestPlans

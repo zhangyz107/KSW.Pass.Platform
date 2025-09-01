@@ -666,4 +666,16 @@
   <data name="OpenFolder" xml:space="preserve">
     <value>Open Folder</value>
   </data>
+  <data name="Backward" xml:space="preserve">
+    <value>Backward</value>
+  </data>
+  <data name="MoveUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="MoveDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="ImportSuccessful" xml:space="preserve">
+    <value>Import Successful</value>
+  </data>
 </root>

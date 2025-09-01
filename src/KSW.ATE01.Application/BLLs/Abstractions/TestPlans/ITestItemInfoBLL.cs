@@ -37,6 +37,13 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         Task<TestItemInfoModel> UpdateAsync(TestItemInfoModel model);
 
         /// <summary>
+        /// 批量保存测试项
+        /// </summary>
+        /// <param name="models"></param>
+        /// <returns></returns>
+        Task SaveAsync(List<TestItemInfoModel> models);
+
+        /// <summary>
         /// 删除测试项信息
         /// </summary>
         /// <param name="id"></param>

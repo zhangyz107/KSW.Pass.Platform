@@ -1,11 +1,6 @@
 ﻿using KSW.ATE01.Domain.TestPlan.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Sqlite.EntityTypeConfigurations.TestPlans
 {
@@ -59,6 +54,12 @@ namespace KSW.ATE01.Sqlite.EntityTypeConfigurations.TestPlans
             builder.Property(t => t.AdditionInfo)
                 .HasColumnName("AdditionInfo")
                 .HasComment("附加信息");
+            builder.Property(t => t.FlowIndex)
+                .HasColumnName("FlowIndex")
+                .HasComment("流程序号");
+            builder.Property(t => t.Enable)
+                .HasColumnName("Enable")
+                .HasComment("是否启用");
             builder.Property(t => t.CreationTime)
                 .HasColumnName("CreationTime")
                 .HasComment("创建时间");

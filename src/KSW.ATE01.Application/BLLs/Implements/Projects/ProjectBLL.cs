@@ -307,7 +307,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return result;
         }
 
-        public async Task StartTestAsync(List<FlowInfoModel> flows, ProjectInfoModel projectInfo = null)
+        public async Task<TestPlanModel> ConversionTestPlanAsync(string projectId)
+        {
+            return await _testPlanManager?.ConversionTestPlanAsync(projectId);
+        }
+
+        public async Task StartTestAsync(ProjectInfoModel projectInfo = null)
         {
             try
             {
@@ -339,7 +344,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         _alreadyStartLot = true;
 
                         if (flag)   //运行FlowStart
-                            flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, flows, out int _);
+                            flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, out int _);
 
                         //if (flag)   //运行TestEnd
                         //    flag = ExecuteFunction(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
@@ -348,7 +353,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     {
                         Message.StatusClear();
                         //运行FlowStart
-                        var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, flows, out int _);
+                        var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, out int _);
                     }
 
                 }
@@ -410,7 +415,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
         }
 
-        public async Task ExecuteLoopingAsync(List<FlowInfoModel> flows, ProjectInfoModel projectInfo = null)
+        public async Task ExecuteLoopingAsync(ProjectInfoModel projectInfo = null)
         {
             try
             {
@@ -454,7 +459,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         Message.StatusClear();
                     }
 
-                    await Task.Factory.StartNew(async () => await LoopTest(instance, classType, flows, projectInfo, token), token);
+                    await Task.Factory.StartNew(async () => await LoopTest(instance, classType, projectInfo, token), token);
                 }
             }
             catch (Exception)
@@ -464,20 +469,20 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
         }
 
-        private async Task LoopTest(object instance, Type? classType, List<FlowInfoModel> flows, ProjectInfoModel projectInfo, CancellationToken token)
+        private async Task LoopTest(object instance, Type? classType, ProjectInfoModel projectInfo, CancellationToken token)
         {
             try
             {
                 if (projectInfo.LoopExecuted >= _loopTargeCount)
                 {
-                    _loopTargeCount = projectInfo.LoopExecuted ?? 0 + projectInfo.LoopCount ?? 0;
+                    _loopTargeCount = projectInfo.LoopExecuted + projectInfo.LoopCount ?? 0;
                 }
 
                 while (projectInfo.LoopExecuted < _loopTargeCount)
                 {
 
                     //运行FlowStart
-                    var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, flows, out int failCount);
+                    var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, out int failCount);
                     projectInfo.FailCount += failCount;
                     var failFlag = projectInfo.StopOnFail == true && failCount > 0;
                     projectInfo.LoopExecuted++;
@@ -743,7 +748,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return ex;
         }
 
-        private bool ExecuteTestItemsInFlow(ProjectInfoModel projectInfo, object? instance, Type classType, List<FlowInfoModel> flows, out int failCount)
+        private bool ExecuteTestItemsInFlow(ProjectInfoModel projectInfo, object? instance, Type classType, out int failCount)
         {
             var result = true;
             failCount = 0;
@@ -756,15 +761,16 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             try
             {
                 result = ExecuteFunction(ProcessStage.FlowStart, instance, classType, startFlowMethod, null);
+                //var testItems =
                 if (projectInfo.IsPrintTime == true)
                 {
                     var message = $"====== Flow Start time : {_stopwatch.ElapsedMilliseconds - spendTime} ms ====== ";
                     spendTime = _stopwatch.ElapsedMilliseconds;
                     PrintResultLog.Message(message);
                 }
-                var testItemNames = flows.Where(x => x.Enable.IsEmpty()).Select(x => x.TestItemName);
-                var flowIds = testPlan.Flow.Where(x => testItemNames.Contains(x.TestItemName)).Select(x => x.TestItemId);
-                var testItems = testPlan.TestItem.Where(x => flowIds.Contains(x.Id.ToGuid())).Select(x => x);
+
+                var flowIds = testPlan?.Flow?.Where(x => x.IsSelected).Select(x => x.TestItemId);
+                var testItems = testPlan?.TestItem?.Where(x => flowIds?.Contains(x.Id.ToGuid()) == true).Select(x => x);
                 foreach (var testItem in testItems)
                 {
                     SetCommonData(testItem);
@@ -828,7 +834,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             await _testPlanManager?.DeleteTestPlanByProjectIdAsync(id);
             await CommitAsync();
 
-            if (_isDeleteProjectDir)
+            if (_isDeleteProjectDir && Directory.Exists(projectInfo?.ProjectPath))
             {
                 Directory.Delete(projectInfo?.ProjectPath, true);
             }

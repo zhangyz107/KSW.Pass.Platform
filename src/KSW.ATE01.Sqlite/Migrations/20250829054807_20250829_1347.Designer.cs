@@ -3,6 +3,7 @@ using System;
 using KSW.ATE01.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KSW.ATE01.Sqlite.Migrations
 {
     [DbContext(typeof(SystemUnitOfWork))]
-    partial class SystemUnitOfWorkModelSnapshot : ModelSnapshot
+    [Migration("20250829054807_20250829_1347")]
+    partial class _20250829_1347
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -710,11 +713,6 @@ namespace KSW.ATE01.Sqlite.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("IsDeleted")
                         .HasComment("是否删除");
-
-                    b.Property<bool?>("IsSelected")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("IsSelected")
-                        .HasComment("是否选中");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("TEXT")

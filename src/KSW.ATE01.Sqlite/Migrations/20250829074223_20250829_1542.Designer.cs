@@ -3,6 +3,7 @@ using System;
 using KSW.ATE01.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KSW.ATE01.Sqlite.Migrations
 {
     [DbContext(typeof(SystemUnitOfWork))]
-    partial class SystemUnitOfWorkModelSnapshot : ModelSnapshot
+    [Migration("20250829074223_20250829_1542")]
+    partial class _20250829_1542
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");

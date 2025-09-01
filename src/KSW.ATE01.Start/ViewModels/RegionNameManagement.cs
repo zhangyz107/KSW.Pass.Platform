@@ -17,6 +17,11 @@ namespace KSW.ATE01.Start.ViewModels
         public static string ProjectViewContent = "ProjectView";
 
         /// <summary>
+        /// 运行视图内容
+        /// </summary>
+        public static string RunViewContent = "RunView";
+
+        /// <summary>
         /// 测试计划内容
         /// </summary>
         public static string TestPlanContent = "TestPlan";

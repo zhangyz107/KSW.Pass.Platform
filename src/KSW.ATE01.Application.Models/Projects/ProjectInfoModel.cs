@@ -13,18 +13,18 @@ namespace KSW.ATE01.Application.Models.Projects
         private string _projectName;
         private string _projectPath;
         private string _projectVersion;
-        private bool? _saveRealTimeText;
-        private bool? _saveCsv;
-        private bool? _saveSummary;
-        private bool? _saveStdf;
+        private bool _saveRealTimeText;
+        private bool _saveCsv;
+        private bool _saveSummary;
+        private bool _saveStdf;
         private string _datalogPath;
-        private bool? _isDoAll;
-        private bool? _isPrintTime;
+        private bool _isDoAll;
+        private bool _isPrintTime;
         private int? _loopCount;
         private int? _delayBetweenLoops;
-        private int? _loopExecuted;
-        private int? _failCount;
-        private bool? _stopOnFail;
+        private int _loopExecuted;
+        private int _failCount;
+        private bool _stopOnFail;
         private string _releasePath;
         private DateTime? _creationTime;
         private DateTime? _lastModificationTime;
@@ -68,7 +68,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 记录RealTime TxT
         /// </summary>
-        public bool? SaveRealTimeText
+        public bool SaveRealTimeText
         {
             get => _saveRealTimeText;
             set => SetProperty(ref _saveRealTimeText, value);
@@ -77,7 +77,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 记录Summary
         /// </summary>
-        public bool? SaveSummary
+        public bool SaveSummary
         {
             get => _saveSummary;
             set => SetProperty(ref _saveSummary, value);
@@ -86,7 +86,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 记录CSV
         /// </summary>
-        public bool? SaveCsv
+        public bool SaveCsv
         {
             get => _saveCsv;
             set => SetProperty(ref _saveCsv, value);
@@ -95,7 +95,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 记录STDF
         /// </summary>
-        public bool? SaveStdf
+        public bool SaveStdf
         {
             get => _saveStdf;
             set => SetProperty(ref _saveStdf, value);
@@ -113,7 +113,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 是否DoAll
         /// </summary>
-        public bool? IsDoAll
+        public bool IsDoAll
         {
             get => _isDoAll;
             set => SetProperty(ref _isDoAll, value);
@@ -122,7 +122,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 是否打印时间
         /// </summary>
-        public bool? IsPrintTime
+        public bool IsPrintTime
         {
             get => _isPrintTime;
             set => SetProperty(ref _isPrintTime, value);
@@ -173,7 +173,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 已执行循环
         /// </summary>
-        public int? LoopExecuted
+        public int LoopExecuted
         {
             get => _loopExecuted;
             set => SetProperty(ref _loopExecuted, value);
@@ -182,7 +182,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 失败数
         /// </summary>
-        public int? FailCount
+        public int FailCount
         {
             get => _failCount;
             set => SetProperty(ref _failCount, value);
@@ -191,7 +191,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 失败时停止
         /// </summary>
-        public bool? StopOnFail
+        public bool StopOnFail
         {
             get => _stopOnFail;
             set => SetProperty(ref _stopOnFail, value);

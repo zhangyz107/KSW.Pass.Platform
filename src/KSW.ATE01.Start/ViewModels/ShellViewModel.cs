@@ -41,6 +41,8 @@ namespace KSW.ATE01.Start.ViewModels
         private readonly PaletteHelper _paletteHelper = new();
         private IProjectBLL _projectBLL;
         private bool _isChinese;
+        private bool _showRunView = false;
+        private bool _showProjectView = true;
 
         #region Properties
         public bool IsChinese
@@ -56,6 +58,24 @@ namespace KSW.ATE01.Start.ViewModels
         }
 
         public string Title { get => "ATE01"; }
+
+        /// <summary>
+        /// 显示运行视图
+        /// </summary>
+        public bool ShowRunView
+        {
+            get => _showRunView;
+            set => SetProperty(ref _showRunView, value);
+        }
+
+        /// <summary>
+        /// 显示项目视图
+        /// </summary>
+        public bool ShowProjectView
+        {
+            get => _showProjectView;
+            set => SetProperty(ref _showProjectView, value);
+        }
         #endregion
 
         #region Command
@@ -82,6 +102,10 @@ namespace KSW.ATE01.Start.ViewModels
         private DelegateCommand _runCommand;
         public DelegateCommand RunCommand =>
             _runCommand ?? (_runCommand = new DelegateCommand(ExecuteRunCommand, () => _projectBLL?.GetCurrentProjectInfo() != null));
+
+        private DelegateCommand _backwardCommand;
+        public DelegateCommand BackwardCommand =>
+            _backwardCommand ?? (_backwardCommand = new DelegateCommand(ExecuteBackwardCommand));
         #endregion
 
         public ShellViewModel(
@@ -95,6 +119,7 @@ namespace KSW.ATE01.Start.ViewModels
 
             _regionManager.RegisterViewWithRegion(RegionNameManagement.ProjectViewContent, typeof(ProjectView));
             _regionManager.RegisterViewWithRegion(RegionNameManagement.ProjectDetailContent, typeof(ProjectDetailView));
+            _regionManager.RegisterViewWithRegion(RegionNameManagement.RunViewContent, typeof(RunDialog));
 
             Theme theme = _paletteHelper.GetTheme();
 
@@ -172,7 +197,7 @@ namespace KSW.ATE01.Start.ViewModels
             if ((await DialogService.ShowDialogAsync(nameof(SaveAsDialog)))?.Result == ButtonResult.OK)
             {
                 _eventAggregator.GetEvent<RefreshProjectListEvent>().Publish();
-            }        
+            }
         }
 
         private async Task ExecuteReleaseCommand()
@@ -196,13 +221,14 @@ namespace KSW.ATE01.Start.ViewModels
 
         private async void ExecuteRunCommand()
         {
-            var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
-            if (currentProjectInfo == null)
-            {
-                await DialogService.ShowMessageDialog("未打开项目!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                return;
-            }
-            DialogService.ShowDialog(nameof(RunDialog));
+            ShowRunView = true;
+            ShowProjectView = false;
+        }
+
+        private void ExecuteBackwardCommand()
+        {
+            ShowRunView = false;
+            ShowProjectView = true;
         }
     }
 }

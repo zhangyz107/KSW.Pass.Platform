@@ -11,7 +11,6 @@
 //
 //------------------------------------------------------------*/
 
-
 using KSW.Application;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
@@ -123,7 +122,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var timingGroups = await ConversionTiming(projectId, groupIdDict, pinIdDict, timingGroupDict);
 
             // 测试项
-            var testItems = await ConversionTestItem(projectId, groupIdDict, pinIdDict, levelGroupDict, timingGroupDict, levelGroups, timingGroups);
+            var testItems = await ConversionTestItem(projectId, result, groupIdDict, pinIdDict, levelGroupDict, timingGroupDict, levelGroups, timingGroups);
 
             await ConversionLimits(projectId, result, testItems);
 
@@ -260,11 +259,13 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             return timingGroups;
         }
 
-        private async Task<List<TestItemInfo>> ConversionTestItem(string projectId, Dictionary<Guid, string> groupIdDict, Dictionary<Guid, string> pinIdDict, Dictionary<Guid, List<Project.Base.Models.TestPlans.LevelModel>> levelGroupDict, Dictionary<Guid, List<Project.Base.Models.TestPlans.TimingModel>> timingGroupDict, List<LevelGroup> levelGroups, List<TimingGroup> timingGroups)
+        private async Task<List<TestItemInfo>> ConversionTestItem(string projectId, TestPlanModel result, Dictionary<Guid, string> groupIdDict, Dictionary<Guid, string> pinIdDict, Dictionary<Guid, List<Project.Base.Models.TestPlans.LevelModel>> levelGroupDict, Dictionary<Guid, List<Project.Base.Models.TestPlans.TimingModel>> timingGroupDict, List<LevelGroup> levelGroups, List<TimingGroup> timingGroups)
         {
             var testItems = await _testItemInfoRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
             if (!testItems.IsEmpty())
             {
+                var testItemList = new List<TestItemModel>();
+                var flowList = new List<FlowModel>();
                 foreach (var testItem in testItems)
                 {
                     var tempTestItem = new TestItemModel();
@@ -306,7 +307,20 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                             tempTestItem.Args.Add(tempArg);
                         }
                     }
+                    testItemList.Add(tempTestItem);
+
+                    var tempFlow = new FlowModel();
+                    tempFlow.Id = Guid.NewGuid().ToString();
+                    tempFlow.TestItemId = testItem.Id;
+                    tempFlow.TestItemName = testItem.TestItemName;
+                    tempFlow.SheetName = "TestItem";
+                    tempFlow.SortId = testItem.FlowIndex ?? 0;
+                    tempFlow.Enable = testItem.Enable == true ? null : "False";
+                    tempFlow.IsSelected = testItem.Enable ?? false;
+                    flowList.Add(tempFlow);
                 }
+                result.TestItem = testItemList;
+                result.Flow = flowList.OrderBy(x => x.SortId).ToList();
             }
 
             return testItems;
@@ -359,11 +373,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             if (ovewview != null)
             {
                 var pinInfos = await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(ovewview.Id));
-                foreach (var pinInfo in pinInfos)
-                {
-                    if (!pinIdDict.ContainsKey(pinInfo.Id))
-                        pinIdDict.Add(pinInfo.Id, pinInfo.PinName);
-                }
 
                 var groupInfos = await _groupInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(ovewview.Id));
                 foreach (var groupInfo in groupInfos)
@@ -377,6 +386,9 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 var channels = new List<ChannelModel>();
                 foreach (var pinInfo in pinInfos)
                 {
+                    if (!pinIdDict.ContainsKey(pinInfo.Id))
+                        pinIdDict.Add(pinInfo.Id, pinInfo.PinName);
+
                     var pinGroupRelationships = await _pinGroupRelationshipRepositoy.FindAllAsync(x => x.PinInfoId.Equals(pinInfo.Id));
                     var groupIds = pinGroupRelationships.Select(x => x.GroupInfoId).ToList();
                     var groups = GetPinGroups(groupInfos, groupIds);
@@ -394,6 +406,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                     }
                     tempChannel.Groups = groups;
                     tempChannel.Sites = sites;
+                    channels.Add(tempChannel);
                 }
                 testPlanModel.Channel = channels;
             }
@@ -426,33 +439,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                     global.Add(tempGlobalParameter);
                 }
                 result.Global = global;
-            }
-        }
-        #endregion
-
-        #region 从项目信息中获取测试计划路径
-
-        public string GetTestPlanFilePathFromProject(ProjectInfoModel projectInfo)
-        {
-            var result = string.Empty;
-            try
-            {
-                var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
-                //switch (projectInfo.TestPlanType)
-                //{
-                //    case TestPlanType.Excel:
-                //        result = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.TestPlanExtension);
-                //        break;
-                //    case TestPlanType.Csv:
-                //        result = Path.Combine(projectInfo.ProjectPath, testPlanDirName);
-                //        break;
-                //}
-                return result;
-            }
-            catch (Exception)
-            {
-
-                throw;
             }
         }
         #endregion
@@ -1526,6 +1512,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
         #endregion
 
+        #region 拷贝测试计划
         public async Task CopyTestPlanByProjectIdAsync(string projectId, string newProjectId)
         {
             var pinInfoMapping = new Dictionary<Guid, Guid>();
@@ -1896,7 +1883,9 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var globalParameterEntity = globalParameterModel.MapTo<GlobalParameter>();
             return globalParameterEntity;
         }
+        #endregion
 
+        #region 删除测试计划
         public async Task DeleteTestPlanByProjectIdAsync(string projectId)
         {
             #region 引脚总览
@@ -1970,7 +1959,9 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             await _globalParameterRepository.RemoveAsync(globalParameters);
             #endregion
         }
+        #endregion
 
+        #region 导入测试计划
         public async Task ImportTestPlanAsync(string filePath, string projectId)
         {
             if (projectId.IsEmpty())
@@ -1984,6 +1975,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
                 var groups = testPlan?.Channel?.SelectMany(x => x.Groups).DistinctBy(x => x.Name).ToList();
                 var sites = testPlan?.Channel?.SelectMany(x => x.Sites).DistinctBy(x => x.SiteName).ToList();
+                var limitDic = new Dictionary<string, Guid>();
                 var levelGroups = testPlan?.TestItem?.Where(x => !x.Level.IsEmpty())?.Select(x => x.Level).Distinct().ToList();
                 var timingGroups = testPlan?.TestItem?.Where(x => !x.Timing.IsEmpty())?.Select(x => x.Timing).Distinct().ToList();
 
@@ -1999,7 +1991,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 List<PinInfo> pinList = await SavePinFromTestPlan(testPlan?.Channel, pinOverview, siteList, groupList);
 
                 // 门限
-                await SaveLimitsFromTestPlan(projectId, testPlan.Limits);
+                List<Limits> limitList = await SaveLimitsFromTestPlan(projectId, testPlan.Limits, limitDic);
 
                 // 电平组
                 List<LevelGroup> levelGroupList = await SaveLevelGroupFromTestPlan(projectId, levelGroups);
@@ -2008,7 +2000,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 List<TimingGroup> timingGroupList = await SaveTimingGroupFromTestPlan(projectId, timingGroups);
 
                 // 测试项
-                await SaveTestItemsFromTestPlan(projectId, testPlan.TestItem, groupList, pinList, levelGroupList, timingGroupList);
+                await SaveTestItemsFromTestPlan(projectId, testPlan.TestItem, groupList, pinList, limitDic, limitList, levelGroupList, timingGroupList);
 
                 // 全局参数
                 await SaveGlobalParameterFromTestPlan(projectId, testPlan.Global);
@@ -2114,11 +2106,11 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             return pinList;
         }
 
-        private async Task SaveLimitsFromTestPlan(string projectId, List<Project.Base.Models.TestPlans.LimitsModel> limits)
+        private async Task<List<Limits>> SaveLimitsFromTestPlan(string projectId, List<Project.Base.Models.TestPlans.LimitsModel> limits, Dictionary<string, Guid> limitDic)
         {
             var limitList = new List<Limits>();
             if (limits.IsEmpty())
-                return;
+                return limitList;
 
             foreach (var limit in limits)
             {
@@ -2136,9 +2128,14 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 limitInfo.PassHardwareBin = (int)limit.PassHardwareBin;
                 limitInfo.DutResult = Enum.TryParse(limit.DUTResult.ToString(), out DUTResultType type) ? type : DUTResultType.None;
 
+                if (!limitDic.ContainsKey(limit.TestItemName))
+                    limitDic.Add(limit.TestItemName, limitInfo.Id);
+
                 limitList.Add(limitInfo);
             }
             await _limitsRepository.AddAsync(limitList);
+
+            return limitList;
         }
 
         private async Task<List<LevelGroup>> SaveLevelGroupFromTestPlan(string projectId, List<string>? levelGroups)
@@ -2179,7 +2176,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             return timingGroupList;
         }
 
-        private async Task SaveTestItemsFromTestPlan(string projectId, List<TestItemModel> testItems, List<GroupInfo> groupList, List<PinInfo> pinList, List<LevelGroup> levelGroupList, List<TimingGroup> timingGroupList)
+        private async Task SaveTestItemsFromTestPlan(string projectId, List<TestItemModel> testItems, List<GroupInfo> groupList, List<PinInfo> pinList, Dictionary<string, Guid> limitDic, List<Limits> limitList, List<LevelGroup> levelGroupList, List<TimingGroup> timingGroupList)
         {
             var hasLevels = new List<string>();
             var hasTimings = new List<string>();
@@ -2200,6 +2197,13 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 }
                 else
                     testItemInfo.GroupOrPinId = group.Id;
+
+                // 测试项门限
+                if (!limitDic.IsEmpty() && !limitList.IsEmpty() && limitDic.ContainsKey(testItem.TestItemName))
+                {
+                    var limit = limitList.FirstOrDefault(x => x.Id.Equals(limitDic[testItem.TestItemName]));
+                    testItemInfo.LimitsId = limit?.Id ?? Guid.Empty;
+                }
 
                 // 测试项电平
                 if (!testItem.Level.IsEmpty() && !testItem.Levels.IsEmpty())
@@ -2306,5 +2310,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             }
             await _globalParameterRepository.AddAsync(globalList);
         }
+        #endregion
+
     }
 }

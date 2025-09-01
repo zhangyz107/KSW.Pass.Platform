@@ -50,6 +50,12 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         public string SiteName { get; set; }
 
         /// <summary>
+        /// 是否选中
+        /// </summary>
+        [DisplayName("是否选中")]
+        public bool? IsSelected { get; set; }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
@@ -73,6 +79,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
             AddChange(t => t.PinOverviewId, other.PinOverviewId);
             AddChange(t => t.SiteName, other.SiteName);
             AddChange(t => t.SortId, other.SortId);
+            AddChange(t => t.IsSelected, other.IsSelected);
             AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }

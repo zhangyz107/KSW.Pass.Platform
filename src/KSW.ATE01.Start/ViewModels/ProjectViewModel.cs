@@ -187,7 +187,7 @@ namespace KSW.ATE01.Start.ViewModels
             {
                 var filePath = fileDialog.FileName;
                 await _projectBLL?.ImportTestPlanAsync(filePath);
-
+                await DialogService.ShowMessageDialog(L["ImportSuccessful"], System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 _eventAggregator.GetEvent<UpdateTestPlanEvent>().Publish();
             }
 
@@ -258,6 +258,7 @@ namespace KSW.ATE01.Start.ViewModels
                 _projectList.Remove(model);
                 _projectBLL?.SetCurrentProjectInfo(null);
                 _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Publish();
+                _eventAggregator.GetEvent<UpdateTestPlanEvent>().Publish();
             }
         }
 

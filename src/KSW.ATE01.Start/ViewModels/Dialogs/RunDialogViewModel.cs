@@ -12,15 +12,13 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events.Projects;
-using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
-using KSW.ATE01.Project.Base.Models.TestPlans;
 using KSW.ATE01.Project.Base.Services.Loggers;
-using KSW.ATE01.Project.Base.Services.Memory;
 using KSW.ATE01.Start.Views;
 using KSW.Helpers;
 using KSW.Ui;
@@ -38,13 +36,14 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
     {
         #region Fields
         private readonly IEventAggregator _eventAggregator;
+        private readonly IPinOverviewBLL _pinOverviewBLL;
         private readonly IProjectBLL _projectBLL;
+        private readonly ITestItemInfoBLL _testItemInfoBLL;
+        private readonly ISiteInfoBLL _siteInfoBLL;
         private ProjectInfoModel _projectInfo;
-        private TestPlanModel _testPlan;
-        private ObservableCollection<FlowInfoModel> _flowList = new ObservableCollection<FlowInfoModel>();
+        private ObservableCollection<TestItemInfoModel> _testItemList = new ObservableCollection<TestItemInfoModel>();
         private ObservableCollection<SiteInfoModel> _siteList = new ObservableCollection<SiteInfoModel>();
         private RealTimeTxtView _realTimeTxtView;
-        private bool _canLoadTestPlan = true;
         private bool _canExecuteSetTest = true;
         private bool _canExecuteStartTest = false;
         private bool _canExecuteEndTest = false;
@@ -71,7 +70,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             get
             {
                 bool? result = false;
-                var selected = _flowList?.Select(item => item.IsSelected)?.Distinct()?.ToList();
+                var selected = _testItemList?.Select(item => item.Enable)?.Distinct()?.ToList();
                 if (selected != null)
                     result = selected.Count == 1 ? selected.Single() : (bool?)null;
                 return result;
@@ -106,10 +105,10 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
         }
 
-        public ObservableCollection<FlowInfoModel> FlowList
+        public ObservableCollection<TestItemInfoModel> TestItemList
         {
-            get => _flowList;
-            set => SetProperty(ref _flowList, value);
+            get => _testItemList;
+            set => SetProperty(ref _testItemList, value);
         }
 
         public ObservableCollection<SiteInfoModel> SiteList
@@ -147,9 +146,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public DelegateCommand OpenFolderCommand =>
             _openFolderCommand ?? (_openFolderCommand = new DelegateCommand(ExecuteOpenFolderCommand));
 
-        private DelegateCommand _loadTestPlanCommand;
-        public DelegateCommand LoadTestPlanCommand =>
-            _loadTestPlanCommand ?? (_loadTestPlanCommand = new DelegateCommand(ExecuteLoadTestPlanCommand, () => { return _canLoadTestPlan; }));
+        private DelegateCommand<TestItemInfoModel> _arrowUpCommand;
+        public DelegateCommand<TestItemInfoModel> ArrowUpCommand =>
+            _arrowUpCommand ?? (_arrowUpCommand = new DelegateCommand<TestItemInfoModel>(ExecuteArrowUpCommand, (testItem) => _testItemList.IndexOf(testItem) != 0));
+
+        private DelegateCommand<TestItemInfoModel> _arrowDownCommand;
+        public DelegateCommand<TestItemInfoModel> ArrowDownCommand =>
+            _arrowDownCommand ?? (_arrowDownCommand = new DelegateCommand<TestItemInfoModel>(ExecuteArrowDownCommand, (testItem) => _testItemList.IndexOf(testItem) != _testItemList.Count - 1));
 
         private AsyncDelegateCommand _loopingCommand;
         public AsyncDelegateCommand LoopingCommand => _loopingCommand ?? (_loopingCommand = new AsyncDelegateCommand(ExecuteLoopingCommand, () => { return _canExecuteLooping; }));
@@ -159,7 +162,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private DelegateCommand _setTestItemCommand;
         public DelegateCommand SetTestItemCommand =>
-            _setTestItemCommand ?? (_setTestItemCommand = new DelegateCommand(ExecuteSetTestItemCommand, () => { return _flowList.Any() && _canExecuteSetTest; }));
+            _setTestItemCommand ?? (_setTestItemCommand = new DelegateCommand(ExecuteSetTestItemCommand, () => { return _testItemList.Any() && _canExecuteSetTest; }));
 
         private AsyncDelegateCommand _startTestCommand;
         public AsyncDelegateCommand StartTestCommand =>
@@ -173,15 +176,35 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         public RunDialogViewModel(
             IContainerProvider containerProvider,
             IEventAggregator eventAggregator,
-            IProjectBLL projectBLL) : base(containerProvider)
+            IPinOverviewBLL pinOverviewBLL,
+            IProjectBLL projectBLL,
+            ITestItemInfoBLL testItemInfoBLL,
+            ISiteInfoBLL siteInfoBLL) : base(containerProvider)
         {
             _eventAggregator = eventAggregator;
+            _pinOverviewBLL = pinOverviewBLL;
             _projectBLL = projectBLL;
+            _testItemInfoBLL = testItemInfoBLL;
+            _siteInfoBLL = siteInfoBLL;
+
+            InitEvent();
+        }
+
+        private void InitEvent()
+        {
+            _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
+            _eventAggregator.GetEvent<UpdateTestPlanEvent>().Subscribe(SelectedProjectInfo);
+        }
+
+        private void SelectedProjectInfo()
+        {
+            LoadData();
         }
 
         private void ExecuteLoadingCommand()
         {
             RealTimeTxtView = ContainerProvider.Resolve<RealTimeTxtView>();
+            LoadData();
         }
 
         public bool CanCloseDialog()
@@ -197,7 +220,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            LoadData();
+
         }
 
         public virtual void RaiseRequestClose(IDialogResult dialogResult)
@@ -205,10 +228,66 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             RequestClose.Invoke(dialogResult);
         }
 
-        private void LoadData()
+        private async void LoadData()
         {
             var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
-            ProjectInfo = currentProjectInfo != null ? DeepCopy.Copy(currentProjectInfo) : null;
+            ProjectInfo = currentProjectInfo;
+            if (_projectInfo != null)
+            {
+                var pinOverview = await _pinOverviewBLL.GetPinOverviewFromProjectIdAsync(_projectInfo.Id);
+
+                _testItemList.Clear();
+                var testItemList = await _testItemInfoBLL?.GetListByProjectIdAsync(_projectInfo?.Id);
+                if (!testItemList.IsEmpty())
+                {
+                    var flowTestItemList = testItemList.Where(x => x.FlowIndex != null).ToList();
+                    if (flowTestItemList.Any())
+                        _testItemList.AddRange(flowTestItemList.OrderBy(x => x.FlowIndex));
+                    else
+                        _testItemList.AddRange(testItemList.OrderBy(x => x.SortId));
+
+                    foreach (var testItem in testItemList)
+                    {
+                        testItem.ArrowUpCommand = ArrowUpCommand;
+                        testItem.ArrowDownCommand = ArrowDownCommand;
+                        testItem.PropertyChanged += (sender, args) =>
+                        {
+                            if (args.PropertyName.Equals(nameof(TestItemInfoModel.Enable)))
+                            {
+                                RaisePropertyChanged(nameof(IsAllItemsSelected));
+                            }
+                        };
+
+                    }
+                    ArrowUpCommand.RaiseCanExecuteChanged();
+                    ArrowDownCommand.RaiseCanExecuteChanged();
+                    RaisePropertyChanged(nameof(IsAllItemsSelected));
+                }
+
+                _siteList.Clear();
+                var siteList = await _siteInfoBLL?.GetSiteInfosFromPinOverviewId(pinOverview?.Id);
+                if (!siteList.IsEmpty())
+                {
+                    _siteList.AddRange(siteList);
+                    foreach (var site in siteList)
+                    {
+                        site.PropertyChanged += (sender, args) =>
+                        {
+                            if (args.PropertyName.Equals(nameof(SiteInfoModel.IsSelected)))
+                            {
+                                RaisePropertyChanged(nameof(IsAllSitesSelected));
+                            }
+                        };
+                    }
+
+                    RaisePropertyChanged(nameof(IsAllSitesSelected));
+                }
+
+                _canExecuteLooping = true;
+                _canExecuteStartTest = true;
+                _canExecuteSetTest = true;
+            }
+            ChangeCommandsState();
         }
 
         private void ExecuteOpenFolderCommand()
@@ -228,84 +307,26 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
         }
 
-        private async void ExecuteLoadTestPlanCommand()
+        private void ExecuteArrowUpCommand(TestItemInfoModel testItem)
         {
-            await ExecuteWithExceptionHandling(async () =>
-            {
-                _isRunning = true;
-                _canLoadTestPlan = false;
-                ChangeCommandsState();
+            var oldIndex = _testItemList.IndexOf(testItem);
+            _testItemList.Move(oldIndex, oldIndex - 1);
 
-                //_testPlan = await _testPlanBLL?.LoadTestPlanAsync(_projectInfo);
+            ArrowUpCommand.RaiseCanExecuteChanged();
+            ArrowDownCommand.RaiseCanExecuteChanged();
+        }
 
-                ATE01ShareMemory.LoadedTestPlanFilePath = (Path.IsPathRooted(ATE01ShareMemory.TestPlanFilePath) ? ATE01ShareMemory.TestPlanFilePath : Path.Combine(Path.GetDirectoryName(_projectInfo.ProjectPath), ATE01ShareMemory.TestPlanFilePath));
+        private void ExecuteArrowDownCommand(TestItemInfoModel testItem)
+        {
+            var oldIndex = _testItemList.IndexOf(testItem);
+            _testItemList.Move(oldIndex, oldIndex + 1);
 
-                ShareMemoryInTestPlan<TestPlanModel> instance = ShareMemoryInTestPlan<TestPlanModel>.Instance;
-                instance.Create();
-                instance.WriteObject(_testPlan);
-
-                if (_testPlan?.Flow?.IsEmpty() == false)
-                {
-                    FlowList.Clear();
-                    foreach (var flow in _testPlan?.Flow)
-                    {
-                        var flowInfo = flow.MapTo<FlowInfoModel>();
-                        flowInfo.PropertyChanged += (sender, args) =>
-                        {
-                            if (args.PropertyName.Equals(nameof(FlowModel.IsSelected)))
-                            {
-                                if (sender is FlowInfoModel model)
-                                {
-                                    model.Enable = model.IsSelected ? null : "False";
-                                }
-                                RaisePropertyChanged(nameof(IsAllItemsSelected));
-                            }
-                        };
-                        FlowList.Add(flowInfo);
-                    }
-                    RaisePropertyChanged(nameof(IsAllItemsSelected));
-                }
-
-                if (_testPlan?.Channel?.IsEmpty() == false)
-                {
-                    SiteList.Clear();
-                    foreach (var channel in _testPlan?.Channel)
-                    {
-                        foreach (var site in channel.Sites)
-                        {
-                            if (!SiteList.Any(x => site.SiteName.Equals(x.SiteName)))
-                            {
-                                var siteInfo = site.MapTo<SiteInfoModel>();
-                                SiteList.Add(siteInfo);
-                                siteInfo.PropertyChanged += (sender, args) =>
-                                {
-                                    if (args.PropertyName.Equals(nameof(SiteInfoModel.IsSelected)))
-                                    {
-                                        RaisePropertyChanged(nameof(IsAllSitesSelected));
-                                    }
-                                };
-                            }
-                        }
-                    }
-                    RaisePropertyChanged(nameof(IsAllSitesSelected));
-                }
-
-                _canExecuteStartTest = true;
-                _canExecuteLooping = true;
-
-            }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning),
-            () =>
-            {
-                _isRunning = false;
-                _canLoadTestPlan = true;
-                ChangeCommandsState();
-            });
-
+            ArrowUpCommand.RaiseCanExecuteChanged();
+            ArrowDownCommand.RaiseCanExecuteChanged();
         }
 
         private void ChangeCommandsState()
         {
-            LoadTestPlanCommand.RaiseCanExecuteChanged();
             SetTestItemCommand.RaiseCanExecuteChanged();
             StartTestCommand.RaiseCanExecuteChanged();
             EndTestCommand.RaiseCanExecuteChanged();
@@ -316,11 +337,27 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private async void ExecuteSetTestItemCommand()
         {
-            await ExecuteWithExceptionHandling(() =>
-              {
-                  //var result = _testPlanBLL?.SetTestPlanFlow(FlowList, _projectInfo);
-              }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                await SaveDataAsync();
 
+            }, async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning));
+
+        }
+
+        private async Task SaveDataAsync()
+        {
+            // 保存项目信息
+            await _projectBLL?.UpdateAsync(_projectInfo);
+
+            var index = 0;
+            foreach (var testItem in _testItemList)
+                testItem.FlowIndex = index++;
+            // 保存测试项信息
+            await _testItemInfoBLL?.SaveAsync(_testItemList.ToList());
+
+            // 保存站点信息
+            await _siteInfoBLL?.SaveAsync(_siteList.ToList());
         }
 
         private async Task ExecuteStartTestCommand()
@@ -335,11 +372,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             {
                 _isRunning = true;
                 _canExecuteStartTest = false;
-                _canLoadTestPlan = false;
                 ChangeCommandsState();
 
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
+                    // 保存数据
+                    await SaveDataAsync();
+
                     //todo 先保证生成dll
                     if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
                     {
@@ -350,12 +389,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                         if (commonData != null)
                         {
                             globalSetting.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
+                            commonData.TestPlan = await _projectBLL?.ConversionTestPlanAsync(_projectInfo?.Id);
 
-                            //commonData.TestPlan = await _testPlanBLL.ConversionTestPlanAsync(_projectInfo);
                             commonData.UseSiteName = _siteList.Where(x => x.IsSelected).Select(x => x.SiteName).ToList();
                         }
 
-                        await _projectBLL?.StartTestAsync(_flowList.ToList(), _projectInfo);
+                        await _projectBLL?.StartTestAsync(_projectInfo);
 
                     }
                 });
@@ -370,7 +409,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             },
             () =>
             {
-                _canLoadTestPlan = true;
                 _canExecuteStartTest = true;
                 ChangeCommandsState();
 
@@ -415,7 +453,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             }
 
             _isRunning = true;
-            _canLoadTestPlan = false;
             _canExecuteSetTest = false;
             _canExecuteStartTest = false;
             _canExecuteEndTest = false;
@@ -428,7 +465,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
             await ExecuteWithExceptionHandling(async () =>
             {
-                await _projectBLL.ExecuteLoopingAsync(_flowList.ToList(), _projectInfo);
+                await _projectBLL.ExecuteLoopingAsync(_projectInfo);
 
                 _canExecuteEndTest = true;
             },
@@ -436,7 +473,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             , () =>
             {
                 _isRunning = false;
-                _canLoadTestPlan = true;
                 _canExecuteSetTest = true;
                 _canExecuteStartTest = true;
                 _canExecuteEndTest = true;
@@ -456,23 +492,23 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
         private void SelectAllItems(bool select)
         {
-            if (FlowList.IsEmpty())
+            if (_testItemList.IsEmpty())
                 return;
 
-            foreach (var flow in FlowList)
+            foreach (var testItem in _testItemList)
             {
-                flow.IsSelected = select;
+                testItem.Enable = select;
             }
         }
 
         private void SelectAllSites(bool select)
         {
-            if (SiteList.IsEmpty())
+            if (_siteList.IsEmpty())
                 return;
 
-            foreach (var flow in SiteList)
+            foreach (var site in _siteList)
             {
-                flow.IsSelected = select;
+                site.IsSelected = select;
             }
         }
     }

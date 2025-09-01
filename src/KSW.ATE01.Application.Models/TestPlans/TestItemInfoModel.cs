@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace KSW.ATE01.Application.Models.TestPlans
 {
@@ -24,6 +25,8 @@ namespace KSW.ATE01.Application.Models.TestPlans
         private Guid? _timingGroupId;
         private string _timingGroupName;
         private string _additionInfo;
+        private int? _flowIndex;
+        private bool _enable;
         private DateTime? _creationTime;
         private DateTime? _lastModificationTime;
 
@@ -146,6 +149,24 @@ namespace KSW.ATE01.Application.Models.TestPlans
         }
 
         /// <summary>
+        /// 流程序号
+        /// </summary>
+        public int? FlowIndex
+        {
+            get => _flowIndex;
+            set => SetProperty(ref _flowIndex, value);
+        }
+
+        /// <summary>
+        /// 是否启用
+        /// </summary>
+        public bool Enable
+        {
+            get => _enable;
+            set => SetProperty(ref _enable, value);
+        }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         public DateTime? CreationTime
@@ -172,5 +193,15 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 版本号
         ///</summary>
         public byte[] Version { get; set; }
+
+        /// <summary>
+        /// 向上命令
+        /// </summary>
+        public ICommand ArrowUpCommand { get; set; }
+
+        /// <summary>
+        /// 向下命令
+        /// </summary>
+        public ICommand ArrowDownCommand { get; set; }
     }
 }

@@ -56,7 +56,7 @@
                     </MenuItem>
                 </Menu>
 
-                <ToolBarTray Grid.Row="1" Background="Transparent" Style="{StaticResource MaterialDesignToolBarTray}">
+                <ToolBarTray Grid.Row="1" Background="Transparent" Style="{StaticResource MaterialDesignToolBarTray}" Visibility="{Binding ShowProjectView,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ToolBar Style="{StaticResource MaterialDesignToolBar}" Background="Transparent">
                         <Button Content="{materialDesign:PackIcon Kind=CreateNewFolder}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" ToolTip="{language:L NewProject}" Command="{Binding NewProjectCommand}"></Button>
                         <Button Content="{materialDesign:PackIcon Kind=ContentSavePlusOutline}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" ToolTip="{language:L SaveAs}" Command="{Binding SaveAsCommand}"></Button>
@@ -66,10 +66,21 @@
                         <Button Content="{materialDesign:PackIcon Kind=Play}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" ToolTip="{language:L Run}" Command="{Binding RunCommand}"></Button>
                     </ToolBar>
                 </ToolBarTray>
+                <ToolBarTray Grid.Row="1" 
+                             Background="Transparent" 
+                             Style="{StaticResource MaterialDesignToolBarTray}"
+                             Visibility="{Binding ShowRunView,Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ToolBar Style="{StaticResource MaterialDesignToolBar}" Background="Transparent">
+                        <Button Content="{materialDesign:PackIcon Kind=ArrowLeft}"  Command="{Binding BackwardCommand}" ToolTip="{language:L Backward}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></Button>
+                    </ToolBar>
+                </ToolBarTray>
+                
             </Grid>
         </materialDesign:ColorZone>
 
-        <ContentControl Margin="4,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.ProjectViewContent}"></ContentControl>
+        <ContentControl Margin="4,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.ProjectViewContent}" Visibility="{Binding ShowProjectView,Converter={StaticResource BooleanToVisibilityConverter}}"></ContentControl>
+
+        <ContentControl Margin="4,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.RunViewContent}" Visibility="{Binding ShowRunView,Converter={StaticResource BooleanToVisibilityConverter}}"></ContentControl>
 
         <materialDesign:ColorZone Grid.Row="2" Padding="4" Mode="PrimaryMid">
             <TextBlock  Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></TextBlock>

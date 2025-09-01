@@ -89,6 +89,18 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         public string? AdditionInfo { get; set; }
 
         /// <summary>
+        /// 流程序号
+        /// </summary>
+        [DisplayName("流程序号")]
+        public int? FlowIndex { get; set; }
+
+        /// <summary>
+        /// 是否启用
+        /// </summary>
+        [DisplayName("是否启用")]
+        public bool? Enable { get; set; }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         [DisplayName("创建时间")]
@@ -118,6 +130,8 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
             AddChange(t => t.LevelGroupId, other.LevelGroupId);
             AddChange(t => t.TimingGroupId, other.TimingGroupId);
             AddChange(t => t.AdditionInfo, other.AdditionInfo);
+            AddChange(t => t.FlowIndex, other.FlowIndex);
+            AddChange(t => t.Enable, other.Enable);
             AddChange(t => t.CreationTime, other.CreationTime);
             AddChange(t => t.LastModificationTime, other.LastModificationTime);
         }

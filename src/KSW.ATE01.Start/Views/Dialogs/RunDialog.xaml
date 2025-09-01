@@ -45,6 +45,13 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="CenterTextBlock"  TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MaterialDesignDataGridTextColumnStyle}">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+        </Style>
     </UserControl.Resources>
 
     <i:Interaction.Triggers>
@@ -53,7 +60,7 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
-    <Grid Margin="6">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="leftColumn" Width="*" MinWidth="100"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -106,14 +113,25 @@
                     </Grid.RowDefinitions>
 
                     <GroupBox Padding="0" Grid.RowSpan="4" Margin="0,0,6,0" Header="{language:L TestItem}">
-                        <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding FlowList}" CanUserResizeRows="False">
+                        <DataGrid  
+                            materialDesign:DataGridAssist.CellPadding="4" 
+                            materialDesign:DataGridAssist.ColumnHeaderPadding="4"  
+                            AutoGenerateColumns="False" 
+                            CanUserAddRows="False" 
+                            HeadersVisibility="All" 
+                            VerticalScrollBarVisibility="Auto" 
+                            SelectionUnit="FullRow" 
+                            SelectionMode="Single" 
+                            CanUserSortColumns="False" 
+                            ItemsSource="{Binding TestItemList}" 
+                            CanUserResizeRows="False">
                             <DataGrid.Columns>
-                                <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
+                                <DataGridCheckBoxColumn  Binding="{Binding Enable, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" Width="auto">
                                     <DataGridCheckBoxColumn.Header>
                                         <Border
           Background="Transparent">
                                             <CheckBox
-            IsChecked="{Binding DataContext.IsAllItemsSelected, Source={x:Reference DataContextProxy}}"/>
+            IsChecked="{Binding DataContext.IsAllItemsSelected, Source={x:Reference DataContextProxy}}" HorizontalAlignment="Center" VerticalContentAlignment="Center"/>
                                         </Border>
                                     </DataGridCheckBoxColumn.Header>
                                     <DataGridCheckBoxColumn.HeaderStyle>
@@ -126,8 +144,24 @@
                                         </Style>
                                     </DataGridCheckBoxColumn.HeaderStyle>
                                 </DataGridCheckBoxColumn>
-                                <DataGridTextColumn Width="*" Header="{language:L TestItem}" CanUserReorder="False" Binding="{Binding TestItemName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding TestItemName}">
+                                <DataGridTextColumn Header="{language:L TestItem}" CanUserReorder="False" Binding="{Binding TestItemName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding TestItemName}" ElementStyle="{StaticResource CenterTextBlock}">
                                 </DataGridTextColumn>
+                                <DataGridTemplateColumn Header="{language:L Operate}" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid HorizontalAlignment="Center">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Button Content="{materialDesign:PackIcon Kind=ArrowUp}" Command="{Binding ArrowUpCommand}" CommandParameter="{Binding }" ToolTip="{language:L MoveUp}" Style="{StaticResource MaterialDesignFlatButton}"></Button>
+
+                                                <Button Grid.Column="1" Content="{materialDesign:PackIcon Kind=ArrowDown}" Command="{Binding ArrowDownCommand}"  CommandParameter="{Binding }" ToolTip="{language:L MoveDown}" Style="{StaticResource MaterialDesignFlatButton}"></Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                     </GroupBox>
@@ -145,14 +179,25 @@
                     </GroupBox>
 
                     <GroupBox Margin="0,0,0,6" Padding="0"  Grid.Column="1" Grid.Row="1" Header="{language:L SiteInformation}">
-                        <DataGrid  materialDesign:DataGridAssist.CellPadding="4" materialDesign:DataGridAssist.ColumnHeaderPadding="4"  AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All" VerticalScrollBarVisibility="Auto" SelectionUnit="FullRow" SelectionMode="Single" CanUserSortColumns="False" ItemsSource="{Binding SiteList}" CanUserResizeRows="False">
+                        <DataGrid  
+                            materialDesign:DataGridAssist.CellPadding="4" 
+                            materialDesign:DataGridAssist.ColumnHeaderPadding="4"  
+                            AutoGenerateColumns="False" 
+                            CanUserAddRows="False" 
+                            HeadersVisibility="All" 
+                            VerticalScrollBarVisibility="Auto" 
+                            SelectionUnit="FullRow" 
+                            SelectionMode="Single" 
+                            CanUserSortColumns="False" 
+                            ItemsSource="{Binding SiteList}" 
+                            CanUserResizeRows="False">
                             <DataGrid.Columns>
-                                <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" >
+                                <DataGridCheckBoxColumn  Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" CanUserReorder="False" Width="auto">
                                     <DataGridCheckBoxColumn.Header>
                                         <Border
 Background="Transparent">
                                             <CheckBox
-  IsChecked="{Binding DataContext.IsAllSitesSelected, Source={x:Reference DataContextProxy}}"/>
+  IsChecked="{Binding DataContext.IsAllSitesSelected, Source={x:Reference DataContextProxy}}" HorizontalAlignment="Center" VerticalContentAlignment="Center"/>
                                         </Border>
                                     </DataGridCheckBoxColumn.Header>
                                     <DataGridCheckBoxColumn.HeaderStyle>
@@ -165,7 +210,7 @@ Background="Transparent">
                                         </Style>
                                     </DataGridCheckBoxColumn.HeaderStyle>
                                 </DataGridCheckBoxColumn>
-                                <DataGridTextColumn Width="*" Header="{language:L Site}" CanUserReorder="False" Binding="{Binding SiteName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding SiteName}">
+                                <DataGridTextColumn Width="*" Header="{language:L Site}" CanUserReorder="False" Binding="{Binding SiteName}" IsReadOnly="True" ToolTipService.ToolTip="{Binding SiteName}" ElementStyle="{StaticResource CenterTextBlock}">
                                 </DataGridTextColumn>
                             </DataGrid.Columns>
                         </DataGrid>
@@ -210,28 +255,24 @@ Background="Transparent">
 
                     <GroupBox Grid.Column="1" Grid.Row="3" Header="{language:L Operate}">
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"></RowDefinition>
-                                <RowDefinition Height="auto"></RowDefinition>
-                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Button Margin="0,0,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L LoadTestPlan}" Command="{Binding LoadTestPlanCommand}"></Button>
 
-                            <Button Margin="0,0,0,6" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L SetTestItem}" Command="{Binding SetTestItemCommand}"></Button>
+                            <Button Margin="0,0,6,0"  Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L SaveConfigure}" Command="{Binding SetTestItemCommand}"></Button>
 
-                            <Button Margin="0,0,6,0" Grid.Row="1" Content="{language:L StartTest}" Command="{Binding StartTestCommand}"></Button>
+                            <Button Margin="0,0,6,0" Grid.Column="1" Content="{language:L StartTest}" Command="{Binding StartTestCommand}"></Button>
 
-                            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L EndTest}" Command="{Binding EndTestCommand}"></Button>
+                            <Button Grid.Column="2" Style="{StaticResource MaterialDesignOutlinedButton}" Content="{language:L EndTest}" Command="{Binding EndTestCommand}"></Button>
                         </Grid>
                     </GroupBox>
                 </Grid>
             </Grid>
         </Border>
 
-        <Expander x:Name="mainExpander" Grid.Column="2" ExpandDirection="Left" Padding="0"  materialDesign:ExpanderAssist.HeaderBackground="#0074B0" Foreground="White" HorizontalAlignment="Right" Collapsed="mainExpander_Collapsed" Expanded="mainExpander_Expanded">
+        <Expander x:Name="mainExpander" Grid.Column="2" ExpandDirection="Left" Padding="0"  materialDesign:ExpanderAssist.HeaderBackground="#0074B0" Foreground="White" HorizontalAlignment="Right" Collapsed="mainExpander_Collapsed" Expanded="mainExpander_Expanded" IsExpanded="True">
             <Expander.Header>
                 <TextBlock Width="15" RenderTransformOrigin=".5,.5"
         Text="{language:L RealTimeTxt}" TextWrapping="Wrap" Foreground="White">

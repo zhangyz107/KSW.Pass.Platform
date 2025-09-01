@@ -29,6 +29,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             _repository = repository;
         }
 
+        public async Task<SiteInfoModel> GetByIdAsync(string id)
+        {
+            var entity = await _repository?.FindByIdAsync(id);
+            return entity?.MapTo<SiteInfoModel>();
+        }
+
         public async Task<List<SiteInfoModel>> GetSiteInfosFromPinOverviewId(string id)
         {
             if (id.IsEmpty())
@@ -69,5 +75,22 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
                 await CommitAsync();
             }
         }
+
+        public async Task<SiteInfoModel> UpdateAsync(SiteInfoModel model)
+        {
+            var entity = model.MapTo<SiteInfo>();
+            await UpdateAsync(model.Id, entity);
+            return await GetByIdAsync(model.Id);
+        }
+
+        public async Task SaveAsync(List<SiteInfoModel> models)
+        {
+            var enetities = models.MapToList<SiteInfo>();
+            foreach (var entity in enetities)
+                await _repository.UpdateAsync(entity);
+
+            await CommitAsync();
+        }
+
     }
 }

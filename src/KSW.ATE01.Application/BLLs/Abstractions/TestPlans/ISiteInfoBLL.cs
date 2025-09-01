@@ -14,6 +14,13 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
     public interface ISiteInfoBLL : IService
     {
         /// <summary>
+        /// 通过Id获取站点信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<SiteInfoModel> GetByIdAsync(string id);
+
+        /// <summary>
         /// 通过PinOverviewId获取站点信息
         /// </summary>
         /// <param name="id"></param>
@@ -26,5 +33,19 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.TestPlans
         /// <param name="model"></param>
         /// <returns></returns>
         Task CreateSiteByCountAsync(string pinOverviewId, int? count);
+
+        /// <summary>
+        /// 更新站点信息
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        Task<SiteInfoModel> UpdateAsync(SiteInfoModel model);
+
+        /// <summary>
+        /// 批量保存站点信息
+        /// </summary>
+        /// <param name="models"></param>
+        /// <returns></returns>
+        Task SaveAsync(List<SiteInfoModel> models);
     }
 }

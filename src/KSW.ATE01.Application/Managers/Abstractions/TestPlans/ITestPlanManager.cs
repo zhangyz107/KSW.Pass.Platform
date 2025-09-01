@@ -10,7 +10,7 @@ namespace KSW.ATE01.Application.Managers.Abstractions.TestPlans
     public interface ITestPlanManager : IService
     {
         /// <summary>
-        /// 加载测试项
+        /// 转换测试计划
         /// </summary>
         Task<TestPlanModel> ConversionTestPlanAsync(string projectId);
 

@@ -666,4 +666,16 @@
   <data name="OpenFolder" xml:space="preserve">
     <value>打开文件夹</value>
   </data>
+  <data name="Backward" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="MoveUp" xml:space="preserve">
+    <value>向上移动</value>
+  </data>
+  <data name="MoveDown" xml:space="preserve">
+    <value>向下移动</value>
+  </data>
+  <data name="ImportSuccessful" xml:space="preserve">
+    <value>导入成功</value>
+  </data>
 </root>

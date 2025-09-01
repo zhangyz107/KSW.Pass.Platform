@@ -205,6 +205,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Backward 的本地化字符串。
+        /// </summary>
+        internal static string Backward {
+            get {
+                return ResourceManager.GetString("Backward", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Bookmarks 的本地化字符串。
         /// </summary>
         internal static string Bookmarks {
@@ -799,6 +808,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Import Successful 的本地化字符串。
+        /// </summary>
+        internal static string ImportSuccessful {
+            get {
+                return ResourceManager.GetString("ImportSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Index 的本地化字符串。
         /// </summary>
         internal static string Index {
@@ -997,6 +1015,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Move Down 的本地化字符串。
+        /// </summary>
+        internal static string MoveDown {
+            get {
+                return ResourceManager.GetString("MoveDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Move Left 的本地化字符串。
         /// </summary>
         internal static string MoveLeft {
@@ -1011,6 +1038,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string MoveRight {
             get {
                 return ResourceManager.GetString("MoveRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Move Up 的本地化字符串。
+        /// </summary>
+        internal static string MoveUp {
+            get {
+                return ResourceManager.GetString("MoveUp", resourceCulture);
             }
         }
         

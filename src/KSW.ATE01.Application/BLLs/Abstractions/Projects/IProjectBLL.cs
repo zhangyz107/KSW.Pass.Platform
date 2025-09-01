@@ -2,6 +2,7 @@
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.Projects.Core.Enums;
+using KSW.ATE01.Project.Base.Models.TestPlans;
 using KSW.Interception;
 
 namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
@@ -62,9 +63,16 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         Task<bool> CopyAsync(string saveAsDir, string saveAsName, string version, ProjectInfoModel projectInfo = null);
 
         /// <summary>
+        /// 转换测试计划
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        Task<TestPlanModel> ConversionTestPlanAsync(string projectId);
+
+        /// <summary>
         /// 开始测试
         /// </summary>
-        Task StartTestAsync(List<FlowInfoModel> flows, ProjectInfoModel projectInfo = null);
+        Task StartTestAsync(ProjectInfoModel projectInfo = null);
 
         /// <summary>
         /// 结束测试
@@ -74,7 +82,7 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// <summary>
         /// 循环执行
         /// </summary>
-        Task ExecuteLoopingAsync(List<FlowInfoModel> flows, ProjectInfoModel projectInfo = null);
+        Task ExecuteLoopingAsync(ProjectInfoModel projectInfo = null);
 
         /// <summary>
         /// 停止循环

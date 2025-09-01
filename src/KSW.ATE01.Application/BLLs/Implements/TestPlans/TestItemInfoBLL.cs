@@ -79,6 +79,15 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             return await GetByIdAsync(model.Id);
         }
 
+        public async Task SaveAsync(List<TestItemInfoModel> models)
+        {
+            var enetities = models.MapToList<TestItemInfo>();
+            foreach (var entity in enetities)
+                await _repository.UpdateAsync(entity);
+
+            await CommitAsync();
+        }
+
         public async Task DeleteAsync(string id)
         {
             await _repository.RemoveAsync(id);

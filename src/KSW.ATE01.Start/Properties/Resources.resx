@@ -849,4 +849,20 @@
     <value>Open Folder</value>
     <comment>打开文件夹</comment>
   </data>
+  <data name="Backward" xml:space="preserve">
+    <value>Backward</value>
+    <comment>返回</comment>
+  </data>
+  <data name="MoveUp" xml:space="preserve">
+    <value>Move Up</value>
+    <comment>向上移动</comment>
+  </data>
+  <data name="MoveDown" xml:space="preserve">
+    <value>Move Down</value>
+    <comment>向下移动</comment>
+  </data>
+  <data name="ImportSuccessful" xml:space="preserve">
+    <value>Import Successful</value>
+    <comment>导入成功</comment>
+  </data>
 </root>
