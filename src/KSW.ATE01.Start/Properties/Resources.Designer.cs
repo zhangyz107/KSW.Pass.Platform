@@ -592,6 +592,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Export Data 的本地化字符串。
+        /// </summary>
+        internal static string ExportData {
+            get {
+                return ResourceManager.GetString("ExportData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Fail Count 的本地化字符串。
         /// </summary>
         internal static string FailCount {
@@ -651,6 +660,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string File {
             get {
                 return ResourceManager.GetString("File", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
+        internal static string FileAlreadyExists {
+            get {
+                return ResourceManager.GetString("FileAlreadyExists", resourceCulture);
             }
         }
         
@@ -804,6 +822,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string HighLimit {
             get {
                 return ResourceManager.GetString("HighLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Import Data 的本地化字符串。
+        /// </summary>
+        internal static string ImportData {
+            get {
+                return ResourceManager.GetString("ImportData", resourceCulture);
             }
         }
         
@@ -1731,6 +1758,24 @@ namespace KSW.ATE01.Start.Properties {
         internal static string WaveformFormat {
             get {
                 return ResourceManager.GetString("WaveformFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
+        internal static string WhetherToDelete {
+            get {
+                return ResourceManager.GetString("WhetherToDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
+        internal static string WhetherToReplace {
+            get {
+                return ResourceManager.GetString("WhetherToReplace", resourceCulture);
             }
         }
         

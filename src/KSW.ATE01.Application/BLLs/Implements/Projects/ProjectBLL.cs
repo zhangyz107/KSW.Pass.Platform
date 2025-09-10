@@ -17,7 +17,6 @@ using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Managers.Abstractions.Projects;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Data;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.Projects.Entities;
@@ -539,27 +538,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return result;
         }
 
-        private void CopyExcelFile(ProjectInfoModel projectInfo)
-        {
-            var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
-
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            var testPlanPath = Path.Combine(baseDirectory, testPlanDirName);
-
-            if (!Directory.Exists(testPlanPath))
-                throw new Warning("");
-            var suffix = $"*{_excelExtension}";
-            var excelFiles = Directory.GetFiles(testPlanPath, suffix);
-            if (!excelFiles.IsEmpty())
-                foreach (var file in excelFiles)
-                {
-                    var targetPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + _excelExtension);
-                    if (!Directory.Exists(projectInfo.ReleasePath))
-                        Directory.CreateDirectory(projectInfo.ReleasePath);
-                    File.Copy(file, targetPath);
-                }
-        }
-
         private async Task CreateProjectByTemplate(ProjectInfoModel projectInfo, string templateName, string templatePath)
         {
             try
@@ -857,6 +835,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
                 await CommitAsync();
             }
+        }
+
+        public async Task ExportTestPlanAsync(string filePath, ProjectInfoModel projectInfo = null)
+        {
+            projectInfo = projectInfo ?? _currentProjectInfo;
+            await _testPlanManager.ExportTestPlanAsync(filePath, projectInfo.Id);
         }
     }
 }

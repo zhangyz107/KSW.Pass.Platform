@@ -88,23 +88,23 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
-                            <ColumnDefinition Width="auto"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button Style="{StaticResource MaterialDesignOutlinedButton}">
-                            <Button.Content>
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="ContentSaveEditOutline" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{language:L SaveTestPlan}" VerticalAlignment="Center"></TextBlock>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-                        <Button Margin="0,0,6,0" Grid.Column="2" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding ImportCommand}">
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding ImportDataCommand}">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
                                     <materialDesign:PackIcon Kind="Import" VerticalAlignment="Center"/>
-                                    <TextBlock Text="导入数据" />
+                                    <TextBlock Text="{language:L ImportData}" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button Grid.Column="1" Margin="6,0"  Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding ExportDataCommand}">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="ContentSaveEditOutline" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{language:L ExportData}" VerticalAlignment="Center"></TextBlock>
                                 </StackPanel>
                             </Button.Content>
                         </Button>

@@ -61,7 +61,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
 
             var pinGroups = await _pinGroupRelationshipRepositoy.FindAllAsync(x => x.PinInfoId.Equals(model.Id.ToGuid()));
             var groupIds = pinGroups.Select(x => x.GroupInfoId).Distinct().ToList();
-            var groups = await _groupInfoRepository.FindAllAsync(x => groupIds.Contains(x.Id));
+            var groups = (await _groupInfoRepository.FindAllAsync(x => groupIds.Contains(x.Id))).OrderBy(x => x.CreationTime);
             model.GroupName = string.Join(", ", groups.Select(x => x.GroupName));
         }
 

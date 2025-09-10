@@ -107,5 +107,10 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         /// <param name="projectInfo"></param>
         /// <returns></returns>
         Task ImportTestPlanAsync(string filePath, ProjectInfoModel projectInfo = null);
+
+        /// <summary>
+        /// 导出测试计划
+        /// </summary>
+        Task ExportTestPlanAsync(string filePath, ProjectInfoModel projectInfo = null);
     }
 }

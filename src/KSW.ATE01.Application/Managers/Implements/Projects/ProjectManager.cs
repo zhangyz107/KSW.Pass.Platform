@@ -29,7 +29,6 @@ namespace KSW.ATE01.Application.Managers.Implements.Projects
             {
                 var templateName = ConfigurationManager.AppSettings["TemplateName"] ?? throw new ArgumentNullException("TemplateName");
                 var templateDirName = ConfigurationManager.AppSettings["TemplateDirName"] ?? throw new ArgumentNullException("TemplateDirName");
-                var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
 
                 var currentProjectInfo = await _projectInfoRepository?.FindByIdAsync(projectId);
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;

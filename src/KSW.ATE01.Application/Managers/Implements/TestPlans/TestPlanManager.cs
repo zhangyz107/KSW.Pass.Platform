@@ -19,11 +19,14 @@ using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
 using KSW.ATE01.Project.Base.Enums.Results;
 using KSW.ATE01.Project.Base.Enums.TestPlans;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.TestPlans;
+using KSW.Helpers;
 using NPOI.SS.UserModel;
+using NPOI.Util;
 using NPOI.XSSF.UserModel;
 using System.Configuration;
 using System.Text;
@@ -36,12 +39,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
     public class TestPlanManager : ServiceBase, ITestPlanManager
     {
         #region Fields
-        private readonly string _channelDataStartCell = "A4";
-        private readonly string _testItemDataStartCell = "A3";
-        private readonly string _limitsDataStartCell = "A2";
-        private readonly string _flowDataStartCell = "A2";
-        private readonly string _levelDataStartCell = "A2";
-        private readonly string _timingDataStartCell = "A2";
         private readonly string _releaseDirName = "Release";
 
         private readonly string _channelSheetName = "Channel";
@@ -50,6 +47,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
         private readonly string _flowSheetName = "Flow";
         private readonly string _levelSheetName = "Level";
         private readonly string _timingSheetName = "Timing";
+        private readonly string _globalSheetName = "Global";
         private readonly string _excelExtension;
 
         private readonly IPinOverviewRepository _pinOverviewRepository;
@@ -238,13 +236,13 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                             else if (pinIdDict.ContainsKey(groupOrPinId))
                                 tempTiming.PinName = pinIdDict[groupOrPinId];
                             tempTiming.PinSetup = "PAT";
-                            if (Enum.TryParse(timing.WaveformFormat.ToString(), out Timingformat timingformat))
+                            if (System.Enum.TryParse(timing.WaveformFormat.ToString(), out Timingformat timingformat))
                                 tempTiming.Fmt = timingformat;
                             tempTiming.DriveA = timing.DriveA?.ToString();
                             tempTiming.DriveB = timing.DriveB?.ToString();
                             tempTiming.DriveC = timing.DriveC?.ToString();
                             tempTiming.DriveD = timing.DriveD?.ToString();
-                            if (Enum.TryParse(timing.StrobeMode.ToString(), out Project.Base.Enums.TestPlans.StrobeModeType strobeMode))
+                            if (System.Enum.TryParse(timing.StrobeMode.ToString(), out Project.Base.Enums.TestPlans.StrobeModeType strobeMode))
                                 tempTiming.StrobeMode = strobeMode;
                             tempTiming.StrobeA = timing.StrobeA ?? 0;
                             tempTiming.StrobeB = timing.StrobeB ?? 0;
@@ -400,7 +398,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                     var tempChannel = new ChannelModel();
                     tempChannel.Id = pinInfo.Id.SafeString();
                     tempChannel.PinName = pinInfo.PinName;
-                    if (Enum.TryParse(pinInfo.PinType.ToString(), out ChannelType channelType))
+                    if (System.Enum.TryParse(pinInfo.PinType.ToString(), out ChannelType channelType))
                     {
                         tempChannel.Type = channelType;
                     }
@@ -443,1075 +441,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
         }
         #endregion
 
-        #region 设置测试计划Flow
-        public bool SetTestPlanFlow(IList<FlowInfoModel> flows, ProjectInfoModel projectInfo)
-        {
-            var result = false;
-
-            if (flows.IsEmpty())
-                return result;
-
-            try
-            {
-                var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
-
-                //var filePath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.TestPlanExtension);
-                //if (projectInfo.TestPlanType == TestPlanType.Csv)
-                //    filePath = Path.Combine(projectInfo.ProjectPath, testPlanDirName, _flowSheetName + projectInfo.TestPlanExtension);
-
-                //if (!File.Exists(filePath))
-                //    throw new Warning(L["FileDoesNotExist"]);
-
-                //switch (projectInfo.TestPlanType)
-                //{
-                //    case TestPlanType.Excel:
-                //        SetTestPlanFlowToExcel(flows, filePath);
-                //        break;
-                //    case TestPlanType.Csv:
-                //        SetTestPlanFlowToCsv(flows, filePath);
-                //        break;
-                //    default:
-                //        break;
-                //}
-                result = true;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-            return result;
-        }
-
-        private void SetTestPlanFlowToExcel(IList<FlowInfoModel> flows, string filePath)
-        {
-            IWorkbook workbook = null;
-            try
-            {
-                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    workbook = new XSSFWorkbook(stream);
-                    var sheet = workbook?.GetSheet("Flow");
-                    var startRowIndex = 2;
-                    var enableColIndex = 2;
-                    foreach (var flow in flows)
-                        sheet?.GetRow(startRowIndex++)?.CreateCell(enableColIndex)?.SetCellValue(flow.Enable);
-                }
-
-                using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                {
-                    workbook?.Write(stream);
-                    workbook?.Close();
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        private void SetTestPlanFlowToCsv(IList<FlowInfoModel> flows, string filePath)
-        {
-            if (flows.IsEmpty())
-                return;
-
-            try
-            {
-                using (var writer = new StreamWriter(filePath, false, Encoding.UTF8))
-                {
-                    #region 数据类型头
-                    writer.WriteLine(string.Join(",", _flowSheetName));
-                    #endregion
-
-                    #region 通道头
-                    var header = new List<string>
-                    {
-                        nameof(FlowModel.TestItemName),
-                        nameof(FlowModel.SheetName),
-                        nameof(FlowModel.Enable)
-                    };
-
-                    writer.WriteLine(string.Join(",", header.ToArray()));
-                    #endregion
-
-                    foreach (var flow in flows)
-                    {
-                        var flowData = new List<string>();
-                        var testItemName = flow.TestItemName.IsEmpty() ? "" : flow.TestItemName;
-                        flowData.Add(testItemName);
-                        var flowSheetName = flow.SheetName == null ? "" : flow.SheetName;
-                        flowData.Add(flowSheetName);
-                        var enable = flow.Enable == null ? "" : flow.Enable;
-                        flowData.Add(enable);
-
-                        writer.WriteLine(string.Join(",", flowData.ToArray()));
-                    }
-
-                    writer.Flush();
-                    writer.Close();
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        #endregion
-
-        #region 另存为测试计划
-        public bool SaveAsTestPlan(TestPlanModel testPlan, TestPlanType testPlanType, string saveAsDir, string fileName)
-        {
-            var result = false;
-            var testPlanDirName = ConfigurationManager.AppSettings["TestPlanDirName"] ?? throw new ArgumentNullException("TemplateDirName");
-            var testPlanExtension = testPlanType == TestPlanType.Excel ? _excelExtension : ".csv";
-
-            try
-            {
-                switch (testPlanType)
-                {
-                    case TestPlanType.Excel:
-                        var releaseDirPath = Path.Combine(saveAsDir, _releaseDirName);
-                        result = SaveExcelTestPlan(testPlan, releaseDirPath, fileName, testPlanExtension);
-                        break;
-                    case TestPlanType.Csv:
-                        var testPlanDirPath = Path.Combine(saveAsDir, testPlanDirName);
-                        result = SaveCsvTestPlan(testPlan, testPlanDirPath, testPlanExtension);
-                        break;
-                    default:
-                        break;
-                }
-                result = true;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-            return result;
-        }
-
-        private bool SaveExcelTestPlan(TestPlanModel testPlan, string releaseDirPath, string fileName, string extension)
-        {
-            var result = false;
-            if (testPlan == null)
-                return result;
-
-            var filePath = Path.Combine(releaseDirPath, fileName + extension);
-            if (!File.Exists(filePath))
-                return result;
-
-            IWorkbook workbook = null;
-            try
-            {
-                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    workbook = new XSSFWorkbook(stream); //创建一个新的工作簿
-
-                    SetChannelSheet(workbook, _channelSheetName, testPlan);
-
-                    SetTestItemSheet(workbook, _testItemSheetName, testPlan);
-
-                    SetLimitsSheet(workbook, _limitsSheetName, testPlan);
-
-                    SetFlowSheet(workbook, _flowSheetName, testPlan);
-
-                    SetLevelSheets(workbook, testPlan);
-
-                    SetTimingSheets(workbook, testPlan);
-                }
-
-                using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                {
-                    workbook?.Write(stream);
-                    workbook?.Close();
-                }
-
-                return result;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-        }
-
-        private void SetChannelSheet(IWorkbook workbook, string sheetName, TestPlanModel testPlan)
-        {
-            if (testPlan.Channel.IsEmpty())
-                return;
-
-            try
-            {
-                var sheet = workbook?.GetSheet(sheetName);
-                var rowNum = 3;
-                var groupNames = new Dictionary<string, List<ChannelModel>>();
-                foreach (var channel in testPlan.Channel)
-                {
-                    var col = 0;
-                    var row = sheet?.CreateRow(rowNum++);
-                    if (!channel.Groups.IsEmpty())
-                    {
-                        foreach (var group in channel.Groups)
-                        {
-                            if (groupNames.ContainsKey(group.Name))
-                                groupNames[group.Name].Add(channel);
-                            else
-                            {
-                                groupNames[group.Name] = new List<ChannelModel>();
-                                groupNames[group.Name].Add(channel);
-                            }
-                        }
-                    }
-                    col++;
-
-                    if (!channel.PinName.IsEmpty())
-                        row.CreateCell(col).SetCellValue(channel.PinName);
-                    col++;
-
-                    row.CreateCell(col).SetCellValue(channel.Type.Description());
-                    col++;
-
-                    if (!channel.Sites.IsEmpty())
-                        foreach (var site in channel.Sites)
-                            row.CreateCell(col++).SetCellValue(site.SiteName);
-                }
-
-                var orderGroups = groupNames.OrderBy(x => x.Value.Count).ToDictionary();
-                foreach (var group in orderGroups)
-                {
-                    var groupIndex = 0;
-                    foreach (var channel in group.Value)
-                    {
-                        var col = 0;
-                        var row = sheet?.CreateRow(rowNum++);
-                        if (groupIndex == 0)
-                            row.CreateCell(col).SetCellValue(group.Key);
-                        col++;
-
-                        if (!channel.PinName.IsEmpty())
-                            row.CreateCell(col).SetCellValue(channel.PinName);
-                        col++;
-
-                        if (groupIndex == 0)
-                            row.CreateCell(col).SetCellValue(channel.Type.Description());
-                        col++;
-
-                        groupIndex++;
-                    }
-                }
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-        }
-
-        private void SetTestItemSheet(IWorkbook workbook, string sheetName, TestPlanModel testPlan)
-        {
-            if (testPlan.TestItem.IsEmpty())
-                return;
-
-            try
-            {
-                var sheet = workbook?.GetSheet(sheetName);
-                var rowNum = 2;
-
-                foreach (var testItem in testPlan.TestItem)
-                {
-                    var col = 0;
-                    var row = sheet?.CreateRow(rowNum++);
-                    if (!testItem.TestItemName.IsEmpty())
-                        row.CreateCell(col).SetCellValue(testItem.TestItemName);
-                    col++;
-
-                    if (!testItem.FunctionName.IsEmpty())
-                        row.CreateCell(col).SetCellValue(testItem.FunctionName);
-                    col++;
-
-                    if (testItem.Force != null)
-                        row.CreateCell(col).SetCellValue(System.Convert.ToDouble(testItem.Force));
-                    col++;
-
-                    if (testItem.Pins != null)
-                        row.CreateCell(col).SetCellValue(testItem.Pins);
-                    col++;
-
-                    if (testItem.Level != null)
-                        row.CreateCell(col).SetCellValue(testItem.Level);
-                    col++;
-
-                    if (testItem.Timing != null)
-                        row.CreateCell(col).SetCellValue(testItem.Timing);
-                    col++;
-
-                    if (!testItem.Args.IsEmpty())
-                        foreach (var arg in testItem.Args)
-                            row.CreateCell(col++).SetCellValue(arg.ParamValue);
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetLimitsSheet(IWorkbook workbook, string sheetName, TestPlanModel testPlan)
-        {
-            if (testPlan.Limits.IsEmpty())
-                return;
-            try
-            {
-                var sheet = workbook?.GetSheet(sheetName);
-                var rowNum = 2;
-
-                foreach (var limit in testPlan.Limits)
-                {
-                    var col = 0;
-                    var row = sheet?.CreateRow(rowNum++);
-                    if (!limit.TestItemName.IsEmpty())
-                        row.CreateCell(col).SetCellValue(limit.TestItemName);
-                    col++;
-
-                    if (limit.TestNumber != null)
-                        row.CreateCell(col).SetCellValue(System.Convert.ToDouble(limit.TestNumber.ToString()));
-                    col++;
-
-                    if (limit.LowLimit != null)
-                        row.CreateCell(col).SetCellValue(System.Convert.ToDouble(limit.LowLimit));
-                    col++;
-
-                    if (limit.HighLimit != null)
-                        row.CreateCell(col).SetCellValue(System.Convert.ToDouble(limit.HighLimit));
-                    col++;
-
-                    if (limit.Units != null)
-                        row.CreateCell(col).SetCellValue(limit.Units);
-                    col++;
-
-                    if (limit.LimitName != null)
-                        row.CreateCell(col).SetCellValue(limit.LimitName);
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetFlowSheet(IWorkbook workbook, string sheetName, TestPlanModel testPlan)
-        {
-            if (testPlan.Flow.IsEmpty())
-                return;
-
-            try
-            {
-                var sheet = workbook?.GetSheet(sheetName);
-                var rowNum = 2;
-
-                foreach (var flow in testPlan.Flow)
-                {
-                    var col = 0;
-                    var row = sheet?.CreateRow(rowNum++);
-                    if (!flow.TestItemName.IsEmpty())
-                        row.CreateCell(col).SetCellValue(flow.TestItemName);
-                    col++;
-
-                    if (flow.SheetName != null)
-                        row.CreateCell(col).SetCellValue(flow.SheetName);
-                    col++;
-
-                    if (flow.Enable != null)
-                        row.CreateCell(col).SetCellValue(flow.Enable);
-                    col++;
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetLevelSheets(IWorkbook workbook, TestPlanModel testPlan)
-        {
-            if (testPlan.TestItem.IsEmpty())
-                return;
-            try
-            {
-                var levelDic = new Dictionary<TestItemModel, List<Project.Base.Models.TestPlans.LevelModel>>();
-                var testItems = testPlan.TestItem.Where(x => !x.Levels.IsEmpty()).Select(x => x);
-                foreach (var testItem in testItems)
-                    levelDic.Add(testItem, testItem.Levels);
-
-                var distinceLevels = levelDic.DistinctBy(x => x.Key.Level).ToDictionary();
-                foreach (var distinceLevel in distinceLevels)
-                    SetLevelSheet(workbook, distinceLevel.Key.Level, distinceLevel.Value);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetLevelSheet(IWorkbook workbook, string levelSheetName, List<Project.Base.Models.TestPlans.LevelModel> levels)
-        {
-
-            levelSheetName = _levelSheetName;
-
-            if (levels.IsEmpty())
-                return;
-
-            if (workbook == null)
-                return;
-
-            try
-            {
-                var sheet = workbook?.GetSheet(_levelSheetName);
-                var levelSheetIndex = workbook.GetSheetIndex(sheet);
-                var existsSheet = workbook?.GetSheet(levelSheetName);
-                if (existsSheet == null && !levelSheetName.IsEmpty())
-                {
-                    sheet = workbook?.CloneSheet(levelSheetIndex);
-                    var currentSheetIndex = workbook.GetSheetIndex(sheet);
-                    workbook?.SetSheetName(currentSheetIndex, levelSheetName);
-                }
-                var rowNum = 2;
-                foreach (var level in levels)
-                {
-                    var col = 0;
-                    var row = sheet?.CreateRow(rowNum++);
-                    if (!level.PinGroupName.IsEmpty())
-                        row.CreateCell(col++).SetCellValue(level.PinGroupName);
-
-                    if (level.Vil != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Vil));
-
-                    if (level.Vih != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Vih));
-
-                    if (level.Vol != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Vol));
-
-                    if (level.Voh != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Voh));
-
-                    if (level.Iol != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Iol));
-
-                    if (level.Ioh != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Ioh));
-
-                    if (level.Vt != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Vt));
-
-                    if (level.Vcl != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Vcl));
-
-                    if (level.Vch != null)
-                        row.CreateCell(col++).SetCellValue(System.Convert.ToDouble(level.Vch));
-
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetTimingSheets(IWorkbook workbook, TestPlanModel testPlan)
-        {
-            if (testPlan.TestItem.IsEmpty())
-                return;
-            try
-            {
-                var timingDic = new Dictionary<TestItemModel, List<Project.Base.Models.TestPlans.TimingModel>>();
-                var testItems = testPlan.TestItem.Where(x => !x.Timings.IsEmpty()).Select(x => x);
-                foreach (var testItem in testItems)
-                    timingDic.Add(testItem, testItem.Timings);
-
-                var distinceTimings = timingDic.DistinctBy(x => x.Key.Timing).ToDictionary();
-                foreach (var distinceTiming in distinceTimings)
-                    SetTimingSheet(workbook, distinceTiming.Key.Timing, distinceTiming.Value);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetTimingSheet(IWorkbook workbook, string timingSheetName, List<Project.Base.Models.TestPlans.TimingModel> timings)
-        {
-            timingSheetName = _timingSheetName;
-
-            if (timings.IsEmpty())
-                return;
-
-            if (workbook == null)
-                return;
-
-            try
-            {
-                var sheet = workbook?.GetSheet(_timingSheetName);
-                var timingSheetIndex = workbook.GetSheetIndex(sheet);
-                var existsSheet = workbook?.GetSheet(timingSheetName);
-                if (existsSheet == null && !timingSheetName.IsEmpty())
-                {
-                    sheet = workbook?.CloneSheet(timingSheetIndex);
-                    var currentSheetIndex = workbook.GetSheetIndex(sheet);
-                    workbook?.SetSheetName(currentSheetIndex, timingSheetName);
-                }
-                var rowNum = 2;
-                foreach (var timing in timings)
-                {
-                    var col = 0;
-                    var row = sheet?.CreateRow(rowNum++);
-                    if (!timing.TimingName.IsEmpty())
-                        row.CreateCell(col++).SetCellValue(timing.TimingName);
-
-                    row.CreateCell(col++).SetCellValue(timing.Period);
-
-                    if (timing.PinName != null)
-                        row.CreateCell(col++).SetCellValue(timing.PinName);
-
-                    if (timing.PinSetup != null)
-                        row.CreateCell(col++).SetCellValue(timing.PinSetup);
-
-                    if (timing.Fmt != null)
-                        row.CreateCell(col++).SetCellValue(timing.Fmt.Description());
-
-                    if (timing.DriveA != null)
-                        row.CreateCell(col++).SetCellValue(timing.DriveA);
-
-                    if (timing.DriveB != null)
-                        row.CreateCell(col++).SetCellValue(timing.DriveB);
-
-                    if (timing.DriveC != null)
-                        row.CreateCell(col++).SetCellValue(timing.DriveC);
-
-                    if (timing.DriveD != null)
-                        row.CreateCell(col++).SetCellValue(timing.DriveD);
-
-                    if (timing.StrobeMode != null)
-                        row.CreateCell(col++).SetCellValue(timing.StrobeMode.Description());
-
-                    if (timing.StrobeA != null)
-                        row.CreateCell(col++).SetCellValue(timing.StrobeA);
-
-                    if (timing.StrobeB != null)
-                        row.CreateCell(col++).SetCellValue(timing.StrobeB);
-
-                    if (timing.Comment != null)
-                        row.CreateCell(col++).SetCellValue(timing.Comment);
-
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private bool SaveCsvTestPlan(TestPlanModel testPlan, string testPlanDirPath, string extension)
-        {
-            var result = false;
-            if (testPlan == null)
-                return result;
-
-            if (!Directory.Exists(testPlanDirPath))
-                Directory.CreateDirectory(testPlanDirPath);
-
-            try
-            {
-                SetChannelCsv(testPlanDirPath, _channelSheetName, testPlan);
-
-                SetTestItemCsv(testPlanDirPath, _testItemSheetName, testPlan);
-
-                SetLimitsCsv(testPlanDirPath, _limitsSheetName, testPlan);
-
-                SetFlowCsv(testPlanDirPath, _flowSheetName, testPlan);
-
-                SetLevelCsvs(testPlanDirPath, testPlan);
-
-                SetTimingCsvs(testPlanDirPath, testPlan);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-            return result;
-        }
-
-        private void SetChannelCsv(string testPlanDirPath, string sheetName, TestPlanModel testPlan)
-        {
-            if (testPlan.Channel.IsEmpty())
-                return;
-
-            try
-            {
-                var filePath = Path.Combine(testPlanDirPath, sheetName + ".csv");
-
-                using (var writer = new StreamWriter(filePath, true, Encoding.UTF8))
-                {
-                    #region 数据类型头
-                    writer.WriteLine(string.Join(",", _channelSheetName));
-                    #endregion
-
-                    #region 通道头
-                    var siteCount = testPlan.Channel.Max(x => x.Sites.Count);
-                    writer.WriteLine(string.Join(",", "SiteCount", siteCount));
-
-                    var channelHeader = new List<string>
-                    {
-                        "GroupName",
-                        nameof(ChannelModel.PinName),
-                        nameof(ChannelModel.Type)
-                    };
-                    for (int i = 0; i < siteCount; i++)
-                    {
-                        channelHeader.Add($"Site{i}");
-                    }
-                    writer.WriteLine(string.Join(",", channelHeader.ToArray()));
-                    #endregion
-                    var groupNames = new Dictionary<string, List<ChannelModel>>();
-
-                    foreach (var channel in testPlan.Channel)
-                    {
-                        var channelData = new List<string>();
-                        if (!channel.Groups.IsEmpty())
-                        {
-                            foreach (var group in channel.Groups)
-                            {
-                                if (groupNames.ContainsKey(group.Name))
-                                    groupNames[group.Name].Add(channel);
-                                else
-                                {
-                                    groupNames[group.Name] = new List<ChannelModel>();
-                                    groupNames[group.Name].Add(channel);
-                                }
-                            }
-                        }
-                        channelData.Add("");
-                        var pinName = channel.PinName.IsEmpty() ? "" : channel.PinName;
-                        channelData.Add(pinName);
-                        var type = channel.Type == null ? "" : channel.Type.Description();
-                        channelData.Add(type);
-
-                        if (!channel.Sites.IsEmpty())
-                            foreach (var site in channel.Sites)
-                            {
-                                var siteStr = site.SiteName.IsEmpty() ? "" : site.SiteName;
-                                channelData.Add(siteStr);
-                            }
-
-                        writer.WriteLine(string.Join(",", channelData.ToArray()));
-                    }
-
-                    var orderGroups = groupNames.OrderBy(x => x.Value.Count).ToDictionary();
-                    foreach (var group in orderGroups)
-                    {
-                        var groupIndex = 0;
-                        foreach (var channel in group.Value)
-                        {
-                            var channelData = new List<string>();
-                            if (groupIndex == 0)
-                                channelData.Add(group.Key);
-                            var pinName = channel.PinName.IsEmpty() ? "" : channel.PinName;
-                            channelData.Add(pinName);
-                            var type = channel.Type == null ? "" : channel.Type.Description();
-                            channelData.Add(type);
-
-                            groupIndex++;
-                            writer.WriteLine(string.Join(",", channelData.ToArray()));
-                        }
-                    }
-
-                    writer.Flush();
-                    writer.Close();
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetTestItemCsv(string testPlanDirPath, string sheetName, TestPlanModel testPlan)
-        {
-            if (testPlan.TestItem.IsEmpty())
-                return;
-
-            try
-            {
-                var filePath = Path.Combine(testPlanDirPath, sheetName + ".csv");
-
-                using (var writer = new StreamWriter(filePath, true, Encoding.UTF8))
-                {
-                    #region 数据类型头
-                    writer.WriteLine(string.Join(",", _testItemSheetName));
-                    #endregion
-
-                    #region 通道头
-                    var header = new List<string>
-                    {
-                        nameof(TestItemModel.TestItemName),
-                        nameof(TestItemModel.FunctionName),
-                        nameof(TestItemModel.Force),
-                        nameof(TestItemModel.Pins),
-                        nameof(TestItemModel.Level),
-                        nameof(TestItemModel.Timing),
-                    };
-
-                    writer.WriteLine(string.Join(",", header.ToArray()));
-                    #endregion
-
-                    foreach (var testItem in testPlan.TestItem)
-                    {
-                        var testItemData = new List<string>();
-                        var testItemName = testItem.TestItemName.IsEmpty() ? "" : testItem.TestItemName;
-                        testItemData.Add(testItemName);
-                        var functionName = testItem.FunctionName.IsEmpty() ? "" : testItem.FunctionName;
-                        testItemData.Add(functionName);
-                        var force = testItem.Force == null ? "" : testItem.Force.ToString();
-                        testItemData.Add(force);
-                        var pins = testItem.Pins.IsEmpty() ? "" : testItem.Pins;
-                        testItemData.Add(pins);
-                        var level = testItem.Level.IsEmpty() ? "" : testItem.Level;
-                        testItemData.Add(level);
-                        var timing = testItem.Timing.IsEmpty() ? "" : testItem.Timing;
-                        testItemData.Add(timing);
-
-                        writer.WriteLine(string.Join(",", testItemData.ToArray()));
-                    }
-
-                    writer.Flush();
-                    writer.Close();
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetLimitsCsv(string testPlanDirPath, string sheetName, TestPlanModel testPlan)
-        {
-            if (testPlan.Limits.IsEmpty())
-                return;
-
-            try
-            {
-                var filePath = Path.Combine(testPlanDirPath, sheetName + ".csv");
-
-                using (var writer = new StreamWriter(filePath, true, Encoding.UTF8))
-                {
-                    #region 数据类型头
-                    writer.WriteLine(string.Join(",", _limitsSheetName));
-                    #endregion
-
-                    #region 通道头
-                    var header = new List<string>
-                    {
-                        nameof(Project.Base.Models.TestPlans.LimitsModel.TestItemName),
-                        nameof(Project.Base.Models.TestPlans.LimitsModel.TestNumber),
-                        nameof(Project.Base.Models.TestPlans.LimitsModel.LowLimit),
-                        nameof(Project.Base.Models.TestPlans.LimitsModel.HighLimit),
-                        nameof(Project.Base.Models.TestPlans.LimitsModel.Units),
-                        nameof(Project.Base.Models.TestPlans.LimitsModel.LimitName),
-                    };
-
-                    writer.WriteLine(string.Join(",", header.ToArray()));
-                    #endregion
-
-                    foreach (var limit in testPlan.Limits)
-                    {
-                        var limitData = new List<string>();
-                        var testItemName = limit.TestItemName.IsEmpty() ? "" : limit.TestItemName;
-                        limitData.Add(testItemName);
-                        var testNumber = limit.TestNumber == null ? "" : limit.TestNumber.ToString();
-                        limitData.Add(testNumber);
-                        var lowLimit = limit.LowLimit == null ? "" : limit.LowLimit.ToString();
-                        limitData.Add(lowLimit);
-                        var highLimit = limit.HighLimit == null ? "" : limit.HighLimit.ToString();
-                        limitData.Add(highLimit);
-                        var units = limit.Units.IsEmpty() ? "" : limit.Units;
-                        limitData.Add(units);
-                        var limitName = limit.LimitName.IsEmpty() ? "" : limit.LimitName;
-                        limitData.Add(limitName);
-
-                        writer.WriteLine(string.Join(",", limitData.ToArray()));
-                    }
-
-                    writer.Flush();
-                    writer.Close();
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetFlowCsv(string testPlanDirPath, string sheetName, TestPlanModel testPlan)
-        {
-            if (testPlan.Flow.IsEmpty())
-                return;
-
-            try
-            {
-                var filePath = Path.Combine(testPlanDirPath, sheetName + ".csv");
-
-                using (var writer = new StreamWriter(filePath, true, Encoding.UTF8))
-                {
-                    #region 数据类型头
-                    writer.WriteLine(string.Join(",", _flowSheetName));
-                    #endregion
-
-                    #region 通道头
-                    var header = new List<string>
-                    {
-                        nameof(FlowModel.TestItemName),
-                        nameof(FlowModel.SheetName),
-                        nameof(FlowModel.Enable)
-                    };
-
-                    writer.WriteLine(string.Join(",", header.ToArray()));
-                    #endregion
-
-                    foreach (var flow in testPlan.Flow)
-                    {
-                        var flowData = new List<string>();
-                        var testItemName = flow.TestItemName.IsEmpty() ? "" : flow.TestItemName;
-                        flowData.Add(testItemName);
-                        var flowSheetName = flow.SheetName == null ? "" : flow.SheetName;
-                        flowData.Add(flowSheetName);
-                        var enable = flow.Enable == null ? "" : flow.Enable;
-                        flowData.Add(enable);
-
-                        writer.WriteLine(string.Join(",", flowData.ToArray()));
-                    }
-
-                    writer.Flush();
-                    writer.Close();
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetLevelCsvs(string testPlanDirPath, TestPlanModel testPlan)
-        {
-
-            if (testPlan.TestItem.IsEmpty())
-                return;
-            try
-            {
-                var levelDic = new Dictionary<TestItemModel, List<Project.Base.Models.TestPlans.LevelModel>>();
-                var testItems = testPlan.TestItem.Where(x => !x.Levels.IsEmpty()).Select(x => x);
-                foreach (var testItem in testItems)
-                    levelDic.Add(testItem, testItem.Levels);
-
-                var distinceLevels = levelDic.DistinctBy(x => x.Key.Level).ToDictionary();
-                foreach (var distinceLevel in distinceLevels)
-                    SetLevelCsv(testPlanDirPath, distinceLevel.Key.Level, distinceLevel.Value);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetLevelCsv(string testPlanDirPath, string sheetName, List<Project.Base.Models.TestPlans.LevelModel> value)
-        {
-            if (value.IsEmpty())
-                return;
-
-            try
-            {
-                var filePath = Path.Combine(testPlanDirPath, sheetName + ".csv");
-
-                using (var writer = new StreamWriter(filePath, true, Encoding.UTF8))
-                {
-                    #region 数据类型头
-                    writer.WriteLine(string.Join(",", sheetName));
-                    #endregion
-
-                    #region 通道头
-                    var header = new List<string>
-                    {
-                        "Pin/Group",
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Vil),
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Vih),
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Vol),
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Voh),
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Iol),
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Ioh),
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Vt),
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Vcl),
-                        nameof(Project.Base.Models.TestPlans.LevelModel.Vch)
-                    };
-
-                    writer.WriteLine(string.Join(",", header.ToArray()));
-                    #endregion
-
-                    foreach (var level in value)
-                    {
-                        var levelData = new List<string>();
-                        var groupName = level.PinGroupName.IsEmpty() ? "" : level.PinGroupName;
-                        levelData.Add(groupName);
-                        var vil = level.Vil == null ? "" : level.Vil.ToString();
-                        levelData.Add(vil);
-                        var vih = level.Vih == null ? "" : level.Vih.ToString();
-                        levelData.Add(vih);
-                        var vol = level.Vol == null ? "" : level.Vol.ToString();
-                        levelData.Add(vol);
-                        var voh = level.Voh == null ? "" : level.Voh.ToString();
-                        levelData.Add(voh);
-                        var iol = level.Iol == null ? "" : level.Iol.ToString();
-                        levelData.Add(iol);
-                        var ioh = level.Ioh == null ? "" : level.Ioh.ToString();
-                        levelData.Add(ioh);
-                        var vt = level.Vt == null ? "" : level.Vt.ToString();
-                        levelData.Add(vt);
-                        var vcl = level.Vcl == null ? "" : level.Vcl.ToString();
-                        levelData.Add(vcl);
-                        var vch = level.Vch == null ? "" : level.Vch.ToString();
-                        levelData.Add(vch);
-
-                        writer.WriteLine(string.Join(",", levelData.ToArray()));
-                    }
-
-                    writer.Flush();
-                    writer.Close();
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetTimingCsvs(string testPlanDirPath, TestPlanModel testPlan)
-        {
-            if (testPlan.TestItem.IsEmpty())
-                return;
-            try
-            {
-                var timingDic = new Dictionary<TestItemModel, List<Project.Base.Models.TestPlans.TimingModel>>();
-                var testItems = testPlan.TestItem.Where(x => !x.Timings.IsEmpty()).Select(x => x);
-                foreach (var testItem in testItems)
-                    timingDic.Add(testItem, testItem.Timings);
-
-                var distinceTimings = timingDic.DistinctBy(x => x.Key.Timing).ToDictionary();
-                foreach (var distinceTiming in distinceTimings)
-                    SetTimingCsv(testPlanDirPath, distinceTiming.Key.Timing, distinceTiming.Value);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private void SetTimingCsv(string testPlanDirPath, string sheetName, List<Project.Base.Models.TestPlans.TimingModel> value)
-        {
-            if (value.IsEmpty())
-                return;
-
-            try
-            {
-                var filePath = Path.Combine(testPlanDirPath, sheetName + ".csv");
-
-                using (var writer = new StreamWriter(filePath, true, Encoding.UTF8))
-                {
-                    #region 数据类型头
-                    writer.WriteLine(string.Join(",", sheetName));
-                    #endregion
-
-                    #region 通道头
-                    var header = new List<string>
-                    {
-                        nameof(Project.Base.Models.TestPlans.TimingModel.TimingName),
-                        nameof(Project.Base.Models.TestPlans.TimingModel.Period),
-                        nameof(Project.Base.Models.TestPlans.TimingModel.PinName),
-                        nameof(Project.Base.Models.TestPlans.TimingModel.PinSetup),
-                        nameof(Project.Base.Models.TestPlans.TimingModel.Fmt),
-                        nameof(Project.Base.Models.TestPlans.TimingModel.DriveA),
-                        nameof(Project.Base.Models.TestPlans.TimingModel.DriveB),
-                        nameof(Project.Base.Models.TestPlans.TimingModel.DriveC),
-                        nameof(Project.Base.Models.TestPlans.TimingModel.DriveD)
-                    };
-
-                    writer.WriteLine(string.Join(",", header.ToArray()));
-                    #endregion
-
-                    foreach (var timing in value)
-                    {
-                        var timingData = new List<string>();
-                        var timingName = timing.TimingName.IsEmpty() ? "" : timing.TimingName;
-                        timingData.Add(timingName);
-                        var period = timing.Period == null ? "" : timing.Period.ToString();
-                        timingData.Add(period);
-                        var pinName = timing.PinName.IsEmpty() ? "" : timing.PinName;
-                        timingData.Add(pinName);
-                        var pinSetup = timing.PinSetup.IsEmpty() ? "" : timing.PinSetup;
-                        timingData.Add(pinSetup);
-                        var fmt = timing.Fmt.Description();
-                        timingData.Add(fmt);
-                        var driveA = timing.DriveA.IsEmpty() ? "" : timing.DriveA;
-                        timingData.Add(driveA);
-                        var driveB = timing.DriveB.IsEmpty() ? "" : timing.DriveB;
-                        timingData.Add(driveB);
-                        var driveC = timing.DriveC.IsEmpty() ? "" : timing.DriveC;
-                        timingData.Add(driveC);
-                        var driveD = timing.DriveD.IsEmpty() ? "" : timing.DriveD;
-                        timingData.Add(driveD);
-                        var strobeMode = timing.StrobeMode.Description();
-                        timingData.Add(strobeMode);
-                        var strobeA = timing.StrobeA.ToString().IsEmpty() ? "" : timing.StrobeA.ToString();
-                        timingData.Add(strobeA);
-                        var strobeB = timing.StrobeB.ToString().IsEmpty() ? "" : timing.StrobeB.ToString();
-                        timingData.Add(strobeB);
-                        var comment = timing.Comment.IsEmpty() ? "" : timing.Comment;
-                        timingData.Add(comment);
-
-                        writer.WriteLine(string.Join(",", timingData.ToArray()));
-                    }
-
-                    writer.Flush();
-                    writer.Close();
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        #endregion
-
         #region 拷贝测试计划
         public async Task CopyTestPlanByProjectIdAsync(string projectId, string newProjectId)
         {
@@ -1528,7 +457,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 var pinOverviewEntity = await CopyPinOverviewAsync(pinOverview, newProjectId);
 
                 // 引脚信息
-                var pinInfos = (await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderBy(x => x.CreationTime);
+                var pinInfos = (await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderByDescending(x => x.CreationTime);
                 var pinInfoList = new List<PinInfo>();
                 foreach (var pinInfo in pinInfos)
                 {
@@ -1538,7 +467,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 await _pinInfoRepository.AddAsync(pinInfoList);
 
                 // 组信息
-                var groupInfos = await _groupInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id));
+                var groupInfos = (await _groupInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderByDescending(x => x.CreationTime);
                 var groupInfoList = new List<GroupInfo>();
                 foreach (var groupInfo in groupInfos)
                 {
@@ -1546,7 +475,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                     groupInfoList.Add(groupInfoEntity);
 
                     // 组与引脚关系
-                    var relationships = await _pinGroupRelationshipRepositoy.FindAllAsync(x => x.GroupInfoId.Equals(groupInfo.Id));
+                    var relationships = (await _pinGroupRelationshipRepositoy.FindAllAsync(x => x.GroupInfoId.Equals(groupInfo.Id))).OrderByDescending(x => x.CreationTime);
                     var relationshipList = new List<PinGroupRelationship>();
                     foreach (var relationship in relationships)
                     {
@@ -1558,7 +487,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 await _groupInfoRepository.AddAsync(groupInfoList);
 
                 // 站点信息
-                var siteInfos = await _siteInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id));
+                var siteInfos = (await _siteInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderByDescending(x => x.CreationTime);
                 var siteInfoList = new List<SiteInfo>();
                 foreach (var siteInfo in siteInfos)
                 {
@@ -1566,7 +495,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                     siteInfoList.Add(siteInfoEntity);
 
                     // 引脚站点信息
-                    var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => x.SiteInfoId.Equals(siteInfo.Id));
+                    var pinSiteInfos = (await _pinSiteInfoRepository.FindAllAsync(x => x.SiteInfoId.Equals(siteInfo.Id))).OrderByDescending(x => x.CreationTime);
                     var pinSiteInfoList = new List<PinSiteInfo>();
                     foreach (var pinSiteInfo in pinSiteInfos)
                     {
@@ -1575,12 +504,12 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                     }
                     await _pinSiteInfoRepository.AddAsync(pinSiteInfoList);
                 }
-
+                await _siteInfoRepository.AddAsync(siteInfoList);
             }
             #endregion
 
             #region 门限
-            var limits = await _limitsRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var limits = (await _limitsRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()))).OrderByDescending(x => x.CreationTime);
             var limitList = new List<Limits>();
             foreach (var limit in limits)
             {
@@ -1591,7 +520,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             #endregion
 
             #region 电平组
-            var levelGroups = await _levelGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var levelGroups = (await _levelGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()))).OrderByDescending(x => x.CreationTime);
             var levelGroupList = new List<LevelGroup>();
             foreach (var levelGroup in levelGroups)
             {
@@ -1599,7 +528,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 levelGroupList.Add(levelGroupEntity);
 
                 // 电平
-                var levels = await _levelRepository.FindAllAsync(x => x.LevelGroupId.Equals(levelGroup.Id));
+                var levels = (await _levelRepository.FindAllAsync(x => x.LevelGroupId.Equals(levelGroup.Id))).OrderByDescending(x => x.CreationTime);
                 var levelList = new List<Level>();
                 foreach (var level in levels)
                 {
@@ -1612,7 +541,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             #endregion
 
             #region 时钟组
-            var timingGroups = await _timingGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var timingGroups = (await _timingGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()))).OrderByDescending(x => x.CreationTime);
             var timingGroupList = new List<TimingGroup>();
             foreach (var timingGroup in timingGroups)
             {
@@ -1620,7 +549,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 timingGroupList.Add(timingGroupEntity);
 
                 // 时钟
-                var timings = await _timingRepository.FindAllAsync(x => x.TimingGroupId.Equals(timingGroup.Id));
+                var timings = (await _timingRepository.FindAllAsync(x => x.TimingGroupId.Equals(timingGroup.Id))).OrderByDescending(x => x.CreationTime);
                 var timingList = new List<Timing>();
                 foreach (var timing in timings)
                 {
@@ -1633,7 +562,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             #endregion
 
             #region 测试项
-            var testItemInfos = await _testItemInfoRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var testItemInfos = (await _testItemInfoRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()))).OrderByDescending(x => x.CreationTime);
             var testItemList = new List<TestItemInfo>();
             foreach (var testItemInfo in testItemInfos)
             {
@@ -1644,7 +573,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             #endregion
 
             #region 全局参数
-            var globalParameters = await _globalParameterRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var globalParameters = (await _globalParameterRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()))).OrderByDescending(x => x.CreationTime);
             var globalParameterList = new List<GlobalParameter>();
             foreach (var globalParameter in globalParameters)
             {
@@ -2043,15 +972,16 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var groupList = new List<GroupInfo>();
             if (groups.IsEmpty())
                 return groupList;
-
-            for (int i = 0; i < groups.Count; i++)
+            groups.Reverse();
+            foreach (var group in groups)
             {
                 var groupInfo = new GroupInfo();
                 groupInfo.Init();
                 groupInfo.PinOverviewId = pinOverview.Id;
-                groupInfo.GroupName = groups[i].Name;
+                groupInfo.GroupName = group.Name;
                 groupList.Add(groupInfo);
             }
+
             await _groupInfoRepository.AddAsync(groupList);
 
             return groupList;
@@ -2062,6 +992,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var pinList = new List<PinInfo>();
             if (channels.IsEmpty())
                 return pinList;
+            channels.Reverse();
 
             foreach (var channel in channels)
             {
@@ -2069,7 +1000,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 pinInfo.Init();
                 pinInfo.PinOverviewId = pinOverview.Id;
                 pinInfo.PinName = channel.PinName;
-                if (Enum.TryParse(channel.Type.ToString(), out PinType type))
+                if (System.Enum.TryParse(channel.Type.ToString(), out PinType type))
                     pinInfo.PinType = type;
                 pinList.Add(pinInfo);
 
@@ -2111,7 +1042,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var limitList = new List<Limits>();
             if (limits.IsEmpty())
                 return limitList;
-
+            limits.Reverse();
             foreach (var limit in limits)
             {
                 var limitInfo = new Limits();
@@ -2126,9 +1057,9 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 limitInfo.PassSoftwareBin = (int)limit.PassSoftwareBin;
                 limitInfo.FailHardwareBin = (int)limit.FailHardwareBin;
                 limitInfo.PassHardwareBin = (int)limit.PassHardwareBin;
-                limitInfo.DutResult = Enum.TryParse(limit.DUTResult.ToString(), out DUTResultType type) ? type : DUTResultType.None;
+                limitInfo.DutResult = System.Enum.TryParse(limit.DUTResult.ToString(), out DUTResultType type) ? type : DUTResultType.None;
 
-                if (!limitDic.ContainsKey(limit.TestItemName))
+                if (!limit.TestItemName.IsEmpty() && !limitDic.ContainsKey(limit.TestItemName))
                     limitDic.Add(limit.TestItemName, limitInfo.Id);
 
                 limitList.Add(limitInfo);
@@ -2143,7 +1074,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var levelGroupList = new List<LevelGroup>();
             if (levelGroups.IsEmpty())
                 return levelGroupList;
-
+            levelGroups.Reverse();
             foreach (var levelGroup in levelGroups)
             {
                 var tempLevelGroup = new LevelGroup();
@@ -2162,7 +1093,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var timingGroupList = new List<TimingGroup>();
             if (timingGroups.IsEmpty())
                 return timingGroupList;
-
+            timingGroups.Reverse();
             foreach (var timingGroup in timingGroups)
             {
                 var tempTimingGroup = new TimingGroup();
@@ -2181,6 +1112,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var hasLevels = new List<string>();
             var hasTimings = new List<string>();
             var testItemList = new List<TestItemInfo>();
+            testItems.Reverse();
             foreach (var testItem in testItems)
             {
                 var testItemInfo = new TestItemInfo();
@@ -2210,7 +1142,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 {
                     var levelGroup = levelGroupList.FirstOrDefault(x => x.LevelGroupName.Equals(testItem.Level));
                     testItemInfo.LevelGroupId = levelGroup?.Id;
-
+                    testItem.Levels.Reverse();
                     foreach (var level in testItem.Levels)
                     {
                         if (!hasLevels.Contains(level.Id))
@@ -2253,6 +1185,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 {
                     var timingGroup = timingGroupList.FirstOrDefault(x => x.TimingGroupName.Equals(testItem.Timing));
                     testItemInfo.TimingGroupId = timingGroup?.Id;
+                    testItem.Timings.Reverse();
                     foreach (var timing in testItem.Timings)
                     {
                         if (!hasTimings.Contains(timing.Id))
@@ -2270,12 +1203,12 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                             }
                             else
                                 tempTiming.GroupOrPinId = pinGroup.Id;
-                            tempTiming.WaveformFormat = Enum.TryParse(timing.Fmt.ToString(), out TimingformatType fmt) ? fmt : TimingformatType.NR;
+                            tempTiming.WaveformFormat = System.Enum.TryParse(timing.Fmt.ToString(), out TimingformatType fmt) ? fmt : TimingformatType.NR;
                             tempTiming.DriveA = int.TryParse(timing.DriveA?.ToString(), out int driveA) ? driveA : 0;
                             tempTiming.DriveB = int.TryParse(timing.DriveB?.ToString(), out int driveB) ? driveB : 0;
                             tempTiming.DriveC = int.TryParse(timing.DriveC?.ToString(), out int driveC) ? driveB : 0;
                             tempTiming.DriveD = int.TryParse(timing.DriveD?.ToString(), out int driveD) ? driveB : 0;
-                            tempTiming.StrobeMode = Enum.TryParse(timing.StrobeMode.ToString(), out Domain.TestPlan.Core.Enums.StrobeModeType strobeMode) ? strobeMode : Domain.TestPlan.Core.Enums.StrobeModeType.OFF;
+                            tempTiming.StrobeMode = System.Enum.TryParse(timing.StrobeMode.ToString(), out Domain.TestPlan.Core.Enums.StrobeModeType strobeMode) ? strobeMode : Domain.TestPlan.Core.Enums.StrobeModeType.OFF;
                             tempTiming.StrobeA = timing.StrobeA;
                             tempTiming.StrobeB = timing.StrobeB;
                             tempTiming.Comment = timing.Comment;
@@ -2299,6 +1232,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 return;
 
             var globalList = new List<GlobalParameter>();
+            globals.Reverse();
             foreach (var global in globals)
             {
                 var globalInfo = new GlobalParameter();
@@ -2310,6 +1244,414 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             }
             await _globalParameterRepository.AddAsync(globalList);
         }
+        #endregion
+
+        #region 导出测试计划
+
+        public async Task ExportTestPlanAsync(string filePath, string projectId)
+        {
+            if (projectId.IsEmpty())
+                return;
+
+            var testPlanDir = ConfigurationManager.AppSettings["TestPlanTemplateDir"] ?? throw new ArgumentNullException("TestPlanTemplateDir");
+            var testPlanTemplateName = ConfigurationManager.AppSettings["TestPlanTemplateName"] ?? throw new ArgumentNullException("TestPlanTemplateName");
+            var testPlanTemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, testPlanDir, $"{testPlanTemplateName}.xlsx");
+
+            if (File.Exists(filePath))
+            {
+                if (File.Exists(testPlanTemplatePath))
+                {
+                    File.Copy(testPlanTemplatePath, filePath, true);
+                }
+                else
+                {
+                    throw new FileNotFoundException(string.Format(L["FileNotFound"], testPlanTemplatePath));
+                }
+            }
+            else
+            {
+                var parentDir = Path.GetDirectoryName(filePath);
+                if (!parentDir.IsEmpty() && !Directory.Exists(parentDir))
+                    Directory.CreateDirectory(parentDir);
+
+                if (File.Exists(testPlanTemplatePath))
+                {
+                    File.Copy(testPlanTemplatePath, filePath);
+                }
+                else
+                {
+                    throw new FileNotFoundException(string.Format(L["FileNotFound"], testPlanTemplatePath));
+                }
+            }
+
+            IWorkbook workbook = null;
+            try
+            {
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    workbook = new XSSFWorkbook(stream); //创建一个新的工作簿
+
+                    await SaveChannelSheet(workbook, _channelSheetName, projectId);
+
+                    await SaveFlowSheet(workbook, _flowSheetName, projectId);
+
+                    await SaveTestItemSheet(workbook, _testItemSheetName, projectId);
+
+                    await SaveLimitsSheet(workbook, _limitsSheetName, projectId);
+
+                    await SaveLevelSheets(workbook, projectId);
+
+                    await SaveTimingSheets(workbook, projectId);
+
+                    await SaveGlobalSheets(workbook, projectId);
+                }
+
+                using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                {
+                    workbook?.Write(stream);
+                    workbook?.Close();
+                }
+
+                return;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task SaveChannelSheet(IWorkbook workbook, string channelSheetName, string projectId)
+        {
+            var pinOverviews = await _pinOverviewRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var pinOverview = pinOverviews?.FirstOrDefault();
+            var siteInfos = (await _siteInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderBy(x => x.SortId);
+            var groupInfos = (await _groupInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderBy(x => x.CreationTime);
+            var pinInfos = (await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderBy(x => x.CreationTime);
+            var siteInfoIds = siteInfos.Select(x => x.Id);
+            var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => siteInfoIds.Contains(x.SiteInfoId));
+            var groupInfoIds = groupInfos.Select(x => x.Id);
+            var pinGroupRelationships = await _pinGroupRelationshipRepositoy.FindAllAsync(x => groupInfoIds.Contains(x.GroupInfoId));
+            try
+            {
+                var sheet = workbook?.GetSheet(channelSheetName);
+                var rowIndex = 1;
+                if (!siteInfos.IsEmpty())
+                {
+                    var siteCount = siteInfos.Count();
+                    sheet?.GetRow(rowIndex++)?.GetCell(1).SetCellValue(siteCount);
+
+                    var cellIndex = 3;
+                    foreach (var siteInfo in siteInfos)
+                    {
+                        var row = sheet?.GetRow(rowIndex);
+                        row?.GetCell(cellIndex++).SetCellValue(siteInfo.SiteName);
+                    }
+                    //sheet?.CreateRow(rowIndex).CreateCell(cellIndex++).SetCellValue(siteInfo.SiteName);
+                }
+
+                rowIndex = 3;
+                if (!pinInfos.IsEmpty())
+                {
+                    var cellIndex = 1;
+                    foreach (var pinInfo in pinInfos)
+                    {
+                        var row = sheet?.CreateRow(rowIndex);
+                        row?.CreateCell(cellIndex++).SetCellValue(pinInfo.PinName);
+                        row?.CreateCell(cellIndex++).SetCellValue(pinInfo.PinType.Description());
+
+                        foreach (var siteInfo in siteInfos)
+                        {
+                            var pinSiteInfo = pinSiteInfos.FirstOrDefault(x => x.SiteInfoId.Equals(siteInfo.Id) && x.PinInfoId.Equals(pinInfo.Id));
+                            row?.CreateCell(cellIndex++).SetCellValue(pinSiteInfo?.ChannelName);
+                        }
+                        rowIndex++;
+                        cellIndex = 1;
+                    }
+                }
+
+                if (!groupInfos.IsEmpty())
+                {
+                    var cellIndex = 0;
+                    foreach (var groupInfo in groupInfos)
+                    {
+                        var row = sheet?.CreateRow(rowIndex);
+                        row?.CreateCell(cellIndex++).SetCellValue(groupInfo.GroupName);
+
+                        var relationships = pinGroupRelationships.Where(x => x.GroupInfoId.Equals(groupInfo.Id)).OrderBy(x => x.CreationTime);
+                        if (relationships.Any())
+                        {
+                            var pinIds = relationships.Select(x => x.PinInfoId);
+                            var pins = pinInfos.Where(x => pinIds.Contains(x.Id)).OrderBy(x => x.CreationTime);
+                            var showType = true;
+                            foreach (var pin in pins)
+                            {
+                                row?.CreateCell(cellIndex++).SetCellValue(pin.PinName);
+                                if (showType)
+                                {
+                                    row?.CreateCell(cellIndex++).SetCellValue(pin.PinType.Description());
+                                    showType = false;
+                                }
+                                cellIndex = 1;
+                                row = sheet?.CreateRow(++rowIndex);
+                            }
+                        }
+                        cellIndex = 0;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task SaveFlowSheet(IWorkbook workbook, string flowSheetName, string projectId)
+        {
+            var testItems = (await _testItemInfoRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()))).OrderBy(x => x.FlowIndex);
+
+            try
+            {
+                var sheet = workbook?.GetSheet(flowSheetName);
+                var rowIndex = 2;
+                var cellIndex = 0;
+                foreach (var testItem in testItems)
+                {
+                    var row = sheet?.CreateRow(rowIndex);
+                    row?.CreateCell(cellIndex++).SetCellValue(testItem.TestItemName);
+                    row?.CreateCell(cellIndex++).SetCellValue(_testItemSheetName);
+                    if (testItem.Enable != true)
+                        row?.CreateCell(cellIndex++).SetCellValue("False");
+
+                    cellIndex = 0;
+                    rowIndex++;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task SaveTestItemSheet(IWorkbook workbook, string testItemSheetName, string projectId)
+        {
+            var testItems = (await _testItemInfoRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid())))?.OrderBy(x => x.CreationTime);
+            try
+            {
+                var sheet = workbook?.GetSheet(testItemSheetName);
+                var rowIndex = 2;
+                var cellIndex = 0;
+                foreach (var testItem in testItems)
+                {
+                    var row = sheet?.CreateRow(rowIndex);
+                    row?.CreateCell(cellIndex++).SetCellValue(testItem.TestItemName);
+                    row?.CreateCell(cellIndex++).SetCellValue(testItem.FunctionName);
+                    row?.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(testItem.Force));
+                    row?.CreateCell(cellIndex++).SetCellValue(await GetPinOrGroupName(testItem.GroupOrPinId));
+
+                    var levelGroup = await _levelGroupRepository.FindByIdAsync(testItem.LevelGroupId);
+                    row?.CreateCell(cellIndex++).SetCellValue(levelGroup?.LevelGroupName);
+
+                    var timingGroup = await _timingGroupRepository.FindByIdAsync(testItem.TimingGroupId);
+                    row?.CreateCell(cellIndex++).SetCellValue(timingGroup?.TimingGroupName);
+
+                    var args = testItem?.AdditionInfo?.Split(",");
+                    if (!args.IsEmpty())
+                    {
+                        foreach (var arg in args)
+                        {
+                            row.CreateCell(cellIndex++).SetCellValue(arg);
+                        }
+                    }
+                    cellIndex = 0;
+                    rowIndex++;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        private async Task<string> GetPinOrGroupName(Guid? pinOrGroupId)
+        {
+            var group = await _groupInfoRepository.FindByIdAsync(pinOrGroupId);
+            if (group == null)
+            {
+                return (await _pinInfoRepository.FindByIdAsync(pinOrGroupId))?.PinName;
+            }
+            return group?.GroupName;
+        }
+
+        private async Task SaveLimitsSheet(IWorkbook workbook, string limitsSheetName, string projectId)
+        {
+            var limits = (await _limitsRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid())))?.OrderBy(x => x.CreationTime);
+
+            try
+            {
+                var sheet = workbook?.GetSheet(limitsSheetName);
+                var rowIndex = 2;
+                var cellIndex = 0;
+                foreach (var limit in limits)
+                {
+                    var row = sheet?.CreateRow(rowIndex);
+                    var testItem = (await _testItemInfoRepository.FindAllAsync(x => x.LimitsId.Equals(limit.Id)))?.FirstOrDefault();
+                    if (testItem != null)
+                        row.CreateCell(cellIndex).SetCellValue(testItem.TestItemName);
+
+                    cellIndex++;
+                    row.CreateCell(cellIndex++).SetCellValue(limit.TestNumber);
+                    row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(limit.LowLimit));
+                    row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(limit.HighLimit));
+                    row.CreateCell(cellIndex++).SetCellValue(limit.Units);
+                    row.CreateCell(cellIndex++).SetCellValue(limit.LimitName);
+                    row.CreateCell(cellIndex++).SetCellValue(limit.FailSoftwareBin?.ToString());
+                    row.CreateCell(cellIndex++).SetCellValue(limit.PassSoftwareBin?.ToString());
+                    row.CreateCell(cellIndex++).SetCellValue(limit.FailHardwareBin?.ToString());
+                    row.CreateCell(cellIndex++).SetCellValue(limit.PassHardwareBin?.ToString());
+                    row.CreateCell(cellIndex++).SetCellValue(limit.DutResult.Description());
+
+                    cellIndex = 0;
+                    rowIndex++;
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task SaveLevelSheets(IWorkbook workbook, string projectId)
+        {
+            var levelGroups = await _levelGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            try
+            {
+                var sheet = workbook?.GetSheet(_levelSheetName);
+                foreach (var levelGroup in levelGroups)
+                {
+                    if (!levelGroup.LevelGroupName.Equals(_levelSheetName))
+                        sheet = sheet.CopySheet(levelGroup.LevelGroupName, true);
+
+                    var levels = (await _levelRepository.FindAllAsync(x => x.LevelGroupId.Equals(levelGroup.Id)))?.OrderBy(x => x.CreationTime);
+                    var rowIndex = 2;
+                    var cellIndex = 0;
+                    if (levels.Any())
+                    {
+                        foreach (var level in levels)
+                        {
+                            var row = sheet?.CreateRow(rowIndex);
+
+                            row.CreateCell(cellIndex++).SetCellValue(await GetPinOrGroupName(level.GroupOrPinId));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Vil));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Vih));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Vol));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Voh));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Iol));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Ioh));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Vt));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Vcl));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Vch));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Ps));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.I));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Tdelay));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Sequence));
+                            row.CreateCell(cellIndex++).SetCellValue(System.Convert.ToDouble(level.Comment));
+
+                            cellIndex = 0;
+                            rowIndex++;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task SaveTimingSheets(IWorkbook workbook, string projectId)
+        {
+            var timingGroups = await _timingGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            try
+            {
+                var sheet = workbook?.GetSheet(_timingSheetName);
+                foreach (var timingGroup in timingGroups)
+                {
+                    if (!timingGroup.TimingGroupName.Equals(_timingSheetName))
+                        sheet = sheet.CopySheet(timingGroup.TimingGroupName, true);
+
+                    var timings = (await _timingRepository.FindAllAsync(x => x.TimingGroupId.Equals(timingGroup.Id)))?.OrderBy(x => x.CreationTime);
+                    var rowIndex = 2;
+                    var cellIndex = 0;
+                    if (timings.Any())
+                    {
+                        foreach (var timing in timings)
+                        {
+                            var row = sheet?.CreateRow(rowIndex);
+
+                            row.CreateCell(cellIndex++).SetCellValue(timing.TimingName);
+                            row.CreateCell(cellIndex++).SetCellValue(timing.Period?.ToString());
+                            row.CreateCell(cellIndex++).SetCellValue(await GetPinOrGroupName(timing.GroupOrPinId));
+                            row.CreateCell(cellIndex++).SetCellValue("PAT");
+                            row.CreateCell(cellIndex++).SetCellValue(timing.WaveformFormat?.Description());
+                            row.CreateCell(cellIndex++).SetCellValue(timing.DriveA?.ToString());
+                            row.CreateCell(cellIndex++).SetCellValue(timing.DriveB?.ToString());
+                            row.CreateCell(cellIndex++).SetCellValue(timing.DriveC?.ToString());
+                            row.CreateCell(cellIndex++).SetCellValue(timing.DriveD?.ToString());
+                            row.CreateCell(cellIndex++).SetCellValue(timing.StrobeMode?.Description());
+                            row.CreateCell(cellIndex++).SetCellValue(timing.StrobeA?.ToString());
+                            row.CreateCell(cellIndex++).SetCellValue(timing.StrobeB?.ToString());
+                            row.CreateCell(cellIndex++).SetCellValue(timing.Comment);
+
+                            cellIndex = 0;
+                            rowIndex++;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task SaveGlobalSheets(IWorkbook workbook, string projectId)
+        {
+            var globals = (await _globalParameterRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid())))?.OrderBy(x => x.CreationTime);
+            try
+            {
+                var sheet = workbook?.GetSheet(_globalSheetName);
+                var rowIndex = 2;
+                var cellIndex = 0;
+                foreach (var global in globals)
+                {
+                    var row = sheet?.CreateRow(rowIndex);
+                    row.CreateCell(cellIndex++).SetCellValue(global.PatternFile);
+                    var args = global?.AdditionInfo?.Split(",");
+                    if (!args.IsEmpty())
+                    {
+                        foreach (var arg in args)
+                            row.CreateCell(cellIndex++).SetCellValue(arg);
+                    }
+                    cellIndex = 0;
+                    rowIndex++;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         #endregion
 
     }

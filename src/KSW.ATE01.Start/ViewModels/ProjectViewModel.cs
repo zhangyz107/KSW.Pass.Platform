@@ -24,6 +24,7 @@ using KSW.Ui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace KSW.ATE01.Start.ViewModels
 {
@@ -57,7 +58,8 @@ namespace KSW.ATE01.Start.ViewModels
                 if (SetProperty(ref _selectProjectInfo, value))
                 {
                     _projectBLL?.SetCurrentProjectInfo(value);
-                    ImportCommand.RaiseCanExecuteChanged();
+                    ImportDataCommand.RaiseCanExecuteChanged();
+                    ExportDataCommand.RaiseCanExecuteChanged();
                     _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Publish();
                 }
             }
@@ -84,9 +86,13 @@ namespace KSW.ATE01.Start.ViewModels
         public DelegateCommand SaveAsCommand =>
             _saveAsCommand ?? (_saveAsCommand = new DelegateCommand(ExecuteSaveAsCommand));
 
-        private AsyncDelegateCommand _importCommand;
-        public AsyncDelegateCommand ImportCommand =>
-            _importCommand ?? (_importCommand = new AsyncDelegateCommand(ExecuteImportCommand, () => _selectProjectInfo != null));
+        private AsyncDelegateCommand _importDataCommand;
+        public AsyncDelegateCommand ImportDataCommand =>
+            _importDataCommand ?? (_importDataCommand = new AsyncDelegateCommand(ExecuteImportDataCommand, () => _selectProjectInfo != null));
+
+        private AsyncDelegateCommand _exportDataCommand;
+        public AsyncDelegateCommand ExportDataCommand =>
+            _exportDataCommand ?? (_exportDataCommand = new AsyncDelegateCommand(ExecuteExportDataCommand, () => _selectProjectInfo != null));
 
         private AsyncDelegateCommand<ProjectInfoModel> _editCommand;
         public AsyncDelegateCommand<ProjectInfoModel> EditCommand =>
@@ -133,6 +139,7 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void InitEvent()
         {
+
             _eventAggregator.GetEvent<RefreshProjectListEvent>().Subscribe(async () => await ReloadList());
         }
 
@@ -177,11 +184,11 @@ namespace KSW.ATE01.Start.ViewModels
             DialogService.ShowDialog(nameof(SaveAsDialog));
         }
 
-        private async Task ExecuteImportCommand()
+        private async Task ExecuteImportDataCommand()
         {
             var fileDialog = new OpenFileDialog()
             {
-                Filter = "testplan files(*.xlsm)|*.xlsm"
+                Filter = "testplan files(*.xlsm;*.xlsx)|*.xlsm;*.xlsx"
             };
             if (fileDialog.ShowDialog() == true)
             {
@@ -190,7 +197,26 @@ namespace KSW.ATE01.Start.ViewModels
                 await DialogService.ShowMessageDialog(L["ImportSuccessful"], System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 _eventAggregator.GetEvent<UpdateTestPlanEvent>().Publish();
             }
+        }
 
+        private async Task ExecuteExportDataCommand()
+        {
+            var fileDialog = new SaveFileDialog() 
+            {
+                Filter = "testplan files(*.xlsx)|*.xlsx"
+            };
+            if (fileDialog.ShowDialog() == true)
+            {
+                var filePath = fileDialog.FileName;
+                //if (File.Exists(filePath))
+                //{
+                //    var fileName = Path.GetFileName(filePath);
+                //    var result = await DialogService.ShowMessageDialog($"{string.Format(L["FileAlreadyExists"], fileName)},{L["WhetherToReplace"]}?", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+                //    if (result.Result != ButtonResult.Yes)
+                //        return;                   
+                //}
+                await _projectBLL?.ExportTestPlanAsync(filePath);
+            }
         }
 
         private async Task ExecuteEditCommand(ProjectInfoModel model)

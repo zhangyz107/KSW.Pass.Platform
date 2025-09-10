@@ -23,6 +23,14 @@ namespace KSW.ATE01.Application.Managers.Abstractions.TestPlans
         Task ImportTestPlanAsync(string filePath, string projectId);
 
         /// <summary>
+        /// 导出测试计划
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        Task ExportTestPlanAsync(string filePath, string projectId);
+
+        /// <summary>
         /// 通过项目Id拷贝测试计划
         /// </summary>
         /// <param name="projectId"></param>

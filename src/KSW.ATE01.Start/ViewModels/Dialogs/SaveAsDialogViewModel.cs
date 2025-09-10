@@ -12,13 +12,7 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
-using KSW.ATE01.Application.BLLs.Implements.Projects;
-using KSW.ATE01.Application.Events.Projects;
-using KSW.ATE01.Application.Managers.Abstractions.Projects;
-using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.ATE01.Domain.Projects.Core.Enums;
-using KSW.ATE01.Project.Base.Helpers;
 using KSW.Exceptions;
 using KSW.Helpers;
 using KSW.Ui;

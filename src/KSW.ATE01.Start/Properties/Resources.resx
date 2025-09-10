@@ -865,4 +865,21 @@
     <value>Import Successful</value>
     <comment>导入成功</comment>
   </data>
+  <data name="ImportData" xml:space="preserve">
+    <value>Import Data</value>
+    <comment>导入数据</comment>
+  </data>
+  <data name="ExportData" xml:space="preserve">
+    <value>Export Data</value>
+    <comment>导出数据</comment>
+  </data>
+  <data name="FileAlreadyExists" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="WhetherToDelete" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="WhetherToReplace" xml:space="preserve">
+    <value></value>
+  </data>
 </root>
