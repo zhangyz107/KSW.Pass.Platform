@@ -54,7 +54,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
         private readonly string _releaseDirName = "Release";
         private readonly string _csprojExt = ".csproj";
         private readonly string _slnExt = ".sln";
-        private readonly string _excelExtension;
         private readonly bool _isDeleteProjectDir;
         private readonly Stopwatch _stopwatch;
         private bool _alreadyStartLot = false;
@@ -86,7 +85,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             _projectManager = projectManager;
             _testPlanManager = testPlanManager;
 
-            _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
             bool.TryParse(ConfigurationManager.AppSettings["IsDeleteProjectDir"], out bool flag);
             _isDeleteProjectDir = flag;
             _stopwatch = new Stopwatch();

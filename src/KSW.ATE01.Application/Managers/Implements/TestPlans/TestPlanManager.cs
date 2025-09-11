@@ -39,8 +39,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
     public class TestPlanManager : ServiceBase, ITestPlanManager
     {
         #region Fields
-        private readonly string _releaseDirName = "Release";
-
         private readonly string _channelSheetName = "Channel";
         private readonly string _testItemSheetName = "TestItem";
         private readonly string _limitsSheetName = "Limits";
@@ -48,7 +46,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
         private readonly string _levelSheetName = "Level";
         private readonly string _timingSheetName = "Timing";
         private readonly string _globalSheetName = "Global";
-        private readonly string _excelExtension;
 
         private readonly IPinOverviewRepository _pinOverviewRepository;
         private readonly ISiteInfoRepository _siteInfoRepository;
@@ -81,8 +78,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             ITimingRepository timingRepository,
             IGlobalParameterRepository globalParameterRepository) : base(containerProvider)
         {
-            _excelExtension = ConfigurationManager.AppSettings["ExcelExtension"];
-
             _pinOverviewRepository = pinOverviewRepository;
             _siteInfoRepository = siteInfoRepository;
             _pinInfoRepository = pinInfoRepository;
@@ -929,7 +924,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 List<TimingGroup> timingGroupList = await SaveTimingGroupFromTestPlan(projectId, timingGroups);
 
                 // 测试项
-                await SaveTestItemsFromTestPlan(projectId, testPlan.TestItem, groupList, pinList, limitDic, limitList, levelGroupList, timingGroupList);
+                await SaveTestItemsFromTestPlan(projectId, testPlan, groupList, pinList, limitDic, limitList, levelGroupList, timingGroupList);
 
                 // 全局参数
                 await SaveGlobalParameterFromTestPlan(projectId, testPlan.Global);
@@ -1107,11 +1102,14 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             return timingGroupList;
         }
 
-        private async Task SaveTestItemsFromTestPlan(string projectId, List<TestItemModel> testItems, List<GroupInfo> groupList, List<PinInfo> pinList, Dictionary<string, Guid> limitDic, List<Limits> limitList, List<LevelGroup> levelGroupList, List<TimingGroup> timingGroupList)
+        private async Task SaveTestItemsFromTestPlan(string projectId, TestPlanModel testPlan, List<GroupInfo> groupList, List<PinInfo> pinList, Dictionary<string, Guid> limitDic, List<Limits> limitList, List<LevelGroup> levelGroupList, List<TimingGroup> timingGroupList)
         {
             var hasLevels = new List<string>();
             var hasTimings = new List<string>();
             var testItemList = new List<TestItemInfo>();
+            var testItems = testPlan.TestItem;
+            var flows = testPlan.Flow;
+            var testItemDic = new Dictionary<string, Guid>();
             testItems.Reverse();
             foreach (var testItem in testItems)
             {
@@ -1121,6 +1119,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                 testItemInfo.TestItemName = testItem.TestItemName;
                 testItemInfo.FunctionName = testItem.FunctionName;
                 testItemInfo.Force = testItem.Force;
+                testItemDic.Add(testItem.Id, testItemInfo.Id);
                 var group = groupList.FirstOrDefault(x => x.GroupName.Equals(testItem.Pins));
                 if (group == null)
                 {
@@ -1223,6 +1222,19 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
                 testItemList.Add(testItemInfo);
             }
+
+            var index = 0;
+            foreach (var flow in flows)
+            {
+                var testItemId = flow.TestItemId.SafeString();
+                if (testItemDic.ContainsKey(testItemId))
+                {
+                    var newTestItemId = testItemDic[testItemId];
+                    var testItem = testItemList.FirstOrDefault(x => x.Id.Equals(newTestItemId));
+                    testItem.FlowIndex = index++;
+                    testItem.Enable = flow.Enable.IsEmpty();
+                }
+            }
             await _testItemInfoRepository.AddAsync(testItemList);
         }
 
@@ -1299,9 +1311,9 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
                     await SaveLimitsSheet(workbook, _limitsSheetName, projectId);
 
-                    await SaveLevelSheets(workbook, projectId);
+                    var levelAddCount = await SaveLevelSheets(workbook, projectId);
 
-                    await SaveTimingSheets(workbook, projectId);
+                    await SaveTimingSheets(workbook, projectId, levelAddCount);
 
                     await SaveGlobalSheets(workbook, projectId);
                 }
@@ -1327,7 +1339,7 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             var pinOverview = pinOverviews?.FirstOrDefault();
             var siteInfos = (await _siteInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderBy(x => x.SortId);
             var groupInfos = (await _groupInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderBy(x => x.CreationTime);
-            var pinInfos = (await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id))).OrderBy(x => x.CreationTime);
+            var pinInfos = (await _pinInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id)))?.OrderBy(x => x.CreationTime);
             var siteInfoIds = siteInfos.Select(x => x.Id);
             var pinSiteInfos = await _pinSiteInfoRepository.FindAllAsync(x => siteInfoIds.Contains(x.SiteInfoId));
             var groupInfoIds = groupInfos.Select(x => x.Id);
@@ -1347,7 +1359,6 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
                         var row = sheet?.GetRow(rowIndex);
                         row?.GetCell(cellIndex++).SetCellValue(siteInfo.SiteName);
                     }
-                    //sheet?.CreateRow(rowIndex).CreateCell(cellIndex++).SetCellValue(siteInfo.SiteName);
                 }
 
                 rowIndex = 3;
@@ -1527,17 +1538,27 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
             }
         }
 
-        private async Task SaveLevelSheets(IWorkbook workbook, string projectId)
+        private async Task<int> SaveLevelSheets(IWorkbook workbook, string projectId)
         {
             var levelGroups = await _levelGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
+            var addCount = 0;
             try
             {
-                var sheet = workbook?.GetSheet(_levelSheetName);
+                var standSheet = workbook?.GetSheet(_levelSheetName);
+                // 先拷贝Sheet
                 foreach (var levelGroup in levelGroups)
                 {
                     if (!levelGroup.LevelGroupName.Equals(_levelSheetName))
-                        sheet = sheet.CopySheet(levelGroup.LevelGroupName, true);
+                    {
+                        standSheet.CopySheet(levelGroup.LevelGroupName, true);
+                        var index = workbook?.GetSheetIndex(_levelSheetName);
+                        workbook.SetSheetOrder(levelGroup.LevelGroupName, (index ?? 0) + (++addCount));
+                    }
+                }
 
+                foreach (var levelGroup in levelGroups)
+                {
+                    var sheet = workbook?.GetSheet(levelGroup.LevelGroupName);
                     var levels = (await _levelRepository.FindAllAsync(x => x.LevelGroupId.Equals(levelGroup.Id)))?.OrderBy(x => x.CreationTime);
                     var rowIndex = 2;
                     var cellIndex = 0;
@@ -1574,19 +1595,29 @@ namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 
                 throw;
             }
+            return addCount;
         }
 
-        private async Task SaveTimingSheets(IWorkbook workbook, string projectId)
+        private async Task SaveTimingSheets(IWorkbook workbook, string projectId, int levelAddCount = 0)
         {
             var timingGroups = await _timingGroupRepository.FindAllAsync(x => x.ProjectInfoId.Equals(projectId.ToGuid()));
             try
             {
-                var sheet = workbook?.GetSheet(_timingSheetName);
+                var standSheet = workbook?.GetSheet(_timingSheetName);
+                // 先拷贝Sheet
                 foreach (var timingGroup in timingGroups)
                 {
                     if (!timingGroup.TimingGroupName.Equals(_timingSheetName))
-                        sheet = sheet.CopySheet(timingGroup.TimingGroupName, true);
+                    {
+                        standSheet.CopySheet(timingGroup.TimingGroupName, true);
+                        var index = workbook?.GetSheetIndex(_timingSheetName);
+                        workbook.SetSheetOrder(timingGroup.TimingGroupName, (index ?? 0) + levelAddCount);
+                    }
+                }
 
+                foreach (var timingGroup in timingGroups)
+                {
+                    var sheet = workbook?.GetSheet(timingGroup.TimingGroupName);
                     var timings = (await _timingRepository.FindAllAsync(x => x.TimingGroupId.Equals(timingGroup.Id)))?.OrderBy(x => x.CreationTime);
                     var rowIndex = 2;
                     var cellIndex = 0;

@@ -216,6 +216,8 @@ namespace KSW.ATE01.Start.ViewModels
                 //        return;                   
                 //}
                 await _projectBLL?.ExportTestPlanAsync(filePath);
+
+                await DialogService.ShowMessageDialog(L["ExportSuccessful"], System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             }
         }
 

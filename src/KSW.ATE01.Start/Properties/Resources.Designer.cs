@@ -601,6 +601,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
+        internal static string ExportSuccessful {
+            get {
+                return ResourceManager.GetString("ExportSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Fail Count 的本地化字符串。
         /// </summary>
         internal static string FailCount {

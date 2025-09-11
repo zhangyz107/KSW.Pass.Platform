@@ -693,4 +693,7 @@
   <data name="WhetherToReplace" xml:space="preserve">
     <value>whether to replace</value>
   </data>
+  <data name="ExportSuccessful" xml:space="preserve">
+    <value>Export successful</value>
+  </data>
 </root>
