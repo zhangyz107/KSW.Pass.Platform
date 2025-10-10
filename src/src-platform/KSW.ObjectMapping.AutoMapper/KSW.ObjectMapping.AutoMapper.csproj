@@ -11,8 +11,4 @@
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 	</ItemGroup>
 
-	<ItemGroup>
-    <ProjectReference Include="..\Ksw.Core\KSW.Core.csproj" />
-  </ItemGroup>
-
 </Project>

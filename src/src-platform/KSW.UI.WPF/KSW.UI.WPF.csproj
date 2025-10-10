@@ -19,10 +19,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\KSW.Core\KSW.Core.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Resource Include="Resources\Images\error.png" />
 	  <Resource Include="Resources\Images\information.png" />
 	  <Resource Include="Resources\Images\question.png" />

@@ -7,9 +7,4 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\KSW.Aop.AspectCore\KSW.Aop.AspectCore.csproj" />
-    <ProjectReference Include="..\Ksw.Core\KSW.Core.csproj" />
-  </ItemGroup>
-
 </Project>

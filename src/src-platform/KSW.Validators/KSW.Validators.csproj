@@ -11,9 +11,4 @@
     <PackageReference Include="AspectCore.Abstractions" Version="2.4.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\KSW.Aop.AspectCore\KSW.Aop.AspectCore.csproj" />
-    <ProjectReference Include="..\Ksw.Core\KSW.Core.csproj" />
-  </ItemGroup>
-
 </Project>

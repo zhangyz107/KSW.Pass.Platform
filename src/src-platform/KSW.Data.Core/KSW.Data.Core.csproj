@@ -12,10 +12,4 @@
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.2" />
 	</ItemGroup>
 
-
-	<ItemGroup>
-    <ProjectReference Include="..\Ksw.Core\KSW.Core.csproj" />
-    <ProjectReference Include="..\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
-  </ItemGroup>
-
 </Project>

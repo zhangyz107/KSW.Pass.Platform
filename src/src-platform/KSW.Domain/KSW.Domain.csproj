@@ -8,8 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ksw.Core\KSW.Core.csproj" />
-    <ProjectReference Include="..\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
     <ProjectReference Include="..\KSW.Validators\KSW.Validators.csproj" />
   </ItemGroup>
 
