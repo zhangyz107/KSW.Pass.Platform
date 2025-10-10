@@ -1,7 +1,0 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <SolidColorBrush x:Key="KSW.Toast.Brush.Information" Color="#0064fa"></SolidColorBrush>
-    <SolidColorBrush x:Key="KSW.Toast.Brush.Success" Color="#3bb346"></SolidColorBrush>
-    <SolidColorBrush x:Key="KSW.Toast.Brush.Warning" Color="#fc8800"></SolidColorBrush>
-    <SolidColorBrush x:Key="KSW.Toast.Brush.Error" Color="#f93920"></SolidColorBrush>
-</ResourceDictionary>

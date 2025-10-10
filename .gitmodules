@@ -1,0 +1,4 @@
+[submodule "src-platform"]
+	path = src-platform
+	url = https://github.com/zhangyz107/KSW.Core.Platform.git
+	branch = develop.0.1.x

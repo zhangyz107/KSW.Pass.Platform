@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src-platform\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src-platform\KSW.Data.EntityFrameworkCore\KSW.Data.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Domain.Projects\KSW.ATE01.Domain.Projects.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Domain.TestPlan\KSW.ATE01.Domain.TestPlan.csproj" />
     <ProjectReference Include="..\src-platform\KSW.Data.Abstractions\KSW.Data.Abstractions.csproj" />
