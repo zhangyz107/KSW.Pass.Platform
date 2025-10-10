@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Application.Events.Projects;
 using KSW.Ui;
+using KSW.UI.WPF.Controls;
 using System.Diagnostics;
 using System.Text;
 using System.Windows;
@@ -45,6 +46,23 @@ namespace KSW.ATE01.Start.Views
         public void ExecuteMethodBasedOnArgument(string message)
         {
             _eventAggregator.GetEvent<LoadProjectFromArgsEvent>().Publish(message);
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not IToastViewModel vm)
+                return;
+
+            var adornerLayer = AdornerLayer.GetAdornerLayer(this.Content as UIElement);
+            if (adornerLayer != null)
+            {
+                var _toastAdorner = new WindowToastManager(this.Content as UIElement)
+                {
+                    MaxToastCount = 3
+                };
+                adornerLayer.Add(_toastAdorner);
+                vm.ToastManager = _toastAdorner;
+            }
         }
     }
 }

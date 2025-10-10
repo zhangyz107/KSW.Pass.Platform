@@ -22,6 +22,7 @@ using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.Helpers;
 using KSW.Ui;
+using KSW.UI.WPF.Controls;
 using MaterialDesignColors;
 using MaterialDesignColors.ColorManipulation;
 using MaterialDesignColors.Recommended;
@@ -35,7 +36,7 @@ namespace KSW.ATE01.Start.ViewModels
     /// <summary>
     /// 主窗口视图模型
     /// </summary>
-    public class ShellViewModel : ViewModelBase
+    public class ShellViewModel : ViewModelBase, IToastViewModel
     {
         private readonly IRegionManager _regionManager;
         private readonly IEventAggregator _eventAggregator;
@@ -88,6 +89,11 @@ namespace KSW.ATE01.Start.ViewModels
             set => SetProperty(ref _selectProject, value);
         }
 
+        /// <summary>
+        /// Toast管理器
+        /// </summary>
+        public WindowToastManager? ToastManager { get; set; }
+
         #endregion
 
         #region Command
@@ -118,6 +124,7 @@ namespace KSW.ATE01.Start.ViewModels
         private DelegateCommand _backwardCommand;
         public DelegateCommand BackwardCommand =>
             _backwardCommand ?? (_backwardCommand = new DelegateCommand(ExecuteBackwardCommand));
+
         #endregion
 
         public ShellViewModel(
@@ -156,7 +163,7 @@ namespace KSW.ATE01.Start.ViewModels
             ReleaseCommand.RaiseCanExecuteChanged();
             DelelopCommand.RaiseCanExecuteChanged();
             RunCommand.RaiseCanExecuteChanged();
-            SelectProject = $"{L["CurrentProject"]}：{_projectBLL?.GetCurrentProjectInfo()?.ProjectName}" ;
+            SelectProject = $"{L["CurrentProject"]}：{_projectBLL?.GetCurrentProjectInfo()?.ProjectName}";
         }
 
         private void ExecuteLoadingCommand()

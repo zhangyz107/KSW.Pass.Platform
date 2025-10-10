@@ -16,7 +16,8 @@
         d:Height="800"
         Title="{Binding Title}"
         WindowState="Maximized"
-        prism:ViewModelLocator.AutoWireViewModel="True">
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Loaded="Window_Loaded">
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
