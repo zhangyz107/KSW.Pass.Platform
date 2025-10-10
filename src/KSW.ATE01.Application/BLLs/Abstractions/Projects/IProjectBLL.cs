@@ -20,6 +20,11 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Projects
         Task<ProjectInfoModel> GetByIdAsync(string id);
 
         /// <summary>
+        /// 加载项目信息
+        /// </summary>
+        Task<ProjectInfoModel> LoadProjectInfoFromConfigAsync(string configPath);
+
+        /// <summary>
         /// 获取项目列表
         /// </summary>
         /// <returns></returns>

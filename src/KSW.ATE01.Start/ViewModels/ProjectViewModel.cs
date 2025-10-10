@@ -16,6 +16,7 @@ using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Events.TestPlans;
 using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.ATE01.Start.Views.TestPlans;
@@ -24,7 +25,6 @@ using KSW.Ui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.IO;
 
 namespace KSW.ATE01.Start.ViewModels
 {
@@ -275,7 +275,9 @@ namespace KSW.ATE01.Start.ViewModels
                 await DialogService.ShowMessageDialog("未打开项目!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 return;
             }
-            DialogService.ShowDialog(nameof(RunDialog));
+            _eventAggregator.GetEvent<ChangeMainViewEvent>().Publish(MainViewType.RunView);
+
+            //DialogService.ShowDialog(nameof(RunDialog));
         }
 
         private async Task ExecuteDeleteCommand(ProjectInfoModel model)

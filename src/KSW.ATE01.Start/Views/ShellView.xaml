@@ -74,7 +74,7 @@
                         <Button Content="{materialDesign:PackIcon Kind=ArrowLeft}"  Command="{Binding BackwardCommand}" ToolTip="{language:L Backward}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></Button>
                     </ToolBar>
                 </ToolBarTray>
-                
+
             </Grid>
         </materialDesign:ColorZone>
 
@@ -83,7 +83,14 @@
         <ContentControl Margin="4,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.RunViewContent}" Visibility="{Binding ShowRunView,Converter={StaticResource BooleanToVisibilityConverter}}"></ContentControl>
 
         <materialDesign:ColorZone Grid.Row="2" Padding="4" Mode="PrimaryMid">
-            <TextBlock  Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></TextBlock>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock  Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Text="{Binding SelectProject}"></TextBlock>
+            </Grid>
         </materialDesign:ColorZone>
     </Grid>
 

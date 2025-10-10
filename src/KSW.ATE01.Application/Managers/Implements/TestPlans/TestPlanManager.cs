@@ -13,23 +13,17 @@
 
 using KSW.Application;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
-using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.ATE01.Domain.TestPlan.Repositories;
-using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
 using KSW.ATE01.Project.Base.Enums.Results;
 using KSW.ATE01.Project.Base.Enums.TestPlans;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models.TestPlans;
-using KSW.Helpers;
 using NPOI.SS.UserModel;
-using NPOI.Util;
 using NPOI.XSSF.UserModel;
 using System.Configuration;
-using System.Text;
 
 namespace KSW.ATE01.Application.Managers.Implements.TestPlans
 {

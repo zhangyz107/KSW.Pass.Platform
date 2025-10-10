@@ -192,6 +192,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
 
                             _eventAggregator.GetEvent<UpdateProjectInfoEvent>().Publish();
                         }
+                        else
+                            return;
                     }
                     else
                     {

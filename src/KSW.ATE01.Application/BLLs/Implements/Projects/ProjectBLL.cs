@@ -97,6 +97,23 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return entity?.MapTo<ProjectInfoModel>();
         }
 
+        public async Task<ProjectInfoModel> LoadProjectInfoFromConfigAsync(string configPath)
+        {
+            if (File.Exists(configPath))
+            {
+                using (var fs = File.Open(configPath, FileMode.Open, FileAccess.Read))
+                {
+                    var buffer = new byte[16];
+                    var count = fs.Read(buffer);
+                    var projectId = new Guid(buffer);
+
+                    var entity = await _repository.FindByIdAsync(projectId);
+                    return entity?.MapTo<ProjectInfoModel>();
+                }
+            }
+            return null;
+        }
+
         public async Task<List<ProjectInfoModel>> GetListAsync()
         {
             var list = await _repository.FindAllAsync();
@@ -109,6 +126,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             {
                 var templateName = ConfigurationManager.AppSettings["TemplateName"] ?? throw new ArgumentNullException("TemplateName");
                 var templateDirName = ConfigurationManager.AppSettings["TemplateDirName"] ?? throw new ArgumentNullException("TemplateDirName");
+                var projectConfigName = ConfigurationManager.AppSettings["ProjectConfigName"] ?? throw new ArgumentNullException("ProjectConfigName");
 
                 var isExist = await _repository.ExistsAsync(x => x.ProjectName.Equals(projectInfo.ProjectName));
                 if (isExist)
@@ -128,12 +146,19 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 ReplenishProjectInfo(projectInfo);
 
                 //保存项目信息
-
                 var entity = projectInfo.MapTo<ProjectInfo>();
                 if (projectInfo.Id.IsEmpty())
                 {
                     entity.Init();
                     await CreateAsync(entity);
+
+                    var projectFileName = Path.Combine(projectInfo?.ProjectPath, projectConfigName);
+                    using (var fs = File.Open(projectFileName, FileMode.Create, FileAccess.Write))
+                    {
+                        var guidArray = entity.Id.ToByteArray();
+                        fs.Write(guidArray);
+                        fs.Flush();
+                    }
                 }
 
                 _currentProjectInfo = await GetByIdAsync(entity.Id.SafeString());
@@ -190,60 +215,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return _currentProjectInfo;
         }
 
-        public List<ProjectInfoModel> ScanProjects(string folderName)
-        {
-            var result = new List<ProjectInfoModel>();
-            try
-            {
-                folderName.CheckNull(nameof(folderName));
-
-                if (!Directory.Exists(folderName))
-                    throw new Warning(string.Format("{0}{1}:{2}", L["NotFound"], L["SelectFolder"], folderName));
-
-                var files = Directory.GetFiles(folderName, "*.atecfg", SearchOption.AllDirectories);
-                if (files.IsEmpty())
-                    return result;
-
-                foreach (var file in files)
-                {
-                    var projectInfo = LoadProjectInfo(file);
-                    if (projectInfo != null)
-                        result.Add(projectInfo);
-                }
-                return result;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
         public async Task<ProjectInfoModel> UpdateAsync(ProjectInfoModel projectInfo)
         {
             var entity = projectInfo.MapTo<ProjectInfo>();
             await UpdateAsync(projectInfo.Id, entity);
             _currentProjectInfo = await GetByIdAsync(projectInfo.Id);
             return _currentProjectInfo;
-        }
-
-        public ProjectInfoModel LoadProjectInfo(string file)
-        {
-            try
-            {
-                file.CheckNull(nameof(file));
-
-                if (File.Exists(file))
-                {
-                    var projectInfo = KSW.Helpers.XmlHelper.DeserializeFromXml<ProjectInfo>(file);
-                    return projectInfo.MapTo<ProjectInfoModel>();
-                }
-                return null;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
         }
 
         public void SetCurrentProjectInfo(ProjectInfoModel projectInfo)
@@ -319,6 +296,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
 
                 var testItemName = ConfigurationManager.AppSettings["TestItemName"] ?? throw new ArgumentNullException("TestItemName");
                 var startTestMethod = ConfigurationManager.AppSettings["StartTestMethod"] ?? throw new ArgumentNullException("StartTestMethod");
+
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 var dllPath = Path.Combine(projectInfo.ReleasePath, projectInfo.ProjectName + projectInfo.ExecuteExtension);
 

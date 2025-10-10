@@ -14,9 +14,9 @@
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Application.Models.Projects;
-using KSW.ATE01.Start.Views.Dialogs;
+using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Ui;
-using Microsoft.Win32;
+using System.Configuration;
 using System.IO;
 
 namespace KSW.ATE01.Start.ViewModels
@@ -27,13 +27,10 @@ namespace KSW.ATE01.Start.ViewModels
     public class ProjectDetailViewModel : ViewModelBase
     {
         #region Fields
-        private readonly IContainerExtension _containerProvider;
         private readonly IEventAggregator _eventAggregator;
         private IProjectBLL _projectBLL;
         private ProjectInfoModel _projectInfo;
-        private string _testPlanName;
         private string _executeName;
-        private bool _projectPathVaild;
         #endregion
 
         #region Properties
@@ -41,12 +38,6 @@ namespace KSW.ATE01.Start.ViewModels
         {
             get => _projectInfo;
             private set => SetProperty(ref _projectInfo, value);
-        }
-
-        public string TestPlanName
-        {
-            get => _testPlanName;
-            set => SetProperty(ref _testPlanName, value);
         }
 
         public string ExecuteName
@@ -58,15 +49,11 @@ namespace KSW.ATE01.Start.ViewModels
         /// <summary>
         /// 项目路径是否有效
         /// </summary>
-        public bool ProjectPathVaild =>  (_projectInfo?.ProjectPath?.IsEmpty() == false);
+        public bool ProjectPathVaild => (_projectInfo?.ProjectPath?.IsEmpty() == false);
 
         #endregion
 
         #region Commands
-        private AsyncDelegateCommand _loadingCommand;
-        public AsyncDelegateCommand LoadingCommand =>
-            _loadingCommand ?? (_loadingCommand = new AsyncDelegateCommand(ExecuteLoadingCommand));
-
         private DelegateCommand _openFolderCommand;
         public DelegateCommand OpenFolderCommand =>
             _openFolderCommand ?? (_openFolderCommand = new DelegateCommand(ExecuteOpenFolderCommand));
@@ -74,17 +61,13 @@ namespace KSW.ATE01.Start.ViewModels
 
         public ProjectDetailViewModel(
             IContainerExtension containerProvider,
-            IEventAggregator eventAggregator) : base(containerProvider)
+            IEventAggregator eventAggregator,
+            IProjectBLL projectBLL) : base(containerProvider)
         {
-            _containerProvider = containerProvider;
             _eventAggregator = eventAggregator;
+            _projectBLL = projectBLL;
 
             RegisterEvent();
-        }
-
-        private async Task ExecuteLoadingCommand()
-        {
-            _projectBLL = _containerProvider?.Resolve<IProjectBLL>();
         }
 
         private void RegisterEvent()
@@ -106,23 +89,21 @@ namespace KSW.ATE01.Start.ViewModels
             RaisePropertyChanged(nameof(ProjectPathVaild));
         }
 
-        private void LoadProjectFromArgs(string dir)
+        private async void LoadProjectFromArgs(string dir)
         {
-            var folder = new DirectoryInfo(dir);
-            if (folder.Exists)
+            var projectConfigName = ConfigurationManager.AppSettings["ProjectConfigName"] ?? throw new ArgumentNullException("ProjectConfigName");
+            var configPath = Path.Combine(dir, projectConfigName);
+
+            if (File.Exists(configPath))
             {
-                var cfgs = folder.GetFiles("*.atecfg");
-                if (cfgs.Any())
+                var projectInfo = await _projectBLL?.LoadProjectInfoFromConfigAsync(configPath);
+                if (projectInfo != null)
                 {
-                    var cfgFile = cfgs.FirstOrDefault();
-                    if (cfgFile != null)
-                    {
-                        //ProjectInfo = _projectBLL.LoadProjectInfo(cfgFile.FullName);
-                        _projectBLL.SetCurrentProjectInfo(ProjectInfo);
-                        //TestPlanName = _projectInfo.ProjectName + _projectInfo.TestPlanExtension;
-                        ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
-                        DialogService.ShowDialog(nameof(RunDialog));
-                    }
+                    ProjectInfo = projectInfo;
+                    _projectBLL.SetCurrentProjectInfo(ProjectInfo);
+                    _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Publish();
+                    ExecuteName = _projectInfo.ProjectName + _projectInfo.ExecuteExtension;
+                    _eventAggregator.GetEvent<ChangeMainViewEvent>().Publish(MainViewType.RunView);
                 }
             }
         }

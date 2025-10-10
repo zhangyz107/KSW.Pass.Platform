@@ -10,6 +10,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:validation="clr-namespace:KSW.ATE01.Start.Validations"
              mc:Ignorable="d" 
+             Loaded="UserControl_Loaded"
              d:DataContext="{d:DesignInstance viewmodel:AddPinDialogViewModel}"
              d:Background="White"
              d:DesignHeight="450" d:DesignWidth="800"

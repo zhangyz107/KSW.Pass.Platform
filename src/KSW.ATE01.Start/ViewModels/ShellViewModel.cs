@@ -16,6 +16,7 @@
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Implements.Projects;
 using KSW.ATE01.Application.Events.Projects;
+using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
@@ -43,6 +44,7 @@ namespace KSW.ATE01.Start.ViewModels
         private bool _isChinese;
         private bool _showRunView = false;
         private bool _showProjectView = true;
+        private string _selectProject;
 
         #region Properties
         public bool IsChinese
@@ -76,6 +78,16 @@ namespace KSW.ATE01.Start.ViewModels
             get => _showProjectView;
             set => SetProperty(ref _showProjectView, value);
         }
+
+        /// <summary>
+        /// 选中项目
+        /// </summary>
+        public string SelectProject
+        {
+            get => _selectProject;
+            set => SetProperty(ref _selectProject, value);
+        }
+
         #endregion
 
         #region Command
@@ -135,6 +147,7 @@ namespace KSW.ATE01.Start.ViewModels
         private void RegisterEvent()
         {
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
+            _eventAggregator.GetEvent<ChangeMainViewEvent>().Subscribe(ChangeMainView, ThreadOption.UIThread);
         }
 
         private void SelectedProjectInfo()
@@ -143,7 +156,7 @@ namespace KSW.ATE01.Start.ViewModels
             ReleaseCommand.RaiseCanExecuteChanged();
             DelelopCommand.RaiseCanExecuteChanged();
             RunCommand.RaiseCanExecuteChanged();
-
+            SelectProject = $"{L["CurrentProject"]}：{_projectBLL?.GetCurrentProjectInfo()?.ProjectName}" ;
         }
 
         private void ExecuteLoadingCommand()
@@ -229,6 +242,19 @@ namespace KSW.ATE01.Start.ViewModels
         {
             ShowRunView = false;
             ShowProjectView = true;
+        }
+
+        private void ChangeMainView(MainViewType type)
+        {
+            switch (type)
+            {
+                case MainViewType.ProjectView:
+                    ExecuteBackwardCommand();
+                    break;
+                case MainViewType.RunView:
+                    ExecuteRunCommand();
+                    break;
+            }
         }
     }
 }
