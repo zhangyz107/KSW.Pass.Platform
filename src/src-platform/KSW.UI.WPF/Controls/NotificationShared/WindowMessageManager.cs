@@ -46,7 +46,6 @@ namespace KSW.UI.WPF.Controls
             };
 
             AddVisualChild(_container);
-            //_visuals.Add(_container);
             _items = _container?.Children;
 
         }
@@ -72,45 +71,6 @@ namespace KSW.UI.WPF.Controls
             _container.Arrange(new Rect(new Point(x, y), _container.DesiredSize));
             return finalSize;
         }
-
-        ///// <summary>
-        ///// Installs the <see cref="WindowMessageManager"/> within the <see cref="AdornerLayer"/>
-        ///// </summary>
-        //protected void InstallFromWindow(Window window)
-        //{
-        //    window.Loaded += WindowOnLoaded;
-
-        //    // 尝试立即安装
-        //    var adornerDecorator = FindVisualChild<AdornerDecorator>(window);
-        //    if (adornerDecorator?.AdornerLayer is AdornerLayer adornerLayer)
-        //    {
-        //        adornerLayer.Add(this);
-        //        //AdornerLayer.SetAdornedElement(this, adornerLayer);
-        //    }
-        //}
-
-        //public virtual void Uninstall()
-        //{
-        //    if (Parent is AdornerLayer adornerLayer)
-        //    {
-        //        adornerLayer.Remove(this);
-        //        //AdornerLayer.SetAdornedElement(this, null);
-        //    }
-        //}
-
-        //protected void WindowOnLoaded(object sender, RoutedEventArgs e)
-        //{
-        //    if (Parent is AdornerLayer adornerLayer)
-        //    {
-        //        adornerLayer.Remove(this);
-        //        //AdornerLayer.SetAdornedElement(this, null);
-        //    }
-
-        //    // 重新安装消息管理器
-        //    var window = (Window)sender;
-        //    window.Loaded -= WindowOnLoaded;
-        //    InstallFromWindow(window);
-        //}
 
         /// <summary>
         /// 在可视化树中查找指定类型的子元素
