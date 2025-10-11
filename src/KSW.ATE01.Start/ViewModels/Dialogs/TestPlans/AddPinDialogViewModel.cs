@@ -12,11 +12,12 @@
 //------------------------------------------------------------*/
 
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Managers.Abstractions.TestPlans;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
-using KSW.ATE01.Start.Styles;
 using KSW.Ui;
+using KSW.UI.WPF.Controls;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
@@ -29,12 +30,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
     public class AddPinDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private readonly IPinInfoBLL _pinInfoBLL;
         private readonly ISiteInfoBLL _siteInfoBLL;
         private string _title;
         private PinInfoModel _pinInfo;
-        private SnackbarMessageQueue _messageQueue;
-        private SolidColorBrush _messageBackground;
         private ObservableCollection<PinSiteInfoModel> _pinSiteList = new ObservableCollection<PinSiteInfoModel>();
         #endregion
 
@@ -76,24 +76,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             { PinType.DPS, PinType.DPS.Description() },
             { PinType.VNA, PinType.VNA.Description() },
         };
-
-        /// <summary>
-        /// 提示消息
-        /// </summary>
-        public SnackbarMessageQueue MessageQueue
-        {
-            get => _messageQueue;
-            set => SetProperty(ref _messageQueue, value);
-        }
-
-        /// <summary>
-        /// 提示消息的背景色
-        /// </summary>
-        public SolidColorBrush MessageBackground
-        {
-            get => _messageBackground;
-            set => SetProperty(ref _messageBackground, value);
-        }
         #endregion
 
         #region Commands
@@ -108,15 +90,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         public AddPinDialogViewModel(
             IContainerProvider containerProvider,
+            IEventAggregator eventAggregator,
             IPinInfoBLL pinInfoBLL,
-            ISiteInfoBLL siteInfoBLL,
-            IPinSiteInfoBLL pinSiteInfoBLL,
-            IPinChannelManager pinChannelManager) : base(containerProvider)
+            ISiteInfoBLL siteInfoBLL) : base(containerProvider)
         {
+            _eventAggregator = eventAggregator;
             _pinInfoBLL = pinInfoBLL;
             _siteInfoBLL = siteInfoBLL;
-
-            _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
         }
 
         public DialogCloseListener RequestClose { get; }
@@ -201,6 +181,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         private async Task ExecuteOKCommand()
         {
+            if (PinInfo.PinName.IsEmpty())
+            {
+                var message = $"{L["PinName"]}{L["CanNotBeEmpty"]}";
+                SendMessage(message);
+                return;
+            }
+
             var channelNameList = PinSiteList.GroupBy(x => x.ChannelName).Where(y => y.Count() > 1);
             if (!channelNameList.IsEmpty())
             {
@@ -209,16 +196,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 SendMessage(message);
                 return;
             }
-
-            //var pinSiteInfos = await _pinSiteInfoBLL?.GetAllPinSiteByOverviewIdAsync(_pinOverview?.Id);
-            //var channelNames = pinSiteInfos.Select(x => x.ChannelName).ToList();
-            //var pinSiteInfo = pinSiteInfos.Where(x => channelNames.Any(y => y.Equals(x.ChannelName))).Select(x => x)?.FirstOrDefault();
-            //if (!pinSiteInfos.IsEmpty() && pinSiteInfo != null)
-            //{
-            //    message = string.Format(L["FieldAlreadyExists"], $"{pinSiteInfo.SiteName}:{L["ChannelName"]}");
-            //    SendMessage(message);
-            //    return;
-            //}
 
             try
             {
@@ -240,15 +217,21 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             }
             catch (Exception e)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(e.Message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Type = UI.WPF.Enums.NotificationType.Error,
+                    Content = e.Message,
+                });
             }
         }
 
         private void SendMessage(string message)
         {
-            MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-            MessageQueue.Enqueue(message);
+            _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+            {
+                Type = UI.WPF.Enums.NotificationType.Error,
+                Content = message,
+            });
         }
 
         private bool CheckAllSiteChannelName()

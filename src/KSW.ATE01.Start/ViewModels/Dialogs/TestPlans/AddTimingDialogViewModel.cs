@@ -13,14 +13,13 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.TestPlans;
 using KSW.ATE01.Domain.TestPlan.Core.Enums;
-using KSW.ATE01.Start.Styles;
 using KSW.Ui;
-using MaterialDesignThemes.Wpf;
+using KSW.UI.WPF.Controls;
 using System.ComponentModel;
 using System.Windows.Data;
-using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
@@ -30,14 +29,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
     public class AddTimingDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private readonly IPinOverviewBLL _pinOverviewBLL;
         private readonly IGroupInfoBLL _groupInfoBLL;
         private readonly IPinInfoBLL _pinInfoBLL;
         private readonly ITimingBLL _timingBLL;
         private TimingModel _timing;
-        private SolidColorBrush _messageBackground;
-        private SnackbarMessageQueue _messageQueue;
         private ICollectionView _filteredItems;
         private string _editString;
         #endregion
@@ -57,24 +55,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         {
             get => _timing;
             set => SetProperty(ref _timing, value);
-        }
-
-        /// <summary>
-        /// 提示消息
-        /// </summary>
-        public SnackbarMessageQueue MessageQueue
-        {
-            get => _messageQueue;
-            set => SetProperty(ref _messageQueue, value);
-        }
-
-        /// <summary>
-        /// 提示消息的背景色
-        /// </summary>
-        public SolidColorBrush MessageBackground
-        {
-            get => _messageBackground;
-            set => SetProperty(ref _messageBackground, value);
         }
 
         /// <summary>
@@ -113,7 +93,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         /// 
         /// </summary>
         public Dictionary<StrobeModeType, string> StrobeModeDic { get; private set; } = Helpers.Enum.GetEnumAndDescriptionDictionary<StrobeModeType>();
-
         #endregion
 
         #region Commands
@@ -138,20 +117,19 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         public AddTimingDialogViewModel(
             IContainerProvider containerProvider,
+            IEventAggregator eventAggregator,
             IProjectBLL projectBLL,
             IPinOverviewBLL pinOverviewBLL,
             IGroupInfoBLL groupInfoBLL,
             IPinInfoBLL pinInfoBLL,
             ITimingBLL timingBLL) : base(containerProvider)
         {
+            _eventAggregator = eventAggregator;
             _projectBLL = projectBLL;
             _pinOverviewBLL = pinOverviewBLL;
             _groupInfoBLL = groupInfoBLL;
             _pinInfoBLL = pinInfoBLL;
             _timingBLL = timingBLL;
-
-            _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
-
         }
 
         private void ExecuteLoadingCommand()
@@ -188,8 +166,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             }
             catch (Exception e)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(e.Message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = e.Message,
+                    Type = UI.WPF.Enums.NotificationType.Error,
+                });
             }
         }
 

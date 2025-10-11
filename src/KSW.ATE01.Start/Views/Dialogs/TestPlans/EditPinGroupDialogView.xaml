@@ -52,9 +52,8 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <materialDesign:Snackbar Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
-
-        </materialDesign:Snackbar>
+        <!--<materialDesign:Snackbar Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+        </materialDesign:Snackbar>-->
 
         <Grid Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>

@@ -47,8 +47,8 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <materialDesign:Snackbar  Margin="0,0,0,8" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
-        </materialDesign:Snackbar>
+        <!--<materialDesign:Snackbar  Margin="0,0,0,8" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+        </materialDesign:Snackbar>-->
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <Grid Margin="0,0,6,0">

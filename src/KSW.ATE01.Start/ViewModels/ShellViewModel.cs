@@ -15,6 +15,7 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Implements.Projects;
+using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Project.Base.Helpers;
@@ -155,6 +156,7 @@ namespace KSW.ATE01.Start.ViewModels
         {
             _eventAggregator.GetEvent<SelectedProjectInfoEvent>().Subscribe(SelectedProjectInfo);
             _eventAggregator.GetEvent<ChangeMainViewEvent>().Subscribe(ChangeMainView, ThreadOption.UIThread);
+            _eventAggregator.GetEvent<ShowShellToastEvent>().Subscribe(ShowToast, ThreadOption.UIThread);
         }
 
         private void SelectedProjectInfo()
@@ -164,6 +166,27 @@ namespace KSW.ATE01.Start.ViewModels
             DelelopCommand.RaiseCanExecuteChanged();
             RunCommand.RaiseCanExecuteChanged();
             SelectProject = $"{L["CurrentProject"]}：{_projectBLL?.GetCurrentProjectInfo()?.ProjectName}";
+        }
+
+        private void ChangeMainView(MainViewType type)
+        {
+            switch (type)
+            {
+                case MainViewType.ProjectView:
+                    ExecuteBackwardCommand();
+                    break;
+                case MainViewType.RunView:
+                    ExecuteRunCommand();
+                    break;
+            }
+        }
+
+        private void ShowToast(object obj)
+        {
+            if (obj is Toast model)
+            {
+                ToastManager?.Show(model);
+            }
         }
 
         private void ExecuteLoadingCommand()
@@ -251,17 +274,5 @@ namespace KSW.ATE01.Start.ViewModels
             ShowProjectView = true;
         }
 
-        private void ChangeMainView(MainViewType type)
-        {
-            switch (type)
-            {
-                case MainViewType.ProjectView:
-                    ExecuteBackwardCommand();
-                    break;
-                case MainViewType.RunView:
-                    ExecuteRunCommand();
-                    break;
-            }
-        }
     }
 }

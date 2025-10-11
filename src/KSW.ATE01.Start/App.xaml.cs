@@ -77,6 +77,9 @@ namespace KSW.ATE01.Platform
             else
             {
                 base.OnStartup(e);
+
+                ApplySystemTheme();
+
                 if (e.Args.Any())
                 {
                     var mainWindow = Current.MainWindow as ShellView;
@@ -85,6 +88,30 @@ namespace KSW.ATE01.Platform
 
             }
 
+        }
+
+        private void ApplySystemTheme()
+        {
+            // 此处需要实现检测系统当前是浅色还是深色模式的逻辑
+            // 以下是一个示例性的判断逻辑，实际应用中可能需要更完善的检查
+            bool isDark = IsSystemDarkThemeEnabled(); // 你需要实现这个检测方法
+            UI.WPF.Themes.ThemeAssist.ChangeTheme(isDark); // 调用之前实现的切换主题方法
+        }
+
+        // 一个简单的示例方法，实际应用中你可能需要通过注册表或Windows API更精确地判断
+        private bool IsSystemDarkThemeEnabled()
+        {
+            // 示例逻辑：检查 "AppsUseLightTheme" 注册表值，0通常表示深色，1表示浅色
+            // 注意：此代码为示例，实际使用需添加异常处理等
+            using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
+            {
+                var value = key?.GetValue("AppsUseLightTheme");
+                if (value != null && value is int appsUseLightTheme)
+                {
+                    return appsUseLightTheme == 0; // 如果为0，则表示系统启用了深色主题
+                }
+            }
+            return false; // 默认返回浅色
         }
 
         private void Current_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

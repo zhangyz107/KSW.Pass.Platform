@@ -13,14 +13,13 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Start.Styles;
 using KSW.Ui;
-using MaterialDesignThemes.Wpf;
+using KSW.UI.WPF.Controls;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
@@ -30,13 +29,12 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
     public class AddGlobalParametersDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private readonly IGlobalParameterBLL _globalParameterBLL;
         private string _title;
         private ProjectInfoModel _projectInfo;
         private GlobalParameterModel _globalParameter;
-        private SolidColorBrush _messageBackground;
-        private SnackbarMessageQueue _messageQueue;
 
         private ObservableCollection<AdditionalParameters> _parameterList = new ObservableCollection<AdditionalParameters>();
         #endregion
@@ -63,24 +61,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         }
 
         /// <summary>
-        /// 提示消息
-        /// </summary>
-        public SnackbarMessageQueue MessageQueue
-        {
-            get => _messageQueue;
-            set => SetProperty(ref _messageQueue, value);
-        }
-
-        /// <summary>
-        /// 提示消息的背景色
-        /// </summary>
-        public SolidColorBrush MessageBackground
-        {
-            get => _messageBackground;
-            set => SetProperty(ref _messageBackground, value);
-        }
-
-        /// <summary>
         /// 附加参数列表
         /// </summary>
         public ObservableCollection<AdditionalParameters> ParameterList
@@ -88,7 +68,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             get => _parameterList;
             set => SetProperty(ref _parameterList, value);
         }
-
         #endregion
 
         #region Commands
@@ -119,18 +98,17 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         private DelegateCommand _cancelCommand;
         public DelegateCommand CancelCommand =>
             _cancelCommand ?? (_cancelCommand = new DelegateCommand(ExecuteCancelCommand));
-
         #endregion
 
         public AddGlobalParametersDialogViewModel(
             IContainerProvider containerProvider,
+            IEventAggregator eventAggregator,
             IProjectBLL projectBLL,
             IGlobalParameterBLL globalParameterBLL) : base(containerProvider)
         {
+            _eventAggregator = eventAggregator;
             _projectBLL = projectBLL;
             _globalParameterBLL = globalParameterBLL;
-
-            _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
         }
 
         private void ExecuteAddCommand()
@@ -168,8 +146,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             }
             catch (Exception e)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(e.Message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = e.Message,
+                    Type = UI.WPF.Enums.NotificationType.Error,
+                });
             }
         }
 

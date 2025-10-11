@@ -10,7 +10,6 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:validation="clr-namespace:KSW.ATE01.Start.Validations"
              mc:Ignorable="d" 
-             Loaded="UserControl_Loaded"
              d:DataContext="{d:DesignInstance viewmodel:AddPinDialogViewModel}"
              d:Background="White"
              d:DesignHeight="450" d:DesignWidth="800"
@@ -47,8 +46,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <materialDesign:Snackbar Padding="4" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
-        </materialDesign:Snackbar>
+        <!--<materialDesign:Snackbar Padding="4" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+        </materialDesign:Snackbar>-->
 
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
@@ -60,7 +59,8 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock VerticalAlignment="Center" Text="{language:L PinName}"></TextBlock>
+            <TextBlock VerticalAlignment="Center" Text="{language:L PinName}">
+            </TextBlock>
             <TextBox Margin="6,0,0,0" Grid.Column="1" Text="{Binding PinInfo.PinName}"></TextBox>
 
             <TextBlock Margin="0,6,0,0" Grid.Row="1" VerticalAlignment="Center" Text="{language:L PinType}"></TextBlock>

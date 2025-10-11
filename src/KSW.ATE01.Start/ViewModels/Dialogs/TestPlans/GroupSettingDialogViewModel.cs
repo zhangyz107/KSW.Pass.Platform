@@ -1,23 +1,22 @@
 ﻿using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Start.Styles;
+using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.Ui;
-using MaterialDesignThemes.Wpf;
+using KSW.UI.WPF.Controls;
 using System.Collections.ObjectModel;
-using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
     public class GroupSettingDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private readonly IGroupInfoBLL _groupInfoBLL;
         private readonly IPinInfoBLL _pinInfoBLL;
         private readonly IPinGroupRelationshipBLL _pinGroupRelationshipBLL;
         private GroupInfoModel _groupInfo;
         private string _pinOverviewId;
-        private SnackbarMessageQueue _messageQueue;
-        private SolidColorBrush _messageBackground;
         private ObservableCollection<GroupInfoModel> _groupInfoList = new ObservableCollection<GroupInfoModel>();
         private ObservableCollection<PinGroupRelationshipModel> _relationshipList = new ObservableCollection<PinGroupRelationshipModel>();
         private Dictionary<Guid, string> _pinInfoSelectList;
@@ -47,21 +46,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                     ChangeRelationShipList(value?.Id);
                 }
             }
-        }
-
-        public SnackbarMessageQueue MessageQueue
-        {
-            get => _messageQueue;
-            set => SetProperty(ref _messageQueue, value);
-        }
-
-        /// <summary>
-        /// 提示消息的背景色
-        /// </summary>
-        public SolidColorBrush MessageBackground
-        {
-            get => _messageBackground;
-            set => SetProperty(ref _messageBackground, value);
         }
 
         /// <summary>
@@ -128,15 +112,15 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         public GroupSettingDialogViewModel(
             IContainerProvider containerProvider,
+            IEventAggregator eventAggregator,
             IGroupInfoBLL groupInfoBLL,
             IPinInfoBLL pinInfoBLL,
             IPinGroupRelationshipBLL pinGroupRelationshipBLL) : base(containerProvider)
         {
+            _eventAggregator = eventAggregator;
             _groupInfoBLL = groupInfoBLL;
             _pinInfoBLL = pinInfoBLL;
             _pinGroupRelationshipBLL = pinGroupRelationshipBLL;
-
-            _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
         }
 
         private bool CanAddGroupName()
@@ -206,13 +190,19 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 AddGroupNameCommand.RaiseCanExecuteChanged();
                 AddPinNameCommand.RaiseCanExecuteChanged();
                 var message = $"{L["OperationSuccessful"]}!";
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-                MessageQueue.Enqueue(message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = message,
+                    Type = UI.WPF.Enums.NotificationType.Success
+                });
             }
             catch (Exception e)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(e.Message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = e.Message,
+                    Type = UI.WPF.Enums.NotificationType.Error
+                });
             }
         }
 
@@ -240,13 +230,19 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
                 AddGroupNameCommand.RaiseCanExecuteChanged();
                 var message = $"{L["OperationSuccessful"]}!";
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-                MessageQueue.Enqueue(message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = message,
+                    Type = UI.WPF.Enums.NotificationType.Success
+                });
             }
             catch (Exception e)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(e.Message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = e.Message,
+                    Type = UI.WPF.Enums.NotificationType.Error
+                });
             }
         }
 
@@ -283,8 +279,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             if (model.PinInfoId.IsEmpty())
             {
                 message = $"{L["PinName"]}{L["CanNotBeEmpty"]}";
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = message,
+                    Type = UI.WPF.Enums.NotificationType.Error
+                });
                 return;
             }
 
@@ -294,8 +293,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 if (item.Id != model.Id && item.PinInfoId == model.PinInfoId && PinInfoSelectList.ContainsKey(pinInfoId))
                 {
                     message = $"{string.Format(L["FieldAlreadyExists"], PinInfoSelectList[pinInfoId])},{L["PleaseEnterAgain"]}";
-                    MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                    MessageQueue.Enqueue(message);
+                    _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                    {
+                        Content = message,
+                        Type = UI.WPF.Enums.NotificationType.Error
+                    });
                     model.PinInfoId = null;
                     result = false;
                     break;
@@ -310,8 +312,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             UpdateModel(model, newModel);
 
             message = $"{L["OperationSuccessful"]}!";
-            MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-            MessageQueue.Enqueue(message);
+            _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+            {
+                Content = message,
+                Type = UI.WPF.Enums.NotificationType.Success
+            });
             AddPinNameCommand.RaiseCanExecuteChanged();
         }
 
@@ -337,8 +342,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
             AddPinNameCommand.RaiseCanExecuteChanged();
             var message = $"{L["OperationSuccessful"]}!";
-            MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-            MessageQueue.Enqueue(message);
+            _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+            {
+                Content = message,
+                Type = UI.WPF.Enums.NotificationType.Success
+            });
         }
 
 
@@ -371,8 +379,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
             if (!result)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-                MessageQueue.Enqueue(message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = message,
+                    Type = UI.WPF.Enums.NotificationType.Success
+                });
             }
             else
                 RaiseRequestClose(new DialogResult(ButtonResult.OK));
@@ -407,8 +418,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
             if (!result)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = message,
+                    Type = UI.WPF.Enums.NotificationType.Error
+                });
             }
             return result;
         }

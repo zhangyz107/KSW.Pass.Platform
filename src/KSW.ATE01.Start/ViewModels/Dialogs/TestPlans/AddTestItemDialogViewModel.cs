@@ -14,15 +14,14 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Start.Styles;
 using KSW.Ui;
-using MaterialDesignThemes.Wpf;
+using KSW.UI.WPF.Controls;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
-using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
@@ -32,6 +31,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
     public class AddTestItemDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private readonly IPinOverviewBLL _pinOverviewBLL;
         private readonly IGroupInfoBLL _groupInfoBLL;
@@ -42,8 +42,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         private readonly ITimingGroupBLL _timingGroupBLL;
         private ProjectInfoModel _projectInfo;
         private TestItemInfoModel _testItem;
-        private SnackbarMessageQueue _messageQueue;
-        private SolidColorBrush _messageBackground;
         private ObservableCollection<AdditionalParameters> _parameterList = new ObservableCollection<AdditionalParameters>();
         private ICollectionView _filteredItems;
         private string _editString;
@@ -64,24 +62,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         {
             get => _testItem;
             set => SetProperty(ref _testItem, value);
-        }
-
-        /// <summary>
-        /// 提示消息
-        /// </summary>
-        public SnackbarMessageQueue MessageQueue
-        {
-            get => _messageQueue;
-            set => SetProperty(ref _messageQueue, value);
-        }
-
-        /// <summary>
-        /// 提示消息的背景色
-        /// </summary>
-        public SolidColorBrush MessageBackground
-        {
-            get => _messageBackground;
-            set => SetProperty(ref _messageBackground, value);
         }
 
         /// <summary>
@@ -174,6 +154,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         public AddTestItemDialogViewModel(
             IContainerProvider containerProvider,
+            IEventAggregator eventAggregator,
             IProjectBLL projectBLL,
             IPinOverviewBLL pinOverviewBLL,
             IGroupInfoBLL groupInfoBLL,
@@ -184,6 +165,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             ITimingGroupBLL timingGroupBLL
             ) : base(containerProvider)
         {
+            _eventAggregator = eventAggregator;
             _pinOverviewBLL = pinOverviewBLL;
             _projectBLL = projectBLL;
             _groupInfoBLL = groupInfoBLL;
@@ -192,8 +174,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             _limitsBLL = limitsBLL;
             _levelGroupBLL = levelGroupBLL;
             _timingGroupBLL = timingGroupBLL;
-
-            _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
         }
 
         private void ExecuteLoadingCommand()
@@ -255,8 +235,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             }
             catch (Exception e)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(e.Message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = e.Message,
+                    Type = UI.WPF.Enums.NotificationType.Error,
+                });
             }
 
         }

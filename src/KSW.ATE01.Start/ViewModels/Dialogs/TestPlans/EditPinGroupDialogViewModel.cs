@@ -1,21 +1,19 @@
 ﻿using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Start.Styles;
 using KSW.Ui;
-using MaterialDesignThemes.Wpf;
+using KSW.UI.WPF.Controls;
 using System.Collections.ObjectModel;
-using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
     public class EditPinGroupDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private readonly IGroupInfoBLL _groupInfoBLL;
         private readonly IPinGroupRelationshipBLL _pinGroupRelationshipBLL;
         private PinInfoModel _pinInfo;
-        private SnackbarMessageQueue _messageQueue;
-        private SolidColorBrush _messageBackground;
         private ObservableCollection<GroupInfoModel> _groupInfoList = new ObservableCollection<GroupInfoModel>();
         private ObservableCollection<PinGroupRelationshipModel> _relationshipList = new ObservableCollection<PinGroupRelationshipModel>();
         #endregion
@@ -36,22 +34,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             get => _relationshipList;
             set => SetProperty(ref _relationshipList, value);
         }
-
-        public SnackbarMessageQueue MessageQueue
-        {
-            get => _messageQueue;
-            set => SetProperty(ref _messageQueue, value);
-        }
-
-        /// <summary>
-        /// 提示消息的背景色
-        /// </summary>
-        public SolidColorBrush MessageBackground
-        {
-            get => _messageBackground;
-            set => SetProperty(ref _messageBackground, value);
-        }
-
         #endregion
 
         #region Commands
@@ -78,13 +60,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         public EditPinGroupDialogViewModel(
             IContainerProvider containerProvider,
+            IEventAggregator eventAggregator,
             IGroupInfoBLL groupInfoBLL,
             IPinGroupRelationshipBLL pinGroupRelationshipBLL) : base(containerProvider)
         {
+            _eventAggregator = eventAggregator;
             _groupInfoBLL = groupInfoBLL;
             _pinGroupRelationshipBLL = pinGroupRelationshipBLL;
-
-            _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
         }
 
         private bool CanAddGroupName()
@@ -127,8 +109,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             {
                 message = $"{L["GroupName"]}{L["CanNotBeEmpty"]}";
                 AddGroupNameCommand.RaiseCanExecuteChanged();
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = message,
+                    Type = UI.WPF.Enums.NotificationType.Error
+                });
                 return;
             }
 
@@ -146,8 +131,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 message = $"{string.Format(L["FieldAlreadyExists"], model.GroupName)},{L["PleaseEnterAgain"]}";
                 model.GroupName = string.Empty;
                 AddGroupNameCommand.RaiseCanExecuteChanged();
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = message,
+                    Type = UI.WPF.Enums.NotificationType.Error
+                });
                 return;
             }
 
@@ -165,8 +153,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             AddGroupNameCommand.RaiseCanExecuteChanged();
             MoveRightCommand.RaiseCanExecuteChanged();
             message = $"{L["OperationSuccessful"]}!";
-            MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-            MessageQueue.Enqueue(message);
+            _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+            {
+                Content = message,
+                Type = UI.WPF.Enums.NotificationType.Success
+            });
         }
 
         private void UpdateModel(GroupInfoModel oldModel, GroupInfoModel newModel)
@@ -210,8 +201,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
             AddGroupNameCommand.RaiseCanExecuteChanged();
             var message = $"{L["OperationSuccessful"]}!";
-            MessageBackground = new SolidColorBrush(SnackbarMessageStyle.SuccessColor);
-            MessageQueue.Enqueue(message);
+            _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+            {
+                Content = message,
+                Type = UI.WPF.Enums.NotificationType.Success
+            });
         }
 
         private async Task ExecuteMoveLeftCommand(PinGroupRelationshipModel model)

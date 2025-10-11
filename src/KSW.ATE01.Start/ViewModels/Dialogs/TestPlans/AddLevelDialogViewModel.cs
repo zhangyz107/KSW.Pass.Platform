@@ -14,13 +14,12 @@
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
 using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
+using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.TestPlans;
-using KSW.ATE01.Start.Styles;
 using KSW.Ui;
-using MaterialDesignThemes.Wpf;
+using KSW.UI.WPF.Controls;
 using System.ComponentModel;
 using System.Windows.Data;
-using System.Windows.Media;
 
 namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 {
@@ -30,14 +29,13 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
     public class AddLevelDialogViewModel : ViewModelBase, IDialogAware
     {
         #region Fields
+        private readonly IEventAggregator _eventAggregator;
         private readonly IProjectBLL _projectBLL;
         private readonly IPinOverviewBLL _pinOverviewBLL;
         private readonly IGroupInfoBLL _groupInfoBLL;
         private readonly IPinInfoBLL _pinInfoBLL;
         private readonly ILevelBLL _levelBLL;
         private LevelModel _level;
-        private SolidColorBrush _messageBackground;
-        private SnackbarMessageQueue _messageQueue;
         private string _editString;
         private ICollectionView _filteredItems;
         #endregion
@@ -57,24 +55,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         {
             get => _level;
             set => SetProperty(ref _level, value);
-        }
-
-        /// <summary>
-        /// 提示消息
-        /// </summary>
-        public SnackbarMessageQueue MessageQueue
-        {
-            get => _messageQueue;
-            set => SetProperty(ref _messageQueue, value);
-        }
-
-        /// <summary>
-        /// 提示消息的背景色
-        /// </summary>
-        public SolidColorBrush MessageBackground
-        {
-            get => _messageBackground;
-            set => SetProperty(ref _messageBackground, value);
         }
 
         /// <summary>
@@ -105,7 +85,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
                 }
             }
         }
-
         #endregion
 
         #region Commands
@@ -131,19 +110,19 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
 
         public AddLevelDialogViewModel(
             IContainerProvider containerProvider,
+            IEventAggregator eventAggregator,
             IProjectBLL projectBLL,
             IPinOverviewBLL pinOverviewBLL,
             IGroupInfoBLL groupInfoBLL,
             IPinInfoBLL pinInfoBLL,
             ILevelBLL levelBLL) : base(containerProvider)
         {
+            _eventAggregator = eventAggregator;
             _projectBLL = projectBLL;
             _pinOverviewBLL = pinOverviewBLL;
             _groupInfoBLL = groupInfoBLL;
             _pinInfoBLL = pinInfoBLL;
             _levelBLL = levelBLL;
-
-            _messageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
         }
 
         private void ExecuteLoadingCommand()
@@ -197,8 +176,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             }
             catch (Exception e)
             {
-                MessageBackground = new SolidColorBrush(SnackbarMessageStyle.ErrorColor);
-                MessageQueue.Enqueue(e.Message);
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = e.Message,
+                    Type = UI.WPF.Enums.NotificationType.Error,
+                });
             }
         }
 

@@ -170,9 +170,5 @@
             <Button Grid.Column="2" Margin="6,6,0,0" Content="{language:L Cancel}"  Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CnacelCommand}"></Button>
 
         </Grid>
-
-        <materialDesign:Snackbar Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
-
-        </materialDesign:Snackbar>
     </Grid>
 </UserControl>

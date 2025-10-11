@@ -50,8 +50,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <materialDesign:Snackbar Padding="4" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
-        </materialDesign:Snackbar>
+        <!--<materialDesign:Snackbar Padding="4" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+        </materialDesign:Snackbar>-->
 
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
