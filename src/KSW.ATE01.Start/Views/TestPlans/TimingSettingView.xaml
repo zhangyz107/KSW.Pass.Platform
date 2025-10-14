@@ -70,7 +70,7 @@
                       ItemsSource="{Binding TimingGroupList}"
                       SelectedValue="{Binding SelectTimingGroup}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{language:L TimingGroupName}" Binding="{Binding TimingGroupName,UpdateSourceTrigger=LostFocus}" EditingElementStyle="{StaticResource CellEditTextBox}" ElementStyle="{StaticResource CellTextBlock}" Width="*"/>
+                    <DataGridTextColumn Header="{language:L TimingGroupName}" Binding="{Binding TimingGroupName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" EditingElementStyle="{StaticResource CellEditTextBox}" ElementStyle="{StaticResource CellTextBlock}" Width="*"/>
 
                     <DataGridTemplateColumn Width="*" Header="{language:L Operate}">
                         <DataGridTemplateColumn.CellTemplate>
@@ -124,7 +124,7 @@
                     <DataGridTextColumn Header="{language:L TimingName}" Binding="{Binding TimingName}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
 
                     <DataGridTextColumn Header="{language:L PinOrGroupName}" Binding="{Binding PinOrGroupName}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
-                    
+
                     <DataGridTextColumn Header="{language:L Period}" Binding="{Binding Period}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
 
                     <DataGridTextColumn Header="{language:L WaveformFormat}" Binding="{Binding WaveformFormatDescription}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
@@ -165,6 +165,6 @@
             </DataGrid>
         </Border>
 
-        
+
     </Grid>
 </UserControl>

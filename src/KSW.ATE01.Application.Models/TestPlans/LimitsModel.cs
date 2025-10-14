@@ -2,6 +2,7 @@
 using KSW.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,6 +47,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 测试编号
         /// </summary>
+        [Required]
         public int? TestNumber
         {
             get => _testNumber;
@@ -55,6 +57,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 电压下限
         /// </summary>
+        [Required]
         public decimal? LowLimit
         {
             get => _lowLimit;
@@ -64,6 +67,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 电压上限
         /// </summary>
+        [Required]
         public decimal? HighLimit
         {
             get => _highLimit;
@@ -73,6 +77,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 单位
         /// </summary>
+        [Required]
         public string Units
         {
             get => _units;
@@ -82,6 +87,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 门限名称
         /// </summary>
+        [Required]
         public string LimitName
         {
             get => _limitName;
@@ -91,6 +97,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 软件失效分档
         /// </summary>
+        [Required]
         public int? FailSoftwareBin
         {
             get => _failSoftwareBin;
@@ -109,6 +116,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 硬件失效分档
         /// </summary>
+        [Required]
         public int? FailHardwareBin
         {
             get => _failHardwareBin;
@@ -127,6 +135,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 被测物结果
         /// </summary>
+        [Required]
         public DUTResultType? DutResult
         {
             get => _dutResult;

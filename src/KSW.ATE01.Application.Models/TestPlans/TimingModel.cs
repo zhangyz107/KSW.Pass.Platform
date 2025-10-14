@@ -2,6 +2,7 @@
 using KSW.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,6 +58,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 时钟名称
         /// </summary>
+        [Required]
         public string TimingName
         {
             get => _timingName;
@@ -66,6 +68,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 周期
         /// </summary>
+        [Required]
         public int? Period
         {
             get => _period;
@@ -75,6 +78,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 组或引脚Id
         /// </summary>
+        [Required]
         public Guid? GroupOrPinId
         {
             get => _groupOrPinId;
@@ -93,6 +97,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 波形格式
         /// </summary>
+        [Required]
         public TimingformatType? WaveformFormat
         {
             get => _waveformFormat;
@@ -107,6 +112,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 环绕边缘
         /// </summary>
+        [Required]
         public int? DriveA
         {
             get => _driveA;
@@ -116,6 +122,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 起始边缘
         /// </summary>
+        [Required]
         public int? DriveB
         {
             get => _driveB;
@@ -125,6 +132,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 返回边缘
         /// </summary>
+        [Required]
         public int? DriveC
         {
             get => _driveC;
@@ -134,6 +142,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 关闭边缘
         /// </summary>
+        [Required]
         public int? DriveD
         {
             get => _driveD;

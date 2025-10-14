@@ -1,6 +1,7 @@
 ﻿using KSW.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,6 +52,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 测试项名称
         /// </summary>
+        [Required]
         public string TestItemName
         {
             get => _testItemName;
@@ -60,6 +62,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 方法名称
         /// </summary>
+        [Required]
         public string FunctionName
         {
             get => _functionName;
@@ -69,6 +72,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 激励
         /// </summary>
+        [Required]
         public decimal? Force
         {
             get => _force;
@@ -78,6 +82,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 组或引脚Id
         /// </summary>
+        [Required]
         public Guid? GroupOrPinId
         {
             get => _groupOrPinId;
@@ -92,6 +97,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 测试项门限Id
         /// </summary>
+        [Required]
         public Guid? LimitsId
         {
             get => _limitsId;

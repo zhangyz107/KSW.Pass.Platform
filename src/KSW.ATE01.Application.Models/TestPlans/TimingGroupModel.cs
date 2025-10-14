@@ -1,6 +1,7 @@
 ﻿using KSW.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 时钟组名
         /// </summary>
+        [Required]
         public string TimingGroupName
         {
             get => _timingGroupName;

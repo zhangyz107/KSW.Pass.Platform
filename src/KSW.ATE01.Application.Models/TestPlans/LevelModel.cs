@@ -1,6 +1,7 @@
 ﻿using KSW.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,6 +63,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 组或引脚Id
         /// </summary>
+        [Required]
         public Guid? GroupOrPinId
         {
             get => _groupOrPinId;
@@ -76,6 +78,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 输入低电压
         /// </summary>
+        [Required]
         public decimal? Vil
         {
             get => _vil;
@@ -85,6 +88,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 输入高电压
         /// </summary>
+        [Required]
         public decimal? Vih
         {
             get => _vih;
@@ -94,6 +98,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 输出低电压
         /// </summary>
+        [Required]
         public decimal? Vol
         {
             get => _vol;
@@ -103,6 +108,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 输出高电压
         /// </summary>
+        [Required]
         public decimal? Voh
         {
             get => _voh;
@@ -112,6 +118,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 低电平输出灌电流
         /// </summary>
+        [Required]
         public decimal? Iol
         {
             get => _iol;
@@ -121,6 +128,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 高电平输出拉电流
         /// </summary>
+        [Required]
         public decimal? Ioh
         {
             get => _ioh;
@@ -130,6 +138,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 电压基准
         /// </summary>
+        [Required]
         public decimal? Vt
         {
             get => _vt;
@@ -139,6 +148,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 错位低电压
         /// </summary>
+        [Required]
         public decimal? Vcl
         {
             get => _vcl;
@@ -148,6 +158,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 错位高电压
         /// </summary>
+        [Required]
         public decimal? Vch
         {
             get => _vch;

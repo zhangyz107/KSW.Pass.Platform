@@ -120,7 +120,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         /// </summary>
         private AsyncDelegateCommand _addTimingGroupCommand;
         public AsyncDelegateCommand AddTimingGroupCommand =>
-            _addTimingGroupCommand ?? (_addTimingGroupCommand = new AsyncDelegateCommand(ExecuteAddTimingGroupCommand, () => _projectInfo != null));
+            _addTimingGroupCommand ?? (_addTimingGroupCommand = new AsyncDelegateCommand(ExecuteAddTimingGroupCommand, () => _projectInfo != null && !TimingGroupList.Any(x => x.TimingGroupName.IsEmpty())));
 
         /// <summary>
         /// 确认时钟组名
@@ -241,6 +241,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             UpdateTimingGroupModel(model, timingGroup);
             AddTimingCommand.RaiseCanExecuteChanged();
             await DialogService.ShowMessageDialog(L["OperationSuccessful"], System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            AddTimingGroupCommand.RaiseCanExecuteChanged();
         }
 
         private void UpdateTimingGroupModel(TimingGroupModel model, TimingGroupModel newModel)
@@ -266,6 +267,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
                     await _timingGroupBLL?.DeleteWithChildrenAsync(model.Id);
 
                 _timingGroupList.Remove(model);
+                AddTimingGroupCommand.RaiseCanExecuteChanged();
             }
             catch (Exception e)
             {

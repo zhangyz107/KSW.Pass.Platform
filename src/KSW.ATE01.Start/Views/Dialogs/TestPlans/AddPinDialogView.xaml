@@ -79,7 +79,7 @@
             <ComboBox Margin="6,18,0,0" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding PinTypDic}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding PinInfo.PinType,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"></ComboBox>
         </Grid>
 
-        <GroupBox Grid.Row="2" Margin="0,18,0,0" Style="{StaticResource MaterialDesignCardGroupBox}" Header="{language:L SiteSetting}">
+        <GroupBox Grid.Row="2" Margin="0,24,0,0" Style="{StaticResource MaterialDesignCardGroupBox}" Header="{language:L SiteSetting}">
             <DataGrid 
                 ItemsSource="{Binding PinSiteList}" 
                 VerticalContentAlignment="Center"

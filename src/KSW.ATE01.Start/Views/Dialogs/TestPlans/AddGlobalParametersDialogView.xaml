@@ -43,7 +43,7 @@
             <Setter Property="ShowInTaskbar" Value="False"></Setter>
         </Style>
     </prism:Dialog.WindowStyle>
-     
+
     <Grid Margin="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -63,9 +63,9 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{language:L PatternFile}" VerticalAlignment="Center"></TextBlock>
-            <TextBox Text="{Binding GlobalParameter.PatternFile}" Grid.Column="1" Margin="6,0,0,0"></TextBox>
+            <TextBox Text="{Binding GlobalParameter.PatternFile,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Column="1" Margin="6,0,0,0"></TextBox>
 
-            <GroupBox Margin="0,6" Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignCardGroupBox}" Header="{language:L AdditionalParameters}">
+            <GroupBox Margin="0,24,0,6" Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignCardGroupBox}" Header="{language:L AdditionalParameters}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"></RowDefinition>

@@ -33,7 +33,7 @@
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="WindowStyle" Value="ToolWindow"></Setter>
-            <Setter Property="Height" Value="500"></Setter>
+            <Setter Property="Height" Value="550"></Setter>
             <Setter Property="Width" Value="350"></Setter>
             <Setter Property="ResizeMode" Value="NoResize"></Setter>
             <Setter Property="ShowInTaskbar" Value="False"></Setter>
@@ -49,69 +49,70 @@
 
         <!--<materialDesign:Snackbar Padding="4" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
         </materialDesign:Snackbar>-->
+        <Border Grid.Row="1" BorderThickness="1" Padding="6" CornerRadius="6" BorderBrush="{DynamicResource MaterialDesign.Brush.Foreground}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid Margin="0,0,6,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <Grid Margin="0,0,6,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="1" Text="{language:L TimingName}"></TextBlock>
+                    <TextBox Text="{Binding Timing.TimingName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="1" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="1" Text="{language:L TimingName}"></TextBlock>
-                <TextBox Text="{Binding Timing.TimingName}" Grid.Row="1" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock Text="{language:L PinOrGroupName}"></TextBlock>
+                    <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Column="1" Margin="6,0,0,0" SelectedValue="{Binding Timing.GroupOrPinId,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">
+                    </ComboBox>
 
-                <TextBlock Text="{language:L PinOrGroupName}"></TextBlock>
-                <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Column="1" Margin="6,0,0,0" SelectedValue="{Binding Timing.GroupOrPinId}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">
-                </ComboBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="2" Text="{language:L Period}"></TextBlock>
+                    <TextBox Text="{Binding Timing.Period,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="2" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="2" Text="{language:L Period}"></TextBlock>
-                <TextBox Text="{Binding Timing.Period}" Grid.Row="2" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="3" Text="{language:L WaveformFormat}"></TextBlock>
+                    <ComboBox Grid.Row="3" Grid.Column="1" Margin="6,18,0,0" ItemsSource="{Binding TimingformatDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.WaveformFormat,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Padding="4"></ComboBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="3" Text="{language:L WaveformFormat}"></TextBlock>
-                <ComboBox Grid.Row="3" Grid.Column="1" Margin="6,6,0,0" ItemsSource="{Binding TimingformatDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.WaveformFormat}" Padding="4"></ComboBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="4" Text="DriveA"></TextBlock>
+                    <TextBox Text="{Binding Timing.DriveA,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="4" Text="DriveA"></TextBlock>
-                <TextBox Text="{Binding Timing.DriveA}" Grid.Row="4" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="5" Text="DriveB"></TextBlock>
+                    <TextBox Text="{Binding Timing.DriveB,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="5" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="5" Text="DriveB"></TextBlock>
-                <TextBox Text="{Binding Timing.DriveB}" Grid.Row="5" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="6" Text="DriveC"></TextBlock>
+                    <TextBox Text="{Binding Timing.DriveC,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="6" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="6" Text="DriveC"></TextBlock>
-                <TextBox Text="{Binding Timing.DriveC}" Grid.Row="6" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="7" Text="DriveD"></TextBlock>
+                    <TextBox Text="{Binding Timing.DriveD,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="7" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="7" Text="DriveD"></TextBlock>
-                <TextBox Text="{Binding Timing.DriveD}" Grid.Row="7" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="8" Text="StrobeMode"></TextBlock>
+                    <ComboBox Grid.Row="8" Grid.Column="1" Margin="6,18,0,0" ItemsSource="{Binding StrobeModeDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.StrobeMode}" Padding="4"></ComboBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="8" Text="StrobeMode"></TextBlock>
-                <ComboBox Grid.Row="8" Grid.Column="1" Margin="6,6,0,0" ItemsSource="{Binding StrobeModeDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.StrobeMode}" Padding="4"></ComboBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="9" Text="StrobeA"></TextBlock>
+                    <TextBox Text="{Binding Timing.StrobeA}" Grid.Row="9" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="9" Text="StrobeA"></TextBlock>
-                <TextBox Text="{Binding Timing.StrobeA}" Grid.Row="9" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="10" Text="StrobeB"></TextBlock>
+                    <TextBox Text="{Binding Timing.StrobeB}" Grid.Row="10" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="10" Text="StrobeB"></TextBlock>
-                <TextBox Text="{Binding Timing.StrobeB}" Grid.Row="10" Grid.Column="1" Margin="6,6,0,0"></TextBox>
-
-                <TextBlock Margin="0,6,0,0" Grid.Row="11" Text="{language:L Comment}"></TextBlock>
-                <TextBox Text="{Binding Timing.Comment}" Grid.Row="11" Grid.Column="1" Margin="6,6,0,0"></TextBox>
-            </Grid>
-        </ScrollViewer>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="11" Text="{language:L Comment}"></TextBlock>
+                    <TextBox Text="{Binding Timing.Comment}" Grid.Row="11" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                </Grid>
+            </ScrollViewer>
+        </Border>
 
         <Grid Margin="0,8,0,0" Grid.Row="2">
             <Grid.ColumnDefinitions>

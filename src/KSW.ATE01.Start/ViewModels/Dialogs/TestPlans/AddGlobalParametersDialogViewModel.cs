@@ -125,7 +125,8 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         {
             var result = true;
 
-            result &= !(_globalParameter?.PatternFile?.IsEmpty() == true);
+            if (_globalParameter != null)
+                result &= !_globalParameter.PatternFile.IsEmpty();
 
             return result;
         }
@@ -187,7 +188,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             {
                 Title = L["EditGlobalParameters"];
                 GlobalParameter = await _globalParameterBLL?.GetByIdAsync(id);
-
             }
 
             if (_globalParameter != null)

@@ -70,7 +70,7 @@
                       ItemsSource="{Binding LevelGroupList}"
                       SelectedValue="{Binding SelectLevelGroup}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{language:L LevelGroupName}" Binding="{Binding LevelGroupName,UpdateSourceTrigger=LostFocus}" EditingElementStyle="{StaticResource CellEditTextBox}" ElementStyle="{StaticResource CellTextBlock}" Width="*"/>
+                    <DataGridTextColumn Header="{language:L LevelGroupName}" Binding="{Binding LevelGroupName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" EditingElementStyle="{StaticResource CellEditTextBox}" ElementStyle="{StaticResource CellTextBlock}" Width="*"/>
 
                     <DataGridTemplateColumn Width="*" Header="{language:L Operate}">
                         <DataGridTemplateColumn.CellTemplate>

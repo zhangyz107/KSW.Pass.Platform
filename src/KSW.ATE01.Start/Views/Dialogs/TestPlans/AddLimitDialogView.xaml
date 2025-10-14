@@ -26,7 +26,7 @@
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="WindowStyle" Value="ToolWindow"></Setter>
-            <Setter Property="Height" Value="500"></Setter>
+            <Setter Property="Height" Value="550"></Setter>
             <Setter Property="Width" Value="300"></Setter>
             <Setter Property="ResizeMode" Value="NoResize"></Setter>
             <Setter Property="ShowInTaskbar" Value="False"></Setter>
@@ -42,7 +42,7 @@
 
         <!--<materialDesign:Snackbar Padding="4" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
         </materialDesign:Snackbar>-->
-        
+
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"></RowDefinition>
@@ -61,34 +61,34 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{language:L LimitName}"></TextBlock>
-            <TextBox Text="{Binding Limit.LimitName}" Grid.Column="1" Margin="6,0,0,0"></TextBox>
+            <TextBox Text="{Binding Limit.LimitName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Column="1" Margin="6,0,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="1" Text="{language:L TestNumber}"></TextBlock>
-            <TextBox Text="{Binding Limit.TestNumber}" Grid.Row="1" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="1" Text="{language:L TestNumber}"></TextBlock>
+            <TextBox Text="{Binding Limit.TestNumber,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="1" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="2" Text="{language:L LowLimit}"></TextBlock>
-            <TextBox Text="{Binding Limit.LowLimit}" Grid.Row="2" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="2" Text="{language:L LowLimit}"></TextBlock>
+            <TextBox Text="{Binding Limit.LowLimit,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="2" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="3" Text="{language:L HighLimit}"></TextBlock>
-            <TextBox Text="{Binding Limit.HighLimit}" Grid.Row="3" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="3" Text="{language:L HighLimit}"></TextBlock>
+            <TextBox Text="{Binding Limit.HighLimit,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="3" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="4" Text="{language:L Units}"></TextBlock>
-            <TextBox Text="{Binding Limit.Units}" Grid.Row="4" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="4" Text="{language:L Units}"></TextBlock>
+            <TextBox Text="{Binding Limit.Units,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="5" Text="{language:L FailSoftwareBin}"></TextBlock>
-            <TextBox Text="{Binding Limit.FailSoftwareBin}" Grid.Row="5" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="5" Text="{language:L FailSoftwareBin}"></TextBlock>
+            <TextBox Text="{Binding Limit.FailSoftwareBin,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="5" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="6" Text="{language:L PassSoftwareBin}"></TextBlock>
-            <TextBox Text="{Binding Limit.PassSoftwareBin}" Grid.Row="6" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="6" Text="{language:L PassSoftwareBin}"></TextBlock>
+            <TextBox Text="{Binding Limit.PassSoftwareBin}" Grid.Row="6" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="7" Text="{language:L FailHardwareBin}"></TextBlock>
-            <TextBox Text="{Binding Limit.FailHardwareBin}" Grid.Row="7" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="7" Text="{language:L FailHardwareBin}"></TextBlock>
+            <TextBox Text="{Binding Limit.FailHardwareBin,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="7" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="8" Text="{language:L PassHardwareBin}"></TextBlock>
-            <TextBox Text="{Binding Limit.PassHardwareBin}" Grid.Row="8" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="8" Text="{language:L PassHardwareBin}"></TextBlock>
+            <TextBox Text="{Binding Limit.PassHardwareBin}" Grid.Row="8" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-            <TextBlock Margin="0,6,0,0" Grid.Row="9" Text="{language:L DutResult}"></TextBlock>
-            <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Grid.Row="9" Grid.Column="1" Margin="6,6,0,0" ItemsSource="{Binding DutResultDic}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Limit.DutResult}"></ComboBox>
+            <TextBlock Margin="0,18,0,0" Grid.Row="9" Text="{language:L DutResult}"></TextBlock>
+            <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Grid.Row="9" Grid.Column="1" Margin="6,18,0,0" ItemsSource="{Binding DutResultDic}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Limit.DutResult,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"></ComboBox>
         </Grid>
 
         <Grid Grid.Row="2">

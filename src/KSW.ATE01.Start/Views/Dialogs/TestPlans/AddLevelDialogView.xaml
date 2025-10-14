@@ -33,7 +33,7 @@
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="WindowStyle" Value="ToolWindow"></Setter>
-            <Setter Property="Height" Value="500"></Setter>
+            <Setter Property="Height" Value="550"></Setter>
             <Setter Property="Width" Value="350"></Setter>
             <Setter Property="ResizeMode" Value="NoResize"></Setter>
             <Setter Property="ShowInTaskbar" Value="False"></Setter>
@@ -50,76 +50,78 @@
         <!--<materialDesign:Snackbar  Margin="0,0,0,8" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
         </materialDesign:Snackbar>-->
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <Grid Margin="0,0,6,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{language:L PinOrGroupName}"></TextBlock>
-                <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Column="1" Margin="6,0,0,0" SelectedValue="{Binding Level.GroupOrPinId}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">
-                </ComboBox>
+        <Border Grid.Row="1" BorderThickness="1" Padding="6" CornerRadius="6" BorderBrush="{DynamicResource MaterialDesign.Brush.Foreground}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid Margin="0,0,6,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock HorizontalAlignment="Center" Text="{language:L PinOrGroupName}"></TextBlock>
+                    <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Column="1" Margin="6,0,0,0" SelectedValue="{Binding Level.GroupOrPinId,ValidatesOnDataErrors=True}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">
+                    </ComboBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="1" Text="Vil"></TextBlock>
-                <TextBox Text="{Binding Level.Vil}" Grid.Row="1" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="1" Text="Vil"></TextBlock>
+                    <TextBox Text="{Binding Level.Vil,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="1" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="2" Text="Vih"></TextBlock>
-                <TextBox Text="{Binding Level.Vih}" Grid.Row="2" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="2" Text="Vih"></TextBlock>
+                    <TextBox Text="{Binding Level.Vih,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="2" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="3" Text="Vol"></TextBlock>
-                <TextBox Text="{Binding Level.Vol}" Grid.Row="3" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="3" Text="Vol"></TextBlock>
+                    <TextBox Text="{Binding Level.Vol,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="3" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="4" Text="Voh"></TextBlock>
-                <TextBox Text="{Binding Level.Voh}" Grid.Row="4" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="4" Text="Voh"></TextBlock>
+                    <TextBox Text="{Binding Level.Voh,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="5" Text="Iol"></TextBlock>
-                <TextBox Text="{Binding Level.Iol}" Grid.Row="5" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="5" Text="Iol"></TextBlock>
+                    <TextBox Text="{Binding Level.Iol,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="5" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="6" Text="Ioh"></TextBlock>
-                <TextBox Text="{Binding Level.Ioh}" Grid.Row="6" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="6" Text="Ioh"></TextBlock>
+                    <TextBox Text="{Binding Level.Ioh,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="6" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="7" Text="Vt"></TextBlock>
-                <TextBox Text="{Binding Level.Vt}" Grid.Row="7" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="7" Text="Vt"></TextBlock>
+                    <TextBox Text="{Binding Level.Vt,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="7" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="8" Text="Vcl"></TextBlock>
-                <TextBox Text="{Binding Level.Vcl}" Grid.Row="8" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="8" Text="Vcl"></TextBlock>
+                    <TextBox Text="{Binding Level.Vcl,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="8" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="9" Text="Vch"></TextBlock>
-                <TextBox Text="{Binding Level.Vch}" Grid.Row="9" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="9" Text="Vch"></TextBlock>
+                    <TextBox Text="{Binding Level.Vch,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="9" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="10" Text="Ps"></TextBlock>
-                <TextBox Text="{Binding Level.Ps}" Grid.Row="10" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="10" Text="Ps"></TextBlock>
+                    <TextBox Text="{Binding Level.Ps}" Grid.Row="10" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="11" Text="I"></TextBlock>
-                <TextBox Text="{Binding Level.I}" Grid.Row="11" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="11" Text="I"></TextBlock>
+                    <TextBox Text="{Binding Level.I}" Grid.Row="11" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="12" Text="Tdelay"></TextBlock>
-                <TextBox Text="{Binding Level.Tdelay}" Grid.Row="12" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="12" Text="Tdelay"></TextBlock>
+                    <TextBox Text="{Binding Level.Tdelay}" Grid.Row="12" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="13" Text="Sequence"></TextBlock>
-                <TextBox Text="{Binding Level.Sequence}" Grid.Row="13" Grid.Column="1" Margin="6,6,0,0"></TextBox>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="13" Text="Sequence"></TextBlock>
+                    <TextBox Text="{Binding Level.Sequence}" Grid.Row="13" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                <TextBlock Margin="0,6,0,0" Grid.Row="14" Text="{language:L Comment}"></TextBlock>
-                <TextBox Text="{Binding Level.Comment}" Grid.Row="14" Grid.Column="1" Margin="6,6,0,0"></TextBox>
-            </Grid>
-        </ScrollViewer>
+                    <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="14" Text="{language:L Comment}"></TextBlock>
+                    <TextBox Text="{Binding Level.Comment}" Grid.Row="14" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                </Grid>
+            </ScrollViewer>
+        </Border>
 
         <Grid Margin="0,8,0,0" Grid.Row="2">
             <Grid.ColumnDefinitions>

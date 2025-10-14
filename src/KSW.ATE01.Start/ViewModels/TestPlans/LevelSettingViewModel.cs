@@ -22,6 +22,7 @@ using KSW.ATE01.Start.Views.Dialogs.TestPlans;
 using KSW.Helpers;
 using KSW.Ui;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace KSW.ATE01.Start.ViewModels.TestPlans
 {
@@ -120,7 +121,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
         /// </summary>
         private AsyncDelegateCommand _addLevelGroupCommand;
         public AsyncDelegateCommand AddLevelGroupCommand =>
-            _addLevelGroupCommand ?? (_addLevelGroupCommand = new AsyncDelegateCommand(ExecuteAddLevelGroupCommand, () => _projectInfo != null));
+            _addLevelGroupCommand ?? (_addLevelGroupCommand = new AsyncDelegateCommand(ExecuteAddLevelGroupCommand, () => _projectInfo != null && !LevelGroupList.Any(x => x.LevelGroupName.IsEmpty())));
 
         /// <summary>
         /// 确认电平组名
@@ -238,6 +239,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             UpdateLevelGroupModel(model, levelGroup);
             AddLevelCommand.RaiseCanExecuteChanged();
             await DialogService.ShowMessageDialog(L["OperationSuccessful"], System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            AddLevelGroupCommand.RaiseCanExecuteChanged();
         }
 
         private void UpdateLevelGroupModel(LevelGroupModel model, LevelGroupModel newModel)
@@ -303,6 +305,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
 
             await _levelBLL?.DeleteAsync(model.Id);
             _levelList.Remove(model);
+            AddLevelGroupCommand.RaiseCanExecuteChanged();
         }
 
         private async Task ReloadLevelList()
