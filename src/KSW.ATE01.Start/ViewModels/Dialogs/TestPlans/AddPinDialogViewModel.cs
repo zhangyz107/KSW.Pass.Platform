@@ -66,7 +66,6 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             set => SetProperty(ref _pinSiteList, value);
         }
 
-
         /// <summary>
         /// 引脚类型字典
         /// </summary>

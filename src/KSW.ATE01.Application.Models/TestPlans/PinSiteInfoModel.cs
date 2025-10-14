@@ -13,6 +13,7 @@
 
 
 using KSW.Dtos;
+using System.ComponentModel.DataAnnotations;
 
 namespace KSW.ATE01.Application.Models.TestPlans
 {
@@ -59,6 +60,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 通道名称
         /// </summary>
+        [Required]
         public string ChannelName
         {
             get => _channelName;

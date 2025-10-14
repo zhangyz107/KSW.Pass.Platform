@@ -1,15 +1,15 @@
 ﻿using KSW.ATE01.Domain.TestPlan.Core.Enums;
 using KSW.Dtos;
+using KSW.Helpers;
+using KSW.Localization;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace KSW.ATE01.Application.Models.TestPlans
 {
-    public class PinInfoModel : DtoBase
+    public class PinInfoModel : DtoBase, IDataErrorInfo
     {
         private Guid _pinOverviewId;
         private string _pinName;
@@ -32,6 +32,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 引脚名称
         /// </summary>
+        [Required]
         public string PinName
         {
             get => _pinName;
@@ -41,6 +42,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 引脚类型
         /// </summary>
+        [Required]
         public PinType? PinType
         {
             get => _pinType;
@@ -113,6 +115,5 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 引脚站点信息
         /// </summary>
         public List<PinSiteInfoModel> PinSiteInfos { get; set; }
-
     }
 }

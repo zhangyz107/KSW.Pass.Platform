@@ -7,6 +7,7 @@ using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.ATE01.Start.Views.Dialogs.TestPlans;
 using KSW.ATE01.Start.Views.TestPlans;
+using KSW.Helpers;
 using KSW.Infrastructure;
 using KSW.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -160,8 +161,10 @@ namespace KSW.ATE01.Platform
             serviceCollection.AddLogging(loggingBuilder =>
                 loggingBuilder.AddSerilog(dispose: true));
 
-            return new DryIocContainerExtension(new Container(CreateContainerRules())
+            var container = new DryIocContainerExtension(new Container(CreateContainerRules())
     .WithDependencyInjectionAdapter(serviceCollection));
+            Ioc.SetServiceProviderAction(() => container);
+            return container;
         }
 
         private void RegisterView(IContainerRegistry containerRegistry)
