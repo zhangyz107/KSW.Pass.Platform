@@ -97,7 +97,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         /// </summary>
         private AsyncDelegateCommand _oKCommand;
         public AsyncDelegateCommand OKCommand =>
-            _oKCommand ?? (_oKCommand = new AsyncDelegateCommand(ExecuteOKCommand, () => _level.Error.IsEmpty()));
+            _oKCommand ?? (_oKCommand = new AsyncDelegateCommand(ExecuteOKCommand, () => _level?.Error?.IsEmpty() == true));
 
         /// <summary>
         /// 取消

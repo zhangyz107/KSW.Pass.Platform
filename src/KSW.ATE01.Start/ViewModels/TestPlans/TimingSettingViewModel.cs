@@ -208,6 +208,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             {
                 _timingGroupList.AddRange(levelGroupList);
             }
+            AddTimingGroupCommand.RaiseCanExecuteChanged();
         }
 
         private async Task ExecuteAddTimingGroupCommand()

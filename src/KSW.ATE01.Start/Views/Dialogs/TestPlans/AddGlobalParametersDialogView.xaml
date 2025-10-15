@@ -8,6 +8,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:language="clr-namespace:KSW.ATE01.Start"
+             xmlns:controls="clr-namespace:KSW.UI.WPF.Controls;assembly=KSW.UI.WPF"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewmodel:AddGlobalParametersDialogViewModel}"
              d:Background="White"
@@ -62,7 +63,7 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{language:L PatternFile}" VerticalAlignment="Center"></TextBlock>
+            <TextBlock Text="{language:L PatternFile}" VerticalAlignment="Center" controls:TextBlockExtensions.Required="True"></TextBlock>
             <TextBox Text="{Binding GlobalParameter.PatternFile,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Column="1" Margin="6,0,0,0"></TextBox>
 
             <GroupBox Margin="0,24,0,6" Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource MaterialDesignCardGroupBox}" Header="{language:L AdditionalParameters}">

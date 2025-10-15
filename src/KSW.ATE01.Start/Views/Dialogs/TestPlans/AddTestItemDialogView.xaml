@@ -10,6 +10,7 @@
              xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels.Dialogs.TestPlans"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:converter="clr-namespace:KSW.ATE01.Start.Converter"
+             xmlns:controls="clr-namespace:KSW.UI.WPF.Controls;assembly=KSW.UI.WPF"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewmodel:AddTestItemDialogViewModel}"
              d:Background="White"
@@ -82,20 +83,20 @@
                         <ColumnDefinition Width="auto"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <TextBlock VerticalAlignment="Center" Text="{language:L TestItemName}"></TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{language:L TestItemName}" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Margin="6,0,0,0" Grid.Column="1" Text="{Binding TestItem.TestItemName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"></TextBox>
 
-                    <TextBlock Margin="0,18,0,0" VerticalAlignment="Center" Text="{language:L FunctionName}" Grid.Row="1"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" VerticalAlignment="Center" Text="{language:L FunctionName}" Grid.Row="1" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Margin="6,18,0,0" Grid.Row="1" Grid.Column="1" Text="{Binding TestItem.FunctionName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"></TextBox>
 
-                    <TextBlock Margin="0,18,0,0" VerticalAlignment="Center" Text="{language:L Force}" Grid.Row="2"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" VerticalAlignment="Center" Text="{language:L Force}" Grid.Row="2" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Margin="6,18,0,0" Grid.Row="2" Grid.Column="1" Text="{Binding TestItem.Force,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}"></TextBox>
 
-                    <TextBlock VerticalAlignment="Center" Margin="0,18,0,0" Text="{language:L PinOrGroupName}" Grid.Row="3"></TextBlock>
+                    <TextBlock VerticalAlignment="Center" Margin="0,18,0,0" Text="{language:L PinOrGroupName}" Grid.Row="3" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Row="3" Grid.Column="1" Margin="6,18,0,0" SelectedValue="{Binding TestItem.GroupOrPinId,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">
                     </ComboBox>
 
-                    <TextBlock VerticalAlignment="Center" Margin="0,18,0,0" Text="{language:L LimitName}" Grid.Row="4"></TextBlock>
+                    <TextBlock VerticalAlignment="Center" Margin="0,18,0,0" Text="{language:L LimitName}" Grid.Row="4" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <ComboBox ItemsSource="{Binding LimitsDic}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0" SelectedValue="{Binding TestItem.LimitsId,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4">
                     </ComboBox>
 

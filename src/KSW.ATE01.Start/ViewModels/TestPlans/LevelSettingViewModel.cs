@@ -207,6 +207,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             var levelGroupList = await _levelGroupBLL?.GetListByProjectIdAsync(_projectInfo?.Id);
             if (!levelGroupList.IsEmpty())
                 _levelGroupList.AddRange(levelGroupList);
+            AddLevelGroupCommand.RaiseCanExecuteChanged();
         }
 
         private async Task ExecuteAddLevelGroupCommand()

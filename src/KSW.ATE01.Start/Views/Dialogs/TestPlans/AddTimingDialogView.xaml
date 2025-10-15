@@ -10,6 +10,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:conveter="clr-namespace:KSW.ATE01.Start.Converter"
+             xmlns:controls="clr-namespace:KSW.UI.WPF.Controls;assembly=KSW.UI.WPF"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewmodel:AddTimingDialogViewModel}"
              d:Background="White"
@@ -76,29 +77,29 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Margin="0,18,0,0" Grid.Row="1" Text="{language:L TimingName}"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="1" Text="{language:L TimingName}" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Text="{Binding Timing.TimingName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="1" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                    <TextBlock Text="{language:L PinOrGroupName}"></TextBlock>
+                    <TextBlock Text="{language:L PinOrGroupName}" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Column="1" Margin="6,0,0,0" SelectedValue="{Binding Timing.GroupOrPinId,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">
                     </ComboBox>
 
-                    <TextBlock Margin="0,18,0,0" Grid.Row="2" Text="{language:L Period}"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="2" Text="{language:L Period}" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Text="{Binding Timing.Period,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="2" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                    <TextBlock Margin="0,18,0,0" Grid.Row="3" Text="{language:L WaveformFormat}"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="3" Text="{language:L WaveformFormat}" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <ComboBox Grid.Row="3" Grid.Column="1" Margin="6,18,0,0" ItemsSource="{Binding TimingformatDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.WaveformFormat,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Padding="4"></ComboBox>
 
-                    <TextBlock Margin="0,18,0,0" Grid.Row="4" Text="DriveA"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="4" Text="DriveA" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Text="{Binding Timing.DriveA,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                    <TextBlock Margin="0,18,0,0" Grid.Row="5" Text="DriveB"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="5" Text="DriveB" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Text="{Binding Timing.DriveB,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="5" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                    <TextBlock Margin="0,18,0,0" Grid.Row="6" Text="DriveC"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="6" Text="DriveC" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Text="{Binding Timing.DriveC,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="6" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
-                    <TextBlock Margin="0,18,0,0" Grid.Row="7" Text="DriveD"></TextBlock>
+                    <TextBlock Margin="0,18,0,0" Grid.Row="7" Text="DriveD" controls:TextBlockExtensions.Required="True"></TextBlock>
                     <TextBox Text="{Binding Timing.DriveD,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="7" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock Margin="0,18,0,0" Grid.Row="8" Text="StrobeMode"></TextBlock>
