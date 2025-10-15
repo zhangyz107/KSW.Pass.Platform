@@ -47,10 +47,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
-        <!--<materialDesign:Snackbar Padding="4" Grid.ColumnSpan="2" VerticalAlignment="Top" MessageQueue="{Binding MessageQueue}" HorizontalAlignment="Center" Background="{Binding MessageBackground}" Foreground="{DynamicResource MaterialDesignLightForeground}">
-        </materialDesign:Snackbar>-->
-
+        
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -64,15 +61,6 @@
             <TextBlock VerticalAlignment="Center" Text="{language:L PinName}" controls:TextBlockExtensions.Required="True">
             </TextBlock>
             <TextBox Margin="6,0,0,0" Grid.Column="1"  Text="{Binding PinInfo.PinName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}">
-                <!--<TextBox.Text>
-                    <Binding 
-                        Path="PinInfo.PinName"
-                        UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <validation:MultilingualValidationRule ValidatesOnTargetUpdated="True"></validation:MultilingualValidationRule>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>-->
             </TextBox>
 
             <TextBlock Margin="0,18,0,0" Grid.Row="1" VerticalAlignment="Center" Text="{language:L PinType}" controls:TextBlockExtensions.Required="True"></TextBlock>

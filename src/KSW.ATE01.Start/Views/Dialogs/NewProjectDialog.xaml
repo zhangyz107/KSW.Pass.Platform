@@ -7,7 +7,9 @@
         xmlns:language="clr-namespace:KSW.ATE01.Start"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels.Dialogs"
         mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewmodel:NewProjectDialogViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True">
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
@@ -20,7 +22,7 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <Style x:Key="BrowseTextBlock" TargetType="{x:Type TextBox}">
+        <Style x:Key="BrowseTextBlock" TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TextBox}">
@@ -61,10 +63,10 @@
         <ComboBox Padding="6" Margin="0,0,0,6" Grid.Column="1" ItemsSource="{Binding TestPlanTypeCbItems,Mode=OneWay}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding ProjectInfo.TestPlanType}" Style="{StaticResource MaterialDesignOutlinedComboBox}"></ComboBox>-->
 
         <TextBlock Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Text="{language:L ProjectName}"></TextBlock>
-        <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" Text="{Binding ProjectInfo.ProjectName,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsEnabled="{Binding CanEditProjectName}"></TextBox>
+        <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" Text="{Binding ProjectInfo.ProjectName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsEnabled="{Binding CanEditProjectName}"></TextBox>
 
-        <GroupBox Grid.Row="2" Grid.ColumnSpan="2" Header="{language:L ProjectInfo}" Padding="0" Style="{StaticResource MaterialDesignCardGroupBox}">
-            <Grid Margin="6,0">
+        <GroupBox Grid.Row="2" Margin="0,18,0,0" Grid.ColumnSpan="2" Header="{language:L ProjectInfo}" Padding="0" Style="{StaticResource MaterialDesignCardGroupBox}">
+            <Grid Margin="6,0,6,6">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"></RowDefinition>
                     <RowDefinition Height="auto"></RowDefinition>
@@ -75,14 +77,14 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Margin="0,6,0,6" VerticalAlignment="Center" Text="{language:L ProjectPath}"></TextBlock>
-                <TextBox Margin="0,6,0,6" Grid.Column="1" BorderThickness="1" Style="{StaticResource BrowseTextBlock}" Text="{Binding ProjectInfo.ProjectPath}" IsEnabled="{Binding CanEditProjectName}"></TextBox>
+                <TextBlock Margin="0,6,0,0" VerticalAlignment="Center" Text="{language:L ProjectPath}"></TextBlock>
+                <TextBox Margin="0,6,0,0" Grid.Column="1" BorderThickness="1" Style="{StaticResource BrowseTextBlock}" Text="{Binding ProjectInfo.ProjectPath,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditProjectName}"></TextBox>
 
-                <TextBlock Margin="0,0,0,6" Grid.Row="1" VerticalAlignment="Center" Text="{language:L Version}"></TextBlock>
-                <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="1" Grid.Column="1" Text="{Binding ProjectInfo.ProjectVersion}" Style="{StaticResource MaterialDesignOutlinedTextBox}" ></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="1" VerticalAlignment="Center" Text="{language:L Version}"></TextBlock>
+                <TextBox Padding="6" Margin="0,6,0,0" Grid.Row="1" Grid.Column="1" Text="{Binding ProjectInfo.ProjectVersion}" Style="{StaticResource MaterialDesignOutlinedTextBox}" ></TextBox>
 
-                <TextBlock Margin="0,0,0,6" Grid.Row="2" VerticalAlignment="Center" Text="{language:L Executable}"></TextBlock>
-                <TextBox Padding="6" Margin="0,0,0,6" Grid.Row="2" Grid.Column="1" Text="{Binding ExecuteName}" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" ></TextBox>
+                <TextBlock Margin="0,6,0,0" Grid.Row="2" VerticalAlignment="Center" Text="{language:L Executable}"></TextBlock>
+                <TextBox Padding="6" Margin="0,6,0,0" Grid.Row="2" Grid.Column="1" Text="{Binding ExecuteName}" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}" ></TextBox>
             </Grid>
         </GroupBox>
 

@@ -9,6 +9,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:conveter="clr-namespace:KSW.ATE01.Start.Converter"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewmodel:AddTimingDialogViewModel}"
              d:Background="White"
@@ -28,6 +29,7 @@
             <Setter Property="Padding" Value="4"></Setter>
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
         </Style>
+        <conveter:ValueConverter x:Key="ValueConverter"></conveter:ValueConverter>
     </UserControl.Resources>
 
     <prism:Dialog.WindowStyle>
@@ -82,22 +84,22 @@
                     </ComboBox>
 
                     <TextBlock Margin="0,18,0,0" Grid.Row="2" Text="{language:L Period}"></TextBlock>
-                    <TextBox Text="{Binding Timing.Period,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="2" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Timing.Period,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="2" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock Margin="0,18,0,0" Grid.Row="3" Text="{language:L WaveformFormat}"></TextBlock>
                     <ComboBox Grid.Row="3" Grid.Column="1" Margin="6,18,0,0" ItemsSource="{Binding TimingformatDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.WaveformFormat,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Padding="4"></ComboBox>
 
                     <TextBlock Margin="0,18,0,0" Grid.Row="4" Text="DriveA"></TextBlock>
-                    <TextBox Text="{Binding Timing.DriveA,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Timing.DriveA,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock Margin="0,18,0,0" Grid.Row="5" Text="DriveB"></TextBlock>
-                    <TextBox Text="{Binding Timing.DriveB,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="5" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Timing.DriveB,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="5" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock Margin="0,18,0,0" Grid.Row="6" Text="DriveC"></TextBlock>
-                    <TextBox Text="{Binding Timing.DriveC,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="6" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Timing.DriveC,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="6" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock Margin="0,18,0,0" Grid.Row="7" Text="DriveD"></TextBlock>
-                    <TextBox Text="{Binding Timing.DriveD,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="7" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Timing.DriveD,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="7" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock Margin="0,18,0,0" Grid.Row="8" Text="StrobeMode"></TextBlock>
                     <ComboBox Grid.Row="8" Grid.Column="1" Margin="6,18,0,0" ItemsSource="{Binding StrobeModeDic}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" SelectedValue="{Binding Timing.StrobeMode}" Padding="4"></ComboBox>

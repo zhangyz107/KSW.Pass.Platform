@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.Dtos;
+using System.ComponentModel.DataAnnotations;
 using System.Configuration;
 using System.Windows.Input;
 
@@ -41,6 +42,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 项目名称
         /// </summary>
+        [Required]
         public string ProjectName
         {
             get => _projectName;

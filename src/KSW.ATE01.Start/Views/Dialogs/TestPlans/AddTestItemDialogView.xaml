@@ -9,6 +9,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels.Dialogs.TestPlans"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:converter="clr-namespace:KSW.ATE01.Start.Converter"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewmodel:AddTestItemDialogViewModel}"
              d:Background="White"
@@ -48,6 +49,7 @@
         <Style x:Key="CellEditTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}">
             <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
         </Style>
+        <converter:ValueConverter x:Key="ValueConverter"/>
     </UserControl.Resources>
 
     <Grid Margin="6">
@@ -87,7 +89,7 @@
                     <TextBox Margin="6,18,0,0" Grid.Row="1" Grid.Column="1" Text="{Binding TestItem.FunctionName,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"></TextBox>
 
                     <TextBlock Margin="0,18,0,0" VerticalAlignment="Center" Text="{language:L Force}" Grid.Row="2"></TextBlock>
-                    <TextBox Margin="6,18,0,0" Grid.Row="2" Grid.Column="1" Text="{Binding TestItem.Force,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"></TextBox>
+                    <TextBox Margin="6,18,0,0" Grid.Row="2" Grid.Column="1" Text="{Binding TestItem.Force,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}"></TextBox>
 
                     <TextBlock VerticalAlignment="Center" Margin="0,18,0,0" Text="{language:L PinOrGroupName}" Grid.Row="3"></TextBlock>
                     <ComboBox ItemsSource="{Binding FilteredItems}" Grid.Row="3" Grid.Column="1" Margin="6,18,0,0" SelectedValue="{Binding TestItem.GroupOrPinId,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" DisplayMemberPath="Value" SelectedValuePath="Key" Style="{StaticResource MaterialDesignOutlinedComboBox}" Padding="4" Text="{Binding EditString,UpdateSourceTrigger=PropertyChanged}" IsEditable="True">

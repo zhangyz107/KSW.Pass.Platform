@@ -16,6 +16,7 @@ using KSW.ATE01.Application.BLLs.Abstractions.TestPlans;
 using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.Projects;
 using KSW.ATE01.Application.Models.TestPlans;
+using KSW.ATE01.Domain.TestPlan.Entities;
 using KSW.Ui;
 using KSW.UI.WPF.Controls;
 using System.Collections.ObjectModel;
@@ -90,7 +91,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
         /// </summary>
         private AsyncDelegateCommand _oKCommand;
         public AsyncDelegateCommand OKCommand =>
-            _oKCommand ?? (_oKCommand = new AsyncDelegateCommand(ExecuteOKCommand, CheckInputValue));
+            _oKCommand ?? (_oKCommand = new AsyncDelegateCommand(ExecuteOKCommand, () => _globalParameter.Error.IsEmpty()));
 
         /// <summary>
         /// 取消命令

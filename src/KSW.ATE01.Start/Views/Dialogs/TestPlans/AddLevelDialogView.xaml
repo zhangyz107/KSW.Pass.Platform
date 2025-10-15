@@ -9,6 +9,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:converter="clr-namespace:KSW.ATE01.Start.Converter"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewmodel:AddLevelDialogViewModel}"
              d:Background="White"
@@ -28,6 +29,7 @@
             <Setter Property="Padding" Value="4"></Setter>
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
         </Style>
+        <converter:ValueConverter x:Key="ValueConverter"></converter:ValueConverter>
     </UserControl.Resources>
 
     <prism:Dialog.WindowStyle>
@@ -79,31 +81,32 @@
                     </ComboBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="1" Text="Vil"></TextBlock>
-                    <TextBox Text="{Binding Level.Vil,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="1" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Vil,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="1" Grid.Column="1" Margin="6,18,0,0">
+                    </TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="2" Text="Vih"></TextBlock>
-                    <TextBox Text="{Binding Level.Vih,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="2" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Vih,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="2" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="3" Text="Vol"></TextBlock>
-                    <TextBox Text="{Binding Level.Vol,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="3" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Vol,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="3" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="4" Text="Voh"></TextBlock>
-                    <TextBox Text="{Binding Level.Voh,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Voh,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="4" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="5" Text="Iol"></TextBlock>
-                    <TextBox Text="{Binding Level.Iol,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="5" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Iol,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="5" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="6" Text="Ioh"></TextBlock>
-                    <TextBox Text="{Binding Level.Ioh,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="6" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Ioh,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="6" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="7" Text="Vt"></TextBlock>
-                    <TextBox Text="{Binding Level.Vt,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="7" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Vt,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="7" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="8" Text="Vcl"></TextBlock>
-                    <TextBox Text="{Binding Level.Vcl,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="8" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Vcl,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="8" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="9" Text="Vch"></TextBlock>
-                    <TextBox Text="{Binding Level.Vch,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Grid.Row="9" Grid.Column="1" Margin="6,18,0,0"></TextBox>
+                    <TextBox Text="{Binding Level.Vch,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True,Converter={StaticResource ValueConverter}}" Grid.Row="9" Grid.Column="1" Margin="6,18,0,0"></TextBox>
 
                     <TextBlock HorizontalAlignment="Center"  Margin="0,18,0,0" Grid.Row="10" Text="Ps"></TextBlock>
                     <TextBox Text="{Binding Level.Ps}" Grid.Row="10" Grid.Column="1" Margin="6,18,0,0"></TextBox>
