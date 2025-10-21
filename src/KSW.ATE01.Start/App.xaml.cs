@@ -154,12 +154,10 @@ namespace KSW.ATE01.Platform
             RegisterView(containerRegistry);
         }
 
-
         protected override IContainerExtension CreateContainerExtension()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging(loggingBuilder =>
-                loggingBuilder.AddSerilog(dispose: true));
+            serviceCollection.AddLibrary();
 
             var container = new DryIocContainerExtension(new Container(CreateContainerRules())
     .WithDependencyInjectionAdapter(serviceCollection));
@@ -222,7 +220,6 @@ namespace KSW.ATE01.Platform
             //添加Sqlite模块
             moduleCatalog.AddModule<SqliteModule>();
         }
-
 
         protected override void OnExit(ExitEventArgs e)
         {
