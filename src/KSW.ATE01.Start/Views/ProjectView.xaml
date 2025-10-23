@@ -36,7 +36,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="6"></ColumnDefinition>
-            <ColumnDefinition Width="5*"></ColumnDefinition>
+            <ColumnDefinition Width="3.5*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <GroupBox Header="{language:L ProjectManagement}" Style="{StaticResource MaterialDesignCardGroupBox}">
@@ -50,7 +50,7 @@
                 SelectedValue="{Binding SelectProjectInfo}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{language:L ProjectName}" Binding="{Binding ProjectName}" ElementStyle="{StaticResource CenterTextBlock}" IsReadOnly="True"></DataGridTextColumn>
-                    <DataGridTemplateColumn Header="{language:L Operate}" Width="*">
+                    <DataGridTemplateColumn Header="{language:L Operate}" MinWidth="200" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid HorizontalAlignment="Center">
