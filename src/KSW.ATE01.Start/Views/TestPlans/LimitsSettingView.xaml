@@ -14,13 +14,13 @@
              d:Background="White"
              d:DesignHeight="450" d:DesignWidth="800"
              prism:ViewModelLocator.AutoWireViewModel="True">
-    
+
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadingCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    
+
     <UserControl.Resources>
         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
@@ -130,7 +130,7 @@
                                         ElementStyle="{StaticResource CellTextBlock}" 
                                         EditingElementStyle="{StaticResource CellEditTextBox}"
                                         Header="{language:L DutResult}"></DataGridTextColumn>
-                    <DataGridTemplateColumn Width="*" Header="{language:L Operate}">
+                    <DataGridTemplateColumn Width="*" Header="{language:L Operate}" MinWidth="130">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid HorizontalAlignment="Center">

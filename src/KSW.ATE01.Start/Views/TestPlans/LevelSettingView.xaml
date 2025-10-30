@@ -151,7 +151,7 @@
 
                     <DataGridTextColumn Header="{language:L Comment}" Binding="{Binding Comment}" IsReadOnly="True" ElementStyle="{StaticResource CellTextBlock}"/>
 
-                    <DataGridTemplateColumn Width="*" Header="{language:L Operate}">
+                    <DataGridTemplateColumn Width="*" Header="{language:L Operate}" MinWidth="130">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid HorizontalAlignment="Center">

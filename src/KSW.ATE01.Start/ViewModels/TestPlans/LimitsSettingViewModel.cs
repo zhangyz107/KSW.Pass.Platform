@@ -170,6 +170,7 @@ namespace KSW.ATE01.Start.ViewModels.TestPlans
             parameters.Add("LimitId", model.Id);
 
             await DialogService.ShowDialogAsync(nameof(AddLimitDialogView), parameters);
+            await ReloadList();
         }
 
 

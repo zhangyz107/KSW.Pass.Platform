@@ -208,13 +208,7 @@ namespace KSW.ATE01.Start.ViewModels
             if (fileDialog.ShowDialog() == true)
             {
                 var filePath = fileDialog.FileName;
-                //if (File.Exists(filePath))
-                //{
-                //    var fileName = Path.GetFileName(filePath);
-                //    var result = await DialogService.ShowMessageDialog($"{string.Format(L["FileAlreadyExists"], fileName)},{L["WhetherToReplace"]}?", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
-                //    if (result.Result != ButtonResult.Yes)
-                //        return;                   
-                //}
+
                 await _projectBLL?.ExportTestPlanAsync(filePath);
 
                 await DialogService.ShowMessageDialog(L["ExportSuccessful"], System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);

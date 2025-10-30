@@ -55,6 +55,44 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             set => SetProperty(ref _limit, value);
         }
 
+        public Dictionary<string, string> UnitDic { get; } = new Dictionary<string, string>()
+        {
+            {"V","V" },
+            {"mV","mV" },
+            {"µV","µV" },
+            {"A","A" },
+            {"mA","mA" },
+            {"µA","µA" },
+            {"nA","nA" },
+            {"pA","pA" },
+            {"dB","dB" },
+            {"dBm","dBm" },
+            {"Ohm","Ohm" },
+            {"mOhm","mOhm" },
+            {"kOhm","kOhm" },
+            {"MOhm","MOhm" },
+            {"Hz","Hz" },
+            {"KHz","KHz" },
+            {"MHz","MHz" },
+            {"GHz","GHz" },
+            {"s","s" },
+            {"ms","ms" },
+            {"µs","µs" },
+            {"ns","ns" },
+            {"ps","ps" },
+            {"F","F" },
+            {"mF","mF" },
+            {"µF","µF" },
+            {"pF","pF" },
+            {"H","H" },
+            {"mH","mH" },
+            {"µH","µH" },
+            {"nH","nH" },
+            {"pH","pH" },
+            {"%","%" },
+            {"NA","NA" },
+        };
+
         /// <summary>
         /// 被测物结果类型字典
         /// </summary>
