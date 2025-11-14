@@ -77,9 +77,9 @@ namespace KSW.ATE01.Platform
             }
             else
             {
-                base.OnStartup(e);
-
                 ApplySystemTheme();
+
+                base.OnStartup(e);
 
                 if (e.Args.Any())
                 {

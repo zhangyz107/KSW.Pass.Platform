@@ -18,8 +18,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ObsoleteBrushes.xaml" />
                 <ResourceDictionary
                     Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
-                <ResourceDictionary Source="/KSW.UI.WPF;component/Themes/KSW.PlatformTheme.LightTheme.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="/KSW.UI.WPF;component/Themes/KSW.PlatformTheme.DarkTheme.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="/KSW.UI.WPF;component/Themes/KSW.PlatformTheme.Defaults.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
