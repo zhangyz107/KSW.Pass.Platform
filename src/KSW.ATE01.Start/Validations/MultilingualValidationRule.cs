@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KSW.Localization;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace KSW.ATE01.Start.Validations
 {
     public class MultilingualValidationRule : ValidationRule
     {
-        protected LanguageManager L = LanguageManager.Instance;
+        protected ILanguageManager L = LanguageHelper.Manager;
 
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {

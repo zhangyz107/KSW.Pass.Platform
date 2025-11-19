@@ -119,7 +119,7 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
         {
             var folderDialog = new OpenFolderDialog()
             {
-                Title = LanguageManager.Instance["SelectFolder"],
+                Title = LanguageHelper.Manager["SelectFolder"],
             };
 
             var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();

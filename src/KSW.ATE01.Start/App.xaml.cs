@@ -148,9 +148,11 @@ namespace KSW.ATE01.Platform
 
             containerRegistry.Register<Dispatcher>(() => Current.Dispatcher);
 
+            // 启动引导程序
             var bootstrapper = new Bootstrapper(containerRegistry);
             bootstrapper.Start();
 
+            // 注册视图
             RegisterView(containerRegistry);
         }
 
@@ -200,8 +202,10 @@ namespace KSW.ATE01.Platform
 
         private void InitLogConfig()
         {
+            // 日志路径配置
             var logOutputTemplate = ConfigurationManager.AppSettings["OutputTemplate"];
 
+            // 日志配置
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.FromLogContext()
@@ -211,8 +215,8 @@ namespace KSW.ATE01.Platform
 
         private void InitLanguageConfig(IContainerRegistry containerRegistry)
         {
-            var languageManager = LanguageManager.Instance;
-            containerRegistry.RegisterInstance<ILanguageManager>(languageManager);
+            var languageManager = LanguageHelper.Manager;
+            containerRegistry.RegisterInstance(languageManager);
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)

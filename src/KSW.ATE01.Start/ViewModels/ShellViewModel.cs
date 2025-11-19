@@ -213,7 +213,7 @@ namespace KSW.ATE01.Start.ViewModels
         private void ChangeLanguage(string value)
         {
             CultureInfo culture = new CultureInfo(value);
-            LanguageManager.Instance.ChangeLanguage(culture);
+            LanguageHelper.Manager.ChangeLanguage(culture);
 
             // 切换核心多语言
             Language.LanguageManager.Instance.ChangeLanguage(culture);
