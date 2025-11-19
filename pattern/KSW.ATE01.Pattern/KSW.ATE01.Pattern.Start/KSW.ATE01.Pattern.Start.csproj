@@ -26,8 +26,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\src\src-platform\KSW.ObjectMapping.AutoMapper\KSW.ObjectMapping.AutoMapper.csproj" />
-	  <ProjectReference Include="..\..\..\src\src-platform\KSW.UI.WPF\KSW.UI.WPF.csproj" />
+	  <ProjectReference Include="..\..\..\src-platform\KSW.ObjectMapping.AutoMapper\KSW.ObjectMapping.AutoMapper.csproj" />
+	  <ProjectReference Include="..\..\..\src-platform\KSW.UI.WPF\KSW.UI.WPF.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Pattern.Application.Events\KSW.ATE01.Pattern.Application.Events.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Pattern.Application\KSW.ATE01.Pattern.Application.csproj" />
 	  <ProjectReference Include="..\KSW.ATE01.Pattern.Domain.Projects.Core\KSW.ATE01.Pattern.Domain.Projects.Core.csproj" />

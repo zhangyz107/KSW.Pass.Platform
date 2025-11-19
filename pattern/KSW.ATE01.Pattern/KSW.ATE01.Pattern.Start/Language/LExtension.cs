@@ -14,6 +14,6 @@ namespace KSW.ATE01.Pattern.Start.Language
 
         }
 
-        public override object LanguageSource => LanguageManager.Instance;
+        public override object LanguageSource => LanguageHelper.Manager;
     }
 }

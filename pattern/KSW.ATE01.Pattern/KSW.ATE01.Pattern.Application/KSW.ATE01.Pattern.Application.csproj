@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\src-platform\KSW.Application\KSW.Application.csproj" />
+    <ProjectReference Include="..\..\..\src-platform\KSW.Application\KSW.Application.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Pattern.Application.Events\KSW.ATE01.Pattern.Application.Events.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Pattern.Application.Models\KSW.ATE01.Pattern.Application.Models.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Pattern.Domain.Instruments\KSW.ATE01.Pattern.Domain.Instruments.csproj" />

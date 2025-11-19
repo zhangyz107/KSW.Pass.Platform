@@ -177,9 +177,18 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             try
             {
                 _currentProjectInfo.CheckNull(nameof(ProjectInfoModel));
+                string installationPath = string.Empty;
+                var vsPair = SetupHelper.GetAllAndLatestPath();
+                if (!vsPair.latestPath.IsEmpty() && Directory.Exists(vsPair.latestPath))
+                {
+                    installationPath = vsPair.latestPath;
+                }
+                else
+                {
+                    var setupInstance = SetupHelper.GetSetupInstance(false);
+                    installationPath = setupInstance.GetInstallationPath();
+                }
 
-                var setupInstance = SetupHelper.GetSetupInstance(false);
-                string installationPath = setupInstance.GetInstallationPath();
                 string executablePath = Path.Combine(installationPath, @"Common7\IDE\devenv.exe");
 
                 if (!File.Exists(executablePath))

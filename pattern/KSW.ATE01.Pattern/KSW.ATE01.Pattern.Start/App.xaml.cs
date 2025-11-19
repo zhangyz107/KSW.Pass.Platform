@@ -3,7 +3,6 @@ using KSW.ATE01.Pattern.Application;
 using KSW.ATE01.Pattern.Start.Language;
 using KSW.ATE01.Pattern.Start.Views;
 using KSW.Infrastructure;
-using KSW.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Configuration;
@@ -91,8 +90,8 @@ namespace KSW.ATE01.Pattern
 
         private void InitLanguageConfig(IContainerRegistry containerRegistry)
         {
-            var languageManager = LanguageManager.Instance;
-            containerRegistry.RegisterInstance<ILanguageManager>(languageManager);
+            var languageManager = LanguageHelper.Manager;
+            containerRegistry.RegisterInstance(languageManager);
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)

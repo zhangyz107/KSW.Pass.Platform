@@ -18,7 +18,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="envdte80" Version="17.11.40262" />
-		<PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.11.2177" />
+		<PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.14.2075" />
 		<PackageReference Include="NPOI" Version="2.7.2" />
 	</ItemGroup>
 
