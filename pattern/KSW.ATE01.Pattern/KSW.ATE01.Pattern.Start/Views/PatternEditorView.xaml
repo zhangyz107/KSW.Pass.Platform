@@ -166,7 +166,14 @@
                 </Grid>
             </Border>
 
-            <DataGrid x:Name="dataGrid" Margin="6,0,0,0" Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding VectorInfos}" materialDesign:DataGridAssist.CellPadding="6" SelectedItem="{Binding VectorRow}" VirtualizingPanel.IsContainerVirtualizable="True" VirtualizingPanel.IsVirtualizing="True" EnableRowVirtualization="True" EnableColumnVirtualization="True" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingPanel.VirtualizationMode="Recycling" VirtualizingPanel.ScrollUnit="Pixel">
+            <DataGrid x:Name="dataGrid" Margin="6,0,0,0" Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding VectorInfos,IsAsync=True}" materialDesign:DataGridAssist.CellPadding="6" SelectedItem="{Binding VectorRow}" 
+                      VirtualizingPanel.IsContainerVirtualizable="True" 
+                      VirtualizingPanel.IsVirtualizing="True" 
+                      EnableRowVirtualization="True" 
+                      EnableColumnVirtualization="True" 
+                      VirtualizingPanel.VirtualizationMode="Recycling" 
+                      ScrollViewer.CanContentScroll="True" 
+                      VirtualizingPanel.ScrollUnit="Pixel">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="{language:L InsertVector}" Command="{Binding InsertVectorCommand}" CommandParameter="{Binding PlacementTarget.SelectedItem,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}, Mode=FindAncestor}}"></MenuItem>
