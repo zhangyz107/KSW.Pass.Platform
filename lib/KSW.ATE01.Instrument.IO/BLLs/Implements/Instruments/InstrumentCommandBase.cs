@@ -2,6 +2,7 @@
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Project.Base.Helpers;
+using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.TestPlans;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
@@ -10,7 +11,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
     {
         protected static readonly Lazy<T> _instance = new Lazy<T>((() => new T()));
 
-        protected TestPlanModel TestPlan { get => TestPlanHelper.GetLoadedTestPlan(); }
+        protected TestPlanModel TestPlan { get => CommonData.Instance?.TestPlan; }
 
         protected List<ChannelModel> PinList { get; private set; }
 
