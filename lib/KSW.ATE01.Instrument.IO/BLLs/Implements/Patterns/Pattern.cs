@@ -212,57 +212,60 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, pin.PinName);
                     var pinIndex = PinManagerHelper.GetPinIndexByPinName(Instance.TestPlan?.Channel, pin.PinName);
                     var dataEndAddress = dataStartAddress + dataLength - 1;
-                    foreach (var site in channel.Sites)
+                    if (channel?.Sites?.Any() == true)
                     {
-                        if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
-                            continue;
-
-                        var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
-                        var commandList = new List<CommandInfoModel>();
-                        if (!commandListDic.ContainsKey(slot))
-                            commandListDic[slot] = commandList;
-                        else
-                            commandList = commandListDic[slot];
-
-                        if (channelNum >= 0)
+                        foreach (var site in channel.Sites)
                         {
-                            var patternStartAddress = dataStartAddress;
-                            var patternEndAddress = dataEndAddress;
-                            var receiveStartAddress = (_maxChannelNum + pinIndex + 1) * _mbByte;
-                            var receiveEndAddress = (_maxChannelNum + pinIndex + 2) * _mbByte;
-                            var patternStartBytes = BitConverter.GetBytes(patternStartAddress);
-                            var patternStopBytes = BitConverter.GetBytes(patternEndAddress);
-                            var receiveStartBytes = BitConverter.GetBytes(receiveStartAddress);
-                            var receiveStopBytes = BitConverter.GetBytes(receiveEndAddress);
+                            if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                                continue;
 
-                            var patternStartAddressBytes = new byte[5];
-                            var patternStopAddressBytes = new byte[5];
-                            Array.Copy(patternStartBytes, patternStartAddressBytes, patternStartAddressBytes.Length);
-                            Array.Copy(patternStopBytes, patternStopAddressBytes, patternStopAddressBytes.Length);
+                            var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+                            var commandList = new List<CommandInfoModel>();
+                            if (!commandListDic.ContainsKey(slot))
+                                commandListDic[slot] = commandList;
+                            else
+                                commandList = commandListDic[slot];
 
-                            var receiveStartAddressBytes = new byte[5];
-                            var receiveStopAddressBytes = new byte[5];
-                            Array.Copy(receiveStartBytes, receiveStartAddressBytes, receiveStartAddressBytes.Length);
-                            Array.Copy(receiveStopBytes, receiveStopAddressBytes, receiveStopAddressBytes.Length);
-
-                            var byteList = new List<byte>();
-                            byteList.Add((byte)channelNum);
-                            byteList.Add(1);
-                            byteList.AddRange(patternStartAddressBytes.Reverse());
-                            byteList.AddRange(patternStopAddressBytes.Reverse());
-                            byteList.AddRange(receiveStartAddressBytes.Reverse());
-                            byteList.AddRange(receiveStopAddressBytes.Reverse());
-                            byteList.Add(0);    //  接收数据存入DDR
-                            byteList.Add(4);    //  比特数
-                            var command = new CommandInfoModel()
+                            if (channelNum >= 0)
                             {
-                                CommandCode = "0x010B",
-                                CommandContent = byteList.ToArray(),
-                            };
-                            commandList.Add(command);
+                                var patternStartAddress = dataStartAddress;
+                                var patternEndAddress = dataEndAddress;
+                                var receiveStartAddress = (_maxChannelNum + pinIndex + 1) * _mbByte;
+                                var receiveEndAddress = (_maxChannelNum + pinIndex + 2) * _mbByte;
+                                var patternStartBytes = BitConverter.GetBytes(patternStartAddress);
+                                var patternStopBytes = BitConverter.GetBytes(patternEndAddress);
+                                var receiveStartBytes = BitConverter.GetBytes(receiveStartAddress);
+                                var receiveStopBytes = BitConverter.GetBytes(receiveEndAddress);
+
+                                var patternStartAddressBytes = new byte[5];
+                                var patternStopAddressBytes = new byte[5];
+                                Array.Copy(patternStartBytes, patternStartAddressBytes, patternStartAddressBytes.Length);
+                                Array.Copy(patternStopBytes, patternStopAddressBytes, patternStopAddressBytes.Length);
+
+                                var receiveStartAddressBytes = new byte[5];
+                                var receiveStopAddressBytes = new byte[5];
+                                Array.Copy(receiveStartBytes, receiveStartAddressBytes, receiveStartAddressBytes.Length);
+                                Array.Copy(receiveStopBytes, receiveStopAddressBytes, receiveStopAddressBytes.Length);
+
+                                var byteList = new List<byte>();
+                                byteList.Add((byte)channelNum);
+                                byteList.Add(1);
+                                byteList.AddRange(patternStartAddressBytes.Reverse());
+                                byteList.AddRange(patternStopAddressBytes.Reverse());
+                                byteList.AddRange(receiveStartAddressBytes.Reverse());
+                                byteList.AddRange(receiveStopAddressBytes.Reverse());
+                                byteList.Add(0);    //  接收数据存入DDR
+                                byteList.Add(4);    //  比特数
+                                var command = new CommandInfoModel()
+                                {
+                                    CommandCode = "0x010B",
+                                    CommandContent = byteList.ToArray(),
+                                };
+                                commandList.Add(command);
+                            }
                         }
                     }
-                    dataStartAddress = dataEndAddress;
+                    dataStartAddress = dataEndAddress + 1;
                 }
 
                 if (commandListDic.Any())
