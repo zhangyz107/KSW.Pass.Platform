@@ -163,7 +163,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                             };
                             commandList.Add(command);
 
-#if DEBUG
+#if !DEBUG
                             var stringFormat = "CH_NUM:{0},Period:{1},Format:{2},Strobe:{3},D0:{4},D1:{5},D2:{6},D3:{7},R0:{8},R1:{9},PWA_EN:{10},CD_EN:{11},FD_EN:{12},PWA_D:{13},CD_D:{14},FD_D:{15},PWA_CA:{16},CD_CA:{17},FD_CA:{18},PWA_CB:{19},CD_CB:{20},FD_CB:{21},D_D_D:{22},EN_D_D:{23},DEN_D_C:{24},CA_D_D:{25},CB_D_D:{26},CAB_D_C:{27}";
                             PrintResultLog.Message(string.Format(stringFormat, channelNum, periodUInt, formatByte, strobeByte, driveAUInt, driveBUInt, driveCUInt, driveDUInt, r0PeriodUInt, r1PeriodUInt, pwa_en, cd_en, fd_en, pwa_d, cd_d, fd_d, pwa_ca, cd_ca, fd_ca, pwa_cb, cd_cb, fd_cb, d_d_d, en_d_d, den_d_c, ca_d_d, cb_d_d, cab_d_c));
 #endif
@@ -576,7 +576,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                             };
                                             commandList.Add(command);
 
-#if DEBUG
+#if !DEBUG
                                             var stringFormat = "CH_NUM:{0},Period:{1},Format:{2},Strobe:{3},D0:{4},D1:{5},D2:{6},D3:{7},R0:{8},R1:{9},PWA_EN:{10},CD_EN:{11},FD_EN:{12},PWA_D:{13},CD_D:{14},FD_D:{15},PWA_CA:{16},CD_CA:{17},FD_CA:{18},PWA_CB:{19},CD_CB:{20},FD_CB:{21},D_D_D:{22},EN_D_D:{23},DEN_D_C:{24},CA_D_D:{25},CB_D_D:{26},CAB_D_C:{27}";
                                             PrintResultLog.Message(string.Format(stringFormat, channelNum, periodUInt, formatByte, strobeByte, driveAUInt, driveBUInt, driveCUInt, driveDUInt, r0PeriodUInt, r1PeriodUInt, pwa_en, cd_en, fd_en, pwa_d, cd_d, fd_d, pwa_ca, cd_ca, fd_ca, pwa_cb, cd_cb, fd_cb, d_d_d, en_d_d, den_d_c, ca_d_d, cb_d_d, cab_d_c));
 #endif

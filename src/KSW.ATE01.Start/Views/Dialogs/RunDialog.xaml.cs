@@ -50,5 +50,10 @@ namespace KSW.ATE01.Start.Views.Dialogs
             leftColumn.Width = new GridLength(1, GridUnitType.Star);
             rightColumn.Width = new GridLength(1, GridUnitType.Star);
         }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Console.WriteLine("sdas");
+        }
     }
 }

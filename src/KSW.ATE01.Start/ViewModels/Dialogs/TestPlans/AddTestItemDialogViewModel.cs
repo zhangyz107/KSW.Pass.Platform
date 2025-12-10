@@ -270,23 +270,25 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs.TestPlans
             var groups = await _groupInfoBLL?.GetListByOverviewIdAsync(ovewview?.Id);
             var pins = await _pinInfoBLL?.GetPinInfosFromOvewviewIdAsync(ovewview?.Id);
 
-            foreach (var group in groups)
-            {
-                var guid = group.Id.ToGuid();
-                if (!GroupOrPinDic.ContainsKey(guid))
+            if (!groups.IsEmpty())
+                foreach (var group in groups)
                 {
-                    GroupOrPinDic.Add(guid, $"{L["GroupName"]}-{group.GroupName}");
+                    var guid = group.Id.ToGuid();
+                    if (!GroupOrPinDic.ContainsKey(guid))
+                    {
+                        GroupOrPinDic.Add(guid, $"{L["GroupName"]}-{group.GroupName}");
+                    }
                 }
-            }
 
-            foreach (var pin in pins)
-            {
-                var guid = pin.Id.ToGuid();
-                if (!GroupOrPinDic.ContainsKey(guid))
+            if (!pins.IsEmpty())
+                foreach (var pin in pins)
                 {
-                    GroupOrPinDic.Add(guid, $"{L["PinName"]}-{pin.PinName}");
+                    var guid = pin.Id.ToGuid();
+                    if (!GroupOrPinDic.ContainsKey(guid))
+                    {
+                        GroupOrPinDic.Add(guid, $"{L["PinName"]}-{pin.PinName}");
+                    }
                 }
-            }
 
             #endregion
 

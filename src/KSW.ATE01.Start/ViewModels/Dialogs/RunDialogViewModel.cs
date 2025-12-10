@@ -242,7 +242,11 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
                 {
                     var flowTestItemList = testItemList.Where(x => x.FlowIndex != null).ToList();
                     if (flowTestItemList.Any())
+                    {
                         _testItemList.AddRange(flowTestItemList.OrderBy(x => x.FlowIndex));
+                        var unflowTestItemList = testItemList.Where(x => x.FlowIndex == null).ToList();
+                        _testItemList.AddRange(unflowTestItemList.OrderBy(x => x.SortId));
+                    }
                     else
                         _testItemList.AddRange(testItemList.OrderBy(x => x.SortId));
 
