@@ -194,7 +194,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 if (string.IsNullOrEmpty(patternName))
                     return;
 
-                var patternFile = Instance?._patterns.FirstOrDefault(x => x.PatternFileName.ToLower().Equals(patternName));
+                var patternFile = Instance?._patterns.FirstOrDefault(x => x.PatternFileName.ToLower().Equals(patternName.ToLower()));
                 if (patternFile == null)
                     return;
 
@@ -307,7 +307,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     if (pattern != null)
                     {
                         pattern.DataStartAddress = lastPatternDataEndAddress;
-                        var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress, out int patternDataLength);
+                        var singlePinPatternDic = PatternHelper.GetSinglePinPatternList(pattern);
+                       var package =  PatternHelper.ConversionPatternModel(singlePinPatternDic, ref lastPatternDataEndAddress, out int patternDataLength);
+                        //var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress, out int patternDataLength);
                         pattern.PinDataLength = patternDataLength;
                         pattern.DataEndAddress = lastPatternDataEndAddress;
                         if (package != null && package.Any())
@@ -327,6 +329,9 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             try
             {
                 var controlService = Instance?.ControlService;
+
+                if (packages == null || !packages.Any())
+                    return;
 
                 foreach (var package in packages)
                 {
@@ -349,12 +354,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                             var index = 1 + package.Address.Length + package.LengthBytes.Length;
                             foreach (var unit in package.PatternGroups)
                             {
+                                var instruction = (byte)unit.Instruction;
                                 contentBytes[index++] = (byte)unit.VectorNumber;
-                                contentBytes[index++] = (byte)unit.Instruction;
+                                contentBytes[index++] = (byte)(instruction << 1);
                                 if (unit.Parameter.Any())
                                 {
-                                    Array.Copy(unit.Parameter.ToArray(), 0, contentBytes, index, unit.Parameter.Count);
-                                    index += unit.Parameter.Count;
+                                    var parameterLength = unit.Parameter.Count > 6 ? 6 : unit.Parameter.Count;
+                                    Array.Copy(unit.Parameter.ToArray(), 0, contentBytes, index, parameterLength);
+                                    index += 6;
                                 }
                                 Array.Copy(unit.Vectors.ToArray(), 0, contentBytes, index, unit.Vectors.Count);
                                 index += unit.Vectors.Count;

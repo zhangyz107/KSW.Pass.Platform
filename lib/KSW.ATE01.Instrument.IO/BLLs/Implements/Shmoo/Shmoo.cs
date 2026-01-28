@@ -526,7 +526,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     var pinList = timingModel.Value;
 
                     var period = timing.Period;
-                    var radio = value / (period * 1.0); //同比例调整
+                    var radio = value / System.Convert.ToDouble(period); //同比例调整
 
                     double.TryParse(timing.DriveA, out double driveA);
                     double.TryParse(timing.DriveB, out double driveB);
@@ -597,19 +597,19 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Shmoo
                     switch (edgeType)
                     {
                         case WaveformEdgeType.DriveA:
-                            Digital.Pins(pinList).SetTimingDetail(timing.Period, currentValue, driveB, driveC, driveD, timing.Fmt, timing.StrobeMode, timing.StrobeA, timing.StrobeB);
+                            Digital.Pins(pinList).SetTimingDetail(System.Convert.ToDouble(timing.Period), currentValue, driveB, driveC, driveD, timing.Fmt, timing.StrobeMode, System.Convert.ToDouble(timing.StrobeA), System.Convert.ToDouble(timing.StrobeB));
                             break;
                         case WaveformEdgeType.DriveB:
-                            Digital.Pins(pinList).SetTimingDetail(timing.Period, driveA, currentValue, driveC, driveD, timing.Fmt, timing.StrobeMode, timing.StrobeA, timing.StrobeB);
+                            Digital.Pins(pinList).SetTimingDetail(System.Convert.ToDouble(timing.Period), driveA, currentValue, driveC, driveD, timing.Fmt, timing.StrobeMode, System.Convert.ToDouble(timing.StrobeA), System.Convert.ToDouble(timing.StrobeB));
                             break;
                         case WaveformEdgeType.DriveC:
-                            Digital.Pins(pinList).SetTimingDetail(timing.Period, driveA, driveB, currentValue, driveD, timing.Fmt, timing.StrobeMode, timing.StrobeA, timing.StrobeB);
+                            Digital.Pins(pinList).SetTimingDetail(System.Convert.ToDouble(timing.Period), driveA, driveB, currentValue, driveD, timing.Fmt, timing.StrobeMode, System.Convert.ToDouble(timing.StrobeA), System.Convert.ToDouble(timing.StrobeB));
                             break;
                         case WaveformEdgeType.DriveD:
-                            Digital.Pins(pinList).SetTimingDetail(timing.Period, driveA, driveB, driveC, currentValue, timing.Fmt, timing.StrobeMode, timing.StrobeA, timing.StrobeB);
+                            Digital.Pins(pinList).SetTimingDetail(System.Convert.ToDouble(timing.Period), driveA, driveB, driveC, currentValue, timing.Fmt, timing.StrobeMode, System.Convert.ToDouble(timing.StrobeA), System.Convert.ToDouble(timing.StrobeB));
                             break;
                         case WaveformEdgeType.StrobeB:
-                            Digital.Pins(pinList).SetTimingDetail(timing.Period, driveA, driveB, driveC, driveD, timing.Fmt, timing.StrobeMode, timing.StrobeB, currentValue);
+                            Digital.Pins(pinList).SetTimingDetail(System.Convert.ToDouble(timing.Period), driveA, driveB, driveC, driveD, timing.Fmt, timing.StrobeMode, System.Convert.ToDouble(timing.StrobeB), currentValue);
                             break;
                         default:
                             break;

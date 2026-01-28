@@ -46,7 +46,7 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 周期
         /// </summary>
         [DisplayName("周期")]
-        public int? Period { get; set; }
+        public decimal? Period { get; set; }
 
         /// <summary>
         /// 引脚Id
@@ -64,25 +64,25 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 环绕边缘
         /// </summary>
         [DisplayName("环绕边缘")]
-        public int? DriveA { get; set; }
+        public decimal? DriveA { get; set; }
 
         /// <summary>
         /// 起始边缘
         /// </summary>
         [DisplayName("起始边缘")]
-        public int? DriveB { get; set; }
+        public decimal? DriveB { get; set; }
 
         /// <summary>
         /// 返回边缘
         /// </summary>
         [DisplayName("返回边缘")]
-        public int? DriveC { get; set; }
+        public decimal? DriveC { get; set; }
 
         /// <summary>
         /// 关闭边缘
         /// </summary>
         [DisplayName("关闭边缘")]
-        public int? DriveD { get; set; }
+        public decimal? DriveD { get; set; }
 
         /// <summary>
         /// 选通模式
@@ -94,13 +94,13 @@ namespace KSW.ATE01.Domain.TestPlan.Entities
         /// 选通开始时间
         /// </summary>
         [DisplayName("选通开始时间")]
-        public int? StrobeA { get; set; }
+        public decimal? StrobeA { get; set; }
 
         /// <summary>
         /// 选通结束时间
         /// </summary>
         [DisplayName("选通结束时间")]
-        public int? StrobeB { get; set; }
+        public decimal? StrobeB { get; set; }
 
         /// <summary>
         /// 注释

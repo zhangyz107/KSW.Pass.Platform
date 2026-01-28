@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KSW.ATE01.Project.Base.Enums.Patterns;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,33 +8,33 @@ using System.Threading.Tasks;
 namespace KSW.ATE01.Project.Base.Models.Patterns
 {
     /// <summary>
-    /// Pattern包模型
+    /// 引脚Pattern模型
     /// </summary>
-    public class PatternPackageModel
+    public class PinPatternModel
     {
         /// <summary>
-        /// 引脚名
+        /// 引脚名称
         /// </summary>
         public string PinName { get; set; }
 
         /// <summary>
-        /// 起始地址
+        /// 时钟设置
         /// </summary>
-        public byte[] Address { get; set; }
+        public string TimingSet { get; set; }
 
         /// <summary>
-        /// 数据长度
+        /// 指令
         /// </summary>
-        public ushort Length { get; set; }
+        public CommandType Instruction { get; set; }
 
         /// <summary>
-        /// 数据长度（字节表示）
+        /// 指令参数
         /// </summary>
-        public byte[] LengthBytes { get; set; }
+        public object CommandParameter { get; set; }
 
         /// <summary>
-        /// 数据
+        /// 向量值
         /// </summary>
-        public List<PatternGroupModel> PatternGroups { get; set; }
+        public VectorValueType VectorValue { get; set; }
     }
 }

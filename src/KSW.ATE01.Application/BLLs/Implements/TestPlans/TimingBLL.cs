@@ -45,9 +45,10 @@ namespace KSW.ATE01.Application.BLLs.Implements.TestPlans
             _pinInfoRepository = pinInfoRepository;
         }
 
-        public Task<TimingModel> GetByIdAsync(string id)
+        public async Task<TimingModel> GetByIdAsync(string id)
         {
-            throw new NotImplementedException();
+            var entity = await _repository.FindByIdAsync(id);
+            return entity.MapTo<TimingModel>();
         }
 
         public async Task<List<TimingModel>> GetListByGroupIdAsync(string groupId)

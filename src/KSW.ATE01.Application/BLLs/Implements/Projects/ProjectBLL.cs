@@ -732,14 +732,23 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     PrintResultLog.Message(message);
                 }
 
-                var flowIds = testPlan?.Flow?.Where(x => x.IsSelected).Select(x => x.TestItemId);
-                var testItems = testPlan?.TestItem?.Where(x => flowIds?.Contains(x.Id.ToGuid()) == true).Select(x => x);
-                foreach (var testItem in testItems)
+                var flowIds = testPlan?.Flow?.Where(x => x.IsSelected).OrderBy(x => x.SortId).Select(x => x.TestItemId);
+                var testItems = new List<TestItemModel>();
+                foreach (var flowId in flowIds)
                 {
-                    SetCommonData(testItem);
-                    result = ExecuteFunction(ProcessStage.TestItem, instance, classType, testItem.FunctionName, null);
-                    if (!result)
-                        ++failCount;
+                    var testItem = testPlan?.TestItem?.FirstOrDefault(x => x.Id.ToGuid().Equals(flowId));
+                    testItems.Add(testItem);
+                }
+
+                if (!testItems.IsEmpty())
+                {
+                    foreach (var testItem in testItems)
+                    {
+                        SetCommonData(testItem);
+                        result = ExecuteFunction(ProcessStage.TestItem, instance, classType, testItem.FunctionName, null);
+                        if (!result)
+                            ++failCount;
+                    }
                 }
 
                 if (projectInfo.IsPrintTime == true)

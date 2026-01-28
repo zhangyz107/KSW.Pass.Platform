@@ -3,6 +3,7 @@ using KSW.ATE01.Project.Base.Events;
 using KSW.ATE01.Project.Base.Extensions;
 using KSW.ATE01.Project.Base.Language;
 using KSW.ATE01.Project.Base.Models.Patterns;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -32,7 +33,12 @@ namespace KSW.ATE01.Project.Base.Helpers
         private static int _dataBlockIndexTrig = -1;
         private static int _haltInVectorLinesPosition = -1;
         private static int _validVectorLinesCountInPatternFile;
-        private static long _vectorLength = 4 * 1024;
+        private static ushort _vectorGroupSize = 512 / 8;
+        private static int _nopMaxVectorCount = 124; //(512-16) / 4
+        private static int _paramMaxVectorCount = 112; //(512 - 16 - 48) / 4    带参数的向量组
+        private static ushort _patternUnitLength = 4 * 1024;    // Pattern单位长度
+        private static int _maxVectorGroupByUnitSize = _patternUnitLength / _vectorGroupSize;  // 一个单位长的包可以容纳多少向量组（64）
+        private static int _maxUnitCount = 15; // 65535 / 4096 取整
         private static long _mbByte = 128 * 1024 * 1024L;
         private static string _tempNestLoopOutermostLoopName = string.Empty;
 
@@ -222,6 +228,270 @@ namespace KSW.ATE01.Project.Base.Helpers
             return result;
         }
 
+        public static List<PatternPackageModel> ConversionPatternModel(Dictionary<string, List<PinPatternModel>> pinPatternList, ref long dataStartAddress, out int patternDataLength)
+        {
+            var result = new List<PatternPackageModel>();
+            patternDataLength = 0;
+            if (pinPatternList == null || !pinPatternList.Any())
+                return result;
+
+            try
+            {
+                bool isFirst = true;
+                foreach (var pinPattern in pinPatternList)
+                {
+                    var patterGroups = GetPatternGroups(pinPattern.Value);  //获取所有向量组
+
+                    if (patterGroups.Any())
+                    {
+                        int currentGroup = 0;
+                        var totalGroups = patterGroups.Count;
+                        int currentPackageGroups = 0;   //当前包含向量组数
+                        var isNewPackage = true;
+                        PatternPackageModel currentPackage = null;
+                        foreach (var group in patterGroups)
+                        {
+                            if (isNewPackage)
+                            {
+                                currentPackage = new PatternPackageModel();
+                                currentPackage.PinName = pinPattern.Key;
+                                currentPackage.Address = BitConverter.GetBytes(dataStartAddress).Reverse().Skip(3).ToArray();
+                                currentPackage.PatternGroups = new List<PatternGroupModel>();
+                                isNewPackage = false;
+                                result.Add(currentPackage);
+                            }
+
+                            if (currentPackage != null)
+                            {
+                                currentPackage.Length += _vectorGroupSize;
+                                currentPackage.PatternGroups.Add(group);
+                                var currentSize = group.Vectors.Count + 2;
+                                if (group.Parameter != null)
+                                    currentSize += group.Parameter.Count;
+
+                                if (currentSize < _vectorGroupSize) //(512 / 8)一个完整的向量组长度
+                                {
+                                    var less = _vectorGroupSize - currentSize;
+                                    var emptyVectorArray = new byte[less];
+                                    group.Vectors.AddRange(emptyVectorArray);
+                                }
+                                currentPackageGroups++;
+                            }
+
+                            if (currentPackageGroups == _maxUnitCount * _maxVectorGroupByUnitSize)
+                            {
+                                var lengthBytes = BitConverter.GetBytes(currentPackage.Length).Reverse().ToArray();
+                                currentPackage.LengthBytes = lengthBytes;
+                                dataStartAddress += currentPackage.Length;
+                                if (isFirst)
+                                    patternDataLength += currentPackage.Length;
+                                isNewPackage = true;
+                            }
+                        }
+
+                        if (!isNewPackage)
+                        {
+                            var currentLength = currentPackage.Length;
+                            if (currentLength % _patternUnitLength != 0)
+                            {
+                                var m = (ushort)(currentLength / _patternUnitLength);
+                                currentPackage.Length = (ushort)((m + 1) * _patternUnitLength);
+                            }
+                            var lengthBytes = BitConverter.GetBytes(currentPackage.Length).Reverse().ToArray();
+                            dataStartAddress += currentPackage.Length;
+                            if (isFirst)
+                                patternDataLength += currentPackage.Length;
+                            currentPackage.LengthBytes = lengthBytes;
+                        }
+
+                    }
+
+                    isFirst = false;
+                }
+
+
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private static List<PatternGroupModel> GetPatternGroups(List<PinPatternModel> pinPatterns)
+        {
+            var result = new List<PatternGroupModel>();
+            if (pinPatterns == null || !pinPatterns.Any())
+                return result;
+
+            var currentGroup = new PatternGroupModel();
+            currentGroup.VectorNumber = 0;
+            bool isNewGroup = true;
+            bool isLow = true;
+            byte vector = 0;
+            var lastInstruction = CommandType.nop;
+            object commandParameter = null;
+            foreach (var pinPattern in pinPatterns)
+            {
+                if (isNewGroup)
+                {
+                    currentGroup.Instruction = pinPattern.Instruction;
+                    if (pinPattern.CommandParameter != null)
+                    {
+                        switch (currentGroup.Instruction)
+                        {
+                            case CommandType.loop:
+                                if (pinPattern.CommandParameter is int loopCount)
+                                {
+                                    var loopParameterArray = new byte[6];
+                                    var parameterBytes = BitConverter.GetBytes(loopCount).ToArray();    // 不反序
+                                    Array.Copy(parameterBytes, 0, loopParameterArray, 0, parameterBytes.Length);
+                                    currentGroup.Parameter.AddRange(loopParameterArray);
+                                }
+                                break;
+                            case CommandType.endloop:
+                                var endParameterArray = new byte[6];
+                                currentGroup.Parameter.AddRange(endParameterArray);
+                                break;
+                        }
+                    }
+                    isNewGroup = false;
+                }
+
+                switch (pinPattern.Instruction)
+                {
+                    case CommandType.nop:
+                        if (isLow)
+                        {
+                            vector = (byte)pinPattern.VectorValue;
+                            currentGroup.VectorNumber++;
+                            isLow = false;
+                        }
+                        else
+                        {
+                            vector |= (byte)((int)pinPattern.VectorValue << 4);
+                            currentGroup.VectorNumber++;
+                            currentGroup.Vectors.Add(vector);
+                            isLow = true;
+                        }
+
+                        // 向量数已满
+                        if (currentGroup.VectorNumber == _nopMaxVectorCount)
+                        {
+                            result.Add(currentGroup);
+                            currentGroup = new PatternGroupModel();
+                            currentGroup.VectorNumber = 0;
+                            isNewGroup = true;
+                        }
+                        break;
+                    case CommandType.loop:
+                        if (lastInstruction != pinPattern.Instruction)
+                        {
+                            if (!isNewGroup)
+                            {
+                                if (!isLow)
+                                {
+                                    currentGroup.Vectors.Add(vector);
+                                    isLow = true;
+                                }
+                                result.Add(currentGroup);
+                            }
+
+                            currentGroup = new PatternGroupModel();
+                            currentGroup.VectorNumber = 0;
+                            currentGroup.Instruction = pinPattern.Instruction;
+                            if (pinPattern.CommandParameter != null && pinPattern.CommandParameter is int loopCount)
+                            {
+                                var parameterArray = new byte[6];
+                                var parameterBytes = BitConverter.GetBytes(loopCount).ToArray();    // 不反序
+                                Array.Copy(parameterBytes, 0, parameterArray, 0, parameterBytes.Length);
+                                currentGroup.Parameter.AddRange(parameterArray);
+                            }
+                            vector = (byte)pinPattern.VectorValue;
+                            currentGroup.VectorNumber++;
+                            isLow = false;
+                        }
+                        else
+                        {
+                            if (isLow)
+                            {
+                                vector = (byte)pinPattern.VectorValue;
+                                currentGroup.VectorNumber++;
+                                isLow = false;
+                            }
+                            else
+                            {
+                                vector |= (byte)((int)pinPattern.VectorValue << 4);
+                                currentGroup.VectorNumber++;
+                                currentGroup.Vectors.Add(vector);
+                                isLow = true;
+                            }
+
+                            // 向量数已满
+                            if (currentGroup.VectorNumber == _paramMaxVectorCount)
+                            {
+                                result.Add(currentGroup);
+                                currentGroup = new PatternGroupModel();
+                                currentGroup.VectorNumber = 0;
+                                isNewGroup = true;
+                            }
+
+                        }
+                        break;
+                    case CommandType.endloop:
+                        if (lastInstruction != pinPattern.Instruction)
+                        {
+                            if (!isNewGroup)
+                            {
+                                if (!isLow)
+                                {
+                                    currentGroup.Vectors.Add(vector);
+                                    isLow = true;
+                                }
+                                result.Add(currentGroup);
+                            }
+
+                            var tempEndLoopGroup = new PatternGroupModel();
+                            tempEndLoopGroup.VectorNumber = 0;
+                            tempEndLoopGroup.Instruction = pinPattern.Instruction;
+                            var endParameterArray = new byte[6];
+                            tempEndLoopGroup.Parameter.AddRange(endParameterArray);
+                            var tempVector = (byte)pinPattern.VectorValue;
+                            tempEndLoopGroup.VectorNumber++;
+                            tempEndLoopGroup.Vectors.Add(tempVector);
+                            result.Add(tempEndLoopGroup);
+
+                            currentGroup = new PatternGroupModel();
+                            currentGroup.VectorNumber = 0;
+                            isNewGroup = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                lastInstruction = pinPattern.Instruction;
+            }
+
+            if (!isNewGroup)
+            {
+                if (!isLow)
+                    currentGroup.Vectors.Add(vector);
+
+                result.Add(currentGroup);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 获取Patter包数据
+        /// </summary>
+        /// <param name="patternModel"></param>
+        /// <param name="dataStartAddress"></param>
+        /// <param name="patternDataLength"></param>
+        /// <returns></returns>
         public static List<PatternPackageModel> ConversionPatternModel(PatternModel patternModel, ref long dataStartAddress, out int patternDataLength)
         {
             var result = new List<PatternPackageModel>();
@@ -232,7 +502,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (!patternModel.PatternVectors.Any())
                 return result;
 
-            var lengthBytes = BitConverter.GetBytes(_vectorLength).Reverse().Skip(6).ToArray();
+            var lengthBytes = BitConverter.GetBytes(_patternUnitLength).Reverse().Skip(6).ToArray();
             try
             {
                 //先将向量根据命令分组
@@ -252,20 +522,25 @@ namespace KSW.ATE01.Project.Base.Helpers
                     //根据命令实际情况分组
                     if (vector.Command != null && (vector.Command.Type == CommandType.loop || vector.Command.Type == CommandType.repeat))
                     {
+                        var commandGroup = new List<PatternVectorModel>();
+                        groupPatternVectors[++groupIndex] = commandGroup;
+                        commandGroup.Add(vector);
                         currentGroup = new List<PatternVectorModel>();
                         groupPatternVectors[++groupIndex] = currentGroup;
                     }
-
-                    if (currentGroup != null)
+                    else if (currentGroup != null)
+                    {
                         currentGroup.Add(vector);
+                    }
                 }
-                patternDataLength = (groupIndex + 1) * (int)_vectorLength;
+                patternDataLength = (groupIndex + 1) * (int)_patternUnitLength;
                 var packageModelDic = new Dictionary<int, PatternPackageModel>();
                 var groupCount = 0;
                 int vectorUnitByte = 62;
                 foreach (var groupVectors in groupPatternVectors)
                 {
                     var isEven = groupVectors.Value.Count % 2 == 0;
+                    packageModelDic.Clear();
 
                     if (isEven)
                     {
@@ -291,13 +566,13 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     lastPackageModel.PinName = pinName;
                                     var addr = dataStartAddress;
                                     lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                    lastPackageModel.Length = _vectorLength;
+                                    lastPackageModel.Length = _patternUnitLength;
                                     lastPackageModel.LengthBytes = lengthBytes;
                                     lastPackageModel.PatternGroups = new List<PatternGroupModel>();
                                     lastPackageModel.PatternGroups.Add(new PatternGroupModel());
                                     packageModelDic.Add(j, lastPackageModel);
                                     result.Add(lastPackageModel);
-                                    dataStartAddress += _vectorLength;
+                                    dataStartAddress += _patternUnitLength;
                                 }
                                 else
                                 {
@@ -326,7 +601,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                             lastPackageModel.PinName = pinName;
                                             var addr = dataStartAddress;
                                             lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                            lastPackageModel.Length = _vectorLength;
+                                            lastPackageModel.Length = _patternUnitLength;
                                             lastPackageModel.LengthBytes = lengthBytes;
                                             lastPackageModel.PatternGroups = new List<PatternGroupModel>();
                                             lastPackageModel.PatternGroups.Add(new PatternGroupModel());
@@ -339,7 +614,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                             lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
                                             lastPatternModel.Vectors.Add(pinByte);
                                             lastPatternModel.VectorNumber += vectorIncrease;
-                                            dataStartAddress += _vectorLength;
+                                            dataStartAddress += _patternUnitLength;
                                         }
 
                                     }
@@ -384,19 +659,20 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     lastPackageModel.PinName = pinName;
                                     var addr = dataStartAddress;
                                     lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                    lastPackageModel.Length = _vectorLength;
+                                    lastPackageModel.Length = _patternUnitLength;
                                     lastPackageModel.LengthBytes = lengthBytes;
                                     lastPackageModel.PatternGroups = new List<PatternGroupModel>();
                                     lastPackageModel.PatternGroups.Add(new PatternGroupModel());
                                     packageModelDic.Add(j, lastPackageModel);
                                     result.Add(lastPackageModel);
-                                    dataStartAddress += _vectorLength;
+                                    dataStartAddress += _patternUnitLength;
                                 }
                                 else
                                 {
                                     lastPackageModel = packageModelDic[j];
                                 }
 
+                                GetCommandAndParameter(row1, out CommandType instruction, out List<byte> commandParameters);
                                 var pinByte = row2 != null ? (byte)((int)row2.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue) : (byte)row1.Pins[j].VectorValue;
                                 var vectorIncrease = row2 != null ? 2 : 1;
 
@@ -410,6 +686,8 @@ namespace KSW.ATE01.Project.Base.Helpers
                                         if (lastPackageModel.PatternGroups.Count < 8)
                                         {
                                             lastPackageModel.PatternGroups.Add(lastPatternModel);
+                                            lastPatternModel.Instruction = instruction;
+                                            lastPatternModel.Parameter = commandParameters;
                                             lastPatternModel.Vectors.Add(pinByte);
                                             lastPatternModel.VectorNumber += vectorIncrease;
                                         }
@@ -419,7 +697,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                             lastPackageModel.PinName = pinName;
                                             var addr = dataStartAddress;
                                             lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                            lastPackageModel.Length = _vectorLength;
+                                            lastPackageModel.Length = _patternUnitLength;
                                             lastPackageModel.LengthBytes = lengthBytes;
                                             lastPackageModel.PatternGroups = new List<PatternGroupModel>();
                                             lastPackageModel.PatternGroups.Add(new PatternGroupModel());
@@ -430,14 +708,18 @@ namespace KSW.ATE01.Project.Base.Helpers
                                             result.Add(lastPackageModel);
 
                                             lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
+                                            lastPatternModel.Instruction = instruction;
+                                            lastPatternModel.Parameter = commandParameters;
                                             lastPatternModel.Vectors.Add(pinByte);
                                             lastPatternModel.VectorNumber += vectorIncrease;
-                                            dataStartAddress += _vectorLength;
+                                            dataStartAddress += _patternUnitLength;
                                         }
 
                                     }
                                     else
                                     {
+                                        lastPatternModel.Instruction = instruction;
+                                        lastPatternModel.Parameter = commandParameters;
                                         lastPatternModel.Vectors.Add(pinByte);
                                         lastPatternModel.VectorNumber += vectorIncrease;
                                     }
@@ -458,6 +740,33 @@ namespace KSW.ATE01.Project.Base.Helpers
             }
 
             return result;
+        }
+
+        private static void GetCommandAndParameter(PatternVectorModel row1, out CommandType instruction, out List<byte> commandParameters)
+        {
+            instruction = row1.Command.Type;
+            commandParameters = new List<byte>();
+            switch (row1.Command.Type)
+            {
+                case CommandType.loop:
+                case CommandType.repeat:
+                    if (int.TryParse(row1?.Command?.CommandParameter?.ToString(), out int loopCount))
+                    {
+                        var resultArray = new byte[6];
+                        var paramArray = BitConverter.GetBytes(loopCount).Reverse().ToArray();
+                        Array.Copy(paramArray, 0, resultArray, 2, paramArray.Length);
+                        commandParameters.AddRange(resultArray);
+                    }
+                    else
+                        throw new ArgumentException($"指令参数错误：{row1?.Command?.CommandParameter}");
+                    break;
+                case CommandType.stop:
+                    break;
+                case CommandType.endloop:
+                    break;
+                default:
+                    break;
+            }
         }
         #endregion
 
@@ -1795,6 +2104,59 @@ namespace KSW.ATE01.Project.Base.Helpers
                 }
                 else
                     index++;
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, List<PinPatternModel>> GetSinglePinPatternList(PatternModel pattern)
+        {
+            var result = new Dictionary<string, List<PinPatternModel>>();
+            if (pattern.PatternVectors == null || !pattern.PatternVectors.Any())
+                return result;
+
+            var lastInstruction = CommandType.nop;
+            object lastCommandParameter = null;
+
+            foreach (var vectorModel in pattern.PatternVectors)
+            {
+                if (vectorModel.Command != null)
+                {
+                    switch (vectorModel.Command.Type)
+                    {
+                        case CommandType.loop:
+                            lastInstruction = vectorModel.Command.Type;
+                            lastCommandParameter = vectorModel.Command.CommandParameter;
+                            break;
+                        case CommandType.endloop:
+                            lastInstruction = CommandType.nop;
+                            lastCommandParameter = null;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                foreach (var pinModel in vectorModel.Pins)
+                {
+                    List<PinPatternModel> pinPatternModelList;
+                    if (!result.ContainsKey(pinModel.PinName))
+                    {
+                        pinPatternModelList = new List<PinPatternModel>();
+                        result.Add(pinModel.PinName, pinPatternModelList);
+                    }
+                    else
+                        pinPatternModelList = result[pinModel.PinName];
+
+                    pinPatternModelList.Add(new PinPatternModel
+                    {
+                        PinName = pinModel.PinName,
+                        Instruction = vectorModel.Command.Type == CommandType.nop ? lastInstruction : vectorModel.Command.Type,
+                        CommandParameter = vectorModel.Command.Type == CommandType.nop ? lastCommandParameter : vectorModel.Command.CommandParameter,
+                        TimingSet = vectorModel.TimingSet,
+                        VectorValue = pinModel.VectorValue,
+                    });
+                }
             }
 
             return result;

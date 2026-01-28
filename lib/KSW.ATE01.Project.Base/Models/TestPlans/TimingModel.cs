@@ -20,7 +20,7 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
         /// <summary>
         /// 周期
         /// </summary>
-        public int Period { get; set; }
+        public decimal Period { get; set; }
 
         /// <summary>
         /// 引脚Id
@@ -70,12 +70,12 @@ namespace KSW.ATE01.Project.Base.Models.TestPlans
         /// <summary>
         /// 
         /// </summary>
-        public int StrobeA { get; set; }
+        public decimal StrobeA { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public int StrobeB { get; set; }
+        public decimal StrobeB { get; set; }
 
         /// <summary>
         /// 注解

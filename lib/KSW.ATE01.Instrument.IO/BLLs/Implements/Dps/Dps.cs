@@ -330,7 +330,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                             if (currentPinList == null || !currentPinList.Any())
                                 currentPinList = pinList.Where(x => x.PinName.ToLower().Equals(patternTiming.PinName.ToLower())).ToList();
 
-                            var period = patternTiming.Period * _ns;
+                            var period = System.Convert.ToDouble(patternTiming.Period) * _ns;
 
                             if (period < 0 || period > 0.02684354559375)
                                 throw new ArgumentOutOfRangeException("Period", "取值范围:0~0.02684354559375");
@@ -365,11 +365,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                             var formatByte = System.Convert.ToByte(patternTiming.Fmt);
                             var strobeByte = System.Convert.ToByte(patternTiming.StrobeMode);
 
-                            double r0Period = patternTiming.StrobeA * _ns;
+                            double r0Period = System.Convert.ToDouble(patternTiming.StrobeA) * _ns;
                             var r0PeriodUInt = System.Convert.ToUInt32(r0Period / _periodResolution);
                             var r0PeriodBytes = BitConverter.GetBytes(r0PeriodUInt).Reverse();
 
-                            double r1Period = patternTiming.StrobeB * _ns;
+                            double r1Period = System.Convert.ToDouble(patternTiming.StrobeB) * _ns;
                             var r1PeriodUInt = System.Convert.ToUInt32(r1Period / _periodResolution);
                             var r1PeriodBytes = BitConverter.GetBytes(r1PeriodUInt).Reverse();
 
@@ -1252,7 +1252,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                 if (string.IsNullOrEmpty(patternName))
                     return;
 
-                var patternFile = Instance?._patterns.FirstOrDefault(x => x.PatternFileName.ToLower().Equals(patternName));
+                var patternFile = Instance?._patterns.FirstOrDefault(x => x.PatternFileName.ToLower().Equals(patternName.ToLower()));
                 if (patternFile == null)
                     return;
 

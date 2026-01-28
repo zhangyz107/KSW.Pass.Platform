@@ -449,7 +449,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                 if (currentPinList == null || !currentPinList.Any())
                                     currentPinList = pinList.Where(x => x.PinName.ToLower().Equals(patternTiming.PinName.ToLower())).ToList();
 
-                                var period = patternTiming.Period * _ns;
+                                var period = Convert.ToDouble(patternTiming.Period) * _ns;
 
                                 if (period < 0 || period > 2.684354559375)
                                     throw new ArgumentOutOfRangeException("Period", "取值范围:取值范围:0~2.684354559375s");
@@ -486,7 +486,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                 var r0PeriodUInt = Convert.ToInt32(0 / _periodResolution);   //默认给0
                                 var r0PeriodBytes = BitConverter.GetBytes(r0PeriodUInt).Reverse();
 
-                                double r1Period = (patternTiming.StrobeB - patternTiming.StrobeA) * _ns;
+                                double r1Period = Convert.ToDouble(patternTiming.StrobeB - patternTiming.StrobeA) * _ns;
                                 var r1PeriodUInt = Convert.ToInt32(r1Period / _periodResolution);
                                 var r1PeriodBytes = BitConverter.GetBytes(r1PeriodUInt).Reverse();
 
@@ -530,7 +530,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                             byte cb_d_d = 0;
                                             int cab_d_c = 0;
 
-                                            ApplyCalibrationData(patternTiming.Period, driveA, patternTiming.StrobeA, ref cd_en, ref fd_en, ref cd_d, ref fd_d, ref cd_ca, ref fd_ca, ref cd_cb, ref fd_cb, ref d_d_d, ref en_d_d, ref den_d_c, ref ca_d_d, ref cb_d_d, ref cab_d_c, channelNum, slot);
+                                            ApplyCalibrationData(Convert.ToDouble(patternTiming.Period), driveA, Convert.ToDouble(patternTiming.StrobeA), ref cd_en, ref fd_en, ref cd_d, ref fd_d, ref cd_ca, ref fd_ca, ref cd_cb, ref fd_cb, ref d_d_d, ref en_d_d, ref den_d_c, ref ca_d_d, ref cb_d_d, ref cab_d_c, channelNum, slot);
                                             #endregion
 
                                             var fd_enBytes = BitConverter.GetBytes(fd_en).Reverse();

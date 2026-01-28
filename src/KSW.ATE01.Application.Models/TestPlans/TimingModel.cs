@@ -17,16 +17,16 @@ namespace KSW.ATE01.Application.Models.TestPlans
         private int _sortId;
         private Guid? _timingGroupId;
         private string _timingName;
-        private int? _period;
+        private decimal? _period;
         private Guid? _groupOrPinId;
         private TimingformatType? _waveformFormat;
-        private int? _driveA;
-        private int? _driveB;
-        private int? _driveC;
-        private int? _driveD;
+        private decimal? _driveA;
+        private decimal? _driveB;
+        private decimal? _driveC;
+        private decimal? _driveD;
         private StrobeModeType? _strobeMode;
-        private int? _strobeA;
-        private int? _strobeB;
+        private decimal? _strobeA;
+        private decimal? _strobeB;
         private string _comment;
         private DateTime? _creationTime;
         private DateTime? _lastModificationTime;
@@ -69,7 +69,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 周期
         /// </summary>
         [Required]
-        public int? Period
+        public decimal? Period
         {
             get => _period;
             set => SetProperty(ref _period, value);
@@ -113,7 +113,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 环绕边缘
         /// </summary>
         [Required]
-        public int? DriveA
+        public decimal? DriveA
         {
             get => _driveA;
             set => SetProperty(ref _driveA, value);
@@ -123,7 +123,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 起始边缘
         /// </summary>
         [Required]
-        public int? DriveB
+        public decimal? DriveB
         {
             get => _driveB;
             set => SetProperty(ref _driveB, value);
@@ -133,7 +133,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 返回边缘
         /// </summary>
         [Required]
-        public int? DriveC
+        public decimal? DriveC
         {
             get => _driveC;
             set => SetProperty(ref _driveC, value);
@@ -143,7 +143,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// 关闭边缘
         /// </summary>
         [Required]
-        public int? DriveD
+        public decimal? DriveD
         {
             get => _driveD;
             set => SetProperty(ref _driveD, value);
@@ -166,7 +166,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 选通开始时间
         /// </summary>
-        public int? StrobeA
+        public decimal? StrobeA
         {
             get => _strobeA;
             set => SetProperty(ref _strobeA, value);
@@ -175,7 +175,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 选通结束时间
         /// </summary>
-        public int? StrobeB
+        public decimal? StrobeB
         {
             get => _strobeB;
             set => SetProperty(ref _strobeB, value);
