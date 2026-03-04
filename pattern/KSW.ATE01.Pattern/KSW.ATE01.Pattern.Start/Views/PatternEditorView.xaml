@@ -166,7 +166,8 @@
                 </Grid>
             </Border>
 
-            <DataGrid x:Name="dataGrid" Margin="6,0,0,0" Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding VectorInfos,IsAsync=True}" materialDesign:DataGridAssist.CellPadding="6" SelectedItem="{Binding VectorRow}" 
+            <DataGrid x:Name="dataGrid" Margin="6,0,0,0" Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding VectorInfos}" materialDesign:DataGridAssist.CellPadding="6" SelectedItem="{Binding VectorRow}" 
+                      RowHeight="35"
                       VirtualizingPanel.IsContainerVirtualizable="True" 
                       VirtualizingPanel.IsVirtualizing="True" 
                       EnableRowVirtualization="True" 
@@ -181,12 +182,12 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{language:L Vector}" IsReadOnly="True" Binding="{Binding Label.IndexInVectors}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="{language:L Label}" IsReadOnly="True" Binding="{Binding Label.LabelFullContent}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="{language:L Command}" IsReadOnly="True" Binding="{Binding Command.TypeDescription}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="{language:L Instrument}" IsReadOnly="True" Binding="{Binding Instrument}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="{language:L TimingName}" IsReadOnly="True" Binding="{Binding TimingSet}" Width="auto"></DataGridTextColumn>
-                    <DataGridTextColumn Header="{language:L Comment}" IsReadOnly="True" Binding="{Binding Comment}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Vector}" IsReadOnly="True" Binding="{Binding Label.IndexInVectors,IsAsync=True}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Label}" IsReadOnly="True" Binding="{Binding Label.LabelFullContent,IsAsync=True}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Command}" IsReadOnly="True" Binding="{Binding Command.TypeDescription,IsAsync=True}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Instrument}" IsReadOnly="True" Binding="{Binding Instrument,IsAsync=True}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L TimingName}" IsReadOnly="True" Binding="{Binding TimingSet,IsAsync=True}" Width="auto"></DataGridTextColumn>
+                    <DataGridTextColumn Header="{language:L Comment}" IsReadOnly="True" Binding="{Binding Comment,IsAsync=True}" Width="auto"></DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

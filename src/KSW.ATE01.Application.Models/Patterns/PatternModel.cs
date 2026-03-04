@@ -1,14 +1,21 @@
 ﻿using KSW.ATE01.Project.Base.Enums.Patterns;
+using KSW.Dtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
-namespace KSW.ATE01.Project.Base.Models.Patterns
+namespace KSW.ATE01.Application.Models.Patterns
 {
     /// <summary>
-    /// 向量模型
+    /// 向量信息模型
     /// </summary>
-    public class PatternModel
+    public class PatternModel : DtoBase
     {
         /// <summary>
-        /// 向量文件名
+        /// 文件名
         /// </summary>
         public string FileName { get; set; }
 
@@ -18,7 +25,7 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
         public string FilePath { get; set; }
 
         /// <summary>
-        /// 向量名称
+        /// 向量名
         /// </summary>
         public string VectorName { get; set; }
 
@@ -28,29 +35,9 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
         public List<string> TimingSets { get; set; } = new List<string>();
 
         /// <summary>
-        /// 数据起始地址
-        /// </summary>
-        public long DataStartAddress { get; set; }
-
-        /// <summary>
-        /// 数据结束地址
-        /// </summary>
-        public long DataEndAddress { get; set; }
-
-        /// <summary>
-        /// 引脚数据长度
-        /// </summary>
-        public int PinDataLength { get; set; }
-
-        /// <summary>
         /// 设备名
         /// </summary>
         public string InstrumentName { get; set; }
-
-        /// <summary>
-        /// 设备信息
-        /// </summary>
-        public InstrumentModel InstrumentInfo { get; set; }
 
         /// <summary>
         /// 模块类型

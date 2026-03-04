@@ -1,0 +1,205 @@
+﻿<UserControl x:Class="KSW.ATE01.Start.Views.Patterns.PatternToolView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KSW.ATE01.Start.Views.Patterns"
+             xmlns:materialDesign ="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:language="clr-namespace:KSW.ATE01.Start"
+             xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels.Patterns"
+             xmlns:management ="clr-namespace:KSW.ATE01.Start.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance viewmodel:PatternToolViewModel}"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    
+    <UserControl.Resources>
+        <Style TargetType="TabItem" BasedOn="{StaticResource MaterialDesignTabItem}">
+            <Setter Property="Header" Value="{Binding DataContext.Title,UpdateSourceTrigger=PropertyChanged}" />
+        </Style>
+        <Style x:Key="VerticalColHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <TextBlock.LayoutTransform>
+                                <RotateTransform Angle="90"></RotateTransform>
+                            </TextBlock.LayoutTransform>
+                        </TextBlock>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DiscolorationEditCombobox" TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignDataGridComboBox}">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="0"></Setter>
+            <Setter Property="Margin" Value="0"></Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=SelectedValue,RelativeSource={RelativeSource Mode=Self}}" Value="0">
+                    <Setter Property="Background" Value="#E7F3F8" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=SelectedValue,RelativeSource={RelativeSource Mode=Self}}" Value="1">
+                    <Setter Property="Background" Value="#FFE9ED" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=SelectedValue,RelativeSource={RelativeSource Mode=Self}}" Value="2">
+                    <Setter Property="Background" Value="#D1E1FF" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=SelectedValue,RelativeSource={RelativeSource Mode=Self}}" Value="3">
+                    <Setter Property="Background" Value="#F5B9C5" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=SelectedValue,RelativeSource={RelativeSource Mode=Self}}" Value="4">
+                    <Setter Property="Background" Value="#FDF9F2" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=SelectedValue,RelativeSource={RelativeSource Mode=Self}}" Value="5">
+                    <Setter Property="Background" Value="#F5F5F5" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=SelectedValue,RelativeSource={RelativeSource Mode=Self}}" Value="6">
+                    <Setter Property="Background" Value="White" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=SelectedValue,RelativeSource={RelativeSource Mode=Self}}" Value="7">
+                    <Setter Property="Background" Value="White" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DiscolorationCombobox" TargetType="ComboBox" BasedOn="{StaticResource DiscolorationEditCombobox}">
+            <Setter Property="BorderBrush" Value="Transparent"></Setter>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <materialDesign:SplitButton Margin="0,0,4,0"  Style="{StaticResource MaterialDesignOutlinedSecondarySplitButton}" Foreground="#0074b0" Command="{Binding OpenFileCommand}">
+                <materialDesign:SplitButton.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="FolderOpenOutline" Foreground="#0074b0"/>
+                        <TextBlock Grid.Column="1" Text="{language:L Open}" Foreground="#0074b0"></TextBlock>
+                    </Grid>
+                </materialDesign:SplitButton.Content>
+                <materialDesign:SplitButton.PopupContent>
+                    <Grid Width="130">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Button 
+                            Content="{language:L Open File}" 
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Command="{Binding OpenFileCommand}"></Button>
+                        <Button Grid.Row="1" Content="{language:L OpenFolder}"  Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding OpenDirCommand}"></Button>
+                    </Grid>
+                </materialDesign:SplitButton.PopupContent>
+            </materialDesign:SplitButton>
+
+            <Button Grid.Column="1" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding SaveCommand}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="ContentSaveEditOutline" />
+                        <TextBlock Grid.Column="1" Text="{language:L Save}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="2" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding SaveAsCommand}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="ContentSaveAllOutline" />
+                        <TextBlock Grid.Column="1" Text="{language:L SaveAs}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="3" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CompileCommand}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="PackageDown" />
+                        <TextBlock Grid.Column="1" Text="{language:L Compile}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="5" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding InsertVectorCommand}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="Plus" />
+                        <TextBlock Grid.Column="1" Text="{language:L InsertVector}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="6" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding AddVectorCommand}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="Plus" />
+                        <TextBlock Grid.Column="1" Text="{language:L AddVector}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+
+            <Button Grid.Column="7" Margin="0,6,6,6" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding RemoveVectorCommand}">
+                <Button.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                            <ColumnDefinition Width="auto" ></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Image Margin="0,0,4,0" Source="/Resource/Images/reduce.png" Width="16" Height="16"></Image>
+                        <TextBlock Grid.Column="1" Text="{language:L DeleteVector}"></TextBlock>
+                    </Grid>
+                </Button.Content>
+            </Button>
+        </Grid>
+
+        <TabControl x:Name="tabControl"
+                    Grid.Row="1" 
+                    Margin="4" 
+                    TabStripPlacement="Left" 
+                    SelectedValue="{Binding CurrentPattern}"
+                    Style="{StaticResource MaterialDesignFilledTabControl}"
+                    prism:RegionManager.RegionName="{x:Static management:RegionNameManagement.PatternEditorContent}">
+        </TabControl>
+    </Grid>
+</UserControl>

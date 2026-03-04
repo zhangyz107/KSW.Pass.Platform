@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KSW.Ui;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace KSW.ATE01.Start.Views.TestPlans
     /// <summary>
     /// LevelSettingView.xaml 的交互逻辑
     /// </summary>
-    public partial class LevelSettingView : UserControl
+    public partial class LevelSettingView : IView
     {
         public LevelSettingView()
         {

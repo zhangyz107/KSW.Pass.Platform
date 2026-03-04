@@ -7,9 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Patterns\PinPatternModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src-platform\KSW.Core\KSW.Core.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Domain.Projects.Core\KSW.ATE01.Domain.Projects.Core.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Domain.TestPlan.Core\KSW.ATE01.Domain.TestPlan.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="KSW.ATE01.Project.Base">
+      <HintPath>..\..\lib\KSW.ATE01.Instrument.IO\bin\Debug\net8.0-windows\KSW.ATE01.Project.Base.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

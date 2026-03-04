@@ -316,12 +316,15 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
             if (args.Any())
             {
                 var patternFileName = args.FirstOrDefault()?.ParamValue;
-                var patterns = Pattern.Instance.Patterns;
-                var patternFile = patterns.FirstOrDefault(x => x.PatternFileName.Equals(patternFileName));
+                //var patterns = Pattern.Instance.Patterns;
+                var patterns = Pattern.Instance.BinPatterns;
+                var patternFile = patterns.FirstOrDefault(x => x.FileName.Equals(patternFileName));
                 var timings = testItem?.Timings;
                 if (patternFile != null)
                 {
-                    var patternTimings = timings?.Where(x => patternFile.TimingSets.Contains(x.TimingName));
+                    var timingSets = patternFile.PinPacks.Where(x => !string.IsNullOrEmpty(x.TimingSet)).Select(x => x.TimingSet);
+                    var patternTimings = timings?.Where(x => timingSets.Contains(x.TimingName));
+
                     if (patternTimings.Any())
                     {
                         foreach (var patternTiming in patternTimings)
@@ -1252,7 +1255,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
                 if (string.IsNullOrEmpty(patternName))
                     return;
 
-                var patternFile = Instance?._patterns.FirstOrDefault(x => x.PatternFileName.ToLower().Equals(patternName.ToLower()));
+                var patternFile = Instance?._patterns.FirstOrDefault(x => x.FileName.ToLower().Equals(patternName.ToLower()));
                 if (patternFile == null)
                     return;
 

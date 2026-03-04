@@ -6,6 +6,7 @@ using KSW.ATE01.Start.ViewModels.Dialogs.TestPlans;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.ATE01.Start.Views.Dialogs.TestPlans;
+using KSW.ATE01.Start.Views.Patterns;
 using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Helpers;
 using KSW.Infrastructure;
@@ -197,6 +198,8 @@ namespace KSW.ATE01.Platform
             containerRegistry.RegisterForNavigation<TimingSettingView>();
             containerRegistry.RegisterForNavigation<TestItemSettingView>();
             containerRegistry.RegisterForNavigation<GlobalSettingView>();
+
+            containerRegistry.RegisterForNavigation<PatternEditorView>();
             #endregion
         }
 

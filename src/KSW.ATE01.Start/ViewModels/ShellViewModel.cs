@@ -21,6 +21,8 @@ using KSW.ATE01.Domain.Projects.Core.Enums;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
+using KSW.ATE01.Start.Views.Patterns;
+using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Helpers;
 using KSW.Ui;
 using KSW.UI.WPF.Controls;
@@ -44,8 +46,10 @@ namespace KSW.ATE01.Start.ViewModels
         private readonly PaletteHelper _paletteHelper = new();
         private IProjectBLL _projectBLL;
         private bool _isChinese;
-        private bool _showRunView = false;
         private bool _showProjectView = true;
+        private bool _showBackwardView = false;
+        private bool _showRunView = false;
+        private bool _showPatterToolView = false;
         private string _selectProject;
 
         #region Properties
@@ -73,6 +77,16 @@ namespace KSW.ATE01.Start.ViewModels
         }
 
         /// <summary>
+        /// 显示返回视图
+        /// </summary>
+        public bool ShowBackwardView
+        {
+            get => _showBackwardView;
+            set => SetProperty(ref _showBackwardView, value);
+        }
+
+
+        /// <summary>
         /// 显示项目视图
         /// </summary>
         public bool ShowProjectView
@@ -80,6 +94,16 @@ namespace KSW.ATE01.Start.ViewModels
             get => _showProjectView;
             set => SetProperty(ref _showProjectView, value);
         }
+
+        /// <summary>
+        /// 显示向量工具视图
+        /// </summary>
+        public bool ShowPatterToolView
+        {
+            get => _showPatterToolView;
+            set => SetProperty(ref _showPatterToolView, value);
+        }
+
 
         /// <summary>
         /// 选中项目
@@ -126,6 +150,10 @@ namespace KSW.ATE01.Start.ViewModels
         public DelegateCommand BackwardCommand =>
             _backwardCommand ?? (_backwardCommand = new DelegateCommand(ExecuteBackwardCommand));
 
+        private DelegateCommand _patternToolCommand;
+        public DelegateCommand PatternToolCommand =>
+            _patternToolCommand ?? (_patternToolCommand = new DelegateCommand(ExecutePatternToolCommand));
+
         #endregion
 
         public ShellViewModel(
@@ -140,6 +168,7 @@ namespace KSW.ATE01.Start.ViewModels
             _regionManager.RegisterViewWithRegion(RegionNameManagement.ProjectViewContent, typeof(ProjectView));
             _regionManager.RegisterViewWithRegion(RegionNameManagement.ProjectDetailContent, typeof(ProjectDetailView));
             _regionManager.RegisterViewWithRegion(RegionNameManagement.RunViewContent, typeof(RunDialog));
+            _regionManager.RegisterViewWithRegion(RegionNameManagement.PatternToolContent, typeof(PatternToolView));
 
             Theme theme = _paletteHelper.GetTheme();
 
@@ -267,14 +296,26 @@ namespace KSW.ATE01.Start.ViewModels
 
         private async void ExecuteRunCommand()
         {
-            ShowRunView = true;
             ShowProjectView = false;
+            ShowBackwardView = true;
+            ShowRunView = true;
+            ShowPatterToolView = false;
         }
 
         private void ExecuteBackwardCommand()
         {
-            ShowRunView = false;
             ShowProjectView = true;
+            ShowBackwardView = false;
+            ShowRunView = false;
+            ShowPatterToolView = false;
+        }
+
+        private void ExecutePatternToolCommand()
+        {
+            ShowProjectView = false;
+            ShowBackwardView = true;
+            ShowRunView = false;
+            ShowPatterToolView = true;
         }
 
     }

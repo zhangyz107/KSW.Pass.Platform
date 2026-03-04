@@ -20,9 +20,12 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
         private const long _mbByte = 128 * 1024 * 1024L;
         private const int _maxChannelNum = 127;
         private const int _packageAdditionalLength = 8;
-        private List<PatternModel> _patterns = new List<PatternModel>();
+        //private List<PatternModel> _patterns = new List<PatternModel>();
+        private List<BinPatternModel> _binPatterns = new List<BinPatternModel>();
 
-        public List<PatternModel> Patterns { get => _patterns; }
+        //public List<PatternModel> Patterns { get => _patterns; }
+
+        public List<BinPatternModel> BinPatterns { get => _binPatterns; }
 
         public static IPattern Pins(string pinList)
         {
@@ -194,7 +197,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 if (string.IsNullOrEmpty(patternName))
                     return;
 
-                var patternFile = Instance?._patterns.FirstOrDefault(x => x.PatternFileName.ToLower().Equals(patternName.ToLower()));
+                var patternFile = Instance?.BinPatterns.FirstOrDefault(x => x.VectorName.ToLower().Equals(patternName.ToLower()));
                 if (patternFile == null)
                     return;
 
@@ -202,15 +205,15 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
                 var dataStartAddress = patternFile.DataStartAddress;
                 var dataLength = patternFile.PinDataLength;
-                var pinList = patternFile.PatternVectors.FirstOrDefault()?.Pins;
+                var pinList = patternFile.PinPacks.Where(x => !string.IsNullOrEmpty(x.PinName))?.Select(x => x.PinName);
 
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
 
                 foreach (var pin in pinList)
                 {
-                    var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, pin.PinName);
-                    var pinIndex = PinManagerHelper.GetPinIndexByPinName(Instance.TestPlan?.Channel, pin.PinName);
+                    var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, pin);
+                    var pinIndex = PinManagerHelper.GetPinIndexByPinName(Instance.TestPlan?.Channel, pin);
                     var dataEndAddress = dataStartAddress + dataLength - 1;
                     if (channel?.Sites?.Any() == true)
                     {
@@ -297,20 +300,23 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
             try
             {
-                Instance?._patterns?.Clear();
+                //Instance?._patterns?.Clear();
+                Instance?._binPatterns?.Clear();
+
                 long lastPatternDataEndAddress = 0;
                 foreach (string patternFile in patternFiles)
                 {
                     if (!File.Exists(patternFile)) continue;
-                    var pattern = PatternHelper.AnalysisPattern(patternFile);
-                    Instance?._patterns.Add(pattern);
+                    var pattern = PatternReaderWriterHelper.ReadPattern(patternFile);
+                    //var pattern = PatternHelper.AnalysisPattern(patternFile);
+                    Instance?._binPatterns.Add(pattern);
                     if (pattern != null)
                     {
                         pattern.DataStartAddress = lastPatternDataEndAddress;
-                        var singlePinPatternDic = PatternHelper.GetSinglePinPatternList(pattern);
-                       var package =  PatternHelper.ConversionPatternModel(singlePinPatternDic, ref lastPatternDataEndAddress, out int patternDataLength);
+                        // var singlePinPatternDic = PatternHelper.GetSinglePinPatternList(pattern);
+                        //var package =  PatternHelper.ConversionPatternModel(singlePinPatternDic, ref lastPatternDataEndAddress, out int patternDataLength);
+                        var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress);
                         //var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress, out int patternDataLength);
-                        pattern.PinDataLength = patternDataLength;
                         pattern.DataEndAddress = lastPatternDataEndAddress;
                         if (package != null && package.Any())
                             SendPatternPackageToInstrument(package);
@@ -391,135 +397,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 throw;
             }
         }
-
-        //#if DEBUG
-        //        public void SetPatternEnable(bool enable)
-        //        {
-        //            var location = nameof(SetPatternEnable);
-
-        //            if (PinList == null || !PinList.Any())
-        //                return;
-
-        //            if (Message.ErrorStatus != ErrorStatus.Error)
-        //            {
-        //                Message.ModuleName = "Pattern";
-        //                Message.FunctionName = "Set Pattern Enable";
-        //                try
-        //                {
-        //                    int maxChannelNum = 0;
-        //                    //  组装数据包
-        //                    var commandList = new List<CommandInfoModel>();
-        //                    var channelList = new int[] { 31, 63, 95, 127 };
-        //                    var enableByte = System.Convert.ToByte(enable);
-        //                    foreach (var channel in channelList)
-        //                    {
-        //                        var channelByte = System.Convert.ToByte(channel);
-
-        //                        var command = new CommandInfoModel()
-        //                        {
-        //                            CommandCode = "0xfeff",
-        //                            CommandContent = new byte[] { channelByte, enableByte },
-        //                        };
-        //                        commandList.Add(command);
-        //                    }
-
-        //                    if (commandList.Any())
-        //                    {
-        //                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList);
-        //                        if (ControlService != null && message.Any())
-        //                            ControlService.Send(PE131, message);
-        //                    }
-        //                }
-        //                catch (ATEException)
-        //                {
-        //                    throw;
-        //                }
-        //                catch (Exception inner)
-        //                {
-        //                    ErrorMessages.IO.InternalError(inner, location);
-        //                }
-        //            }
-
-        //        }
-
-        //        public ChannelResultModel<bool> GetPatternEnable()
-        //        {
-        //            var location = nameof(GetPatternEnable);
-
-        //            ChannelResultModel<bool> result = null;
-        //            if (PinList == null || !PinList.Any())
-        //                return result;
-
-        //            if (Message.ErrorStatus != ErrorStatus.Error)
-        //            {
-        //                Message.ModuleName = "Pattern";
-        //                Message.FunctionName = "Get Pattern Enable";
-        //                try
-        //                {
-        //                    int maxChannelNum = 0;
-        //                    //  组装数据包
-        //                    var commandList = new List<CommandInfoModel>();
-        //                    foreach (var pin in PinList)
-        //                    {
-        //                        foreach (var site in pin.Sites)
-        //                        {
-        //                            var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue);
-        //                            if (channelNum >= 0 && maxChannelNum < channelNum)
-        //                            {
-        //                                maxChannelNum = channelNum;
-        //                            }
-        //                        }
-        //                    }
-
-        //                    var channelByte = System.Convert.ToByte(maxChannelNum);
-
-        //                    commandList.Add(new CommandInfoModel()
-        //                    {
-        //                        CommandCode = "0xfeff",
-        //                        CommandContent = new byte[] { channelByte },
-        //                    });
-
-        //                    if (commandList.Any())
-        //                    {
-        //                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList);
-        //                        if (ControlService != null && message.Any())
-        //                        {
-        //                            var queryResult = ControlService.Query(PE131, message);
-        //                            var commands = CommandHelper.ConversionBytesToCommands(queryResult);
-
-        //                            foreach (var command in commands)
-        //                            {
-        //                                if (command.CommnadLength >= 2)
-        //                                {
-        //                                    result = new ChannelResultModel<bool>();
-        //                                    result.ChannelNum = (int)command.CommandContent[0];
-        //                                    result.OriginalData = command.CommandContent;
-        //                                    if (result.ChannelNum >= 0)
-        //                                    {
-        //                                        result.Site = ChannelManagerHelper.GetSlotByChannelNum(result.ChannelNum);
-        //                                        result.PinName = PinManagerHelper.GetPinNameBySlotName(Instance.TestPlan?.Channel, result.Site);
-        //                                    }
-        //                                    result.SiteResult = BitConverter.ToBoolean(command.CommandContent, 1);
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-
-        //                    return result;
-        //                }
-        //                catch (ATEException)
-        //                {
-        //                    throw;
-        //                }
-        //                catch (Exception inner)
-        //                {
-        //                    ErrorMessages.IO.InternalError(inner, location);
-        //                }
-        //            }
-
-        //            return result;
-        //        }
-        //#endif
 
         public List<PatternRunningStateModel> GetRunningState()
         {

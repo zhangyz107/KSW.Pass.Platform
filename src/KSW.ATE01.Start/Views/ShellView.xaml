@@ -47,6 +47,7 @@
                         <MenuItem Header="{language:L Release}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding ReleaseCommand}">
                         </MenuItem>
                     </MenuItem>
+                    <MenuItem Header="{language:L PatternTool}" Command="{Binding PatternToolCommand}"></MenuItem>
                     <MenuItem Header="{language:L Help}">
                         <MenuItem Header="{language:L Language}" Foreground="{DynamicResource MaterialDesignLightForeground}">
                             <MenuItem Header="简体中文" IsCheckable="True" IsChecked="{Binding IsChinese}"></MenuItem>
@@ -70,7 +71,7 @@
                 <ToolBarTray Grid.Row="1" 
                              Background="Transparent" 
                              Style="{StaticResource MaterialDesignToolBarTray}"
-                             Visibility="{Binding ShowRunView,Converter={StaticResource BooleanToVisibilityConverter}}">
+                             Visibility="{Binding ShowBackwardView,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ToolBar Style="{StaticResource MaterialDesignToolBar}" Background="Transparent">
                         <Button Content="{materialDesign:PackIcon Kind=ArrowLeft}"  Command="{Binding BackwardCommand}" ToolTip="{language:L Backward}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></Button>
                     </ToolBar>
@@ -82,6 +83,8 @@
         <ContentControl Margin="4,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.ProjectViewContent}" Visibility="{Binding ShowProjectView,Converter={StaticResource BooleanToVisibilityConverter}}"></ContentControl>
 
         <ContentControl Margin="4,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.RunViewContent}" Visibility="{Binding ShowRunView,Converter={StaticResource BooleanToVisibilityConverter}}"></ContentControl>
+
+        <ContentControl Margin="4,8" Grid.Row="1" prism:RegionManager.RegionName="{x:Static viewmodel:RegionNameManagement.PatternToolContent}" Visibility="{Binding ShowPatterToolView,Converter={StaticResource BooleanToVisibilityConverter}}"></ContentControl>
 
         <materialDesign:ColorZone Grid.Row="2" Padding="4" Mode="PrimaryMid">
             <Grid>

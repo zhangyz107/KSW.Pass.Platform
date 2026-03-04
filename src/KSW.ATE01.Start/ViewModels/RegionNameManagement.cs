@@ -35,5 +35,15 @@ namespace KSW.ATE01.Start.ViewModels
         /// 项目详情内容
         /// </summary>
         public static string ProjectDetailContent = "ProjectDetail";
+
+        /// <summary>
+        /// 向量工具内容
+        /// </summary>
+        public static string PatternToolContent = "PatternTool";
+
+        /// <summary>
+        /// 向量编辑内容
+        /// </summary>
+        public static string PatternEditorContent = "PatternEditor";
     }
 }

@@ -13,4 +13,8 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Patterns\" />
+	</ItemGroup>
 </Project>

@@ -430,12 +430,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
             if (args.Any())
             {
                 var patternFileName = args.FirstOrDefault()?.ParamValue;
-                var patterns = Pattern.Instance.Patterns;
-                var patternFile = patterns.FirstOrDefault(x => x.PatternFileName.Equals(patternFileName));
+                //var patterns = Pattern.Instance.Patterns;
+                var patterns = Pattern.Instance.BinPatterns;
+                var patternFile = patterns.FirstOrDefault(x => x.FileName.Equals(patternFileName));
                 var timings = testItem?.Timings;
                 if (patternFile != null)
                 {
-                    var patternTimings = timings?.Where(x => patternFile.TimingSets.Contains(x.TimingName));
+                    var timingSets = patternFile.PinPacks.Where(x => !string.IsNullOrEmpty(x.TimingSet)).Select(x => x.TimingSet);
+                    var patternTimings = timings?.Where(x => timingSets.Contains(x.TimingName));
 
                     if (patternTimings.Any())
                     {

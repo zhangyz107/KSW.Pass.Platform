@@ -1,26 +1,34 @@
-﻿using KSW.ATE01.Pattern.Application.Events;
-using KSW.ATE01.Pattern.Application.Models.Projects;
-using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
+﻿using KSW.ATE01.Application.Models.Patterns;
+using KSW.ATE01.Project.Base.Enums.Patterns;
+using KSW.ATE01.Start.ViewModels.Patterns;
 using KSW.Localization;
+using KSW.Ui;
 using Prism.Ioc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
-namespace KSW.ATE01.Pattern.Start.Views
+namespace KSW.ATE01.Start.Views.Patterns
 {
     /// <summary>
     /// PatternEditorView.xaml 的交互逻辑
     /// </summary>
-    public partial class PatternEditorView : UserControl
+    public partial class PatternEditorView : IView
     {
-        #region Fields
-        private readonly IContainerProvider _containerProvider;
-        private readonly IEventAggregator _eventAggregator;
         private readonly ILanguageManager _language;
         private List<DataGridColumn> insertColumns = new List<DataGridColumn>();
         private string _dynamicColumnHeader;
-        #endregion
 
         #region Properties
         public Dictionary<VectorValueType, string> VectorValueDic => new Dictionary<VectorValueType, string>()
@@ -34,35 +42,33 @@ namespace KSW.ATE01.Pattern.Start.Views
             { VectorValueType.V, VectorValueType.V.Description() },
             { VectorValueType.None, VectorValueType.None.Description() }
         };
-
         #endregion
 
-        public PatternEditorView(
-            IContainerProvider containerProvider,
-            IEventAggregator eventAggregator)
+        public PatternEditorView(IContainerProvider containerProvider)
         {
             InitializeComponent();
 
-            _containerProvider = containerProvider;
-            _eventAggregator = eventAggregator;
             _language = containerProvider.IsRegistered<ILanguageManager>() == true ? containerProvider.Resolve<ILanguageManager>() : null;
-
             if (_language != null)
             {
                 _dynamicColumnHeader = _language["TimingName"];
             }
-            _eventAggregator.GetEvent<PatternColInfoUpdateEvent>().Subscribe(RefreshDataGrid);
+
+            if (DataContext is PatternEditorViewModel viewModel)
+            {
+                viewModel.PatternUpdated += (s, e) =>
+                {
+                    RefreshDataGrid(e);
+                };
+            }
         }
 
-        private void RefreshDataGrid(PatternModel model)
+        private void RefreshDataGrid(IEnumerable<PatternVectorModel> vectors)
         {
-            if (model == null)
+            if (vectors.IsEmpty())
                 return;
 
-            if (model.PatternVectors.IsEmpty())
-                return;
-
-            var vectorRow = model.PatternVectors.FirstOrDefault();
+            var vectorRow = vectors.FirstOrDefault();
             if (vectorRow?.Pins?.IsEmpty() == true)
                 return;
 
@@ -116,18 +122,6 @@ namespace KSW.ATE01.Pattern.Start.Views
 
             insertColumns.Clear();
 
-        }
-
-        private void Export_Initialized(object sender, EventArgs e)
-        {
-            this.btnExport.ContextMenu = null;
-        }
-
-        private void Export_Click(object sender, RoutedEventArgs e)
-        {
-            this.btnContextMenu.PlacementTarget = this.btnExport;
-            this.btnContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-            this.btnContextMenu.IsOpen = true;
         }
     }
 }

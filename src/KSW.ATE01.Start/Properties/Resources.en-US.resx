@@ -696,4 +696,40 @@
   <data name="ExportSuccessful" xml:space="preserve">
     <value>Export successful</value>
   </data>
+  <data name="Compile" xml:space="preserve">
+    <value>Compile</value>
+  </data>
+  <data name="AddVector" xml:space="preserve">
+    <value>Add Vector</value>
+  </data>
+  <data name="DeleteVector" xml:space="preserve">
+    <value>Delete Vector</value>
+  </data>
+  <data name="PatternTool" xml:space="preserve">
+    <value>PatternTool</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="PinOverview" xml:space="preserve">
+    <value>Pin Overview</value>
+  </data>
+  <data name="Vector" xml:space="preserve">
+    <value>Vector</value>
+  </data>
+  <data name="Label" xml:space="preserve">
+    <value>Label</value>
+  </data>
+  <data name="Command" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="SaveSuccessful" xml:space="preserve">
+    <value>Saved Successfully</value>
+  </data>
+  <data name="InsertVector" xml:space="preserve">
+    <value>Insert Vector</value>
+  </data>
 </root>

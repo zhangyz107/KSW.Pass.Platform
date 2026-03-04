@@ -1,7 +1,6 @@
 ﻿using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Models.Instruments;
-using KSW.ATE01.Pattern.Application.Models.Projects;
 using KSW.ATE01.Pattern.Domain.Instruments.Core.Extensions;
 using KSW.ATE01.Pattern.Start.Views;
 using KSW.Ui;

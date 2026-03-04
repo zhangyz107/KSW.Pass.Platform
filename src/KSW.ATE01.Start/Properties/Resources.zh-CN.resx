@@ -696,4 +696,40 @@
   <data name="ExportSuccessful" xml:space="preserve">
     <value>导出成功</value>
   </data>
+  <data name="Compile" xml:space="preserve">
+    <value>编译</value>
+  </data>
+  <data name="AddVector" xml:space="preserve">
+    <value>增加向量</value>
+  </data>
+  <data name="DeleteVector" xml:space="preserve">
+    <value>删除向量</value>
+  </data>
+  <data name="PatternTool" xml:space="preserve">
+    <value>向量工具</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="PinOverview" xml:space="preserve">
+    <value>引脚全览</value>
+  </data>
+  <data name="Vector" xml:space="preserve">
+    <value>向量</value>
+  </data>
+  <data name="Label" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="Command" xml:space="preserve">
+    <value>指令</value>
+  </data>
+  <data name="SaveSuccessful" xml:space="preserve">
+    <value>保存成功</value>
+  </data>
+  <data name="InsertVector" xml:space="preserve">
+    <value>插入向量</value>
+  </data>
 </root>

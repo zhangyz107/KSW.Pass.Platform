@@ -200,7 +200,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             _compileError = false;
             var result = new PatternModel();
             var patternFileName = Path.GetFileNameWithoutExtension(patternFilePath);
-            result.PatternFileName = patternFileName;
+            result.FileName = patternFileName;
             try
             {
                 AnalysisPatternTimeSet(patternFilePath, result);
@@ -502,7 +502,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (!patternModel.PatternVectors.Any())
                 return result;
 
-            var lengthBytes = BitConverter.GetBytes(_patternUnitLength).Reverse().Skip(6).ToArray();
+            var lengthBytes = BitConverter.GetBytes(_patternUnitLength).Reverse().ToArray();
             try
             {
                 //先将向量根据命令分组
@@ -768,6 +768,72 @@ namespace KSW.ATE01.Project.Base.Helpers
                     break;
             }
         }
+
+        /// <summary>
+        /// 获取Patter包数据
+        /// </summary>
+        /// <param name="patternModel"></param>
+        /// <param name="dataStartAddress"></param>
+        /// <returns></returns>
+        public static List<PatternPackageModel> ConversionPatternModel(BinPatternModel patternModel, ref long dataStartAddress)
+        {
+            var result = new List<PatternPackageModel>();
+            if (patternModel == null)
+                return result;
+
+            if (!patternModel.PinPacks.Any())
+                return result;
+
+            var lengthBytes = BitConverter.GetBytes(_patternUnitLength).Reverse().ToArray();
+            var pinDataLength = 0;
+            foreach (var pack in patternModel.PinPacks)
+            {
+                PatternPackageModel lastPackageModel = null;
+                pinDataLength = 0;
+                foreach (var data in pack.Data)
+                {
+                    var index = pack.Data.IndexOf(data);
+
+                    if (index % 64 == 0)    //一个打包包含64个向量组 4096 / 64 = 64
+                    {
+                        lastPackageModel = new PatternPackageModel();
+                        lastPackageModel.PinName = pack.PinName;
+                        var addr = dataStartAddress;
+                        lastPackageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                        lastPackageModel.Length = _patternUnitLength;
+                        lastPackageModel.LengthBytes = lengthBytes;
+                        lastPackageModel.PatternGroups = new List<PatternGroupModel>();
+                        result.Add(lastPackageModel);
+                        dataStartAddress += _patternUnitLength;
+                        pinDataLength += _patternUnitLength;
+                    }
+
+                    if (lastPackageModel != null)
+                    {
+                        var group = new PatternGroupModel();
+                        group.VectorNumber = data.VectorNumber;
+                        group.Instruction = (CommandType)data.Instruction;
+                        if (group.Instruction != CommandType.nop)
+                        {
+                            var parameter = data.Data.AsSpan(0, 6);
+                            group.Parameter = new List<byte>(parameter.ToArray());
+                            var vectors = data.Data.AsSpan(6);
+                            group.Vectors = new List<byte>(vectors.ToArray());
+                        }
+                        else
+                        {
+                            group.Parameter = new List<byte>();
+                            group.Vectors = new List<byte>(data.Data);
+                        }
+                        lastPackageModel.PatternGroups.Add(group);
+                    }
+
+                }
+                patternModel.PinDataLength = pinDataLength;
+            }
+
+            return result;
+        }
         #endregion
 
         #region Private
@@ -894,6 +960,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 var memoryName = match.Groups[1].Value.Trim();
                 var vectorName = match.Groups[2].Value.Trim();
                 string[] array = match.Groups[3].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
+                patternResult.VectorName = vectorName;
                 for (int i = 0; i < array.Length; i++)
                 {
                     array[i] = array[i].Replace("(", ":").Replace(")", "");
@@ -1061,27 +1128,36 @@ namespace KSW.ATE01.Project.Base.Helpers
         private static void FillRegularExpressionForPinPinGroup(InstrumentModel instrument, List<string> atpPinsPinGroups)
         {
             string text = string.Empty;
-            if (instrument.DigitalMode.ToLower() == "digsrc")
-            {
-                text = "D";
-            }
-            else if (instrument.DigitalMode.ToLower() == "digcap")
-            {
-                text = "V";
-            }
             List<string> list = new List<string>();
+
+            // 屏蔽instrument设置
+            //if (instrument.DigitalMode.ToLower() == "digsrc")
+            //{
+            //    text = "D";
+            //}
+            //else if (instrument.DigitalMode.ToLower() == "digcap")
+            //{
+            //    text = "V";
+            //}
+
+            //for (int i = 0; i < atpPinsPinGroups.Count; i++)
+            //{
+            //    if (instrument.DicPinItem.Keys.Contains(atpPinsPinGroups[i]))
+            //    {
+            //        int count = instrument.DicPinItem[atpPinsPinGroups[i]].Count;
+            //        list.Add(text + "{" + count + "}");
+            //    }
+            //    else
+            //    {
+            //        list.Add("[01LHMXDCV]+");
+            //    }
+            //}
+
             for (int i = 0; i < atpPinsPinGroups.Count; i++)
             {
-                if (instrument.DicPinItem.Keys.Contains(atpPinsPinGroups[i]))
-                {
-                    int count = instrument.DicPinItem[atpPinsPinGroups[i]].Count;
-                    list.Add(text + "{" + count + "}");
-                }
-                else
-                {
-                    list.Add("[01LHMXDCV]+");
-                }
+                list.Add("[01LHMXDCV]+");
             }
+
             string pattern = string.Join("\\s+", list) + "\\s*";
             instrument.RegularExpression = new Regex(pattern, RegexOptions.IgnoreCase);
         }

@@ -187,6 +187,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Add Vector 的本地化字符串。
+        /// </summary>
+        internal static string AddVector {
+            get {
+                return ResourceManager.GetString("AddVector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Alert Highlight 的本地化字符串。
         /// </summary>
         internal static string AlertHighlight {
@@ -304,11 +313,29 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Command 的本地化字符串。
+        /// </summary>
+        internal static string Command {
+            get {
+                return ResourceManager.GetString("Command", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Comment 的本地化字符串。
         /// </summary>
         internal static string Comment {
             get {
                 return ResourceManager.GetString("Comment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Compile 的本地化字符串。
+        /// </summary>
+        internal static string Compile {
+            get {
+                return ResourceManager.GetString("Compile", resourceCulture);
             }
         }
         
@@ -457,6 +484,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Delete Vector 的本地化字符串。
+        /// </summary>
+        internal static string DeleteVector {
+            get {
+                return ResourceManager.GetString("DeleteVector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Develop 的本地化字符串。
         /// </summary>
         internal static string Develop {
@@ -601,7 +637,7 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 Export successful 的本地化字符串。
         /// </summary>
         internal static string ExportSuccessful {
             get {
@@ -673,7 +709,7 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 File {0} already exists 的本地化字符串。
         /// </summary>
         internal static string FileAlreadyExists {
             get {
@@ -862,6 +898,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Insert Vector 的本地化字符串。
+        /// </summary>
+        internal static string InsertVector {
+            get {
+                return ResourceManager.GetString("InsertVector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 IsDelete 的本地化字符串。
         /// </summary>
         internal static string IsDelete {
@@ -903,6 +948,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string KeywordHighlight {
             get {
                 return ResourceManager.GetString("KeywordHighlight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Label 的本地化字符串。
+        /// </summary>
+        internal static string Label {
+            get {
+                return ResourceManager.GetString("Label", resourceCulture);
             }
         }
         
@@ -1150,6 +1204,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Open 的本地化字符串。
+        /// </summary>
+        internal static string Open {
+            get {
+                return ResourceManager.GetString("Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Open File 的本地化字符串。
         /// </summary>
         internal static string Open_File {
@@ -1240,6 +1303,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 PatternTool 的本地化字符串。
+        /// </summary>
+        internal static string PatternTool {
+            get {
+                return ResourceManager.GetString("PatternTool", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Pause Window 的本地化字符串。
         /// </summary>
         internal static string PauseWindow {
@@ -1272,6 +1344,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string PinOrGroupName {
             get {
                 return ResourceManager.GetString("PinOrGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Pin Overview 的本地化字符串。
+        /// </summary>
+        internal static string PinOverview {
+            get {
+                return ResourceManager.GetString("PinOverview", resourceCulture);
             }
         }
         
@@ -1456,6 +1537,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Save 的本地化字符串。
+        /// </summary>
+        internal static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Save As 的本地化字符串。
         /// </summary>
         internal static string SaveAs {
@@ -1506,6 +1596,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string SaveConfigure {
             get {
                 return ResourceManager.GetString("SaveConfigure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Saved Successfully 的本地化字符串。
+        /// </summary>
+        internal static string SaveSuccessful {
+            get {
+                return ResourceManager.GetString("SaveSuccessful", resourceCulture);
             }
         }
         
@@ -1744,6 +1843,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Vector 的本地化字符串。
+        /// </summary>
+        internal static string Vector {
+            get {
+                return ResourceManager.GetString("Vector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Version 的本地化字符串。
         /// </summary>
         internal static string Version {
@@ -1771,7 +1879,7 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 whether to delete 的本地化字符串。
         /// </summary>
         internal static string WhetherToDelete {
             get {
@@ -1780,7 +1888,7 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 whether to replace 的本地化字符串。
         /// </summary>
         internal static string WhetherToReplace {
             get {
