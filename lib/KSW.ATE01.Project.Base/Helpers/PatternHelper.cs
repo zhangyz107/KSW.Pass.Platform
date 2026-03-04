@@ -1882,10 +1882,10 @@ namespace KSW.ATE01.Project.Base.Helpers
                     _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, strPseudo));
                     return result;
                 }
-                if (int.TryParse(strPseudoParameter, out var parameter) && (parameter < 2 || parameter > 65535))
+                if (int.TryParse(strPseudoParameter, out var parameter) && (parameter < 2 || parameter > int.MaxValue))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, 65535));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, int.MaxValue));
                     return result;
                 }
             }
@@ -1900,18 +1900,18 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (int.TryParse(strPseudoParameter, out result3))
             {
                 num = !(strPseudo.ToLower() == "call") ? 2 : 0;
-                if (result3 >= num && result3 <= 65535)
+                if (result3 >= num && result3 <= int.MaxValue)
                 {
                     result.CommandParameter = result3;
                     return result;
                 }
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudoParameter, num, 65535));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudoParameter, num, int.MaxValue));
             }
             else
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, strPseudoParameter, num, 65535, string.Join(",", _dataBlockMarkerParameter)));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, strPseudoParameter, num, int.MaxValue, string.Join(",", _dataBlockMarkerParameter)));
             }
 
             return result;
@@ -1976,10 +1976,10 @@ namespace KSW.ATE01.Project.Base.Helpers
                     _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, strPseudo));
                     return false;
                 }
-                if (int.TryParse(strPseudoParameter, out var result) && (result < 2 || result > 65535))
+                if (int.TryParse(strPseudoParameter, out var result) && (result < 2 || result > int.MaxValue))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, 65535));
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, int.MaxValue));
                     return false;
                 }
             }
