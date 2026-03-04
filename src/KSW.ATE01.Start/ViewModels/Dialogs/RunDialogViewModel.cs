@@ -467,11 +467,31 @@ namespace KSW.ATE01.Start.ViewModels.Dialogs
             _projectInfo.FailCount = 0;
             ChangeCommandsState();
 
+
+
             await ExecuteWithExceptionHandling(async () =>
             {
-                await _projectBLL.ExecuteLoopingAsync(_projectInfo);
+                // 保存数据
+                await SaveDataAsync();
 
-                _canExecuteEndTest = true;
+                //todo 先保证生成dll
+                if (await _projectBLL?.ReleaseSolutionAsync(_projectInfo))
+                {
+                    var commonData = CommonData.Instance;
+                    var globalSetting = GlobalSetting.Instance;
+
+                    PrintResultLog.PrintRealTimeTxt = _projectInfo.SaveRealTimeText == true;
+                    if (commonData != null)
+                    {
+                        globalSetting.ProjectInfo = _projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
+                        commonData.TestPlan = await _projectBLL?.ConversionTestPlanAsync(_projectInfo?.Id);
+
+                        commonData.UseSiteName = _siteList.Where(x => x.IsSelected).Select(x => x.SiteName).ToList();
+                    }
+
+                    await _projectBLL.ExecuteLoopingAsync(_projectInfo);
+
+                }
             },
             async (e) => await DialogService.ShowMessageDialog(e.Message, MessageBoxButton.OK, MessageBoxImage.Warning)
             , () =>

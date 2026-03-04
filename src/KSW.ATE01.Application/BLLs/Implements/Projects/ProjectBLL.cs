@@ -324,12 +324,14 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         GlobalSetting.Instance.StartTestTime = DateTime.Now;
                         _stopwatch.Restart();
                         //运行TestStart
-                        var flag = ExecuteFunction(ProcessStage.TestStart, instance, classType, startTestMethod, null);
+                        var flag = await ExecuteFunctionAsync(ProcessStage.TestStart, instance, classType, startTestMethod, null);
                         _alreadyStartLot = true;
 
                         if (flag)   //运行FlowStart
-                            flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, out int _);
-
+                        {
+                            var result = await ExecuteTestItemsInFlowAsync(projectInfo, instance, classType);
+                            flag = result.Item1;
+                        }
                         //if (flag)   //运行TestEnd
                         //    flag = ExecuteFunction(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
                     }
@@ -337,7 +339,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     {
                         Message.StatusClear();
                         //运行FlowStart
-                        var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, out int _);
+                        var flag = await ExecuteTestItemsInFlowAsync(projectInfo, instance, classType);
                     }
 
                 }
@@ -348,9 +350,9 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                ErrorMessages.InsGeneral.MarkerError(nameof(StartTestAsync), new object[] { ex.Message });
             }
         }
 
@@ -378,7 +380,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     // 创建类的实例
                     object instance = Activator.CreateInstance(classType);
 
-                    var flag = ExecuteFunction(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
+                    var flag = ExecuteFunctionAsync(ProcessStage.TestEnd, instance, classType, endTestMethod, null);
 
                     // 释放加载的上下文和程序集
                     loadContext.Unload();
@@ -435,7 +437,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         projectInfo.FailCount = 0;
 
                         //运行TestStart
-                        var flag = ExecuteFunction(ProcessStage.TestStart, instance, classType, startTestMethod, null);
+                        var flag = await ExecuteFunctionAsync(ProcessStage.TestStart, instance, classType, startTestMethod, null);
                         _alreadyStartLot = true;
                     }
                     else
@@ -443,7 +445,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         Message.StatusClear();
                     }
 
-                    await Task.Factory.StartNew(async () => await LoopTest(instance, classType, projectInfo, token), token);
+                    await LoopTest(instance, classType, projectInfo, token);
+                    //await Task.Factory.StartNew(async () => await LoopTest(instance, classType, projectInfo, token), token);
                 }
             }
             catch (Exception)
@@ -466,15 +469,15 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 {
 
                     //运行FlowStart
-                    var flag = ExecuteTestItemsInFlow(projectInfo, instance, classType, out int failCount);
-                    projectInfo.FailCount += failCount;
-                    var failFlag = projectInfo.StopOnFail == true && failCount > 0;
+                    var result = await ExecuteTestItemsInFlowAsync(projectInfo, instance, classType);
+                    projectInfo.FailCount += result.Item2;
+                    var failFlag = projectInfo.StopOnFail == true && result.Item2 > 0;
                     projectInfo.LoopExecuted++;
 
-                    if (token.IsCancellationRequested && failFlag)
+                    if (token.IsCancellationRequested || failFlag)
                         break;
 
-                    await Task.Delay(projectInfo.DelayBetweenLoops ?? 0 * 1000);
+                    await Task.Delay((projectInfo.DelayBetweenLoops != null && projectInfo.DelayBetweenLoops>0) ? (int)projectInfo.DelayBetweenLoops * 1000 : 0);
                 }
             }
             catch (Exception)
@@ -573,7 +576,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
         }
 
-        private bool ExecuteFunction(ProcessStage stage, object? classInstance, Type classType, string methodName, object?[]? parameters)
+        private async Task<bool> ExecuteFunctionAsync(ProcessStage stage, object? classInstance, Type classType, string methodName, object?[]? parameters)
         {
             var result = false;
             if (classInstance == null)
@@ -589,7 +592,10 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 if (method == null)
                     return result;
 
-                var obj = method.Invoke(classInstance, parameters);
+                var obj = await Task.Factory.StartNew(() =>
+                {
+                    return method.Invoke(classInstance, parameters);
+                });
 
                 if (obj != null && obj.GetType().IsEnum)
                     result = (Test)obj == Test.Pass;
@@ -625,7 +631,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     case ProcessStage.TestItem:
                         if (innerException is ATEException ate)
                         {
-                            ErrorMessages.InsGeneral.MarkerError(nameof(ExecuteFunction), new object[]
+                            ErrorMessages.InsGeneral.MarkerError(nameof(ExecuteFunctionAsync), new object[]
                             {
                                 ate.Message
                             });
@@ -633,8 +639,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         else
                         {
                             FlowStatus = FlowStatus.ExecuteTestItemFail;
-                            ErrorMessages.Flow.InternalError(innerException, nameof(ExecuteFunction));
-                            ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunction), new object[]
+                            ErrorMessages.Flow.InternalError(innerException, nameof(ExecuteFunctionAsync));
+                            ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunctionAsync), new object[]
                             {
                                 methodName,
                                 innerException.Message,
@@ -643,12 +649,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         break;
                     case ProcessStage.TestStart:
                         FlowStatus = FlowStatus.TestStartExecuteFailed;
-                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunction), new object[]
+                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunctionAsync), new object[]
                         {
                             innerException.Message,
                         });
 
-                        ErrorMessages.Flow.FailToExecuteForceHalt(nameof(ExecuteFunction), new object[]
+                        ErrorMessages.Flow.FailToExecuteForceHalt(nameof(ExecuteFunctionAsync), new object[]
                         {
                             methodName,
                             "\n" + innerException.Message,
@@ -656,12 +662,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         break;
                     case ProcessStage.TestEnd:
                         FlowStatus = FlowStatus.TestEndExecuteFailed;
-                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunction), new object[]
+                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunctionAsync), new object[]
                         {
                             innerException.Message,
                         });
 
-                        ErrorMessages.Flow.FailToExecuteForceHalt(nameof(ExecuteFunction), new object[]
+                        ErrorMessages.Flow.FailToExecuteForceHalt(nameof(ExecuteFunctionAsync), new object[]
                         {
                             methodName,
                             "\n" + innerException.Message,
@@ -669,12 +675,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         break;
                     case ProcessStage.FlowStart:
                         FlowStatus = FlowStatus.FlowStartExecuteFailed;
-                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunction), new object[]
+                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunctionAsync), new object[]
                         {
                             innerException.Message,
                         });
 
-                        ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunction), new object[]
+                        ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunctionAsync), new object[]
                         {
                             methodName,
                             innerException.Message,
@@ -682,12 +688,12 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                         break;
                     case ProcessStage.FlowEnd:
                         FlowStatus = FlowStatus.FlowEndExecuteFailed;
-                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunction), new object[]
+                        ErrorMessages.InsGeneral.MarkerLog(nameof(ExecuteFunctionAsync), new object[]
                         {
                            innerException.Message,
                         });
 
-                        ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunction), new object[]
+                        ErrorMessages.Flow.DefaultFunctionExecutionError(nameof(ExecuteFunctionAsync), new object[]
                         {
                             methodName,
                             innerException.Message,
@@ -711,10 +717,10 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             return ex;
         }
 
-        private bool ExecuteTestItemsInFlow(ProjectInfoModel projectInfo, object? instance, Type classType, out int failCount)
+        private async Task<(bool, int)> ExecuteTestItemsInFlowAsync(ProjectInfoModel projectInfo, object? instance, Type classType)
         {
             var result = true;
-            failCount = 0;
+            var failCount = 0;
             var spendTime = 0L;
             var startFlowMethod = ConfigurationManager.AppSettings["StartFlowMethod"] ?? throw new ArgumentNullException("StartFlowMethod");
             var endFlowMethod = ConfigurationManager.AppSettings["EndFlowMethod"] ?? throw new ArgumentNullException("EndFlowMethod");
@@ -723,7 +729,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             _stopwatch.Restart();
             try
             {
-                result = ExecuteFunction(ProcessStage.FlowStart, instance, classType, startFlowMethod, null);
+                result = await ExecuteFunctionAsync(ProcessStage.FlowStart, instance, classType, startFlowMethod, null);
                 //var testItems =
                 if (projectInfo.IsPrintTime == true)
                 {
@@ -745,7 +751,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                     foreach (var testItem in testItems)
                     {
                         SetCommonData(testItem);
-                        result = ExecuteFunction(ProcessStage.TestItem, instance, classType, testItem.FunctionName, null);
+                        result = await ExecuteFunctionAsync(ProcessStage.TestItem, instance, classType, testItem.FunctionName, null);
                         if (!result)
                             ++failCount;
                     }
@@ -766,7 +772,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
             }
             finally
             {
-                result = ExecuteFunction(ProcessStage.FlowEnd, instance, classType, endFlowMethod, null);
+                result = await ExecuteFunctionAsync(ProcessStage.FlowEnd, instance, classType, endFlowMethod, null);
                 _stopwatch.Stop();
                 if (projectInfo.IsPrintTime == true)
                 {
@@ -775,7 +781,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Projects
                 }
             }
 
-            return result;
+            return (result, failCount);
         }
 
         private void SetCommonData(TestItemModel testItem)
