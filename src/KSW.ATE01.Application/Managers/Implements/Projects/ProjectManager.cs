@@ -29,6 +29,7 @@ namespace KSW.ATE01.Application.Managers.Implements.Projects
             {
                 var templateName = ConfigurationManager.AppSettings["TemplateName"] ?? throw new ArgumentNullException("TemplateName");
                 var templateDirName = ConfigurationManager.AppSettings["TemplateDirName"] ?? throw new ArgumentNullException("TemplateDirName");
+                var projectConfigName = ConfigurationManager.AppSettings["ProjectConfigName"] ?? throw new ArgumentNullException("ProjectConfigName");
 
                 var currentProjectInfo = await _projectInfoRepository?.FindByIdAsync(projectId);
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -57,6 +58,14 @@ namespace KSW.ATE01.Application.Managers.Implements.Projects
                 var projectInfo = projectInfoModel.MapTo<ProjectInfo>();
                 projectInfo.Init();
                 await _projectInfoRepository?.AddAsync(projectInfo);
+
+                var projectFileName = Path.Combine(projectInfo?.ProjectPath, projectConfigName);
+                using (var fs = File.Open(projectFileName, FileMode.Create, FileAccess.Write))
+                {
+                    var guidArray = projectInfo.Id.ToByteArray();
+                    fs.Write(guidArray);
+                    fs.Flush();
+                }
                 #endregion
 
                 return projectInfo.Id.SafeString();

@@ -245,7 +245,7 @@ namespace KSW.ATE01.Start.ViewModels
             LanguageHelper.Manager.ChangeLanguage(culture);
 
             // 切换核心多语言
-            Language.LanguageManager.Instance.ChangeLanguage(culture);
+            //Language.LanguageManager.Instance.ChangeLanguage(culture);
         }
 
         private void ChangePrimaryColor(Color color)
