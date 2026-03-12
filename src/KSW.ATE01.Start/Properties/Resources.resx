@@ -921,4 +921,10 @@
   <data name="InsertVector" xml:space="preserve">
     <value>Insert Vector</value>
   </data>
+  <data name="CompileSuccessful" xml:space="preserve">
+    <value>Compile Successful</value>
+  </data>
+  <data name="CompileFailed" xml:space="preserve">
+    <value>Compile Failed</value>
+  </data>
 </root>

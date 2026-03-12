@@ -732,4 +732,10 @@
   <data name="InsertVector" xml:space="preserve">
     <value>插入向量</value>
   </data>
+  <data name="CompileSuccessful" xml:space="preserve">
+    <value>编译成功</value>
+  </data>
+  <data name="CompileFailed" xml:space="preserve">
+    <value>编译失败</value>
+  </data>
 </root>

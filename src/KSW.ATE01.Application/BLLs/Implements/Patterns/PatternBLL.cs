@@ -22,6 +22,7 @@ using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -42,7 +43,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
 
         }
 
-        public List<PatternModel> GetPatternsByFilesAsync(string path, bool isDir = false)
+        public async Task<List<PatternModel>> GetPatternsByFilesAsync(string path, bool isDir = false)
         {
             var result = new List<PatternModel>();
             try
@@ -56,30 +57,34 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
                         if (files.IsEmpty())
                             return result;
 
-                        foreach (var file in files)
+                        await Task.Factory.StartNew(() =>
                         {
-                            var fileName = Path.GetFileNameWithoutExtension(file);
-
-                            var source = PatternHelper.AnalysisPattern(file);
-                            var pattern = ConverterPattern(source);
-                            pattern.FileName = fileName;
-                            pattern.FilePath = file;
-                            result.Add(pattern);
-                        }
-
+                            foreach (var file in files)
+                            {
+                                var fileName = Path.GetFileNameWithoutExtension(file);
+                                var source = PatternHelper.AnalysisPattern(file);
+                                var pattern = ConverterPattern(source);
+                                pattern.FileName = fileName;
+                                pattern.FilePath = file;
+                                result.Add(pattern);
+                            }
+                        });
                     }
                 }
                 else
                 {
-                    if (File.Exists(path))
+                    await Task.Factory.StartNew(() =>
                     {
-                        var fileName = Path.GetFileNameWithoutExtension(path);
-                        var source = PatternHelper.AnalysisPattern(path);
-                        var pattern = ConverterPattern(source);
-                        pattern.FileName = fileName;
-                        pattern.FilePath = path;
-                        result.Add(pattern);
-                    }
+                        if (File.Exists(path))
+                        {
+                            var fileName = Path.GetFileNameWithoutExtension(path);
+                            var source = PatternHelper.AnalysisPattern(path);
+                            var pattern = ConverterPattern(source);
+                            pattern.FileName = fileName;
+                            pattern.FilePath = path;
+                            result.Add(pattern);
+                        }
+                    });
                 }
 
                 return result;
@@ -94,7 +99,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
         private PatternModel ConverterPattern(Project.Base.Models.Patterns.PatternModel source)
         {
             var result = new PatternModel();
-
             if (source == null)
                 return result;
 
@@ -117,7 +121,6 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
                     result.PatternVectors.Add(tempVector);
                 }
             }
-
             return result;
         }
 
@@ -137,7 +140,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
             var commandModel = new CommandModel();
             commandModel.Type = command.Type;
             commandModel.CommandParameter = command.CommandParameter;
-            commandModel.CommandFullContent = command.CommandParameter == null? command.CommandFullContent : $"{command.CommandFullContent} {command.CommandParameter}";
+            commandModel.CommandFullContent = command.CommandParameter == null ? command.CommandFullContent : $"{command.CommandFullContent} {command.CommandParameter}";
 
             return commandModel;
         }
@@ -311,6 +314,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
             {
                 var singlePinPatternDic = GetSinglePinPatternList(pattern);
                 PatternReaderWriterHelper.WritePattern(filePath, pattern.ModuleType, singlePinPatternDic);
+                result = true;
             }
             catch (Exception)
             {

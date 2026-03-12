@@ -1,4 +1,5 @@
-﻿using KSW.Ui;
+﻿using KSW.Dependency;
+using KSW.Ui;
 
 namespace KSW.ATE01.Start.Views
 {
@@ -10,11 +11,6 @@ namespace KSW.ATE01.Start.Views
         public RealTimeTxtView()
         {
             InitializeComponent();
-        }
-
-        private void richTB_Loaded(object sender, System.Windows.RoutedEventArgs e)
-        {
-            Console.WriteLine("abc");
         }
     }
 }

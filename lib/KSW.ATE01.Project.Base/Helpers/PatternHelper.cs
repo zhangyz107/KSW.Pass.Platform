@@ -3,8 +3,10 @@ using KSW.ATE01.Project.Base.Events;
 using KSW.ATE01.Project.Base.Extensions;
 using KSW.ATE01.Project.Base.Language;
 using KSW.ATE01.Project.Base.Models.Patterns;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace KSW.ATE01.Project.Base.Helpers
@@ -1483,168 +1485,357 @@ namespace KSW.ATE01.Project.Base.Helpers
             return false;
         }
 
+        //private static void AnalysisPatternVector(string pathPattern, List<string> atpPinsPinGroups, PatternModel patternResult)
+        //{
+        //    using (StreamReader streamReader = new StreamReader(pathPattern))
+        //    {
+        //        try
+        //        {
+        //            _ = streamReader.BaseStream.Length / 100L;
+        //            long num = 1L;
+        //            long num2 = 0L;
+        //            while (!streamReader.EndOfStream && !_atpPinsRegex.IsMatch(streamReader.ReadLine().Trim()))
+        //            {
+        //                num++;
+        //            }
+        //            string text = string.Empty;
+        //            string text2 = string.Empty;
+        //            List<byte> list = new List<byte>();
+        //            while (!streamReader.EndOfStream)
+        //            {
+        //                PatternVectorModel vectorModel = new PatternVectorModel();
+        //                LabelModel labelModel = null;
+        //                CommandModel commandModel = null;
+        //                var pins = new List<PinModel>();
+
+        //                streamReader.ReadLine().SplitValidAndComment(out var valid, out var comment);
+        //                text = text + " " + valid;
+        //                text2 = text2 + " " + comment;
+        //                num++;
+        //                if (num % 25000L == 0L)
+        //                {
+        //                    list.Clear();
+        //                }
+        //                if (!_vectorRegex.IsMatch(text))
+        //                {
+        //                    continue;
+        //                }
+        //                List<byte> list2 = new List<byte>();
+        //                Match match = _vectorRegex.Match(text);
+        //                string value = match.Groups[1].Value;
+        //                string strPseudo = string.Empty;
+        //                string strPseudoParameter = string.Empty;
+        //                string value2 = match.Groups[5].Value;
+        //                string value3 = match.Groups[6].Value;
+        //                string comment2 = text2 + match.Groups[7].Value;
+        //                string strMTE = string.Empty;
+        //                string text3 = match.Groups[4].Value.Trim();
+        //                if (_mteRegex.IsMatch(text3))
+        //                {
+        //                    Match match2 = _mteRegex.Match(text3);
+        //                    strMTE = match2.Groups[1].Value;
+        //                    text3 = text3.Replace(match2.Value, string.Empty);
+        //                }
+        //                List<string> list3 = (from y in text3.Trim().Split(new string[1] { "," }, StringSplitOptions.RemoveEmptyEntries)
+        //                                      select y.Trim()).ToList();
+        //                List<string> list4 = (from x in list3
+        //                                      where _listTotalMaskCC.Contains(x.Trim().ToLower())
+        //                                      select x into y
+        //                                      select y.Trim()).ToList();
+        //                for (int i = 0; i < list4.Count; i++)
+        //                {
+        //                    if (list3.Contains(list4[i]))
+        //                    {
+        //                        list3.Remove(list4[i]);
+        //                    }
+        //                }
+        //                for (int j = 0; j < list4.Count; j++)
+        //                {
+        //                    list4[j] = list4[j].ToLower();
+        //                }
+        //                if (value.Where((x) => x == ':').Count() <= 1)
+        //                {
+        //                    if (list3.Count <= 1)
+        //                    {
+        //                        string uCode = list3.Count == 1 ? list3[0] : string.Empty;
+        //                        switch (patternResult.ModuleType)
+        //                        {
+        //                            case ModuleType.VM_Vector:
+        //                                if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
+        //                                {
+        //                                    _compileError = true;
+        //                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
+        //                                }
+        //                                labelModel = VectorAnalysisLabel(value, num, num2);
+        //                                pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
+        //                                commandModel = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, num);
+        //                                vectorModel.TimingSet = value2;
+        //                                break;
+        //                            case ModuleType.LVM_Vector:
+        //                                if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
+        //                                {
+        //                                    _compileError = true;
+        //                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
+        //                                }
+        //                                labelModel = VectorAnalysisLabel(value, num, num2);
+        //                                vectorModel.TimingSet = value2;
+        //                                commandModel = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, num);
+        //                                pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
+        //                                break;
+        //                            case ModuleType.SRM_Vector:
+        //                                VectorAnalysisSrmPseudoWithParametersModifiler(uCode, num, num2, out strPseudo, out strPseudoParameter);
+        //                                labelModel = VectorAnalysisLabel(value, num, num2);
+        //                                vectorModel.TimingSet = value2;
+        //                                pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
+        //                                break;
+        //                        }
+        //                        vectorModel.Label = labelModel;
+        //                        vectorModel.Command = commandModel;
+        //                        vectorModel.Pins = pins;
+        //                        patternResult.PatternVectors.Add(vectorModel);
+        //                        text = string.Empty;
+        //                        text2 = string.Empty;
+        //                        _validVectorLinesCountInPatternFile++;
+        //                        list.AddRange(list2);
+        //                        if (strPseudo.ToLower() == "halt" && _haltInVectorLinesPosition == -1)
+        //                        {
+        //                            _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
+        //                        }
+        //                        num2++;
+        //                        if (list.Count > 0)
+        //                        {
+        //                            list.Clear();
+        //                        }
+        //                        if (_compileError)
+        //                        {
+        //                            return;
+        //                        }
+        //                        continue;
+        //                    }
+        //                    _compileError = true;
+        //                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr020"]}", num));
+        //                    return;
+        //                }
+        //                _compileError = true;
+        //                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", num));
+        //                return;
+        //            }
+        //        }
+        //        catch (Exception)
+        //        {
+
+        //            throw;
+        //        }
+        //    }
+        //    if (_validVectorLinesCountInPatternFile < 32)
+        //    {
+        //        _compileError = true;
+        //        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr025"]}", _validVectorLinesCountInPatternFile, 32));
+        //    }
+        //}
+
         private static void AnalysisPatternVector(string pathPattern, List<string> atpPinsPinGroups, PatternModel patternResult)
         {
             using (StreamReader streamReader = new StreamReader(pathPattern))
             {
                 try
                 {
-                    _ = streamReader.BaseStream.Length / 100L;
-                    long num = 1L;
-                    long num2 = 0L;
-                    while (!streamReader.EndOfStream && !_atpPinsRegex.IsMatch(streamReader.ReadLine().Trim()))
-                    {
-                        num++;
-                    }
-                    string text = string.Empty;
-                    string text2 = string.Empty;
-                    List<byte> list = new List<byte>();
-                    while (!streamReader.EndOfStream)
-                    {
-                        PatternVectorModel vectorModel = new PatternVectorModel();
-                        LabelModel labelModel = null;
-                        CommandModel commandModel = null;
-                        var pins = new List<PinModel>();
+                    // 使用有意义的变量名
+                    long lineNumber = 1L;
+                    long validVectorCount = 0L;
 
-                        streamReader.ReadLine().SplitValidAndComment(out var valid, out var comment);
-                        text = text + " " + valid;
-                        text2 = text2 + " " + comment;
-                        num++;
-                        if (/*this.eventPrintCompilePercent != null && */num % 25000L == 0L)
+                    // 优化1: 使用ReadLine()直接赋值检查，避免重复调用
+                    string currentLine;
+                    while ((currentLine = streamReader.ReadLine()) != null && !_atpPinsRegex.IsMatch(currentLine.Trim()))
+                    {
+                        lineNumber++;
+                    }
+
+                    // 优化2: 使用StringBuilder替代字符串拼接，避免创建大量临时字符串
+                    var textBuilder = new StringBuilder(256);  // 预分配合理容量
+                    var commentBuilder = new StringBuilder(256);
+
+                    // 优化3: 使用HashSet实现O(1)查找，替代原来的List.Contains() O(n)查找
+                    var maskHashSet = new HashSet<string>(_listTotalMaskCC.Select(x => x.Trim().ToLower()));
+
+                    // 优化4: 缓存频繁访问的属性到局部变量
+                    var moduleType = patternResult.ModuleType;
+                    var patternVectors = patternResult.PatternVectors;
+
+                    // 优化5: 复用集合对象，减少GC压力
+                    var dataList = new List<string>(32);      // 预分配典型容量
+                    var maskList = new List<string>(16);
+
+                    while ((currentLine = streamReader.ReadLine()) != null)
+                    {
+                        currentLine.SplitValidAndComment(out var valid, out var comment);
+
+                        textBuilder.Append(' ').Append(valid);
+                        commentBuilder.Append(' ').Append(comment);
+                        lineNumber++;
+
+                        // 快速失败：如果不是向量行则跳过
+                        if (!_vectorRegex.IsMatch(textBuilder.ToString()))
                         {
-                            //this.eventPrintCompilePercent((double)streamReader.BaseStream.Position * 100.0 / (double)streamReader.BaseStream.Length);
-                            list.Clear();
-                        }
-                        if (!_vectorRegex.IsMatch(text))
-                        {
+                            // 定期清理避免内存膨胀
+                            if (lineNumber % 100 == 0)
+                            {
+                                textBuilder.Clear();
+                                commentBuilder.Clear();
+                            }
                             continue;
                         }
-                        List<byte> list2 = new List<byte>();
-                        Match match = _vectorRegex.Match(text);
-                        string value = match.Groups[1].Value;
-                        string strPseudo = string.Empty;
-                        string strPseudoParameter = string.Empty;
-                        string value2 = match.Groups[5].Value;
-                        string value3 = match.Groups[6].Value;
-                        string comment2 = text2 + match.Groups[7].Value;
+
+                        var match = _vectorRegex.Match(textBuilder.ToString());
+                        string label = match.Groups[1].Value;
+                        string timingSet = match.Groups[5].Value;
+                        string pinsPart = match.Groups[6].Value;
+                        string vectorData = match.Groups[4].Value.Trim();
+
+                        // 解析MTE
                         string strMTE = string.Empty;
-                        string text3 = match.Groups[4].Value.Trim();
-                        if (_mteRegex.IsMatch(text3))
+                        var mteMatch = _mteRegex.Match(vectorData);
+                        if (mteMatch.Success)
                         {
-                            Match match2 = _mteRegex.Match(text3);
-                            strMTE = match2.Groups[1].Value;
-                            text3 = text3.Replace(match2.Value, string.Empty);
+                            strMTE = mteMatch.Groups[1].Value;
+                            vectorData = vectorData.Replace(mteMatch.Value, string.Empty);
                         }
-                        List<string> list3 = (from y in text3.Trim().Split(new string[1] { "," }, StringSplitOptions.RemoveEmptyEntries)
-                                              select y.Trim()).ToList();
-                        List<string> list4 = (from x in list3
-                                              where _listTotalMaskCC.Contains(x.Trim().ToLower())
-                                              select x into y
-                                              select y.Trim()).ToList();
-                        for (int i = 0; i < list4.Count; i++)
+
+                        // 优化6: 复用集合并避免LINQ开销
+                        dataList.Clear();
+                        maskList.Clear();
+
+                        if (!string.IsNullOrEmpty(vectorData))
                         {
-                            if (list3.Contains(list4[i]))
+                            var parts = vectorData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            for (int i = 0; i < parts.Length; i++)
                             {
-                                list3.Remove(list4[i]);
+                                string trimmed = parts[i].Trim();
+                                if (!string.IsNullOrEmpty(trimmed))
+                                {
+                                    dataList.Add(trimmed);
+                                }
                             }
                         }
-                        for (int j = 0; j < list4.Count; j++)
+
+                        // 优化7: 从后往前遍历，避免多次Remove操作
+                        for (int i = dataList.Count - 1; i >= 0; i--)
                         {
-                            list4[j] = list4[j].ToLower();
-                        }
-                        if (value.Where((x) => x == ':').Count() <= 1)
-                        {
-                            if (list3.Count <= 1)
+                            string item = dataList[i];
+                            if (maskHashSet.Contains(item.ToLower()))
                             {
-                                string uCode = list3.Count == 1 ? list3[0] : string.Empty;
-                                switch (patternResult.ModuleType)
-                                {
-                                    case ModuleType.VM_Vector:
-                                        if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
-                                        {
-                                            _compileError = true;
-                                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
-                                        }
-                                        labelModel = VectorAnalysisLabel(value, num, num2);
-                                        pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
-                                        commandModel = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, num);
-                                        vectorModel.TimingSet = value2;
-                                        //if (_saveComment)
-                                        //{
-                                        //    VectorAnalysis_Comment(comment2, num, num2);
-                                        //}
-                                        break;
-                                    case ModuleType.LVM_Vector:
-                                        if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
-                                        {
-                                            _compileError = true;
-                                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr011"]}", num));
-                                        }
-                                        labelModel = VectorAnalysisLabel(value, num, num2);
-                                        //VectorAnalysisLvmMaskCCWithOpcode(list4, strPseudo, strPseudoParameter, num, num2);
-                                        vectorModel.TimingSet = value2;
-                                        commandModel = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, num);
-                                        pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
-                                        //if (_saveComment)
-                                        //{
-                                        //    VectorAnalysis_Comment(comment2, num, num2);
-                                        //}
-                                        break;
-                                    case ModuleType.SRM_Vector:
-                                        //VectorAnalysisMte(strMTE, num, num2, list5, out var containsMTE);
-                                        VectorAnalysisSrmPseudoWithParametersModifiler(uCode, num, num2, out strPseudo, out strPseudoParameter);
-                                        labelModel = VectorAnalysisLabel(value, num, num2);
-                                        //VectorAnalysisSrmMaskCCWithOpcode(list4, listBitValueModifier, listBitValueOpcode, num, list5);
-                                        vectorModel.TimingSet = value2;
-                                        pins = VectorAnalysisPins(value3, num, atpPinsPinGroups);
-                                        //if (_saveComment)
-                                        //{
-                                        //    VectorAnalysis_Comment(comment2, num, num2);
-                                        //}
-                                        break;
-                                }
-                                vectorModel.Label = labelModel;
-                                vectorModel.Command = commandModel;
-                                vectorModel.Pins = pins;
-                                patternResult.PatternVectors.Add(vectorModel);
-                                text = string.Empty;
-                                text2 = string.Empty;
-                                _validVectorLinesCountInPatternFile++;
-                                list.AddRange(list2);
-                                if (strPseudo.ToLower() == "halt" && _haltInVectorLinesPosition == -1)
-                                {
-                                    _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
-                                }
-                                num2++;
-                                if (list.Count > 0)
-                                {
-                                    list.Clear();
-                                }
-                                if (_compileError)
-                                {
-                                    return;
-                                }
-                                continue;
+                                maskList.Add(item.ToLower());
+                                dataList.RemoveAt(i);
                             }
+                        }
+
+                        // 优化8: 手动计数并提前退出，避免LINQ的Count()遍历整个字符串
+                        int colonCount = 0;
+                        foreach (char c in label)
+                        {
+                            if (c == ':')
+                            {
+                                colonCount++;
+                                if (colonCount > 1) break;  // 提前退出
+                            }
+                        }
+
+                        if (colonCount > 1)
+                        {
                             _compileError = true;
-                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr020"]}", num));
+                            _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                                .Publish(string.Format($"{L["PatternCompileErr024"]}", lineNumber));
                             return;
                         }
-                        _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", num));
-                        return;
+
+                        if (dataList.Count > 1)
+                        {
+                            _compileError = true;
+                            _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                                .Publish(string.Format($"{L["PatternCompileErr020"]}", lineNumber));
+                            return;
+                        }
+
+                        string uCode = dataList.Count == 1 ? dataList[0] : string.Empty;
+                        string strPseudo = string.Empty;
+                        string strPseudoParameter = string.Empty;
+
+                        // 优化9: 使用对象初始化器
+                        var vectorModel = new PatternVectorModel
+                        {
+                            TimingSet = timingSet
+                        };
+
+                        // 优化10: 将公共代码移出switch
+                        switch (moduleType)
+                        {
+                            case ModuleType.VM_Vector:
+                                if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
+                                {
+                                    _compileError = true;
+                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                                        .Publish(string.Format($"{L["PatternCompileErr011"]}", lineNumber));
+                                    return;
+                                }
+                                vectorModel.Label = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+                                vectorModel.Command = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, lineNumber);
+                                break;
+
+                            case ModuleType.LVM_Vector:
+                                if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
+                                {
+                                    _compileError = true;
+                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                                        .Publish(string.Format($"{L["PatternCompileErr011"]}", lineNumber));
+                                    return;
+                                }
+                                vectorModel.Label = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+                                vectorModel.Command = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, lineNumber);
+                                break;
+
+                            case ModuleType.SRM_Vector:
+                                VectorAnalysisSrmPseudoWithParametersModifiler(uCode, lineNumber, validVectorCount,
+                                    out strPseudo, out strPseudoParameter);
+                                vectorModel.Label = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+                                break;
+                        }
+
+                        // 优化11: 复用引脚列表
+                        vectorModel.Pins = VectorAnalysisPins(pinsPart, lineNumber, atpPinsPinGroups);
+
+                        patternVectors.Add(vectorModel);
+
+                        // 优化12: 清理StringBuilder为下一轮准备
+                        textBuilder.Clear();
+                        commentBuilder.Clear();
+
+                        _validVectorLinesCountInPatternFile++;
+
+                        // 优化13: 使用StringComparison.OrdinalIgnoreCase避免创建小写字符串
+                        if (strPseudo.Equals("halt", StringComparison.OrdinalIgnoreCase) &&
+                            _haltInVectorLinesPosition == -1)
+                        {
+                            _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
+                        }
+
+                        validVectorCount++;
+
+                        if (_compileError) return;
                     }
                 }
                 catch (Exception)
                 {
-
                     throw;
                 }
             }
+
+            // 最终验证
             if (_validVectorLinesCountInPatternFile < 32)
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr025"]}", _validVectorLinesCountInPatternFile, 32));
+                _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                    .Publish(string.Format($"{L["PatternCompileErr025"]}",
+                        _validVectorLinesCountInPatternFile, 32));
             }
         }
 

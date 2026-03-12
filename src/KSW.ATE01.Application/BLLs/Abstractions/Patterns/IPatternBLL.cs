@@ -19,7 +19,7 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Patterns
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public List<PatternModel> GetPatternsByFilesAsync(string path, bool isDir = false);
+        public Task<List<PatternModel>> GetPatternsByFilesAsync(string path, bool isDir = false);
 
         /// <summary>
         /// 保存向量

@@ -49,7 +49,7 @@
                         <TextBox Grid.Column="1" Margin="0,0,0,6" Padding="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding ConfigureFileModel.FileReopenInterval}" materialDesign:TextFieldAssist.SuffixText="secs"></TextBox>
 
                         <TextBlock Grid.Row="1" Margin="0,0,6,6" VerticalAlignment="Center" Text="{language:L FileChangeCheckInterval}"></TextBlock>
-                        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,6" Padding="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding ConfigureFileModel.FileChangeInterval}" materialDesign:TextFieldAssist.SuffixText="msecs"></TextBox>
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,6" Padding="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding ConfigureFileModel.FileChangeInterval}" materialDesign:TextFieldAssist.SuffixText="secs"></TextBox>
                     </Grid>
                 </TabItem>
 

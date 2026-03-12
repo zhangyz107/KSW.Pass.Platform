@@ -14,7 +14,7 @@ namespace KSW.ATE01.Project.Base.Helpers
     {
         #region Fields
         private static ConcurrentQueue<Tuple<LogType, string, string>> _logQueue = new ConcurrentQueue<Tuple<LogType, string, string>>();
-        private static Thread _dequeueThread = ThreadInitial();
+        //private static Thread _dequeueThread = ThreadInitial();
         private static string _errorMessageLogPath = "C:\\ATE01\\Log\\SiteErrorMessage.txt";
         private static string _logMessagePath = "C:\\ATE01\\Log\\Log.txt";
         #endregion
@@ -61,47 +61,67 @@ namespace KSW.ATE01.Project.Base.Helpers
         }
         #endregion
 
-        private static Thread ThreadInitial()
+        static LogHelper()
         {
-            Thread thread = new Thread(new ThreadStart(DequeueToDoLoop));
-            thread.IsBackground = true;
-            thread.Start();
-            return thread;
+            Task.Factory.StartNew(async () =>
+            {
+                await DequeueToDoLoop();
+            });
         }
 
-        private static void DequeueToDoLoop()
+        //private static Thread ThreadInitial()
+        //{
+        //    Thread thread = new Thread(new ThreadStart(DequeueToDoLoop));
+        //    thread.IsBackground = true;
+        //    thread.Start();
+
+        //    Task.Factory.StartNew(()DequeueToDoLoop);
+        //    return thread;
+        //}
+
+        private static async Task DequeueToDoLoop()
         {
             while (true)
             {
                 if (_logQueue.Count > 0)
                 {
-                    if (_logQueue.TryDequeue(out Tuple<LogType, string, string> tuple))
+                    if (_logQueue.TryPeek(out Tuple<LogType, string, string> tuple))
                     {
-                        switch (tuple.Item1)
+                        try
                         {
-                            case LogType.Log:
-                                WriteLogPrivate(tuple.Item2);
-                                break;
-                            case LogType.LogWithPath:
-                                WriteLogPrivate(tuple.Item2, tuple.Item3);
-                                break;
-                            case LogType.Error:
-                                WriteErrorPrivate(tuple.Item2);
-                                break;
-                            case LogType.ErrorWithPath:
-                                WriteErrorPrivate(tuple.Item2, tuple.Item3);
-                                break;
-                            case LogType.Clear:
-                                ClearErrorLogPrivate();
-                                break;
-                            default:
-                                break;
+                            switch (tuple.Item1)
+                            {
+                                case LogType.Log:
+                                    await WriteLogPrivateAsync(tuple.Item2);
+                                    break;
+                                case LogType.LogWithPath:
+                                    await WriteLogPrivateAsync(tuple.Item2, tuple.Item3);
+                                    break;
+                                case LogType.Error:
+                                    await WriteErrorPrivateAsync(tuple.Item2);
+                                    break;
+                                case LogType.ErrorWithPath:
+                                    await WriteErrorPrivateAsync(tuple.Item2, tuple.Item3);
+                                    break;
+                                case LogType.Clear:
+                                    await ClearErrorLogPrivateAsync();
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            _logQueue.TryDequeue(out _);
                         }
+                        catch (Exception ex)
+                        {
+                            await Task.Delay(10);
+                        }
+
                     }
                 }
                 else
                 {
-                    Thread.Sleep(1);
+                    await Task.Delay(10);
                 }
             }
         }
@@ -131,72 +151,72 @@ namespace KSW.ATE01.Project.Base.Helpers
             _logQueue.Enqueue(new Tuple<LogType, string, string>(LogType.Clear, string.Empty, string.Empty));
         }
 
-        private static void WriteErrorPrivate(string errorLog)
+        private static async Task WriteErrorPrivateAsync(string errorLog)
         {
             var globalSetting = GlobalSetting.Instance;
             var projectInfo = globalSetting?.ProjectInfo;
             var isPrintTime = projectInfo?.IsPrintTime;
 
-            using (StreamWriter streamWriter = new StreamWriter(ErrorMessageLogPath, true))
+            using (var streamWriter = await TryGetStreamWriter(ErrorMessageLogPath))
             {
                 if (isPrintTime == true)
-                    streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
+                    await streamWriter.WriteAsync(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
                 else
-                    streamWriter.Write(string.Format("{0}\n", errorLog));
+                    await streamWriter.WriteAsync(string.Format("{0}\n", errorLog));
 
-                streamWriter.Flush();
+                await streamWriter.FlushAsync();
             }
         }
 
-        private static void WriteErrorPrivate(string errorLog, string errorLogPath)
+        private static async Task WriteErrorPrivateAsync(string errorLog, string errorLogPath)
         {
             var globalSetting = GlobalSetting.Instance;
             var projectInfo = globalSetting?.ProjectInfo;
             var isPrintTime = projectInfo?.IsPrintTime;
 
-            using (StreamWriter streamWriter = new StreamWriter(GetErrorLogPath(errorLogPath), true))
+            using (var streamWriter = await TryGetStreamWriter(errorLogPath))
             {
                 if (isPrintTime == true)
-                    streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
+                    await streamWriter.WriteAsync(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), errorLog));
                 else
-                    streamWriter.Write(string.Format("{0}\n", errorLog));
-                streamWriter.Flush();
+                    await streamWriter.WriteAsync(string.Format("{0}\n", errorLog));
+                await streamWriter.FlushAsync();
             }
         }
 
-        private static void WriteLogPrivate(string log)
+        private static async Task WriteLogPrivateAsync(string log)
         {
             var globalSetting = GlobalSetting.Instance;
             var projectInfo = globalSetting?.ProjectInfo;
             var isPrintTime = projectInfo?.IsPrintTime;
 
-            using (StreamWriter streamWriter = new StreamWriter(InfoMessageLogPath, true))
+            using (var streamWriter = await TryGetStreamWriter(InfoMessageLogPath))
             {
                 if (isPrintTime == true)
-                    streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), log));
+                    await streamWriter.WriteAsync(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), log));
                 else
-                    streamWriter.Write(string.Format("{0}\n", log));
-                streamWriter.Flush();
+                    await streamWriter.WriteAsync(string.Format("{0}\n", log));
+                await streamWriter.FlushAsync();
             }
         }
 
-        private static void WriteLogPrivate(string log, string logPath)
+        private static async Task WriteLogPrivateAsync(string log, string logPath)
         {
             var globalSetting = GlobalSetting.Instance;
             var projectInfo = globalSetting?.ProjectInfo;
             var isPrintTime = projectInfo?.IsPrintTime;
 
-            using (StreamWriter streamWriter = new StreamWriter(GetLogPath(logPath), true))
+            using (var streamWriter = await TryGetStreamWriter(GetLogPath(logPath)))
             {
                 if (isPrintTime == true)
-                    streamWriter.Write(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), log));
+                    await streamWriter.WriteAsync(string.Format("{0} : {1}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff"), log));
                 else
-                    streamWriter.Write(string.Format("{0}\n", log));
-                streamWriter.Flush();
+                    await streamWriter.WriteAsync(string.Format("{0}\n", log));
+                await streamWriter.FlushAsync();
             }
         }
 
-        private static void ClearErrorLogPrivate()
+        private static async Task ClearErrorLogPrivateAsync()
         {
             var globalSetting = GlobalSetting.Instance;
             var projectInfo = globalSetting?.ProjectInfo;
@@ -205,10 +225,25 @@ namespace KSW.ATE01.Project.Base.Helpers
             using (StreamWriter streamWriter = new StreamWriter(LogHelper.ErrorMessageLogPath))
             {
                 if (isPrintTime == true)
-                    streamWriter.Write(string.Format("{0} : Clear all error log\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff")));
+                    await streamWriter.WriteAsync(string.Format("{0} : Clear all error log\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff")));
                 else
-                    streamWriter.Write(string.Format("Clear all error log\n"));
-                streamWriter.Flush();
+                    await streamWriter.WriteAsync(string.Format("Clear all error log\n"));
+                await streamWriter.FlushAsync();
+            }
+        }
+
+        private static async Task<StreamWriter> TryGetStreamWriter(string filePath)
+        {
+            while (true)
+            {
+                try
+                {
+                    return new StreamWriter(filePath, true);
+                }
+                catch
+                {
+                    await Task.Delay(1);
+                }
             }
         }
 

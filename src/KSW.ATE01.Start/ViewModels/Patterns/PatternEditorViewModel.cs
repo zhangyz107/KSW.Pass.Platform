@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,7 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
         private PatternModel _pattern;
         private PatternVectorModel _vectorRow;
         private bool _isShowPinOverview = true;
-
+        private bool _isInit = true;
         public event EventHandler<IEnumerable<PatternVectorModel>> PatternUpdated;
 
         public ObservableCollection<PatternVectorModel> VectorInfos { get; private set; } = new ObservableCollection<PatternVectorModel>();
@@ -129,7 +130,7 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
 
         private void VectorInfos_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action != NotifyCollectionChangedAction.Replace)
+            if (e.Action != NotifyCollectionChangedAction.Replace && !_isInit)
             {
                 var index = 0;
                 foreach (var item in VectorInfos)
@@ -187,6 +188,18 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
                 var filePath = fileSaveDialog.FileName;
                 Pattern.PatternVectors = VectorInfos.ToList();
                 var result = await _patternBLL?.CompileAsync(Pattern, filePath);
+                if (result)
+                    _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                    {
+                        Content = L["CompileSuccessful"],
+                        Type = UI.WPF.Enums.NotificationType.Success,
+                    });
+                else
+                    _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                    {
+                        Content = L["CompileFailed"],
+                        Type = UI.WPF.Enums.NotificationType.Error,
+                    });
             }
 
         }
@@ -244,12 +257,17 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
                 Title = Path.GetFileNameWithoutExtension(pattern.FileName);
                 if (!Pattern.PatternVectors.IsEmpty())
                 {
+                    var index = 0;
                     foreach (var item in Pattern.PatternVectors)
+                    {
+                        item.Label.IndexInVectors = ++index;
                         VectorInfos.Add(item);
+                    }
                 }
                 PatternUpdated?.Invoke(this, VectorInfos);
                 ExecuteRefreshCommand();
             }
+            _isInit = false;
         }
 
 

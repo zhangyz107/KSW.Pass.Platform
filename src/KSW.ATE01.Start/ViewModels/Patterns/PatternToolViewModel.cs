@@ -14,11 +14,13 @@
 using KSW.ATE01.Application.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Application.Models.Patterns;
 using KSW.ATE01.Start.Views.Patterns;
+using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -49,7 +51,7 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
         public object CurrentPattern
         {
             get => _currentPattern;
-            set => SetProperty(ref _currentPattern, value); 
+            set => SetProperty(ref _currentPattern, value);
         }
 
         #endregion
@@ -126,20 +128,26 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
             _regionManager = regionManager;
         }
 
-        private void ExecuteOpenFileCommand()
+        private async void ExecuteOpenFileCommand()
         {
             var openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Pattern Files (*.atp)|*.atp";
             if (openFileDialog.ShowDialog() == true)
             {
-                var patterns = _patternBLL.GetPatternsByFilesAsync(openFileDialog.FileName);
-
-                if (!patterns.IsEmpty())
+                var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-                    Patterns.Clear();
-                    Patterns.AddRange(patterns);
-                    UpdateTabControl();
-                }
+                    var patterns = await _patternBLL.GetPatternsByFilesAsync(openFileDialog.FileName);
+
+                    if (!patterns.IsEmpty())
+                    {
+                        Patterns.Clear();
+                        Patterns.AddRange(patterns);
+                        UpdateTabControl();
+                    }
+                });
+
+                await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
+
             }
 
         }
@@ -162,19 +170,24 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
             }
         }
 
-        private void ExecuteOpenDirCommand()
+        private async void ExecuteOpenDirCommand()
         {
             var openFolderDialog = new OpenFolderDialog();
             if (openFolderDialog.ShowDialog() == true)
             {
                 var dir = openFolderDialog.FolderName;
-                var patterns = _patternBLL.GetPatternsByFilesAsync(dir, true);
-                if (!patterns.IsEmpty())
+                var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-                    Patterns.Clear();
-                    Patterns.AddRange(patterns);
-                    UpdateTabControl();
-                }
+                    var patterns = await _patternBLL.GetPatternsByFilesAsync(dir, true);
+                    if (!patterns.IsEmpty())
+                    {
+                        Patterns.Clear();
+                        Patterns.AddRange(patterns);
+                        UpdateTabControl();
+                    }
+                });
+
+                await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
             }
         }
 
@@ -183,9 +196,9 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
             if (_currentPattern != null && _currentPattern is PatternEditorView editorView)
             {
                 var model = editorView.DataContext as PatternEditorViewModel;
-                if(model != null)
+                if (model != null)
                     model?.SaveCommand?.Execute();
-            }  
+            }
         }
 
         private void ExecuteSaveAsCommand()

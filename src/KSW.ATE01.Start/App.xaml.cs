@@ -174,6 +174,7 @@ namespace KSW.ATE01.Platform
             containerRegistry.Register<HelpView>();
             containerRegistry.Register<ProjectDetailView>();
             containerRegistry.Register<RunDialog>();
+            containerRegistry.RegisterSingleton<RealTimeTxtView>();
 
             containerRegistry.RegisterDialog<NewProjectDialog, NewProjectDialogViewModel>();
             containerRegistry.RegisterDialog<OpenProjectDialog, OpenProjectDialogViewModel>();

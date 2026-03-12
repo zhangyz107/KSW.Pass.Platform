@@ -17,15 +17,21 @@ using KSW.ATE01.Application.Helpers;
 using KSW.ATE01.Application.Models.RealTimeTxt;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
+using KSW.Dependency;
 using KSW.Helpers;
 using KSW.Ui;
+using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace KSW.ATE01.Start.ViewModels
 {
@@ -43,10 +49,17 @@ namespace KSW.ATE01.Start.ViewModels
         private bool _isWholeWordMatch;
         private bool _isLoopSearch;
         private bool _isPauseWindow = false;
+        private int _lastFilePos = 0;
+        private int _paraIndex = 0;
         private RealTimeTxtView _view;
         private TextPointer _currentPointer;
         private TextRange _lastTextRange;
         private FileSystemWatcher _watcher;
+        private double _throttleMs = 5000;
+        private DateTime _lastEventTime = DateTime.MinValue;
+        private DateTime _fileLastWriteTime = DateTime.MinValue;
+        private System.Timers.Timer _reOpenTimer;
+        private System.Timers.Timer _refrashTimer;
         #endregion
 
         #region Properties
@@ -144,6 +157,21 @@ namespace KSW.ATE01.Start.ViewModels
             _eventAggregator.GetEvent<ConfigureFileUpdateEvent>().Subscribe(ConfigureFileUpdate, ThreadOption.UIThread);
             _eventAggregator.GetEvent<ClearRealTimeTxtEvent>().Subscribe(ExecuteClearAllCommand, ThreadOption.UIThread);
 
+            _configureFileModel = _configureFileBLL.GetConfigureFile();
+            _configureFileModel.PropertyChanged += ConfigureFileModelPropertyChanged;
+
+            _throttleMs = _configureFileModel?.FileChangeInterval * 1000 ?? _throttleMs;
+            _reOpenTimer = new System.Timers.Timer();
+            _reOpenTimer.Interval = _configureFileModel?.FileReopenInterval * 1000 ?? 30 * 1000;
+            _reOpenTimer.Elapsed += FileReopenElapsed;
+            _reOpenTimer.AutoReset = true;
+            _reOpenTimer.Start();
+
+            _refrashTimer = new System.Timers.Timer();
+            _refrashTimer.Interval = _throttleMs;
+            _refrashTimer.Elapsed += FileRefrashElapsed;
+            _refrashTimer.AutoReset = true;
+            _refrashTimer.Start();
         }
 
         private void ConfigureFileUpdate()
@@ -159,41 +187,108 @@ namespace KSW.ATE01.Start.ViewModels
             {
                 _view = view;
                 var richTb = _view.richTB;
-                _configureFileModel = _configureFileBLL.GetConfigureFile();
+
                 if (richTb != null)
                 {
                     richTb.MouseRightButtonUp += RichTextBox_MouseRightButtonUp;
                     richTb.SelectionChanged += RichTextBox_SelectionChanged;
+                    richTb.TextChanged += RichTextBox_TextChanged;
 
                     LoadTextFile(richTb, _logFilePath);
+                    var fileInfo = new FileInfo(_logFilePath);
+                    _fileLastWriteTime = fileInfo.LastWriteTime;
                 }
 
-                _watcher = new FileSystemWatcher();
-                _watcher.Path = Path.GetDirectoryName(_logFilePath);
-                _watcher.Filter = Path.GetFileName(_logFilePath);
-                _watcher.InternalBufferSize = 64 * 1024; // 设置为 64 KB
-                _watcher.NotifyFilter = NotifyFilters.Attributes
-                | NotifyFilters.CreationTime
-                | NotifyFilters.DirectoryName
-                | NotifyFilters.FileName
-                | NotifyFilters.LastAccess
-                | NotifyFilters.LastWrite
-                | NotifyFilters.Security
-                | NotifyFilters.Size;
-                _watcher.Changed += Watcher_Changed;
-                _watcher.EnableRaisingEvents = true;
+                //_watcher = new FileSystemWatcher();
+                //_watcher.Path = Path.GetDirectoryName(_logFilePath);
+                //_watcher.Filter = Path.GetFileName(_logFilePath);
+                //_watcher.InternalBufferSize = 64 * 1024; // 设置为 64 KB
+                //_watcher.NotifyFilter = NotifyFilters.Attributes
+                //| NotifyFilters.CreationTime
+                //| NotifyFilters.DirectoryName
+                //| NotifyFilters.FileName
+                //| NotifyFilters.LastAccess
+                //| NotifyFilters.LastWrite
+                //| NotifyFilters.Security
+                //| NotifyFilters.Size;
+                //_watcher.Changed += Watcher_Changed;
+                //_watcher.EnableRaisingEvents = true;
             }
         }
 
-        private async void Watcher_Changed(object sender, FileSystemEventArgs e)
+        private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is RichTextBox richTextBox)
+            {
+                if (!_isPauseWindow)
+                    richTextBox.Dispatcher.BeginInvoke(() =>
+                    {
+                        richTextBox.ScrollToEnd();
+                    }, DispatcherPriority.Background);
+            }
+        }
+
+        private void FileRefrashElapsed(object? sender, ElapsedEventArgs e)
+        {
+            _isRefrash = true;
+            _view?.richTB.Dispatcher.BeginInvoke(() =>
+            {
+                LoadTextFile(_view?.richTB, _logFilePath, true);
+                _isRefrash = false;
+            }, DispatcherPriority.Normal);
+        }
+
+        private void FileReopenElapsed(object? sender, ElapsedEventArgs e)
+        {
+            if (!_isRefrash)
+            {
+                _view?.richTB.Dispatcher.BeginInvoke(() =>
+                {
+                    var fileInfo = new FileInfo(_logFilePath);
+                    if (fileInfo.LastWriteTime != _fileLastWriteTime)
+                    {
+                        Interlocked.Exchange(ref _lastFilePos, 0);
+                        Interlocked.Exchange(ref _paraIndex, 0);
+                        LoadTextFile(_view?.richTB, _logFilePath);
+                        _fileLastWriteTime = fileInfo.LastWriteTime;
+                    }
+                }, DispatcherPriority.Normal);
+            }
+        }
+
+        private void ConfigureFileModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is ConfigureFileModel model)
+            {
+                if (e.PropertyName.Equals(nameof(ConfigureFileModel.FileChangeInterval)))
+                {
+                    _throttleMs = model.FileChangeInterval * 1000;
+                    _refrashTimer.Interval = model.FileChangeInterval * 1000;
+                }
+                if (e.PropertyName.Equals(nameof(ConfigureFileModel.FileReopenInterval)))
+                    _reOpenTimer.Interval = model.FileReopenInterval * 1000;
+            }
+        }
+
+        private void Watcher_Changed(object sender, FileSystemEventArgs e)
         {
             if (e.FullPath.Equals(_logFilePath))
             {
-                await Task.Delay(_configureFileModel.FileChangeInterval);
+                lock (_lock)
+                {
+                    var currentTime = DateTime.Now;
+                    if ((currentTime - _lastEventTime).TotalMilliseconds < _throttleMs)
+                    {
+                        return;
+                    }
+                    _isRefrash = true;
+                    _lastEventTime = currentTime;
+                }
 
-                await System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, () =>
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, () =>
                 {
                     LoadTextFile(_view?.richTB, _logFilePath);
+                    _isRefrash = false;
                 });
             }
         }
@@ -226,73 +321,95 @@ namespace KSW.ATE01.Start.ViewModels
             }
         }
 
-        private void LoadTextFile(RichTextBox richTB, string filePath)
+        private bool LoadTextFile(RichTextBox richTB, string filePath, bool appendText = false)
         {
+            var bookmarks = BookmarkManagerHelper.Bookmarks;
+            var result = false;
             if (richTB == null)
-                return;
+                return result;
 
             if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
-                return;
+                return result;
 
-            richTB.Document.Blocks.Clear();
-            // 打开文件并读取其内容
-            var text = File.ReadAllText(filePath);
-            var msgList = text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
-            if (msgList.IsEmpty())
-                return;
-
-            if (!_isRefrash)
+            try
             {
-                lock (_lock)
+                // 打开文件并读取其内容（有可能出现文件占用的情况）
+                var text = TryGetFileText(filePath);
+                if (text.IsEmpty() || (appendText && text.Length.Equals(_lastFilePos)))
+                    return result;
+
+                if (appendText)
+                    text = text.Substring(_lastFilePos);
+                else
                 {
-                    if (!_isRefrash)
-                    {
-                        _isRefrash = true;
-
-                        var bookmarks = BookmarkManagerHelper.Bookmarks;
-                        HighlightManagerHelper.ClearHighlight();
-
-                        Paragraph para = new Paragraph();
-                        var index = 0;
-                        foreach (var msg in msgList)
-                        {
-                            //处理高亮字符串
-                            var hasMarker = IsContainKeyword(msg, out bool addHighlight, out Color foreground);
-
-                            var rowMsg = msg + "\r\n";
-                            Run r = new Run(rowMsg);
-                            r.Name = $"{_prefixRun}{index++}";
-                            var hasBookmark = bookmarks.Any(x => x.RunName.Equals(r.Name));
-
-                            //标记书签
-                            if (hasBookmark)
-                            {
-                                r.Foreground = Brushes.Yellow;
-                                r.Background = Brushes.Green;
-                            }
-                            else
-                            {
-                                //进行标记
-                                if (hasMarker)
-                                    r.Foreground = new SolidColorBrush(foreground);
-                                else
-                                    r.Foreground = Brushes.Black;
-                            }
-
-                            if (hasBookmark || addHighlight)
-                                HighlightManagerHelper.AddHighlight(_prefixRun, r.Name);
-
-                            para.Inlines.Add(r);
-                        }
-                        richTB.Document.Blocks.Add(para);
-                        
-                        if (!_isPauseWindow)
-                            richTB.ScrollToEnd();
-
-                        _isRefrash = false;
-                    }
+                    richTB.Document.Blocks.Clear();
+                    HighlightManagerHelper.ClearHighlight();
                 }
+
+                var msgList = text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                if (msgList.IsEmpty())
+                    return result;
+
+                Paragraph para = new Paragraph();
+                var index = 0;
+                foreach (var msg in msgList)
+                {
+                    //处理高亮字符串
+                    var hasMarker = IsContainKeyword(msg, out bool addHighlight, out Color foreground);
+
+                    var rowMsg = msg;
+                    if (index != msgList.Length - 1)
+                        rowMsg += "\r\n";
+
+                    Run r = new Run(rowMsg);
+                    r.Name = $"{_prefixRun}{_paraIndex}";
+                    Interlocked.Increment(ref _paraIndex);
+                    var hasBookmark = bookmarks.Any(x => x.RunName.Equals(r.Name));
+
+                    //标记书签
+                    if (hasBookmark)
+                    {
+                        r.Foreground = Brushes.Yellow;
+                        r.Background = Brushes.Green;
+                    }
+                    else
+                    {
+                        //进行标记
+                        if (hasMarker)
+                            r.Foreground = new SolidColorBrush(foreground);
+                        else
+                            r.Foreground = Brushes.Black;
+                    }
+
+                    if (hasBookmark || addHighlight)
+                        HighlightManagerHelper.AddHighlight(_prefixRun, r.Name);
+
+                    para.Inlines.Add(r);
+                    index++;
+                }
+                richTB.Document.Blocks.Add(para);
+                Interlocked.Add(ref _lastFilePos, text.Length);
+                result = true;
             }
+            catch (Exception)
+            {
+
+            }
+            return result;
+        }
+
+        private string TryGetFileText(string filePath)
+        {
+            var result = string.Empty;
+            try
+            {
+                result = File.ReadAllText(filePath);
+            }
+            catch
+            {
+
+            }
+            return result;
         }
 
         private bool IsContainKeyword(string msg, out bool addHighlight, out Color foreground)
@@ -412,13 +529,14 @@ namespace KSW.ATE01.Start.ViewModels
             {
                 if (!File.Exists(_logFilePath))
                     return;
-
                 FileStream stream = File.Open(_logFilePath, FileMode.OpenOrCreate, FileAccess.Write);
                 stream.Seek(0, SeekOrigin.Begin);
                 stream.SetLength(0);
                 stream.Close();
 
                 _view?.richTB?.Document.Blocks.Clear();
+                Interlocked.Exchange(ref _lastFilePos, 0);
+                Interlocked.Exchange(ref _paraIndex, 0);
             }
         }
 
@@ -459,7 +577,7 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ExecutePauseCommand()
         {
-            _watcher.EnableRaisingEvents = !_isPauseWindow;
+            //_watcher.EnableRaisingEvents = !_isPauseWindow;
         }
 
         private void ExecuteViewOptionsCommand()
@@ -480,6 +598,7 @@ namespace KSW.ATE01.Start.ViewModels
             if (_view?.richTB != null)
             {
                 var selection = _view?.richTB?.Selection;
+                _isPauseWindow = true;
                 // 获取选中内容的起始位置
                 TextPointer startPointer = selection.Start;
                 if (selection.IsEmpty)
@@ -487,11 +606,14 @@ namespace KSW.ATE01.Start.ViewModels
                     if (_currentPointer != null)
                     {
                         var run = _currentPointer.Parent as Run;
-                        run.Foreground = Brushes.Yellow;
-                        run.Background = Brushes.Green;
-                        var runName = run.Name;
-                        BookmarkManagerHelper.AddBookmark(_prefixRun, runName);
-                        HighlightManagerHelper.AddHighlight(_prefixRun, runName);
+                        if (run != null)
+                        {
+                            run.Foreground = Brushes.Yellow;
+                            run.Background = Brushes.Green;
+                            var runName = run.Name;
+                            BookmarkManagerHelper.AddBookmark(_prefixRun, runName);
+                            HighlightManagerHelper.AddHighlight(_prefixRun, runName);
+                        }
                     }
                 }
                 else
@@ -500,11 +622,24 @@ namespace KSW.ATE01.Start.ViewModels
                     Paragraph selectedParagraph = startPointer.Paragraph;
                     _view?.richTB?.Selection?.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Yellow);
                     _view?.richTB?.Selection?.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green);
-                    var run = startPointer.Parent as Run;
-                    var runName = run.Name;
-                    BookmarkManagerHelper.AddBookmark(_prefixRun, runName);
-                    HighlightManagerHelper.AddHighlight(_prefixRun, runName);
+                    if (startPointer.Parent is Paragraph paragraph)
+                    {
+                        var firstRun = paragraph.Inlines.FirstOrDefault();
+                        var runName = firstRun?.Name;
+                        if (!runName.IsEmpty())
+                        {
+                            BookmarkManagerHelper.AddBookmark(_prefixRun, runName);
+                            HighlightManagerHelper.AddHighlight(_prefixRun, runName);
+                        }
+                    }
+                    else if (startPointer.Parent is Run run)
+                    {
+                        var runName = run.Name;
+                        BookmarkManagerHelper.AddBookmark(_prefixRun, runName);
+                        HighlightManagerHelper.AddHighlight(_prefixRun, runName);
+                    }
                 }
+                _isPauseWindow = false;
             }
         }
 

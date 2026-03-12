@@ -340,6 +340,24 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Compile Failed 的本地化字符串。
+        /// </summary>
+        internal static string CompileFailed {
+            get {
+                return ResourceManager.GetString("CompileFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Compile Successful 的本地化字符串。
+        /// </summary>
+        internal static string CompileSuccessful {
+            get {
+                return ResourceManager.GetString("CompileSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Configuration 的本地化字符串。
         /// </summary>
         internal static string Configuration {

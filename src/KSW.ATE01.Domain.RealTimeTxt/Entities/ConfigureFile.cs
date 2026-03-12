@@ -14,12 +14,12 @@ namespace KSW.ATE01.Domain.RealTimeTxt.Entities
         /// <summary>
         /// 文件更改间隔
         /// </summary>
-        public int FileChangeInterval { get; set; } = 100;
+        public int FileChangeInterval { get; set; } = 5;
 
         /// <summary>
         /// 文件重新打开间隔
         /// </summary>
-        public int FileReopenInterval { get; set; } = 10;
+        public int FileReopenInterval { get; set; } = 30;
 
         /// <summary>
         /// 关键字集合
