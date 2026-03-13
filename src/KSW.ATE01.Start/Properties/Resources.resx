@@ -927,4 +927,7 @@
   <data name="CompileFailed" xml:space="preserve">
     <value>Compile Failed</value>
   </data>
+  <data name="ParameterCanNotBeEmpty" xml:space="preserve">
+    <value>{0} can not be empty</value>
+  </data>
 </root>

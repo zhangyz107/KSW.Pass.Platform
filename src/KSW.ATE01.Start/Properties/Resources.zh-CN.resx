@@ -738,4 +738,7 @@
   <data name="CompileFailed" xml:space="preserve">
     <value>编译失败</value>
   </data>
+  <data name="ParameterCanNotBeEmpty" xml:space="preserve">
+    <value>{0}不能为空</value>
+  </data>
 </root>

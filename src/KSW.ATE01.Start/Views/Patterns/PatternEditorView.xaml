@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:KSW.ATE01.Start.Views.Patterns"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:language="clr-namespace:KSW.ATE01.Start"
              xmlns:viewmodel="clr-namespace:KSW.ATE01.Start.ViewModels.Patterns"
@@ -12,6 +13,13 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewmodel:PatternEditorViewModel}"
              prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}" CommandParameter="{Binding }"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -85,7 +93,12 @@
                 <DataGridTextColumn Header="{language:L Label}" IsReadOnly="True" Binding="{Binding Label.LabelFullContent,IsAsync=True}" Width="auto"></DataGridTextColumn>
                 <DataGridTextColumn Header="{language:L Command}" IsReadOnly="True" Binding="{Binding Command.CommandFullContent,IsAsync=True}" Width="auto"></DataGridTextColumn>
                 <!--<DataGridTextColumn Header="{language:L Instrument}" IsReadOnly="True" Binding="{Binding Instrument}" Width="auto"></DataGridTextColumn>-->
-                <DataGridTextColumn Header="{language:L TimingName}" IsReadOnly="True" Binding="{Binding TimingSet,IsAsync=True}" Width="auto"></DataGridTextColumn>
+                <DataGridTextColumn Header="{language:L TimingName}" Width="auto">
+                    <DataGridTextColumn.Binding >
+                        <Binding Path="TimingSet" UpdateSourceTrigger="PropertyChanged" ValidatesOnDataErrors="True" NotifyOnValidationError="True">
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="{language:L Comment}" IsReadOnly="True" Binding="{Binding Comment,IsAsync=True}" Width="auto"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>

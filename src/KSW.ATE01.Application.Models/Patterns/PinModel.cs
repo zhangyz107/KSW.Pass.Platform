@@ -2,6 +2,7 @@
 using KSW.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace KSW.ATE01.Application.Models.Patterns
         /// <summary>
         /// 向量值
         /// </summary>
+        [Required(ErrorMessage = "TheFieldRequired")]
         public VectorValueType VectorValue
         {
             get => _vectorValue;

@@ -1,6 +1,9 @@
 ﻿using KSW.ATE01.Application.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.Patterns;
+using KSW.ATE01.Project.Base.Enums.Patterns;
+using KSW.ATE01.Start.Views.Patterns;
+using KSW.Dtos;
 using KSW.Helpers;
 using KSW.Ui;
 using KSW.UI.WPF.Controls;
@@ -9,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -24,6 +28,7 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
         private string _title;
         private PatternModel _pattern;
         private PatternVectorModel _vectorRow;
+        private PatternEditorView _view;
         private bool _isShowPinOverview = true;
         private bool _isInit = true;
         public event EventHandler<IEnumerable<PatternVectorModel>> PatternUpdated;
@@ -65,6 +70,13 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
         }
 
         #region Commands
+
+        /// <summary>
+        /// 加载命令
+        /// </summary>
+        private DelegateCommand<object> _loadingCommand;
+        public DelegateCommand<object> LoadingCommand =>
+            _loadingCommand ?? (_loadingCommand = new DelegateCommand<object>(ExecuteLoadingCommand));
 
         /// <summary>
         /// 刷新命令
@@ -128,6 +140,15 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
             VectorInfos.CollectionChanged += VectorInfos_CollectionChanged;
         }
 
+
+        private void ExecuteLoadingCommand(object parameter)
+        {
+            if (parameter is PatternEditorView view)
+            {
+                _view = view;
+            }
+        }
+
         private void VectorInfos_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action != NotifyCollectionChangedAction.Replace && !_isInit)
@@ -180,6 +201,16 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
 
         private async void ExecuteCompileCommand()
         {
+            if (!IsVaild(VectorInfos,out var error))
+            {
+                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                {
+                    Content = error,
+                    Type = UI.WPF.Enums.NotificationType.Error,
+                });
+                return ;
+            }
+
             var fileSaveDialog = new SaveFileDialog();
             fileSaveDialog.Filter = ".bin文件|*.bin";
             fileSaveDialog.FileName = $"{Pattern.FileName}.bin";
@@ -204,6 +235,13 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
 
         }
 
+        private bool IsVaild(IEnumerable<PatternVectorModel> list,out string error)
+        {
+            var hasError = list.FirstOrDefault(x => !x.Error.IsEmpty() || x.Pins.Any(y=>!y.Error.IsEmpty()));
+            error = hasError?.Error ?? string.Empty;
+            return hasError == null;
+        }
+
         private void ExecuteInsertVectorCommand()
         {
             var index = _vectorRow == null ? VectorInfos.Count : VectorInfos.IndexOf(VectorRow);
@@ -211,7 +249,10 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
             {
                 Label = new LabelModel(),
                 Command = new CommandModel(),
+                Pins = new List<PinModel>()
             };
+            var vector = _vectorRow ?? VectorInfos.FirstOrDefault();
+            ClonePins(vector, newVector);
             if (index >= 0)
                 VectorInfos.Insert(index, newVector);
         }
@@ -222,8 +263,27 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
             {
                 Label = new LabelModel(),
                 Command = new CommandModel(),
+                Pins = new List<PinModel>()
             };
+            var vector = _vectorRow ?? VectorInfos.FirstOrDefault();
+            ClonePins(vector, newVector);
             VectorInfos.Add(newVector);
+        }
+
+        private void ClonePins(PatternVectorModel? source, PatternVectorModel target)
+        {
+            if (target.Pins == null)
+                target.Pins = new List<PinModel>();
+
+            foreach (var item in source.Pins)
+            {
+                var newPin = new PinModel()
+                {
+                    PinName = item.PinName,
+                    VectorValue = VectorValueType.Zero,
+                };
+                target.Pins.Add(newPin);
+            }
         }
 
         private void ExecuteRemoveVectorCommand()

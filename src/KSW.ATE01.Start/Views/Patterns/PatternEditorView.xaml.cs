@@ -50,9 +50,7 @@ namespace KSW.ATE01.Start.Views.Patterns
 
             _language = containerProvider.IsRegistered<ILanguageManager>() == true ? containerProvider.Resolve<ILanguageManager>() : null;
             if (_language != null)
-            {
                 _dynamicColumnHeader = _language["TimingName"];
-            }
 
             if (DataContext is PatternEditorViewModel viewModel)
             {
@@ -84,7 +82,14 @@ namespace KSW.ATE01.Start.Views.Patterns
                     ItemsSource = VectorValueDic,
                     SelectedValuePath = "Key",
                     DisplayMemberPath = "Value",
-                    SelectedValueBinding = new Binding($"Pins[{index}].VectorValue") { Mode = BindingMode.TwoWay, UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, IsAsync = true },
+                    SelectedValueBinding = new Binding($"Pins[{index}].VectorValue")
+                    {
+                        Mode = BindingMode.TwoWay,
+                        UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+                        IsAsync = true,
+                        ValidatesOnDataErrors = true,
+                        NotifyOnValidationError = true
+                    },
                     HeaderStyle = FindResource("VerticalColHeader") as Style,
                     ElementStyle = FindResource("DiscolorationCombobox") as Style,
                     EditingElementStyle = FindResource("DiscolorationEditCombobox") as Style,

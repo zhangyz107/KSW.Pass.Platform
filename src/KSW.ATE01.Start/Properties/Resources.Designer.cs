@@ -1294,6 +1294,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 {0} can not be empty 的本地化字符串。
+        /// </summary>
+        internal static string ParameterCanNotBeEmpty {
+            get {
+                return ResourceManager.GetString("ParameterCanNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Pass HardwareBin 的本地化字符串。
         /// </summary>
         internal static string PassHardwareBin {

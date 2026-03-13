@@ -24,6 +24,7 @@ using KSW.ATE01.Start.Views.Dialogs;
 using KSW.ATE01.Start.Views.Patterns;
 using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Helpers;
+using KSW.Localization;
 using KSW.Ui;
 using KSW.UI.WPF.Controls;
 using MaterialDesignColors;
@@ -242,7 +243,7 @@ namespace KSW.ATE01.Start.ViewModels
         private void ChangeLanguage(string value)
         {
             CultureInfo culture = new CultureInfo(value);
-            LanguageHelper.Manager.ChangeLanguage(culture);
+            LanguageManagerFactory.ChangeLanguage(culture);
 
             // 切换核心多语言
             //Language.LanguageManager.Instance.ChangeLanguage(culture);
