@@ -52,7 +52,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 测试项名称
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string TestItemName
         {
             get => _testItemName;
@@ -62,7 +62,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 方法名称
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string FunctionName
         {
             get => _functionName;
@@ -72,7 +72,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 激励
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Force
         {
             get => _force;
@@ -82,7 +82,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 组或引脚Id
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public Guid? GroupOrPinId
         {
             get => _groupOrPinId;
@@ -97,7 +97,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 测试项门限Id
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public Guid? LimitsId
         {
             get => _limitsId;

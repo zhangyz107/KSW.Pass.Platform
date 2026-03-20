@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KSW.ATE01.Project.Base.Models.Patterns
 {
-    public class LabelModel
+    public struct LabelModel
     {
         private string _labelName;
 
@@ -17,28 +17,28 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
 
         private string _labelFullContent;
 
-        public string LabelName
-        {
-            get => _labelName;
-            set => _labelName = value;
-        }
+        public string LabelName;
+        //{
+        //    get => _labelName;
+        //    set => _labelName = value;
+        //}
 
-        public long IndexInVectors
-        {
-            get => _indexInVectors;
-            set => _indexInVectors = value;
-        }
+        public long IndexInVectors;
+        //{
+        //    get => _indexInVectors;
+        //    set => _indexInVectors = value;
+        //}
 
-        public LabelCommandType LabelType
-        {
-            get => _labelType;
-            set => _labelType = value;
-        }
+        public LabelCommandType LabelType;
+        //{
+        //    get => _labelType;
+        //    set => _labelType = value;
+        //}
 
-        public string LabelFullContent
-        {
-            get => _labelFullContent;
-            set => _labelFullContent = value;
-        }
+        public string LabelFullContent;
+        //{
+        //    get => _labelFullContent;
+        //    set => _labelFullContent = value;
+        //}
     }
 }

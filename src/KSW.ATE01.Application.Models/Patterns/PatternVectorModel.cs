@@ -16,6 +16,7 @@ namespace KSW.ATE01.Application.Models.Patterns
     /// </summary>
     public class PatternVectorModel : DtoBase
     {
+        private string _timingSet;
 
         /// <summary>
         /// 标签模型
@@ -36,7 +37,11 @@ namespace KSW.ATE01.Application.Models.Patterns
         /// 时钟设置
         /// </summary>
         [Required(ErrorMessage = "TheFieldRequired")]
-        public string TimingSet { get; set; }
+        public string TimingSet
+        {
+            get => _timingSet;
+            set => SetProperty(ref _timingSet, value);
+        }
 
         /// <summary>
         /// 引脚向量

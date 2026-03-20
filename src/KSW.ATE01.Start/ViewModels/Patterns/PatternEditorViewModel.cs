@@ -1,6 +1,7 @@
 ﻿using KSW.ATE01.Application.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Models.Patterns;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns;
 using KSW.ATE01.Project.Base.Enums.Patterns;
 using KSW.ATE01.Start.Views.Patterns;
 using KSW.Dtos;
@@ -201,14 +202,14 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
 
         private async void ExecuteCompileCommand()
         {
-            if (!IsVaild(VectorInfos,out var error))
+            if (!IsVaild(VectorInfos, out var error))
             {
                 _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
                 {
                     Content = error,
                     Type = UI.WPF.Enums.NotificationType.Error,
                 });
-                return ;
+                return;
             }
 
             var fileSaveDialog = new SaveFileDialog();
@@ -235,9 +236,9 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
 
         }
 
-        private bool IsVaild(IEnumerable<PatternVectorModel> list,out string error)
+        private bool IsVaild(IEnumerable<PatternVectorModel> list, out string error)
         {
-            var hasError = list.FirstOrDefault(x => !x.Error.IsEmpty() || x.Pins.Any(y=>!y.Error.IsEmpty()));
+            var hasError = list.FirstOrDefault(x => !x.Error.IsEmpty() || x.Pins.Any(y => !y.Error.IsEmpty()));
             error = hasError?.Error ?? string.Empty;
             return hasError == null;
         }
@@ -310,22 +311,35 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
             var pattern = navigationContext.Parameters.GetValue<PatternModel>("pattern");
+            //PatternModel lastPattern = null;
             if (pattern != null)
             {
+                //if (Pattern != null)
+                //{
+                //    foreach (var vectorModel in Pattern.PatternVectors)
+                //        vectorModel.Dispose();
+                //    Pattern.PatternVectors.Clear();
+                //    Pattern.Dispose();
+                //    lastPattern = Pattern;
+                //}
                 VectorInfos.Clear();
                 Pattern = pattern;
+                //GC.Collect();
                 Title = Path.GetFileNameWithoutExtension(pattern.FileName);
-                if (!Pattern.PatternVectors.IsEmpty())
-                {
-                    var index = 0;
-                    foreach (var item in Pattern.PatternVectors)
-                    {
-                        item.Label.IndexInVectors = ++index;
-                        VectorInfos.Add(item);
-                    }
-                }
-                PatternUpdated?.Invoke(this, VectorInfos);
+                VectorInfos.AddRange(Pattern.PatternVectors);
+                //if (!Pattern.PatternVectors.IsEmpty())
+                //{
+                //    var index = 0;
+                //    foreach (var item in Pattern.PatternVectors)
+                //    {
+                //        item.Label.IndexInVectors = ++index;
+                //        VectorInfos.Add(item);
+                //    }
+                //}
+                //PatternUpdated?.Invoke(this, VectorInfos);
                 ExecuteRefreshCommand();
+                //if (lastPattern != null)
+                //    lastPattern = null;
             }
             _isInit = false;
         }

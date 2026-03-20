@@ -58,7 +58,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 时钟名称
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string TimingName
         {
             get => _timingName;
@@ -68,7 +68,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 周期
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Period
         {
             get => _period;
@@ -78,7 +78,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 组或引脚Id
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public Guid? GroupOrPinId
         {
             get => _groupOrPinId;
@@ -97,7 +97,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 波形格式
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public TimingformatType? WaveformFormat
         {
             get => _waveformFormat;
@@ -112,7 +112,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 环绕边缘
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? DriveA
         {
             get => _driveA;
@@ -122,7 +122,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 起始边缘
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? DriveB
         {
             get => _driveB;
@@ -132,7 +132,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 返回边缘
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? DriveC
         {
             get => _driveC;
@@ -142,7 +142,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 关闭边缘
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? DriveD
         {
             get => _driveD;

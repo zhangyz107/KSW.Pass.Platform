@@ -42,7 +42,7 @@ namespace KSW.ATE01.Application.Models.Projects
         /// <summary>
         /// 项目名称
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string ProjectName
         {
             get => _projectName;

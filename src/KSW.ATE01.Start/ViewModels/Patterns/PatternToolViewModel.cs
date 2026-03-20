@@ -176,8 +176,10 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
             if (openFolderDialog.ShowDialog() == true)
             {
                 var dir = openFolderDialog.FolderName;
+                var stopwatch = new Stopwatch();
                 var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
+                    stopwatch.Start();
                     var patterns = await _patternBLL.GetPatternsByFilesAsync(dir, true);
                     if (!patterns.IsEmpty())
                     {
@@ -185,6 +187,8 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
                         Patterns.AddRange(patterns);
                         UpdateTabControl();
                     }
+                    stopwatch.Stop();
+                    Debug.WriteLine($"耗时：{stopwatch.ElapsedMilliseconds}ms");
                 });
 
                 await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);

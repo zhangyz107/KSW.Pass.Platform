@@ -30,7 +30,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 电平组名
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string LevelGroupName
         {
             get => _levelGroupName;

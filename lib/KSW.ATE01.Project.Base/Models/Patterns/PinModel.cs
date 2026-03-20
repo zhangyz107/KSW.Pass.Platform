@@ -11,17 +11,17 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
     /// <summary>
     /// 引脚模型
     /// </summary>
-    public class PinModel
+    public struct PinModel
     {
         /// <summary>
         /// 引脚名
         /// </summary>
-        public string PinName { get; set; }
+        public string PinName;
 
         /// <summary>
         /// 引脚值
         /// </summary>
-        public VectorValueType VectorValue { get; set; }
+        public VectorValueType VectorValue;
 
         public string VectorValueDescription => VectorValue.GetDescription();
     }

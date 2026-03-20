@@ -42,7 +42,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 向量文件名称
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string PatternFile
         {
             get => _patternFile;

@@ -63,7 +63,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 组或引脚Id
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public Guid? GroupOrPinId
         {
             get => _groupOrPinId;
@@ -78,7 +78,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 输入低电压
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Vil
         {
             get => _vil;
@@ -88,7 +88,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 输入高电压
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Vih
         {
             get => _vih;
@@ -98,7 +98,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 输出低电压
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Vol
         {
             get => _vol;
@@ -108,7 +108,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 输出高电压
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Voh
         {
             get => _voh;
@@ -118,7 +118,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 低电平输出灌电流
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Iol
         {
             get => _iol;
@@ -128,7 +128,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 高电平输出拉电流
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Ioh
         {
             get => _ioh;
@@ -138,7 +138,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 电压基准
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Vt
         {
             get => _vt;
@@ -148,7 +148,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 错位低电压
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Vcl
         {
             get => _vcl;
@@ -158,7 +158,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 错位高电压
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? Vch
         {
             get => _vch;

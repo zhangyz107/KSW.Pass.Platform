@@ -9,36 +9,42 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
     /// <summary>
     /// 模式向量模型
     /// </summary>
-    public class PatternVectorModel
+    public struct PatternVectorModel
     {
         /// <summary>
         /// 标签模型
         /// </summary>
-        public LabelModel Label { get; set; }
+        public LabelModel Label;
 
         /// <summary>
         /// 指令
         /// </summary>
-        public CommandModel Command { get; set; }
+        public CommandModel Command;
 
         /// <summary>
         /// 设备名
         /// </summary>
-        public string InstrumentName { get; set; }
+        public string InstrumentName;
 
         /// <summary>
         /// 时钟设置
         /// </summary>
-        public string TimingSet { get; set; }
+        public string TimingSet;
 
         /// <summary>
         /// 引脚向量
         /// </summary>
-        public List<PinModel> Pins { get; set; } = new List<PinModel>();
+        public List<PinModel> Pins;
 
         /// <summary>
         /// 评论
         /// </summary>
-        public string Comment { get; set; }
+        public string Comment;
+
+
+        public PatternVectorModel()
+        {
+            Pins = new List<PinModel>();
+        }
     }
 }

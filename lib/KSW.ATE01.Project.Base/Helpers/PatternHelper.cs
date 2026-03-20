@@ -3,8 +3,8 @@ using KSW.ATE01.Project.Base.Events;
 using KSW.ATE01.Project.Base.Extensions;
 using KSW.ATE01.Project.Base.Language;
 using KSW.ATE01.Project.Base.Models.Patterns;
-using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -201,7 +201,7 @@ namespace KSW.ATE01.Project.Base.Helpers
         {
             _compileError = false;
             var result = new PatternModel();
-            var patternFileName = Path.GetFileNameWithoutExtension(patternFilePath);
+            var patternFileName = System.IO.Path.GetFileNameWithoutExtension(patternFilePath);
             result.FileName = patternFileName;
             try
             {
@@ -217,8 +217,8 @@ namespace KSW.ATE01.Project.Base.Helpers
                     result.InstrumentInfo = instruments.FirstOrDefault();
                     GetInstrumentsInfoFromDataBlock(result, patternFilePath, pinList, instruments, out _dataBlockMarkerParameter);
                 }
-                AnalysisPatternVector(patternFilePath, pinList, result);
 
+                AnalysisPatternVector(patternFilePath, pinList, result);
                 _instance.Value._pattern = result;
             }
             catch (Exception)
@@ -522,7 +522,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                         currentGroup = groupPatternVectors[groupIndex];
 
                     //根据命令实际情况分组
-                    if (vector.Command != null && (vector.Command.Type == CommandType.loop || vector.Command.Type == CommandType.repeat))
+                    if ((vector.Command.Type == CommandType.loop || vector.Command.Type == CommandType.repeat))
                     {
                         var commandGroup = new List<PatternVectorModel>();
                         groupPatternVectors[++groupIndex] = commandGroup;
@@ -642,11 +642,11 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 isInit = false;
 
                             var row1 = groupVectors.Value[i];
-                            PatternVectorModel row2 = null;
+                            PatternVectorModel? row2 = null;
                             if (i != groupVectors.Value.Count - 1)
                                 row2 = groupVectors.Value[i + 1];
 
-                            var length = row2 != null ? row1.Pins.Count > row2.Pins.Count ? row1.Pins.Count : row2.Pins.Count : row1.Pins.Count;
+                            var length = row2 != null ? row1.Pins.Count > row2?.Pins?.Count ? row1.Pins.Count : row2?.Pins.Count : row1.Pins.Count;
                             var pinList = row1.Pins;
                             if (row2 != null)
                                 pinList = row1.Pins.Count > row2?.Pins.Count ? row1.Pins : row2?.Pins;
@@ -675,7 +675,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 }
 
                                 GetCommandAndParameter(row1, out CommandType instruction, out List<byte> commandParameters);
-                                var pinByte = row2 != null ? (byte)((int)row2.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue) : (byte)row1.Pins[j].VectorValue;
+                                var pinByte = row2 != null ? (byte)((int)row2?.Pins[j].VectorValue << 4 | (int)row1.Pins[j].VectorValue) : (byte)row1.Pins[j].VectorValue;
                                 var vectorIncrease = row2 != null ? 2 : 1;
 
                                 var lastPatternModel = lastPackageModel?.PatternGroups?.LastOrDefault();
@@ -752,7 +752,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             {
                 case CommandType.loop:
                 case CommandType.repeat:
-                    if (int.TryParse(row1?.Command?.CommandParameter?.ToString(), out int loopCount))
+                    if (int.TryParse(row1.Command.CommandParameter?.ToString(), out int loopCount))
                     {
                         var resultArray = new byte[6];
                         var paramArray = BitConverter.GetBytes(loopCount).Reverse().ToArray();
@@ -760,7 +760,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                         commandParameters.AddRange(resultArray);
                     }
                     else
-                        throw new ArgumentException($"指令参数错误：{row1?.Command?.CommandParameter}");
+                        throw new ArgumentException($"指令参数错误：{row1.Command.CommandParameter}");
                     break;
                 case CommandType.stop:
                     break;
@@ -1634,200 +1634,68 @@ namespace KSW.ATE01.Project.Base.Helpers
         //    }
         //}
 
+        public struct ReadLineStruct
+        {
+            public long LineNumber;
+            public long ValidVectorNumber;
+            public string LineStr;
+        }
+
         private static void AnalysisPatternVector(string pathPattern, List<string> atpPinsPinGroups, PatternModel patternResult)
         {
-            using (StreamReader streamReader = new StreamReader(pathPattern))
+            // 优化1: 使用更大的缓冲区 - 4MB
+            const int BUFFER_SIZE = 4 * 1024 * 1024;
+
+            var lines = new BlockingCollection<ReadLineStruct>(boundedCapacity: 10000); // 缓冲1万行
+
+            // 生产者：逐行读取
+            Task producer = Task.Run(() =>
             {
-                try
+                using var fileStream = new FileStream(pathPattern, FileMode.Open, FileAccess.Read, FileShare.Read, BUFFER_SIZE, FileOptions.SequentialScan);
+                using var reader = new StreamReader(fileStream, Encoding.UTF8, bufferSize: BUFFER_SIZE);
+
+                string? line;
+                var lineNumber = 1L;
+                var validVectorCount = 0L;
+
+                while ((line = reader.ReadLine()) != null && !_atpPinsRegex.IsMatch(line.Trim()))
                 {
-                    // 使用有意义的变量名
-                    long lineNumber = 1L;
-                    long validVectorCount = 0L;
-
-                    // 优化1: 使用ReadLine()直接赋值检查，避免重复调用
-                    string currentLine;
-                    while ((currentLine = streamReader.ReadLine()) != null && !_atpPinsRegex.IsMatch(currentLine.Trim()))
-                    {
-                        lineNumber++;
-                    }
-
-                    // 优化2: 使用StringBuilder替代字符串拼接，避免创建大量临时字符串
-                    var textBuilder = new StringBuilder(256);  // 预分配合理容量
-                    var commentBuilder = new StringBuilder(256);
-
-                    // 优化3: 使用HashSet实现O(1)查找，替代原来的List.Contains() O(n)查找
-                    var maskHashSet = new HashSet<string>(_listTotalMaskCC.Select(x => x.Trim().ToLower()));
-
-                    // 优化4: 缓存频繁访问的属性到局部变量
-                    var moduleType = patternResult.ModuleType;
-                    var patternVectors = patternResult.PatternVectors;
-
-                    // 优化5: 复用集合对象，减少GC压力
-                    var dataList = new List<string>(32);      // 预分配典型容量
-                    var maskList = new List<string>(16);
-
-                    while ((currentLine = streamReader.ReadLine()) != null)
-                    {
-                        currentLine.SplitValidAndComment(out var valid, out var comment);
-
-                        textBuilder.Append(' ').Append(valid);
-                        commentBuilder.Append(' ').Append(comment);
-                        lineNumber++;
-
-                        // 快速失败：如果不是向量行则跳过
-                        if (!_vectorRegex.IsMatch(textBuilder.ToString()))
-                        {
-                            // 定期清理避免内存膨胀
-                            if (lineNumber % 100 == 0)
-                            {
-                                textBuilder.Clear();
-                                commentBuilder.Clear();
-                            }
-                            continue;
-                        }
-
-                        var match = _vectorRegex.Match(textBuilder.ToString());
-                        string label = match.Groups[1].Value;
-                        string timingSet = match.Groups[5].Value;
-                        string pinsPart = match.Groups[6].Value;
-                        string vectorData = match.Groups[4].Value.Trim();
-
-                        // 解析MTE
-                        string strMTE = string.Empty;
-                        var mteMatch = _mteRegex.Match(vectorData);
-                        if (mteMatch.Success)
-                        {
-                            strMTE = mteMatch.Groups[1].Value;
-                            vectorData = vectorData.Replace(mteMatch.Value, string.Empty);
-                        }
-
-                        // 优化6: 复用集合并避免LINQ开销
-                        dataList.Clear();
-                        maskList.Clear();
-
-                        if (!string.IsNullOrEmpty(vectorData))
-                        {
-                            var parts = vectorData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            for (int i = 0; i < parts.Length; i++)
-                            {
-                                string trimmed = parts[i].Trim();
-                                if (!string.IsNullOrEmpty(trimmed))
-                                {
-                                    dataList.Add(trimmed);
-                                }
-                            }
-                        }
-
-                        // 优化7: 从后往前遍历，避免多次Remove操作
-                        for (int i = dataList.Count - 1; i >= 0; i--)
-                        {
-                            string item = dataList[i];
-                            if (maskHashSet.Contains(item.ToLower()))
-                            {
-                                maskList.Add(item.ToLower());
-                                dataList.RemoveAt(i);
-                            }
-                        }
-
-                        // 优化8: 手动计数并提前退出，避免LINQ的Count()遍历整个字符串
-                        int colonCount = 0;
-                        foreach (char c in label)
-                        {
-                            if (c == ':')
-                            {
-                                colonCount++;
-                                if (colonCount > 1) break;  // 提前退出
-                            }
-                        }
-
-                        if (colonCount > 1)
-                        {
-                            _compileError = true;
-                            _eventAggregator.GetEvent<PatternErrorMessageEvent>()
-                                .Publish(string.Format($"{L["PatternCompileErr024"]}", lineNumber));
-                            return;
-                        }
-
-                        if (dataList.Count > 1)
-                        {
-                            _compileError = true;
-                            _eventAggregator.GetEvent<PatternErrorMessageEvent>()
-                                .Publish(string.Format($"{L["PatternCompileErr020"]}", lineNumber));
-                            return;
-                        }
-
-                        string uCode = dataList.Count == 1 ? dataList[0] : string.Empty;
-                        string strPseudo = string.Empty;
-                        string strPseudoParameter = string.Empty;
-
-                        // 优化9: 使用对象初始化器
-                        var vectorModel = new PatternVectorModel
-                        {
-                            TimingSet = timingSet
-                        };
-
-                        // 优化10: 将公共代码移出switch
-                        switch (moduleType)
-                        {
-                            case ModuleType.VM_Vector:
-                                if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
-                                {
-                                    _compileError = true;
-                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>()
-                                        .Publish(string.Format($"{L["PatternCompileErr011"]}", lineNumber));
-                                    return;
-                                }
-                                vectorModel.Label = VectorAnalysisLabel(label, lineNumber, validVectorCount);
-                                vectorModel.Command = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, lineNumber);
-                                break;
-
-                            case ModuleType.LVM_Vector:
-                                if (!GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter))
-                                {
-                                    _compileError = true;
-                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>()
-                                        .Publish(string.Format($"{L["PatternCompileErr011"]}", lineNumber));
-                                    return;
-                                }
-                                vectorModel.Label = VectorAnalysisLabel(label, lineNumber, validVectorCount);
-                                vectorModel.Command = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, lineNumber);
-                                break;
-
-                            case ModuleType.SRM_Vector:
-                                VectorAnalysisSrmPseudoWithParametersModifiler(uCode, lineNumber, validVectorCount,
-                                    out strPseudo, out strPseudoParameter);
-                                vectorModel.Label = VectorAnalysisLabel(label, lineNumber, validVectorCount);
-                                break;
-                        }
-
-                        // 优化11: 复用引脚列表
-                        vectorModel.Pins = VectorAnalysisPins(pinsPart, lineNumber, atpPinsPinGroups);
-
-                        patternVectors.Add(vectorModel);
-
-                        // 优化12: 清理StringBuilder为下一轮准备
-                        textBuilder.Clear();
-                        commentBuilder.Clear();
-
-                        _validVectorLinesCountInPatternFile++;
-
-                        // 优化13: 使用StringComparison.OrdinalIgnoreCase避免创建小写字符串
-                        if (strPseudo.Equals("halt", StringComparison.OrdinalIgnoreCase) &&
-                            _haltInVectorLinesPosition == -1)
-                        {
-                            _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
-                        }
-
-                        validVectorCount++;
-
-                        if (_compileError) return;
-                    }
+                    lineNumber++;
                 }
-                catch (Exception)
+
+                while ((line = reader.ReadLine()) != null)
                 {
-                    throw;
+                    lines.Add(new ReadLineStruct()
+                    {
+                        LineNumber = lineNumber,
+                        ValidVectorNumber = validVectorCount,
+                        LineStr = line
+                    });
+                    validVectorCount++;
+                    lineNumber++;
                 }
-            }
+                lines.CompleteAdding();
+            });
+
+            var vectorList = new ConcurrentBag<PatternVectorModel>();
+            var moduleType = patternResult.ModuleType;
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            // 消费者：并行处理（比如用4个线程）
+            Parallel.ForEach(lines.GetConsumingEnumerable(),
+                new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                line =>
+                {
+                    var vector = ProcessLine(moduleType, atpPinsPinGroups, line);
+                    if (vector != null)
+                        vectorList.Add((PatternVectorModel)vector); // 你的处理逻辑
+                });
+            patternResult.PatternVectors.AddRange(vectorList.OrderBy(x => x.Label.IndexInVectors));
+            stopwatch.Stop();
+            Debug.WriteLine($"整体用时:{stopwatch.ElapsedMilliseconds}");
+
+
 
             // 最终验证
             if (_validVectorLinesCountInPatternFile < 32)
@@ -1837,6 +1705,188 @@ namespace KSW.ATE01.Project.Base.Helpers
                     .Publish(string.Format($"{L["PatternCompileErr025"]}",
                         _validVectorLinesCountInPatternFile, 32));
             }
+        }
+
+        private static PatternVectorModel? ProcessLine(ModuleType moduleType, List<string> atpPinsPinGroups, ReadLineStruct line)
+        {
+            // 创建向量模型
+            var vectorModel = new PatternVectorModel();
+
+            try
+            {
+                // 使用有意义的变量名
+                var lineNumber = line.LineNumber;
+                var validVectorCount = line.ValidVectorNumber;
+                string currentLine = line.LineStr;
+
+                // 优化1: 使用ReadLine()直接赋值检查，避免重复调用
+
+                // 优化2: 使用StringBuilder替代字符串拼接，避免创建大量临时字符串
+                var textBuilder = new StringBuilder(256);  // 预分配合理容量
+
+                // 优化3: 使用HashSet实现O(1)查找，替代原来的List.Contains() O(n)查找
+                var maskHashSet = new HashSet<string>(_listTotalMaskCC.Select(x => x.Trim().ToLower()));
+
+
+                // 优化5: 复用集合对象，减少GC压力
+                var dataList = new List<string>(32);      // 预分配典型容量
+                var maskList = new List<string>(16);
+
+                // 优化2: 直接使用ReadOnlySpan避免字符串分配
+                ReadOnlySpan<char> lineSpan = currentLine.AsSpan();
+                int commentIndex = lineSpan.IndexOf('#');
+
+                ReadOnlySpan<char> validPart = commentIndex >= 0
+                    ? lineSpan.Slice(0, commentIndex).Trim()
+                    : lineSpan.Trim();
+
+                if (validPart.IsEmpty) return null;
+
+                // 快速检查是否向量行
+                if (!_vectorRegex.IsMatch(validPart.ToString()))
+                {
+                    return null;
+                }
+
+                // 优化3: 使用ReadOnlySpan解析，避免多次ToString()
+                var match = _vectorRegex.Match(validPart.ToString());
+                if (!match.Success) return null;
+
+                string label = match.Groups[1].Value;
+                string timingSet = match.Groups[5].Value;
+                string pinsPart = match.Groups[6].Value;
+                string vectorData = match.Groups[4].Value;
+
+                vectorModel.TimingSet = timingSet;
+
+                // 解析MTE - 使用Span优化
+                string strMTE = string.Empty;
+                ReadOnlySpan<char> vectorSpan = vectorData.AsSpan();
+                var mteMatch = _mteRegex.Match(vectorData);
+                if (mteMatch.Success)
+                {
+                    strMTE = mteMatch.Groups[1].Value;
+                    vectorSpan = vectorData.AsSpan().Slice(mteMatch.Length).ToString().AsSpan();
+                }
+
+                // 优化4: 使用Span.Split替代string.Split
+                dataList.Clear();
+                maskList.Clear();
+
+                if (!vectorSpan.IsEmpty)
+                {
+                    // 手动解析CSV，避免Split分配
+                    int start = 0;
+                    for (int i = 0; i <= vectorSpan.Length; i++)
+                    {
+                        if (i == vectorSpan.Length || vectorSpan[i] == ',')
+                        {
+                            if (i > start)
+                            {
+                                var part = vectorSpan.Slice(start, i - start).Trim();
+                                if (!part.IsEmpty)
+                                {
+                                    dataList.Add(part.ToString());
+                                }
+                            }
+                            start = i + 1;
+                        }
+                    }
+                }
+
+                // 优化5: 从后往前遍历，避免多次Remove
+                for (int i = dataList.Count - 1; i >= 0; i--)
+                {
+                    string item = dataList[i];
+                    if (maskHashSet.Contains(item))
+                    {
+                        maskList.Add(item);
+                        dataList.RemoveAt(i);
+                    }
+                }
+
+                // 优化6: 手动计数冒号，避免LINQ
+                int colonCount = 0;
+                foreach (char c in label)
+                {
+                    if (c == ':')
+                    {
+                        colonCount++;
+                        if (colonCount > 1) break;
+                    }
+                }
+
+                if (colonCount > 1)
+                {
+                    _compileError = true;
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                        .Publish(string.Format(L["PatternCompileErr024"], lineNumber));
+                    return null;
+                }
+
+                if (dataList.Count > 1)
+                {
+                    _compileError = true;
+                    _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                        .Publish(string.Format(L["PatternCompileErr020"], lineNumber));
+                    return null;
+                }
+
+                string uCode = dataList.Count == 1 ? dataList[0] : string.Empty;
+                string strPseudo = string.Empty;
+                string strPseudoParameter = string.Empty;
+
+                // 优化7: 简化switch逻辑
+                bool hasPseudo = GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter);
+
+                if (moduleType == ModuleType.VM_Vector || moduleType == ModuleType.LVM_Vector)
+                {
+                    if (!hasPseudo)
+                    {
+                        _compileError = true;
+                        _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                            .Publish(string.Format(L["PatternCompileErr011"], lineNumber));
+                        return null;
+                    }
+
+                    vectorModel.Label = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+
+                    if (moduleType == ModuleType.VM_Vector)
+                    {
+                        vectorModel.Command = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, lineNumber);
+                    }
+                    else
+                    {
+                        vectorModel.Command = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, lineNumber);
+                    }
+                }
+                else if (moduleType == ModuleType.SRM_Vector)
+                {
+                    VectorAnalysisSrmPseudoWithParametersModifiler(uCode, lineNumber, validVectorCount,
+                        out strPseudo, out strPseudoParameter);
+                    vectorModel.Label = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+                }
+
+                // 解析引脚
+                vectorModel.Pins = VectorAnalysisPins(pinsPart, lineNumber, atpPinsPinGroups);
+
+                _validVectorLinesCountInPatternFile++;
+
+                // 优化8: 使用OrdinalIgnoreCase避免ToLower()
+                if (strPseudo.Equals("halt", StringComparison.OrdinalIgnoreCase) &&
+                    _haltInVectorLinesPosition == -1)
+                {
+                    _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
+                }
+
+                if (_compileError) return vectorModel;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return vectorModel;
         }
 
         private static bool GetPseudoWithParameter(string uCode, out string strPseudo, out string strPseudoParameter)
@@ -1867,6 +1917,7 @@ namespace KSW.ATE01.Project.Base.Helpers
         private static LabelModel VectorAnalysisLabel(string strLabel, long currentLine, long currentVectorLine)
         {
             var result = new LabelModel();
+            result.IndexInVectors = currentVectorLine;
             string[] array = strLabel.Split(new string[2] { " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
             if (array.Length > 2)
             {
@@ -1875,7 +1926,6 @@ namespace KSW.ATE01.Project.Base.Helpers
             }
             else if (array.Length == 1)
             {
-                result.IndexInVectors = currentVectorLine;
                 result.LabelFullContent = strLabel;
                 result.LabelType = LabelCommandType.Define;
             }
@@ -1915,7 +1965,6 @@ namespace KSW.ATE01.Project.Base.Helpers
                         break;
                 }
 
-                result.IndexInVectors = currentVectorLine;
                 result.LabelFullContent = strLabel;
                 result.LabelType = LabelCommandType.Define;
             }
@@ -2263,7 +2312,7 @@ namespace KSW.ATE01.Project.Base.Helpers
 
         private static async Task ExportLvmPattern(PatternModel patternModel, string exportFilePath)
         {
-            var fileName = Path.GetFileNameWithoutExtension(exportFilePath);
+            var fileName = System.IO.Path.GetFileNameWithoutExtension(exportFilePath);
             var pattern = patternModel.PatternVectors.FirstOrDefault();
             using (var fs = new FileStream(exportFilePath, FileMode.Create, FileAccess.Write))
             {
@@ -2314,7 +2363,7 @@ namespace KSW.ATE01.Project.Base.Helpers
         private static string GetPatternHeader(PatternVectorModel pattern)
         {
             var patternHeader = string.Empty;
-            if (pattern == null || !pattern.Pins.Any())
+            if (!pattern.Pins.Any())
                 return patternHeader;
 
             int index = 0;
@@ -2387,21 +2436,18 @@ namespace KSW.ATE01.Project.Base.Helpers
 
             foreach (var vectorModel in pattern.PatternVectors)
             {
-                if (vectorModel.Command != null)
+                switch (vectorModel.Command.Type)
                 {
-                    switch (vectorModel.Command.Type)
-                    {
-                        case CommandType.loop:
-                            lastInstruction = vectorModel.Command.Type;
-                            lastCommandParameter = vectorModel.Command.CommandParameter;
-                            break;
-                        case CommandType.endloop:
-                            lastInstruction = CommandType.nop;
-                            lastCommandParameter = null;
-                            break;
-                        default:
-                            break;
-                    }
+                    case CommandType.loop:
+                        lastInstruction = vectorModel.Command.Type;
+                        lastCommandParameter = vectorModel.Command.CommandParameter;
+                        break;
+                    case CommandType.endloop:
+                        lastInstruction = CommandType.nop;
+                        lastCommandParameter = null;
+                        break;
+                    default:
+                        break;
                 }
 
                 foreach (var pinModel in vectorModel.Pins)

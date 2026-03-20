@@ -47,7 +47,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 测试编号
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public int? TestNumber
         {
             get => _testNumber;
@@ -57,7 +57,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 电压下限
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? LowLimit
         {
             get => _lowLimit;
@@ -67,7 +67,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 电压上限
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public decimal? HighLimit
         {
             get => _highLimit;
@@ -77,7 +77,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 单位
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string Units
         {
             get => _units;
@@ -87,7 +87,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 门限名称
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string LimitName
         {
             get => _limitName;
@@ -97,7 +97,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 软件失效分档
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public int? FailSoftwareBin
         {
             get => _failSoftwareBin;
@@ -116,7 +116,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 硬件失效分档
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public int? FailHardwareBin
         {
             get => _failHardwareBin;
@@ -135,7 +135,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 被测物结果
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public DUTResultType? DutResult
         {
             get => _dutResult;

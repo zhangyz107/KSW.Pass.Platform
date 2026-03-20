@@ -9,9 +9,7 @@ using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.TestPlans;
-using KSW.ATE01.Project.Base.Services.Loggers;
 using System.IO;
-using System.Windows.Ink;
 using Convert = System.Convert;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals

@@ -1263,7 +1263,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Dps
 
                 var dataStartAddress = patternFile.DataStartAddress;
                 var dataLength = patternFile.PinDataLength;
-                var pinList = patternFile.PatternVectors.FirstOrDefault()?.Pins;
+                var pinList = patternFile.PatternVectors.FirstOrDefault().Pins;
 
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();

@@ -32,7 +32,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 引脚名称
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public string PinName
         {
             get => _pinName;
@@ -42,7 +42,7 @@ namespace KSW.ATE01.Application.Models.TestPlans
         /// <summary>
         /// 引脚类型
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "TheFieldRequired")]
         public PinType? PinType
         {
             get => _pinType;
