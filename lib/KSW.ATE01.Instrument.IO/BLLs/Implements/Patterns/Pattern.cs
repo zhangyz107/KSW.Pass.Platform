@@ -1,17 +1,23 @@
 ﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Patterns;
 using KSW.ATE01.Instrument.IO.Helpers;
 using KSW.ATE01.Instrument.IO.Models.Instruments;
 using KSW.ATE01.Instrument.IO.Models.Results;
 using KSW.ATE01.Project.Base.Enums.Errors;
+using KSW.ATE01.Project.Base.Enums.Patterns;
 using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.Exceptions;
 using KSW.ATE01.Project.Base.Models.Patterns;
+using System;
+using System.Collections.Concurrent;
 using System.IO;
+using System.IO.Packaging;
+using System.Text;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 {
@@ -20,6 +26,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
         private const long _mbByte = 128 * 1024 * 1024L;
         private const int _maxChannelNum = 127;
         private const int _packageAdditionalLength = 8;
+        private static ushort _patternUnitLength = 4 * 1024;    // Pattern单位长度
         //private List<PatternModel> _patterns = new List<PatternModel>();
         private List<BinPatternModel> _binPatterns = new List<BinPatternModel>();
 
@@ -300,23 +307,18 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
             try
             {
-                //Instance?._patterns?.Clear();
                 Instance?._binPatterns?.Clear();
-
                 long lastPatternDataEndAddress = 0;
                 foreach (string patternFile in patternFiles)
                 {
                     if (!File.Exists(patternFile)) continue;
+                    var groupQueue = new ConcurrentQueue<PatternVectorGroupModel>();
                     var pattern = PatternReaderWriterHelper.ReadPattern(patternFile);
-                    //var pattern = PatternHelper.AnalysisPattern(patternFile);
                     Instance?._binPatterns.Add(pattern);
                     if (pattern != null)
                     {
                         pattern.DataStartAddress = lastPatternDataEndAddress;
-                        // var singlePinPatternDic = PatternHelper.GetSinglePinPatternList(pattern);
-                        //var package =  PatternHelper.ConversionPatternModel(singlePinPatternDic, ref lastPatternDataEndAddress, out int patternDataLength);
                         var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress);
-                        //var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress, out int patternDataLength);
                         pattern.DataEndAddress = lastPatternDataEndAddress;
                         if (package != null && package.Any())
                             SendPatternPackageToInstrument(package);
@@ -328,6 +330,239 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
 
                 throw;
             }
+        }
+
+        public static void SetPatternFileNew(string[] patternFiles)
+        {
+            if (patternFiles == null || !patternFiles.Any())
+                return;
+
+            try
+            {
+                Instance?._binPatterns?.Clear();
+                long lastPatternDataEndAddress = 0;
+                var groups = new BlockingCollection<PatternVectorGroupModel>(boundedCapacity: 12800);
+                var lengthBytes = BitConverter.GetBytes(_patternUnitLength).Reverse().ToArray();
+                foreach (string patternFile in patternFiles)
+                {
+                    if (!File.Exists(patternFile)) continue;
+                    var pattern = ReadPatternHeader(patternFile);
+                    var readTask = Task.Run(async()=> await ReadPatternVectors(patternFile, groups));
+                    var pinDataLength = 0;
+                    Instance?._binPatterns.Add(pattern);
+                    if (pattern != null)
+                    {
+                        pattern.DataStartAddress = lastPatternDataEndAddress;
+                        var groupUnit = new List<PatternVectorGroupModel>();
+                        var lastPinName = string.Empty;
+                        foreach (var group in groups.GetConsumingEnumerable())
+                        {
+                            if (lastPinName.Equals(string.Empty))
+                                lastPinName = group.PinName;
+                            else if (!lastPinName.Equals(group.PinName))
+                            {
+                                //var packageModel = new PatternPackageStruct();
+                                //packageModel.PinName = lastPinName;
+                                //var addr = lastPatternDataEndAddress;
+                                //packageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                                //packageModel.LengthBytes = lengthBytes;
+                                //lastPatternDataEndAddress += _patternUnitLength;
+
+                                //if (groupUnit.Count < 64)   //一个打包包含64个向量组 4096 / 64 = 64
+                                //{
+                                //    var rest = 64 - groupUnit.Count;
+                                //    for (int i = 0; i < rest; i++)
+                                //        groupUnit.Add(new PatternVectorGroupModel());   //填充空的数据包
+                                //}
+                                //packageModel.PatternGroups.AddRange(groupUnit);
+                                //SendOnePackageToInstrument(packageModel);
+                                //groupUnit.Clear();
+
+                                PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
+
+                                lastPinName = group.PinName;
+                                pinDataLength = 0;
+                            }
+
+                            groupUnit.Add(group);
+
+                            if (groupUnit.Count % 64 == 0)
+                            {
+                                PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
+                                //var packageModel = new PatternPackageStruct();
+                                //packageModel.PinName = lastPinName;
+                                //var addr = lastPatternDataEndAddress;
+                                //packageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                                //packageModel.LengthBytes = lengthBytes;
+                                //lastPatternDataEndAddress += _patternUnitLength;
+                                //pinDataLength += _patternUnitLength;
+                                //packageModel.PatternGroups.AddRange(groupUnit);
+                                //SendOnePackageToInstrument(packageModel);
+                                //groupUnit.Clear();
+                            }
+                        }
+
+                        if (groupUnit.Any())    //处理最后剩余的数据
+                        {
+                            PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
+                        }
+                        pattern.PinDataLength = pinDataLength;
+                        pattern.DataEndAddress = lastPatternDataEndAddress;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private static BinPatternModel ReadPatternHeader(string patternFile)
+        {
+            var result = new BinPatternModel();
+            result.PinPacks = new List<PinPackModel>();
+
+            if (File.Exists(patternFile))
+            {
+                result.FileName = Path.GetFileName(patternFile);
+                result.FilePath = patternFile;
+                result.VectorName = Path.GetFileNameWithoutExtension(patternFile);
+
+                using (var fs = new FileStream(patternFile, FileMode.Open))
+                {
+                    using (var br = new BinaryReader(fs))
+                    {
+                        result.ModuleType = (ModuleType)br.ReadByte();
+                        while (br.BaseStream.Position < br.BaseStream.Length)
+                        {
+                            var pack = new PinPackModel();
+                            var nameLength = br.ReadInt32();
+                            var nameBytes = br.ReadBytes(nameLength);
+                            pack.PinName = Encoding.UTF8.GetString(nameBytes);
+                            var timingSetLength = br.ReadInt32();
+                            if (timingSetLength > 0)
+                            {
+                                var timingSetBytes = br.ReadBytes(timingSetLength);
+                                pack.TimingSet = Encoding.UTF8.GetString(timingSetBytes);
+                            }
+                            var length = br.ReadInt64();
+                            br.BaseStream.Position += length;
+                            //pack.Data = new List<PatternVectorGroupModel>();
+                            result.PinPacks.Add(pack);
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static async Task ReadPatternVectors(string patternFile, BlockingCollection<PatternVectorGroupModel> groupQueue)
+        {
+            if (File.Exists(patternFile))
+            {
+                using (var fs = new FileStream(patternFile, FileMode.Open))
+                {
+                    using (var br = new BinaryReader(fs))
+                    {
+                        br.ReadByte();  //ModuleType
+                        while (br.BaseStream.Position < br.BaseStream.Length)
+                        {
+                            var nameLength = br.ReadInt32();
+                            var nameBytes = br.ReadBytes(nameLength);
+                            var pinName = Encoding.UTF8.GetString(nameBytes);
+                            var timingSetLength = br.ReadInt32();
+                            if (timingSetLength > 0)
+                                br.ReadBytes(timingSetLength);  // TimingSetBytes
+                            var length = br.ReadInt64();
+                            while (length > 0)
+                            {
+                                var group = new PatternVectorGroupModel();
+                                group.PinName = pinName;
+                                group.VectorNumber = br.ReadByte();
+                                group.Instruction = br.ReadByte();
+                                group.Data = br.ReadBytes(62);
+                                groupQueue.Add(group);
+                                length -= 64;
+                            }
+                        }
+
+                    }
+                }
+            }
+            groupQueue.CompleteAdding();
+            return;
+        }
+
+        private static void PackOnePackageData(ref long lastPatternDataEndAddress, byte[] lengthBytes, ref int pinDataLength, List<PatternVectorGroupModel> groupUnit, string lastPinName)
+        {
+            var packageModel = new PatternPackageStruct();
+            packageModel.PinName = lastPinName;
+            var addr = lastPatternDataEndAddress;
+            packageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+            packageModel.Length = _patternUnitLength;
+            packageModel.LengthBytes = lengthBytes;
+            lastPatternDataEndAddress += _patternUnitLength;
+            pinDataLength += _patternUnitLength;
+            if (groupUnit.Count < 64)   //一个打包包含64个向量组 4096 / 64 = 64
+            {
+                var rest = 64 - groupUnit.Count;
+                for (int i = 0; i < rest; i++)
+                    groupUnit.Add(new PatternVectorGroupModel());   //填充空的数据包
+            }
+            packageModel.PatternGroups.AddRange(groupUnit);
+            SendOnePackageToInstrument(packageModel);
+            groupUnit.Clear();
+        }
+
+
+        private static bool SendOnePackageToInstrument(PatternPackageStruct package)
+        {
+            var controlService = Instance?.ControlService;
+            var channel = PinManagerHelper.GetPinByName(Instance.TestPlan?.Channel, package.PinName);
+            if (channel == null)
+                return false;
+
+            foreach (var site in channel.Sites)
+            {
+                if (!ChannelManagerHelper.IsSiteValid(site.SiteName))
+                    continue;
+
+                var channelNum = ChannelManagerHelper.GetChannelNumSiteInfo(site.SiteValue, out int slot);
+                if (channelNum >= 0)
+                {
+                    var contentBytes = new byte[package.Length + _packageAdditionalLength];
+                    contentBytes[0] = (byte)channelNum;
+                    Array.Copy(package.Address, 0, contentBytes, 1, package.Address.Length);
+                    Array.Copy(package.LengthBytes, 0, contentBytes, 1 + package.Address.Length, package.LengthBytes.Length);
+                    var index = 1 + package.Address.Length + package.LengthBytes.Length;
+                    foreach (var unit in package.PatternGroups)
+                    {
+                        var instruction = (byte)unit.Instruction;
+                        contentBytes[index++] = unit.VectorNumber;
+                        contentBytes[index++] = (byte)(instruction << 1);
+                        Array.Copy(unit.Data, 0, contentBytes, index, unit.Data.Length);
+                        index += unit.Data.Length;
+                    }
+
+                    var command = new CommandInfoModel()
+                    {
+                        CommandCode = "0x010C",
+                        CommandContent = contentBytes.ToArray(),
+                    };
+
+                    var slotNum = $"0x{slot.ToString("x2")}";
+                    var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
+
+                    var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+
+                    if (controlService != null && instrumentInfo != null)
+                        controlService.Send(instrumentInfo, message);
+                }
+
+            }
+
+            return true;
         }
 
         private static void SendPatternPackageToInstrument(List<PatternPackageModel> packages)

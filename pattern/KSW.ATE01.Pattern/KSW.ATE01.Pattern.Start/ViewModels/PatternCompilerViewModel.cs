@@ -17,6 +17,7 @@ using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.Ui;
 using Microsoft.Win32;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace KSW.ATE01.Pattern.Start.ViewModels
 {
@@ -93,9 +94,13 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         public DelegateCommand OutputBrowseCommand =>
             _outputBrowseCommand ?? (_outputBrowseCommand = new DelegateCommand(ExecuteOutputBrowseCommand));
 
-        private DelegateCommand _compilerCommand;
-        public DelegateCommand CompilerCommand =>
-            _compilerCommand ?? (_compilerCommand = new DelegateCommand(ExecuteCompilerCommand));
+        private AsyncDelegateCommand _compilerCommand;
+        public AsyncDelegateCommand CompilerCommand =>
+            _compilerCommand ?? (_compilerCommand = new AsyncDelegateCommand(ExecuteCompilerCommand));
+
+        private DelegateCommand _analyzeAndCompileCommand;
+        public DelegateCommand AnalyzeAndCompileCommand =>
+            _analyzeAndCompileCommand ?? (_analyzeAndCompileCommand = new DelegateCommand(ExecuteAnalyzeAndCompileCommand));
         #endregion
 
         public PatternCompilerViewModel(
@@ -175,7 +180,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                 OutputDir = openDirDialog.FolderName;
         }
 
-        private void ExecuteCompilerCommand()
+        private async Task ExecuteCompilerCommand()
         {
             if (_patternFiles.IsEmpty())
                 return;
@@ -189,11 +194,34 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
                 var patternFile = _patternFiles.FirstOrDefault();
                 if (!patternFile.IsEmpty() && File.Exists(patternFile))
                 {
-                    var patternModel = _patternCompilerBLL.AnalysisPattern(patternFile);
+                    var patternModel = await _patternCompilerBLL.AnalysisPattern(patternFile);
                     _eventAggregator.GetEvent<PatternModelUpdateEvent>().Publish(patternModel);
                 }
             }
             _eventAggregator.GetEvent<MessageOpenEvent>().Publish();
+        }
+
+        private async void ExecuteAnalyzeAndCompileCommand()
+        {
+            if (_patternFiles.IsEmpty())
+                return;
+
+            if (_patternFileIsDir)
+            {
+
+            }
+            else
+            {
+                var patternFile = _patternFiles.FirstOrDefault();
+                if (!patternFile.IsEmpty() && File.Exists(patternFile))
+                {
+                    _eventAggregator.GetEvent<MessageOpenEvent>().Publish();
+
+                    await Task.Delay(500);
+
+                    Task.Run(async () => _patternCompilerBLL.AnalyzeAndCompilePatternAsync(patternFile));
+                }
+            }
         }
     }
 }

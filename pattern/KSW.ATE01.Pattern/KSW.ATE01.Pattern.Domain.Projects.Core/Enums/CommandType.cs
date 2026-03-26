@@ -10,85 +10,88 @@ namespace KSW.ATE01.Pattern.Domain.Projects.Core.Enums
         [Description("nop")]
         nop = 0,
 
-        [Description("repeat")]
-        repeat = 1,
-
         [Description("loop")]
-        loop = 2,
+        loop = 0x1,
 
-        [Description("match")]
-        match = 3,
+        [Description("stop")]
+        stop = 0x2,
 
-        [Description("call")]
-        call = 4,
-
-        [Description("halt")]
-        halt = 5,
-
-        [Description("reburst")]
-        reburst = 6,
+        [Description("repeat")]
+        repeat = 3,
 
         [Description("endloop")]
-        endloop = 7,
+        endloop = 0x4,
+
+        [Description("match")]
+        match = 5,
+
+        [Description("call")]
+        call = 6,
+
+        [Description("halt")]
+        halt = 7,
+
+        [Description("reburst")]
+        reburst = 8,
 
         [Description("trig")]
-        trig = 8,
+        trig = 9,
 
         [Description("cpua")]
-        cpua = 9,
+        cpua = 10,
 
         [Description("cpuaend")]
-        cpuaend = 10,
+        cpuaend = 11,
 
         [Description("fstart")]
-        fstart = 11,
+        fstart = 12,
 
         [Description("fstop")]
-        fstop = 12,
+        fstop = 13,
 
         [Description("start")]
-        start = 13,
+        start = 14,
 
         [Description("clr_flag")]
-        clr_flag = 14,
+        clr_flag = 15,
 
         [Description("loopa")]
-        loopa = 15,
+        loopa = 16,
 
         [Description("loopb")]
-        loopb = 16,
+        loopb = 17,
 
         [Description("loopc")]
-        loopc = 17,
+        loopc = 18,
 
         [Description("enable")]
-        enable = 18,
+        enable = 19,
 
         [Description("set_cpu")]
-        set_cpu = 19,
+        set_cpu = 20,
 
         [Description("poploopa")]
-        poploopa = 20,
+        poploopa = 21,
 
         [Description("poploopb")]
-        poploopb = 21,
+        poploopb = 22,
 
         [Description("poploopc")]
-        poploopc = 22,
+        poploopc = 23,
 
         [Description("poploopc")]
-        end_loopa = 23,
+        end_loopa = 24,
 
         [Description("poploopc")]
-        end_loopb = 24,
+        end_loopb = 25,
 
         [Description("poploopc")]
-        end_loopc = 25,
+        end_loopc = 26,
 
         [Description("return_lvm")]
-        return_lvm = 26,
+        return_lvm = 27,
 
         [Description("jump")]
-        jump = 27,
+        jump = 28,
     }
 }

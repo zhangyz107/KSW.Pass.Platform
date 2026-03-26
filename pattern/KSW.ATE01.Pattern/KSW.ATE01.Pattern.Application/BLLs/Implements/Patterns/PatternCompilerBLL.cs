@@ -13,11 +13,17 @@
 
 using KSW.Application;
 using KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns;
+using KSW.ATE01.Pattern.Application.Events;
 using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.ATE01.Pattern.Application.Extensions;
 using KSW.ATE01.Pattern.Application.Models.Projects;
 using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
+using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
 {
@@ -200,16 +206,16 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
         }
 
         #region Public
-        public PatternModel AnalysisPattern(string patternFilePath)
+        public async Task<PatternModel> AnalysisPattern(string patternFilePath)
         {
             _compileError = false;
             var result = new PatternModel();
 
-            AnalysisPatternTimeSet(patternFilePath, result);
-            var instrumentInfo = AnalysisPatternDigitalInstrument(patternFilePath);
+            await AnalysisPatternTimeSetAsync(patternFilePath, result);
+            var instrumentInfo = await AnalysisPatternDigitalInstrumentAsync(patternFilePath);
             result.InstrumentName = instrumentInfo;
-            var pinList = AnalysisPatternPins(patternFilePath, result);
-            UpdateParametersByModuleType(patternFilePath, result.ModuleType);
+            var pinList = await AnalysisPatternPinsAsync(patternFilePath, result);
+            UpdateParametersByModuleType(result.ModuleType);
             var instruments = new List<InstrumentModel>();
             AnalysisPatternInstrument(patternFilePath, pinList, instruments);
             if (instruments.Any())
@@ -219,6 +225,95 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             }
             AnalysisPatternVector(patternFilePath, pinList, result);
             return result;
+        }
+
+        public async Task AnalyzeAndCompilePatternAsync(string patternFile)
+        {
+            _compileError = false;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var result = new PatternModel();
+            await AnalysisPatternTimeSetAsync(patternFile, result);
+            _eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            {
+                RecordMessage = "解析向量文件的时钟设置",
+                RecordTime = DateTime.Now
+            });
+
+            var instrumentInfo = await AnalysisPatternDigitalInstrumentAsync(patternFile);
+            result.InstrumentName = instrumentInfo;
+            _eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            {
+                RecordMessage = "解析向量文件的设备名称",
+                RecordTime = DateTime.Now
+            });
+
+            var pinList = await AnalysisPatternPinsAsync(patternFile, result);
+            _eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            {
+                RecordMessage = "解析向量文件的引脚名称",
+                RecordTime = DateTime.Now
+            });
+            UpdateParametersByModuleType(result.ModuleType);
+
+            await AnalysisAndCompilePatternVector(patternFile, pinList, result);
+            stopwatch.Stop();
+            _eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            {
+                RecordMessage = $"解析用时{stopwatch.ElapsedMilliseconds}ms",
+                RecordTime = DateTime.Now
+            });
+
+            stopwatch.Restart();
+            await MergeAllFiles(patternFile, pinList, result);
+            stopwatch.Stop();
+            _eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            {
+                RecordMessage = $"合并文件用时{stopwatch.ElapsedMilliseconds}ms",
+                RecordTime = DateTime.Now
+            });
+        }
+
+        private async Task MergeAllFiles(string patternFile, List<string> pinList, PatternModel result)
+        {
+            var dir = Path.GetDirectoryName(patternFile);
+            var uniqueTempFolder = Path.Combine(dir, Path.GetFileNameWithoutExtension(patternFile));
+            var targetFile = Path.Combine(dir, $"{Path.GetFileNameWithoutExtension(patternFile)}.bin");
+            var inputFiles = new List<string>();
+
+            foreach (var pin in pinList)
+            {
+                var currentPinFile = Path.Combine(uniqueTempFolder, $"{pin}.bin");
+                if (File.Exists(currentPinFile))
+                {
+                    inputFiles.Add(currentPinFile);
+                }
+            }
+
+            await MergeFilesAsync(inputFiles, targetFile);
+        }
+
+        public static async Task MergeFilesAsync(List<string> inputFiles, string outputFile, IProgress<int> progress = null)
+        {
+            const int bufferSize = 81920; // 80KB
+            var totalFiles = inputFiles.Count;
+            var processedFiles = 0;
+
+            using (var outputStream = new FileStream(outputFile,
+                FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true))
+            {
+                foreach (var inputFile in inputFiles)
+                {
+                    using (var inputStream = new FileStream(inputFile,
+                        FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, true))
+                    {
+                        await inputStream.CopyToAsync(outputStream);
+
+                        processedFiles++;
+                        progress?.Report((processedFiles * 100) / totalFiles);
+                    }
+                }
+            }
         }
 
         public async Task ExportPattern(PatternModel patternModel, string exportFilePath)
@@ -243,57 +338,84 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
         #endregion
 
         #region Private
-        private void AnalysisPatternTimeSet(string pathPattern, PatternModel patternResult)
+        private async Task AnalysisPatternTimeSetAsync(string pathPattern, PatternModel patternResult)
         {
-            using StreamReader streamReader = new StreamReader(pathPattern);
             string input;
-            do
+            bool isMatch = false;
+            try
             {
-                if (!streamReader.EndOfStream)
+                using (StreamReader streamReader = new StreamReader(pathPattern))
                 {
-                    input = streamReader.ReadLine().Trim();
-                    continue;
+                    while ((input = (await streamReader.ReadLineAsync()).Trim()) != null)
+                    {
+                        if (_timeSetRegex.IsMatch(input))
+                        {
+                            isMatch = true;
+                            break;
+                        }
+                    }
                 }
-                _compileError = true;
-                _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(L["PatternCompileErr001"]);
-                return;
-            } while (!_timeSetRegex.IsMatch(input));
-            string[] array = _timeSetRegex.Match(input).Groups[1].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (patternResult.TimingSets.Contains(array[i].Trim()))
+
+                if (isMatch)
+                {
+                    string[] array = _timeSetRegex.Match(input).Groups[1].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < array.Length; i++)
+                    {
+                        if (patternResult.TimingSets.Contains(array[i].Trim()))
+                        {
+                            _compileError = true;
+                            _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
+                        }
+                        patternResult.TimingSets.Add(array[i].Trim());
+                    }
+                }
+                else
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
+                    _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(L["PatternCompileErr001"]);
                 }
-                patternResult.TimingSets.Add(array[i].Trim());
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
-        private string AnalysisPatternDigitalInstrument(string pathPattern)
+        private async Task<string> AnalysisPatternDigitalInstrumentAsync(string pathPattern)
         {
             var strDigitalInstrument = string.Empty;
-            using StreamReader streamReader = new StreamReader(pathPattern);
             string input;
-            do
+            bool isMatch = false;
+
+            try
             {
-                if (!streamReader.EndOfStream)
+                using (var streamReader = new StreamReader(pathPattern))
                 {
-                    input = streamReader.ReadLine().Trim();
-                    if (_digitalInstrumentRegex.IsMatch(input))
+                    while ((input = (await streamReader.ReadLineAsync()).Trim()) != null)
                     {
-                        strDigitalInstrument = _digitalInstrumentRegex.Match(input).Groups[1].Value;
-                        break;
+                        if (_atpPinsRegex.IsMatch(input))
+                        {
+                            isMatch = true;
+                            break;
+                        }
                     }
-                    continue;
                 }
-                break;
+
+                if (isMatch)
+                {
+                    strDigitalInstrument = _digitalInstrumentRegex.Match(input).Groups[1].Value;
+                }
+                return strDigitalInstrument;
             }
-            while (!_atpPinsRegex.IsMatch(input));
-            return strDigitalInstrument;
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
-        private void UpdateParametersByModuleType(string pathPattern, ModuleType moduleType)
+        private void UpdateParametersByModuleType(ModuleType moduleType)
         {
             switch (moduleType)
             {
@@ -314,10 +436,10 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             }
         }
 
-        private List<string> AnalysisPatternPins(string pathPattern, PatternModel patternResult)
+        private async Task<List<string>> AnalysisPatternPinsAsync(string pathPattern, PatternModel patternResult)
         {
             var patternPins = new List<string>();
-            using StreamReader streamReader = new StreamReader(pathPattern);
+            StreamReader streamReader = new StreamReader(pathPattern);
             string empty = string.Empty;
             string text = string.Empty;
             string empty2 = string.Empty;
@@ -851,8 +973,8 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                 while (!streamReader.EndOfStream)
                 {
                     PatternVectorModel vectorModel = new PatternVectorModel();
-                    LabelModel labelModel = null;
-                    CommandModel commandModel = null;
+                    LabelModel labelModel = new LabelModel();
+                    CommandModel commandModel = new CommandModel();
                     var pins = new List<PinModel>();
 
                     streamReader.ReadLine().SplitValidAndComment(out var valid, out var comment);
@@ -1227,10 +1349,10 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                     _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, strPseudo));
                     return result;
                 }
-                if (int.TryParse(strPseudoParameter, out var parameter) && (parameter < 2 || parameter > 65535))
+                if (int.TryParse(strPseudoParameter, out var parameter) && (parameter < 2 || parameter > int.MaxValue))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr023"]}", currentLine, strPseudoParameter, strPseudo, 2, 65535));
+                    _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr023"]}", currentLine, strPseudoParameter, strPseudo, 2, int.MaxValue));
                     return result;
                 }
             }
@@ -1245,18 +1367,18 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             if (int.TryParse(strPseudoParameter, out result3))
             {
                 num = ((!(strPseudo.ToLower() == "call")) ? 2 : 0);
-                if (result3 >= num && result3 <= 65535)
+                if (result3 >= num && result3 <= int.MaxValue)
                 {
                     result.CommandParameter = result3;
                     return result;
                 }
                 _compileError = true;
-                _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", currentLine, strPseudoParameter, num, 65535));
+                _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", currentLine, strPseudoParameter, num, int.MaxValue));
             }
             else
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, num, 65535, string.Join(",", _dataBlockMarkerParameter)));
+                _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, num, int.MaxValue, string.Join(",", _dataBlockMarkerParameter)));
             }
 
             return result;
@@ -1533,6 +1655,770 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
         private void ExportSrmPattern(PatternModel patternModel, string exportFilePath)
         {
             throw new NotImplementedException();
+        }
+
+        public struct ReadLineStruct
+        {
+            public long LineNumber;
+            public long ValidVectorNumber;
+            public string LineStr;
+        }
+
+        private async Task AnalysisAndCompilePatternVector(string patternFile, List<string> pinList, PatternModel patternResult)
+        {
+            const int BUFFER_SIZE = 4 * 1024 * 1024;
+
+            var lines = new BlockingCollection<ReadLineStruct>(boundedCapacity: 10000); // 缓冲1万行
+            var vectorDic = new Dictionary<string, ConcurrentQueue<PinPatternModel>>();
+            var moduleType = patternResult.ModuleType;
+            var isEnd = false;
+
+            var dir = Path.GetDirectoryName(patternFile);
+            var uniqueTempFolder = Path.Combine(dir, Path.GetFileNameWithoutExtension(patternFile));
+            if (!Directory.Exists(uniqueTempFolder))
+                Directory.CreateDirectory(uniqueTempFolder);
+
+            Task producer = Task.Run(() =>
+            {
+                using var fileStream = new FileStream(patternFile, FileMode.Open, FileAccess.Read, FileShare.Read, BUFFER_SIZE, FileOptions.SequentialScan);
+                using var reader = new StreamReader(fileStream, Encoding.UTF8, bufferSize: BUFFER_SIZE);
+
+                string? line;
+                var lineNumber = 1L;
+                var validVectorCount = 0L;
+
+                while ((line = reader.ReadLine()) != null && !_atpPinsRegex.IsMatch(line.Trim()))
+                {
+                    lineNumber++;
+                }
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    lines.Add(new ReadLineStruct()
+                    {
+                        LineNumber = lineNumber,
+                        ValidVectorNumber = validVectorCount,
+                        LineStr = line
+                    });
+                    validVectorCount++;
+                    lineNumber++;
+
+                    if (validVectorCount % 10000 == 0)
+                    {
+                        _eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+                        {
+                            RecordMessage = $"已读取{validVectorCount}行向量",
+                            RecordTime = DateTime.Now
+                        });
+                        Log.LogDebug($"已读取{validVectorCount}行向量");
+                    }
+                }
+                lines.CompleteAdding();
+            });
+
+            var process = Task.Run(async () =>
+            {
+                var storeTasks = new List<Task>();
+                while (vectorDic.Count != pinList.Count)
+                    await Task.Delay(10);
+
+                foreach (var pinVector in vectorDic)
+                {
+                    var pinName = pinVector.Key;
+                    var queue = pinVector.Value;
+
+                    storeTasks.Add(
+                    Task.Run(async () =>
+                    {
+                        var isFirst = true;
+                        var lastInstruction = CommandType.nop;
+                        object lastCommandParameter = null;
+                        var startIndex = 0;
+                        var endIndex = 0;
+                        var totalLength = 0L;
+                        var lengthStartPos = 0;
+                        var isPack = false;
+                        var isFinish = true;
+                        var andTempVector = true;
+                        var maxVectorCount = lastInstruction == CommandType.nop ? 124 : 112;
+                        var loopVectors = new List<PinPatternModel>();
+                        var tempVectors = new List<PinPatternModel>();
+
+                        using (var fs = new FileStream(Path.Combine(uniqueTempFolder, pinName + ".bin"), FileMode.Create))
+                        {
+                            using (var writer = new BinaryWriter(fs))
+                            {
+                                while (true)
+                                {
+                                    if (isEnd && queue.IsEmpty)
+                                        break;
+
+                                    if (queue.TryDequeue(out var pinPattern))
+                                    {
+                                        if (isFirst)
+                                        {
+                                            isFirst = false;
+                                            lastInstruction = pinPattern.Instruction;
+                                            lastCommandParameter = pinPattern.CommandParameter;
+                                            var nameBytes = Encoding.UTF8.GetBytes(pinName);
+                                            writer.Write(nameBytes.Length);
+                                            lengthStartPos += 4;
+                                            writer.Write(nameBytes);
+                                            lengthStartPos += nameBytes.Length;
+                                            if (!string.IsNullOrEmpty(pinPattern.TimingSet))
+                                            {
+                                                var timingSetBytes = Encoding.UTF8.GetBytes(pinPattern.TimingSet);
+                                                if (timingSetBytes.IsEmpty())
+                                                {
+                                                    writer.Write(0);
+                                                    lengthStartPos += 1;
+                                                }
+                                                else
+                                                {
+                                                    writer.Write(timingSetBytes.Length);
+                                                    lengthStartPos += 4;
+                                                    writer.Write(timingSetBytes);
+                                                    lengthStartPos += timingSetBytes.Length;
+                                                }
+                                            }
+                                            writer.Write(new byte[8]); //向量长度占位
+                                        }
+
+                                        if (pinPattern.Instruction != lastInstruction || endIndex - startIndex >= maxVectorCount)
+                                        {
+                                            var count = endIndex - startIndex;
+
+                                            if (pinPattern.Instruction == CommandType.halt)
+                                            {
+                                                isPack = true;
+                                                if (count < maxVectorCount)
+                                                {
+                                                    count += 1;
+                                                    andTempVector = false;
+                                                    tempVectors.Add(pinPattern);
+                                                }
+                                                else
+                                                {
+                                                    andTempVector = true;
+                                                    isFinish = false;
+                                                }
+                                            }
+                                            else if (pinPattern.Instruction == CommandType.loop)
+                                            {
+                                                loopVectors.Clear();
+                                                loopVectors.Add(pinPattern);
+                                                andTempVector = false;
+                                                isPack = true;
+                                            }
+                                            else if (pinPattern.Instruction == CommandType.endloop)
+                                            {
+                                                loopVectors.Add(pinPattern);
+                                                if (loopVectors.Any())
+                                                {
+                                                    var groups = PackLoopPattern(lastCommandParameter, loopVectors);
+                                                    if (groups.Any())
+                                                    {
+                                                        totalLength += groups.Count * 64;
+                                                        foreach (var group in groups)
+                                                        {
+                                                            writer.Write(group.VectorNumber);
+                                                            writer.Write(group.Instruction);
+                                                            writer.Write(group.Data);
+                                                        }
+                                                    }
+                                                }
+                                                lastInstruction = CommandType.nop;
+                                                lastCommandParameter = null;
+                                                startIndex = ++endIndex;
+                                                isPack = false;
+                                                isFinish = true;
+                                            }
+                                            else
+                                            {
+                                                andTempVector = true;
+                                                isPack = true;
+                                            }
+
+                                            if (isPack)
+                                            {
+                                                var patterns = tempVectors;
+                                                var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
+                                                lastInstruction = pinPattern.Instruction;
+                                                lastCommandParameter = pinPattern.CommandParameter;
+                                                startIndex = endIndex;
+                                                endIndex++;
+                                                writer.Write(group.VectorNumber);
+                                                writer.Write(group.Instruction);
+                                                writer.Write(group.Data);
+                                                totalLength += 64;
+                                                isFinish = true;
+                                                tempVectors.Clear();
+                                                if (andTempVector)
+                                                    tempVectors.Add(pinPattern);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            endIndex++;
+                                            if (lastInstruction == CommandType.loop)
+                                                loopVectors.Add(pinPattern);
+                                            else
+                                                tempVectors.Add(pinPattern);
+                                            isFinish = false;
+                                        }
+                                    }
+                                    else
+                                        await Task.Delay(1);
+
+                                    if (startIndex % 10000 == 0)
+                                        writer.Flush();
+
+                                }
+
+                                if (!isFinish)
+                                {
+                                    var patterns = tempVectors;
+                                    var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
+                                    writer.Write(group.VectorNumber);
+                                    writer.Write(group.Instruction);
+                                    writer.Write(group.Data);
+                                    totalLength += 64;
+                                }
+
+                                //补充数据长度
+                                var totalLengthBytes = BitConverter.GetBytes(totalLength);
+                                writer.BaseStream.Position = lengthStartPos;
+                                writer.BaseStream.Write(totalLengthBytes, 0, totalLengthBytes.Length);
+                                writer.Flush();
+                            }
+                        }
+
+                    })
+                        );
+                }
+
+                await Task.WhenAll(storeTasks);
+
+            });
+
+            foreach (var line in lines.GetConsumingEnumerable())
+            {
+                ProcessLine(moduleType, pinList, vectorDic, line);
+            }
+            isEnd = true;
+            await process;
+            //Parallel.ForEach(lines.GetConsumingEnumerable(),
+            //    new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            //    line =>
+            //    {
+            //        var vector = ProcessLine(moduleType, pinList, line);
+            //        if (vector != null)
+            //            vectorList.Add((PatternVectorModel)vector); // 你的处理逻辑
+            //    });
+        }
+
+        private void ProcessLine(ModuleType moduleType, List<string> pinList, Dictionary<string, ConcurrentQueue<PinPatternModel>> dicQueue, ReadLineStruct line)
+        {
+            try
+            {
+                // 使用有意义的变量名
+                var lineNumber = line.LineNumber;
+                var validVectorCount = line.ValidVectorNumber;
+                string currentLine = line.LineStr;
+
+                // 优化2: 使用StringBuilder替代字符串拼接，避免创建大量临时字符串
+                var textBuilder = new StringBuilder(256);  // 预分配合理容量
+
+                // 优化3: 使用HashSet实现O(1)查找，替代原来的List.Contains() O(n)查找
+                var maskHashSet = new HashSet<string>(_listTotalMaskCC.Select(x => x.Trim().ToLower()));
+
+                // 优化5: 复用集合对象，减少GC压力
+                var dataList = new List<string>(32);      // 预分配典型容量
+                var maskList = new List<string>(16);
+
+                // 优化2: 直接使用ReadOnlySpan避免字符串分配
+                ReadOnlySpan<char> lineSpan = currentLine.AsSpan();
+                int commentIndex = lineSpan.IndexOf('#');
+
+                ReadOnlySpan<char> validPart = commentIndex >= 0
+                    ? lineSpan.Slice(0, commentIndex).Trim()
+                    : lineSpan.Trim();
+
+                if (validPart.IsEmpty) return;
+
+                // 快速检查是否向量行
+                if (!_vectorRegex.IsMatch(validPart.ToString()))
+                    return;
+
+                // 优化3: 使用ReadOnlySpan解析，避免多次ToString()
+                var match = _vectorRegex.Match(validPart.ToString());
+                if (!match.Success) return;
+
+                string label = match.Groups[1].Value;
+                string timingSet = match.Groups[5].Value;
+                string pinsPart = match.Groups[6].Value;
+                string vectorData = match.Groups[4].Value;
+
+                // 解析MTE - 使用Span优化
+                string strMTE = string.Empty;
+                ReadOnlySpan<char> vectorSpan = vectorData.AsSpan();
+                var mteMatch = _mteRegex.Match(vectorData);
+                if (mteMatch.Success)
+                {
+                    strMTE = mteMatch.Groups[1].Value;
+                    vectorSpan = vectorData.AsSpan().Slice(mteMatch.Length).ToString().AsSpan();
+                }
+
+                // 优化4: 使用Span.Split替代string.Split
+                dataList.Clear();
+                maskList.Clear();
+
+                if (!vectorSpan.IsEmpty)
+                {
+                    // 手动解析CSV，避免Split分配
+                    int start = 0;
+                    for (int i = 0; i <= vectorSpan.Length; i++)
+                    {
+                        if (i == vectorSpan.Length || vectorSpan[i] == ',')
+                        {
+                            if (i > start)
+                            {
+                                var part = vectorSpan.Slice(start, i - start).Trim();
+                                if (!part.IsEmpty)
+                                {
+                                    dataList.Add(part.ToString());
+                                }
+                            }
+                            start = i + 1;
+                        }
+                    }
+                }
+
+                // 优化5: 从后往前遍历，避免多次Remove
+                for (int i = dataList.Count - 1; i >= 0; i--)
+                {
+                    string item = dataList[i];
+                    if (maskHashSet.Contains(item))
+                    {
+                        maskList.Add(item);
+                        dataList.RemoveAt(i);
+                    }
+                }
+
+                // 优化6: 手动计数冒号，避免LINQ
+                int colonCount = 0;
+                foreach (char c in label)
+                {
+                    if (c == ':')
+                    {
+                        colonCount++;
+                        if (colonCount > 1) break;
+                    }
+                }
+
+                if (colonCount > 1)
+                {
+                    _compileError = true;
+                    _eventAggregator.GetEvent<MessageUpdateEvent>()
+                        .Publish(string.Format(L["PatternCompileErr024"], lineNumber));
+                    return;
+                }
+
+                if (dataList.Count > 1)
+                {
+                    _compileError = true;
+                    _eventAggregator.GetEvent<MessageUpdateEvent>()
+                        .Publish(string.Format(L["PatternCompileErr020"], lineNumber));
+                    return;
+                }
+
+                string uCode = dataList.Count == 1 ? dataList[0] : string.Empty;
+                string strPseudo = string.Empty;
+                string strPseudoParameter = string.Empty;
+                CommandModel commandModel = new CommandModel();
+                // 优化7: 简化switch逻辑
+                bool hasPseudo = GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter);
+
+                if (moduleType == ModuleType.VM_Vector || moduleType == ModuleType.LVM_Vector)
+                {
+                    if (!hasPseudo)
+                    {
+                        _compileError = true;
+                        _eventAggregator.GetEvent<MessageUpdateEvent>()
+                            .Publish(string.Format(L["PatternCompileErr011"], lineNumber));
+                        return;
+                    }
+
+                    var labelModel = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+
+                    if (moduleType == ModuleType.VM_Vector)
+                    {
+                        commandModel = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, lineNumber);
+                    }
+                    else
+                    {
+                        commandModel = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, lineNumber);
+                    }
+                }
+                else if (moduleType == ModuleType.SRM_Vector)
+                {
+                    VectorAnalysisSrmPseudoWithParametersModifiler(uCode, lineNumber, validVectorCount,
+                        out strPseudo, out strPseudoParameter);
+                    var labelModel = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+                }
+
+                VectorAnalysisPins(timingSet, commandModel, pinsPart, lineNumber, pinList, dicQueue);
+
+                _validVectorLinesCountInPatternFile++;
+
+                // 优化8: 使用OrdinalIgnoreCase避免ToLower()
+                if (strPseudo.Equals("halt", StringComparison.OrdinalIgnoreCase) &&
+                    _haltInVectorLinesPosition == -1)
+                {
+                    _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
+                }
+
+                if (_compileError) return;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task VectorAnalysisPins(string timingSet, CommandModel commandModel, string timesetAndPinsValue, long currentLine, List<string> pinList, Dictionary<string, ConcurrentQueue<PinPatternModel>> dicQueue)
+        {
+            string[] array = timesetAndPinsValue.Split(new string[2] { " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+            if (array.Length != pinList.Count)
+            {
+                _compileError = true;
+                _eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr014"]}", currentLine));
+                return;
+            }
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                var pinName = pinList[i];
+                var strPinValue = array[i];
+                if (!dicQueue.ContainsKey(pinName))
+                {
+                    dicQueue[pinName] = new ConcurrentQueue<PinPatternModel>();
+                }
+
+                var queue = dicQueue[pinName];
+
+                while (queue.Count > 10000)
+                {
+                    await Task.Delay(10);
+                }
+
+                queue.Enqueue(new PinPatternModel
+                {
+                    PinName = pinName,
+                    TimingSet = timingSet,
+                    Instruction = commandModel.Type,
+                    CommandParameter = commandModel.CommandParameter,
+                    VectorValue = KSW.Helpers.Enum.GetEnumValueFromDescription<VectorValueType>(strPinValue),
+                });
+            }
+
+            return;
+        }
+
+        private static List<PatternVectorGroupModel> PackLoopPattern(object patternParameter, List<PinPatternModel> patterns)
+        {
+            var result = new List<PatternVectorGroupModel>();
+            int loopCount = 0;
+            if (patternParameter is int param)
+                loopCount = param;
+            else
+                return result;
+
+            var startIndex = 0;
+            var x = patterns.Count * loopCount;
+            if (patterns.Count >= 224)
+            {
+                var n = patterns.Count / 112;
+                var reset = patterns.Count % 112;
+
+                if ((n >= 2 && reset > 0) || n > 3)
+                {
+                    var loopPack = GeneratorLoopPack(patterns, loopCount, 112);
+                    result.Add(loopPack);
+                    startIndex += 112;
+
+                    var normalPackCount = n - 2;
+                    if (normalPackCount > 0)
+                    {
+                        for (int i = 0; i < normalPackCount; i++)
+                        {
+                            var normalPack = GeneratorNormalPack(patterns, startIndex, 112);
+                            result.Add(normalPack);
+                            startIndex += 112;
+                        }
+                    }
+                    else if (normalPackCount == 0)
+                    {
+                        var normalPack = GeneratorNormalPack(patterns, startIndex, 112);
+                        result.Add(normalPack);
+                        startIndex += 112;
+                    }
+
+                    var endPack = GeneratorEndPack(patterns, startIndex, reset);
+                    result.Add(endPack);
+                }
+                else
+                {
+                    var loopPack = GeneratorLoopPack(patterns, loopCount, 112);
+                    result.Add(loopPack);
+                    startIndex += 112;
+                    var endPack = GeneratorEndPack(patterns, startIndex, reset);
+                    result.Add(endPack);
+                }
+            }
+            else if (x >= 372)
+            {
+                var k = 224 / patterns.Count;
+                var n = loopCount / k;
+                var loopVectors = new List<PinPatternModel>();
+                var totalVecoters = new List<PinPatternModel>();
+                for (int i = 0; i < k; i++)
+                    loopVectors.AddRange(patterns);
+
+                for (int i = 0; i < loopCount; i++)
+                    totalVecoters.AddRange(patterns);
+
+                var half = loopVectors.Count / 2;
+                var loopPack = GeneratorLoopPack(loopVectors, n, half);
+                result.Add(loopPack);
+                startIndex += half;
+                var endPack = GeneratorEndPack(loopVectors, startIndex, loopVectors.Count - half);
+                result.Add(endPack);
+
+                var normalNumber = totalVecoters.Count - (loopVectors.Count * n);
+                var count = normalNumber / 124;
+                var rest = normalNumber % 124;
+                startIndex = loopVectors.Count * n;
+
+                for (var i = 0; i < count; i++)
+                {
+                    var normalPack = GeneratorNormalPack(totalVecoters, startIndex, 124);
+                    result.Add(normalPack);
+                    startIndex += 124;
+                }
+
+                if (rest > 0)
+                {
+                    var normalPack = GeneratorNormalPack(totalVecoters, startIndex, rest);
+                    result.Add(normalPack);
+                }
+            }
+            else
+            {
+                var totalVectors = new List<PinPatternModel>();
+                startIndex = 0;
+                var isFinish = true;
+                for (int i = 0; i < loopCount; i++)
+                    totalVectors.AddRange(patterns);
+
+                var n = totalVectors.Count / 124;
+                var rest = totalVectors.Count % 124;
+
+                for (int i = 0; i <= n; i++)
+                {
+                    if (i != n)
+                    {
+                        var normalGroup = GeneratorNormalPack(totalVectors, startIndex, 124);
+                        result.Add(normalGroup);
+                        startIndex += 124;
+                    }
+                    else
+                    {
+                        var vectors = totalVectors.GetRange(i * 124, rest);
+                        if (vectors.Any())
+                        {
+                            var end = new PatternVectorGroupModel()
+                            {
+                                VectorNumber = (byte)vectors.Count,
+                            };
+                            startIndex = 0;
+                            byte symbol = 0;
+                            var index = 0;
+                            foreach (var vector in vectors)
+                            {
+                                if (index % 2 == 0)
+                                {
+                                    symbol = (byte)vector.VectorValue;
+                                    isFinish = false;
+                                }
+                                else
+                                {
+                                    symbol |= (byte)((byte)vector.VectorValue << 4);
+                                    end.Data[startIndex++] = symbol;
+                                    isFinish = true;
+                                }
+                                index++;
+                            }
+
+                            if (!isFinish)
+                                end.Data[startIndex] = symbol;
+
+                            result.Add(end);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static PatternVectorGroupModel GeneratorLoopPack(List<PinPatternModel> patterns, int loopCount, int vectorNumber)
+        {
+            var intBytes = BitConverter.GetBytes(loopCount);
+            var result = new PatternVectorGroupModel()
+            {
+                VectorNumber = (byte)vectorNumber,
+                Instruction = (byte)CommandType.loop,
+            };
+
+            Array.Copy(intBytes, 0, result.Data, 0, intBytes.Length);
+
+            byte vector = 0;
+            var index = 0;
+            bool isFinish = true;
+            for (int i = 0; i < vectorNumber; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    vector = (byte)patterns[i].VectorValue;
+                    isFinish = false;
+                }
+                else
+                {
+                    vector |= (byte)((byte)patterns[i].VectorValue << 4);
+                    result.Data[6 + index++] = vector;
+                    isFinish = true;
+                }
+            }
+
+            if (!isFinish)
+                result.Data[6 + index] = vector;
+
+            return result;
+        }
+
+        private static PatternVectorGroupModel GeneratorNormalPack(List<PinPatternModel> patterns, int startIndex, int vectorNumber)
+        {
+            var result = new PatternVectorGroupModel()
+            {
+                VectorNumber = (byte)vectorNumber,
+            };
+
+            byte vector = 0;
+            var index = 0;
+            bool isFinish = true;
+            for (int i = 0; i < vectorNumber; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    vector = (byte)patterns[startIndex + i].VectorValue;
+                    isFinish = false;
+                }
+                else
+                {
+                    vector |= (byte)((byte)patterns[startIndex + i].VectorValue << 4);
+                    result.Data[index++] = vector;
+                    isFinish = true;
+                }
+            }
+
+            if (!isFinish)
+                result.Data[index] = vector;
+
+            return result;
+        }
+
+        private static PatternVectorGroupModel GeneratorEndPack(List<PinPatternModel> patterns, int startIndex, int reset)
+        {
+            var result = new PatternVectorGroupModel()
+            {
+                VectorNumber = (byte)reset,
+                Instruction = (byte)CommandType.endloop,
+            };
+
+            byte vector = 0;
+            var index = 0;
+            bool isFinish = true;
+            for (int i = 0; i < reset; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    vector = (byte)patterns[startIndex + i].VectorValue;
+                    isFinish = false;
+                }
+                else
+                {
+                    vector |= (byte)((byte)patterns[startIndex + i].VectorValue << 4);
+                    result.Data[6 + index++] = vector;
+                    isFinish = true;
+                }
+            }
+
+            if (!isFinish)
+                result.Data[6 + index] = vector;
+
+            return result;
+        }
+
+        private static PatternVectorGroupModel PackPattern(CommandType instruction, object patternParamter, List<PinPatternModel> patterns)
+        {
+            var result = new PatternVectorGroupModel()
+            {
+                VectorNumber = (byte)patterns.Count,
+                Instruction = (byte)instruction,
+            };
+            int startIndex = 0;
+            if (instruction != CommandType.nop)
+            {
+                startIndex = 6;
+                if (patternParamter is int param)
+                {
+                    var parameterArray = new byte[6];
+                    var intParam = instruction == CommandType.loop ? param - 1 : param; //循环情况下
+                    var parameterBytes = BitConverter.GetBytes(intParam).ToArray();    // 不反序
+                    Array.Copy(parameterBytes, 0, result.Data, 0, parameterBytes.Length);
+                }
+            }
+
+            byte vector = 0;
+            var vectorList = new List<byte>();
+            bool isFinish = true;
+            var index = 0;
+            foreach (var pinPatternModel in patterns)
+            {
+                if (index % 2 == 0)
+                {
+                    vector = (byte)pinPatternModel.VectorValue;
+                    isFinish = false;
+                }
+                else
+                {
+                    vector |= (byte)((byte)pinPatternModel.VectorValue << 4);
+                    vectorList.Add(vector);
+                    isFinish = true;
+                }
+                index++;
+            }
+
+            if (!isFinish && patterns.Any())
+                vectorList.Add(vector);
+
+            if (vectorList.Count <= result.Data.Count())
+                Array.Copy(vectorList.ToArray(), 0, result.Data, startIndex, vectorList.Count);
+
+            return result;
         }
         #endregion
     }

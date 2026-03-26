@@ -516,8 +516,8 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
         private void PatternInfos_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             var index = 0;
-            foreach (var item in VectorInfos)
-                item.Label.IndexInVectors = ++index;
+            //foreach (var item in VectorInfos)
+            //    item.Label.IndexInVectors = ++index;
         }
         //private List<PinModel> GetPinInfos()
         //{

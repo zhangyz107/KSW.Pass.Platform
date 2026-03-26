@@ -51,7 +51,7 @@
             <TextBox Grid.Row="3" Margin="0,6,0,0" Padding="4,0" Grid.Column="1" Style="{StaticResource MaterialDesignOutlinedTextBox}" IsReadOnly="True" Text="{Binding OutputDir}"></TextBox>
             <Button Grid.Row="3" Margin="0,6,8,0" Grid.Column="3" Content="{language:L Browse,Converter={StaticResource StringConcatenateConverter},ConverterParameter=...}" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding OutputBrowseCommand}"></Button>
 
-            <Button Grid.Row="5" Margin="0,6,8,0" Grid.Column="3" Content="{language:L Compile}" Command="{Binding CompilerCommand}"></Button>
+            <Button Grid.Row="5" Margin="0,6,8,0" Grid.Column="3" Content="{language:L AnalyzeAndCompile}" Command="{Binding AnalyzeAndCompileCommand}"></Button>
         </Grid>
     </Border>
 </UserControl>

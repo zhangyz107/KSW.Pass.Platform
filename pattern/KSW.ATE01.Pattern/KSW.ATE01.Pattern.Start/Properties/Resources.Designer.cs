@@ -70,6 +70,24 @@ namespace KSW.ATE01.Pattern.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Analysis 的本地化字符串。
+        /// </summary>
+        internal static string Analysis {
+            get {
+                return ResourceManager.GetString("Analysis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Analyze and compile 的本地化字符串。
+        /// </summary>
+        internal static string AnalyzeAndCompile {
+            get {
+                return ResourceManager.GetString("AnalyzeAndCompile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Bin Folder 的本地化字符串。
         /// </summary>
         internal static string BinFolder {

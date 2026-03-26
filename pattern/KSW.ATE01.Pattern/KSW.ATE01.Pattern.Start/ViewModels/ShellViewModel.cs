@@ -68,7 +68,7 @@ namespace KSW.ATE01.Pattern.Start.ViewModels
             _patternEditorView = containerProvider.Resolve<PatternEditorView>();
 
             Theme theme = _paletteHelper.GetTheme();
-            eventAggregator.GetEvent<MessageOpenEvent>().Subscribe(MessageOpen);
+            eventAggregator.GetEvent<MessageOpenEvent>().Subscribe(MessageOpen, ThreadOption.UIThread);
             eventAggregator.GetEvent<RecordMessageEvent>().Subscribe(AppendWriteLine, ThreadOption.UIThread);
             eventAggregator.GetEvent<SendMessageEvent>().Subscribe(AppendWriteLine, ThreadOption.UIThread);
         }

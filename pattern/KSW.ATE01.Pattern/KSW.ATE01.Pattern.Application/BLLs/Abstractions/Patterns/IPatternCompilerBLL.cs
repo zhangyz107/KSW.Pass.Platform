@@ -16,7 +16,14 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Abstractions.Patterns
         /// <summary>
         /// 解析向量文件
         /// </summary>
-        PatternModel AnalysisPattern(string patternFilePath);
+        Task<PatternModel> AnalysisPattern(string patternFilePath);
+
+        /// <summary>
+        /// 分析向量并编译
+        /// </summary>
+        /// <param name="patternFile"></param>
+        /// <returns></returns>
+        Task AnalyzeAndCompilePatternAsync(string patternFile);
 
         /// <summary>
         /// 导出atp文件

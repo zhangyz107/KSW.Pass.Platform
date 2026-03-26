@@ -1,5 +1,4 @@
 ﻿using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
-using KSW.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,27 +7,31 @@ using System.Threading.Tasks;
 
 namespace KSW.ATE01.Pattern.Application.Models.Projects
 {
-    public struct LabelModel
+    public struct PinPatternModel
     {
         /// <summary>
-        /// 向量序号
+        /// 引脚名称
         /// </summary>
-        public long IndexInVectors;
+        public string PinName;
 
         /// <summary>
-        /// 标签类型
+        /// 时钟设置
         /// </summary>
-        public LabelCommandType LabelType;
+        public string TimingSet;
 
         /// <summary>
-        /// 标签全内容
+        /// 指令
         /// </summary>
-        public string LabelFullContent;
+        public CommandType Instruction;
 
         /// <summary>
-        /// 标签参数
+        /// 指令参数
         /// </summary>
-        public object LabelParamter;
+        public object CommandParameter;
 
+        /// <summary>
+        /// 向量值
+        /// </summary>
+        public VectorValueType VectorValue;
     }
 }

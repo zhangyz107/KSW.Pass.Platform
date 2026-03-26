@@ -324,4 +324,10 @@
   <data name="Send" xml:space="preserve">
     <value>Send</value>
   </data>
+  <data name="Analysis" xml:space="preserve">
+    <value>Analysis</value>
+  </data>
+  <data name="AnalyzeAndCompile" xml:space="preserve">
+    <value>Analyze and compile</value>
+  </data>
 </root>

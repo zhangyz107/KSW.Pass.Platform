@@ -74,13 +74,13 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (pinPatterns == null || !pinPatterns.Any())
                 return;
 
-            var lastInstruction = CommandType.nop;
-            object lastCommandParameter = null;
+            var lastInstruction = pinPatterns.FirstOrDefault()?.Instruction ?? CommandType.nop;
+            object lastCommandParameter = pinPatterns.FirstOrDefault()?.CommandParameter;
             var startIndex = 0;
             var endIndex = 0;
             var isPack = false;
             var isFinish = true;
-            var maxVectorCount = lastInstruction == CommandType.nop ? 124 : 112;
+            var maxVectorCount = 124;
             var loopVectors = new List<PinPatternModel>();
             foreach (var pinPatternModel in pinPatterns)
             {
@@ -100,6 +100,8 @@ namespace KSW.ATE01.Project.Base.Helpers
                     {
                         loopVectors.Clear();
                         loopVectors.Add(pinPatternModel);
+                        lastInstruction = pinPatternModel.Instruction;
+                        lastCommandParameter = pinPatternModel.CommandParameter;
                         isPack = true;
                     }
                     else if (pinPatternModel.Instruction == CommandType.endloop)
@@ -503,8 +505,9 @@ namespace KSW.ATE01.Project.Base.Helpers
                     }
                 }
             }
-
             return result;
         }
+
+
     }
 }
