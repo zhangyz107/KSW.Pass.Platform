@@ -45,7 +45,7 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
         private int _haltInVectorLinesPosition = -1;
         private int _validVectorLinesCountInPatternFile;
         private string _tempNestLoopOutermostLoopName = string.Empty;
-
+        private const int bufferSize = 81920; // 80KB
         private Regex _digitalInstrumentRegex = new Regex("^\\s*digital_ins\\s*=\\s*(.+?)\\s*;", RegexOptions.IgnoreCase);
         private Regex _opCodeModeRegex = new Regex("^\\s*opcode_mode\\s*=\\s*(.+?)\\s*;", RegexOptions.IgnoreCase);
         private Regex _timeSetRegex = new Regex("^\\s*import\\s*tset\\s*(.+?)\\s*;", RegexOptions.IgnoreCase);
@@ -290,28 +290,28 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                 }
             }
 
-            await MergeFilesAsync(inputFiles, targetFile);
+            using (var outputStream = new FileStream(targetFile,
+    FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true))
+            {
+                outputStream.WriteByte((byte)result.ModuleType);
+                await MergeFilesAsync(outputStream, inputFiles);
+            }
         }
 
-        public static async Task MergeFilesAsync(List<string> inputFiles, string outputFile, IProgress<int> progress = null)
+        public static async Task MergeFilesAsync(FileStream outputStream, List<string> inputFiles, IProgress<int> progress = null)
         {
-            const int bufferSize = 81920; // 80KB
             var totalFiles = inputFiles.Count;
             var processedFiles = 0;
 
-            using (var outputStream = new FileStream(outputFile,
-                FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true))
+            foreach (var inputFile in inputFiles)
             {
-                foreach (var inputFile in inputFiles)
+                using (var inputStream = new FileStream(inputFile,
+                    FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, true))
                 {
-                    using (var inputStream = new FileStream(inputFile,
-                        FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, true))
-                    {
-                        await inputStream.CopyToAsync(outputStream);
+                    await inputStream.CopyToAsync(outputStream);
 
-                        processedFiles++;
-                        progress?.Report((processedFiles * 100) / totalFiles);
-                    }
+                    processedFiles++;
+                    progress?.Report((processedFiles * 100) / totalFiles);
                 }
             }
         }

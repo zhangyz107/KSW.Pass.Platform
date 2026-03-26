@@ -26,7 +26,8 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
         private const long _mbByte = 128 * 1024 * 1024L;
         private const int _maxChannelNum = 127;
         private const int _packageAdditionalLength = 8;
-        private static ushort _patternUnitLength = 4 * 1024;    // Pattern单位长度
+        private static ushort _patternUnitLength = 4 * 1024 * 8;    // Pattern单位长度(61440)
+
         //private List<PatternModel> _patterns = new List<PatternModel>();
         private List<BinPatternModel> _binPatterns = new List<BinPatternModel>();
 
@@ -300,39 +301,39 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             }
         }
 
+        //public static void SetPatternFile(string[] patternFiles)
+        //{
+        //    if (patternFiles == null || !patternFiles.Any())
+        //        return;
+
+        //    try
+        //    {
+        //        Instance?._binPatterns?.Clear();
+        //        long lastPatternDataEndAddress = 0;
+        //        foreach (string patternFile in patternFiles)
+        //        {
+        //            if (!File.Exists(patternFile)) continue;
+        //            var groupQueue = new ConcurrentQueue<PatternVectorGroupModel>();
+        //            var pattern = PatternReaderWriterHelper.ReadPattern(patternFile);
+        //            Instance?._binPatterns.Add(pattern);
+        //            if (pattern != null)
+        //            {
+        //                pattern.DataStartAddress = lastPatternDataEndAddress;
+        //                var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress);
+        //                pattern.DataEndAddress = lastPatternDataEndAddress;
+        //                if (package != null && package.Any())
+        //                    SendPatternPackageToInstrument(package);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
+
         public static void SetPatternFile(string[] patternFiles)
-        {
-            if (patternFiles == null || !patternFiles.Any())
-                return;
-
-            try
-            {
-                Instance?._binPatterns?.Clear();
-                long lastPatternDataEndAddress = 0;
-                foreach (string patternFile in patternFiles)
-                {
-                    if (!File.Exists(patternFile)) continue;
-                    var groupQueue = new ConcurrentQueue<PatternVectorGroupModel>();
-                    var pattern = PatternReaderWriterHelper.ReadPattern(patternFile);
-                    Instance?._binPatterns.Add(pattern);
-                    if (pattern != null)
-                    {
-                        pattern.DataStartAddress = lastPatternDataEndAddress;
-                        var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress);
-                        pattern.DataEndAddress = lastPatternDataEndAddress;
-                        if (package != null && package.Any())
-                            SendPatternPackageToInstrument(package);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public static void SetPatternFileNew(string[] patternFiles)
         {
             if (patternFiles == null || !patternFiles.Any())
                 return;
@@ -343,71 +344,86 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 long lastPatternDataEndAddress = 0;
                 var groups = new BlockingCollection<PatternVectorGroupModel>(boundedCapacity: 12800);
                 var lengthBytes = BitConverter.GetBytes(_patternUnitLength).Reverse().ToArray();
+                var onePackageVectorCount = _patternUnitLength / 64; //一个udp包最大字节数（61440）/单个向量字节数
                 foreach (string patternFile in patternFiles)
                 {
                     if (!File.Exists(patternFile)) continue;
-                    var pattern = ReadPatternHeader(patternFile);
-                    var readTask = Task.Run(async()=> await ReadPatternVectors(patternFile, groups));
-                    var pinDataLength = 0;
-                    Instance?._binPatterns.Add(pattern);
-                    if (pattern != null)
+                    using (var fs = new FileStream(patternFile, FileMode.Open))
                     {
-                        pattern.DataStartAddress = lastPatternDataEndAddress;
-                        var groupUnit = new List<PatternVectorGroupModel>();
-                        var lastPinName = string.Empty;
-                        foreach (var group in groups.GetConsumingEnumerable())
+                        using (var br = new BinaryReader(fs))
                         {
-                            if (lastPinName.Equals(string.Empty))
-                                lastPinName = group.PinName;
-                            else if (!lastPinName.Equals(group.PinName))
+                            try
                             {
-                                //var packageModel = new PatternPackageStruct();
-                                //packageModel.PinName = lastPinName;
-                                //var addr = lastPatternDataEndAddress;
-                                //packageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                //packageModel.LengthBytes = lengthBytes;
-                                //lastPatternDataEndAddress += _patternUnitLength;
+                                var pattern = ReadPatternHeader(br, patternFile);
+                                var readTask = Task.Run(async () => await ReadPatternVectors(br, groups));
+                                var pinDataLength = 0;
+                                Instance?._binPatterns.Add(pattern);
+                                if (pattern != null)
+                                {
+                                    pattern.DataStartAddress = lastPatternDataEndAddress;
+                                    var groupUnit = new List<PatternVectorGroupModel>();
+                                    var lastPinName = string.Empty;
+                                    foreach (var group in groups.GetConsumingEnumerable())
+                                    {
+                                        if (lastPinName.Equals(string.Empty))
+                                            lastPinName = group.PinName;
+                                        else if (!lastPinName.Equals(group.PinName))
+                                        {
+                                            //var packageModel = new PatternPackageStruct();
+                                            //packageModel.PinName = lastPinName;
+                                            //var addr = lastPatternDataEndAddress;
+                                            //packageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                                            //packageModel.LengthBytes = lengthBytes;
+                                            //lastPatternDataEndAddress += _patternUnitLength;
 
-                                //if (groupUnit.Count < 64)   //一个打包包含64个向量组 4096 / 64 = 64
-                                //{
-                                //    var rest = 64 - groupUnit.Count;
-                                //    for (int i = 0; i < rest; i++)
-                                //        groupUnit.Add(new PatternVectorGroupModel());   //填充空的数据包
-                                //}
-                                //packageModel.PatternGroups.AddRange(groupUnit);
-                                //SendOnePackageToInstrument(packageModel);
-                                //groupUnit.Clear();
+                                            //if (groupUnit.Count < 64)   //一个打包包含64个向量组 4096 / 64 = 64
+                                            //{
+                                            //    var rest = 64 - groupUnit.Count;
+                                            //    for (int i = 0; i < rest; i++)
+                                            //        groupUnit.Add(new PatternVectorGroupModel());   //填充空的数据包
+                                            //}
+                                            //packageModel.PatternGroups.AddRange(groupUnit);
+                                            //SendOnePackageToInstrument(packageModel);
+                                            //groupUnit.Clear();
 
-                                PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
+                                            PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
 
-                                lastPinName = group.PinName;
-                                pinDataLength = 0;
+                                            lastPinName = group.PinName;
+                                            pinDataLength = 0;
+                                        }
+
+                                        groupUnit.Add(group);
+
+                                        if (groupUnit.Count % onePackageVectorCount == 0)
+                                        {
+                                            PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
+                                            //var packageModel = new PatternPackageStruct();
+                                            //packageModel.PinName = lastPinName;
+                                            //var addr = lastPatternDataEndAddress;
+                                            //packageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
+                                            //packageModel.LengthBytes = lengthBytes;
+                                            //lastPatternDataEndAddress += _patternUnitLength;
+                                            //pinDataLength += _patternUnitLength;
+                                            //packageModel.PatternGroups.AddRange(groupUnit);
+                                            //SendOnePackageToInstrument(packageModel);
+                                            //groupUnit.Clear();
+                                        }
+                                    }
+
+                                    if (groupUnit.Any())    //处理最后剩余的数据
+                                    {
+                                        PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
+                                    }
+                                    pattern.PinDataLength = pinDataLength;
+                                    pattern.DataEndAddress = lastPatternDataEndAddress;
+                                }
                             }
-
-                            groupUnit.Add(group);
-
-                            if (groupUnit.Count % 64 == 0)
+                            catch (Exception ex)
                             {
-                                PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
-                                //var packageModel = new PatternPackageStruct();
-                                //packageModel.PinName = lastPinName;
-                                //var addr = lastPatternDataEndAddress;
-                                //packageModel.Address = BitConverter.GetBytes(addr).Reverse().Skip(3).ToArray();
-                                //packageModel.LengthBytes = lengthBytes;
-                                //lastPatternDataEndAddress += _patternUnitLength;
-                                //pinDataLength += _patternUnitLength;
-                                //packageModel.PatternGroups.AddRange(groupUnit);
-                                //SendOnePackageToInstrument(packageModel);
-                                //groupUnit.Clear();
+                                LogHelper.WriteError(ex.Message);
+                                throw;
                             }
                         }
-
-                        if (groupUnit.Any())    //处理最后剩余的数据
-                        {
-                            PackOnePackageData(ref lastPatternDataEndAddress, lengthBytes, ref pinDataLength, groupUnit, lastPinName);
-                        }
-                        pattern.PinDataLength = pinDataLength;
-                        pattern.DataEndAddress = lastPatternDataEndAddress;
                     }
                 }
             }
@@ -418,7 +434,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             }
         }
 
-        private static BinPatternModel ReadPatternHeader(string patternFile)
+        private static BinPatternModel ReadPatternHeader(BinaryReader br, string patternFile)
         {
             var result = new BinPatternModel();
             result.PinPacks = new List<PinPackModel>();
@@ -429,67 +445,54 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 result.FilePath = patternFile;
                 result.VectorName = Path.GetFileNameWithoutExtension(patternFile);
 
-                using (var fs = new FileStream(patternFile, FileMode.Open))
+                br.BaseStream.Position = 0;
+                result.ModuleType = (ModuleType)br.ReadByte();
+                while (br.BaseStream.Position < br.BaseStream.Length)
                 {
-                    using (var br = new BinaryReader(fs))
+                    var pack = new PinPackModel();
+                    var nameLength = br.ReadInt32();
+                    var nameBytes = br.ReadBytes(nameLength);
+                    pack.PinName = Encoding.UTF8.GetString(nameBytes);
+                    var timingSetLength = br.ReadInt32();
+                    if (timingSetLength > 0)
                     {
-                        result.ModuleType = (ModuleType)br.ReadByte();
-                        while (br.BaseStream.Position < br.BaseStream.Length)
-                        {
-                            var pack = new PinPackModel();
-                            var nameLength = br.ReadInt32();
-                            var nameBytes = br.ReadBytes(nameLength);
-                            pack.PinName = Encoding.UTF8.GetString(nameBytes);
-                            var timingSetLength = br.ReadInt32();
-                            if (timingSetLength > 0)
-                            {
-                                var timingSetBytes = br.ReadBytes(timingSetLength);
-                                pack.TimingSet = Encoding.UTF8.GetString(timingSetBytes);
-                            }
-                            var length = br.ReadInt64();
-                            br.BaseStream.Position += length;
-                            //pack.Data = new List<PatternVectorGroupModel>();
-                            result.PinPacks.Add(pack);
-                        }
+                        var timingSetBytes = br.ReadBytes(timingSetLength);
+                        pack.TimingSet = Encoding.UTF8.GetString(timingSetBytes);
                     }
+                    var length = br.ReadInt64();
+                    br.BaseStream.Position += length;
+                    //pack.Data = new List<PatternVectorGroupModel>();
+                    result.PinPacks.Add(pack);
                 }
             }
             return result;
         }
 
-        private static async Task ReadPatternVectors(string patternFile, BlockingCollection<PatternVectorGroupModel> groupQueue)
+        private static async Task ReadPatternVectors(BinaryReader br, BlockingCollection<PatternVectorGroupModel> groupQueue)
         {
-            if (File.Exists(patternFile))
+            br.BaseStream.Position = 0;
+            br.ReadByte();  //ModuleType
+            while (br.BaseStream.Position < br.BaseStream.Length)
             {
-                using (var fs = new FileStream(patternFile, FileMode.Open))
+                var nameLength = br.ReadInt32();
+                var nameBytes = br.ReadBytes(nameLength);
+                var pinName = Encoding.UTF8.GetString(nameBytes);
+                var timingSetLength = br.ReadInt32();
+                if (timingSetLength > 0)
+                    br.ReadBytes(timingSetLength);  // TimingSetBytes
+                var length = br.ReadInt64();
+                while (length > 0)
                 {
-                    using (var br = new BinaryReader(fs))
-                    {
-                        br.ReadByte();  //ModuleType
-                        while (br.BaseStream.Position < br.BaseStream.Length)
-                        {
-                            var nameLength = br.ReadInt32();
-                            var nameBytes = br.ReadBytes(nameLength);
-                            var pinName = Encoding.UTF8.GetString(nameBytes);
-                            var timingSetLength = br.ReadInt32();
-                            if (timingSetLength > 0)
-                                br.ReadBytes(timingSetLength);  // TimingSetBytes
-                            var length = br.ReadInt64();
-                            while (length > 0)
-                            {
-                                var group = new PatternVectorGroupModel();
-                                group.PinName = pinName;
-                                group.VectorNumber = br.ReadByte();
-                                group.Instruction = br.ReadByte();
-                                group.Data = br.ReadBytes(62);
-                                groupQueue.Add(group);
-                                length -= 64;
-                            }
-                        }
-
-                    }
+                    var group = new PatternVectorGroupModel();
+                    group.PinName = pinName;
+                    group.VectorNumber = br.ReadByte();
+                    group.Instruction = br.ReadByte();
+                    group.Data = br.ReadBytes(62);
+                    groupQueue.Add(group);
+                    length -= 64;
                 }
             }
+
             groupQueue.CompleteAdding();
             return;
         }
@@ -504,9 +507,10 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             packageModel.LengthBytes = lengthBytes;
             lastPatternDataEndAddress += _patternUnitLength;
             pinDataLength += _patternUnitLength;
-            if (groupUnit.Count < 64)   //一个打包包含64个向量组 4096 / 64 = 64
+            var vectorGroupCount = _patternUnitLength / 64;  //一个打包包含512个向量组 4096 * 8 / 64 = 512
+            if (groupUnit.Count < vectorGroupCount)
             {
-                var rest = 64 - groupUnit.Count;
+                var rest = vectorGroupCount - groupUnit.Count;
                 for (int i = 0; i < rest; i++)
                     groupUnit.Add(new PatternVectorGroupModel());   //填充空的数据包
             }

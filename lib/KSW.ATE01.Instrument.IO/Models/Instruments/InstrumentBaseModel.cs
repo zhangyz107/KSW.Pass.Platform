@@ -34,7 +34,7 @@ namespace KSW.ATE01.Instrument.IO.Models.Instruments
         /// <summary>
         /// 发送超时,多少ms
         /// </summary>
-        public int SendTimeOut { get; set; } = 10 * 6000;
+        public int SendTimeOut { get; set; } = 60 * 1000;
 
         /// <summary>
         /// 发送队列最多支持命令数量
@@ -44,7 +44,7 @@ namespace KSW.ATE01.Instrument.IO.Models.Instruments
         /// <summary>
         /// 接收超时,多少ms
         /// </summary>
-        public int ReceiveTimeOut { get; set; } = 10 * 6000;
+        public int ReceiveTimeOut { get; set; } = 60 * 1000;
 
         /// <summary>
         /// 接收队列最多可以接收数量

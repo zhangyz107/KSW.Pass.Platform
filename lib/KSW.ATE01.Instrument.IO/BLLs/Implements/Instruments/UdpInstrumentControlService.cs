@@ -38,7 +38,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements
 
         //发送队列最多支持命令数量
         private readonly int _maxSendCount = 100;
-        private readonly int _bufferSize = 8192;
+        private readonly int _bufferSize = ushort.MaxValue;
         private readonly int _sendTimeOut = 5000;
         private readonly int _receiveTimeOut = 10000;
         private readonly int _localPort = 9988;

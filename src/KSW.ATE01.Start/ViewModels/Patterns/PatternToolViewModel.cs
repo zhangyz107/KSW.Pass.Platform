@@ -17,14 +17,8 @@ using KSW.ATE01.Start.Views.Patterns;
 using KSW.Helpers;
 using KSW.Ui;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KSW.ATE01.Start.ViewModels.Patterns
 {
