@@ -253,7 +253,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 
         private static void CaculateDriveDelay(int channelNum, double iorate_hz, double dat_dly_ps, double en_dly_ps, List<double> cal_cd_d_list, List<double> cal_cd_en_list, List<double> cal_fd_d_list, List<double> cal_fd_en_list, ref byte cd_d, ref ushort fd_d, ref byte cd_en, ref ushort fd_en, ref byte d_d_d, ref byte en_d_d, ref int den_d_c)
         {
-            double dly_ps_1dat = 1 / iorate_hz * 1000000000000.0;
+            double dly_ps_1dat = 1 / iorate_hz * 1000_000_000_000.0;
             double dly_ps_1clk = dly_ps_1dat * 8;
             double min_dat_en_dly_ps, dat_dly_ps_need, en_dly_ps_need;
 
@@ -329,7 +329,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
 
         private static void CaculateComparatorDelay(int channelNum, double iorate_hz, double ca_dly_ps, double cb_dly_ps, List<double> cal_cd_ca_list, List<double> cal_cd_cb_list, List<double> cal_fd_ca_list, List<double> cal_fd_cb_list, ref byte cd_ca, ref ushort fd_ca, ref byte cd_cb, ref ushort fd_cb, ref byte ca_d_d, ref byte cb_d_d, ref int cab_d_c)
         {
-            double dly_ps_1dat = 1 / iorate_hz * 1000000000000.0;
+            double dly_ps_1dat = 1 / iorate_hz * 1000_000_000_000.0;
             double dly_ps_1clk = dly_ps_1dat * 8;
             double min_cab_dly_ps, ca_dly_ps_need, cb_dly_ps_need;
 

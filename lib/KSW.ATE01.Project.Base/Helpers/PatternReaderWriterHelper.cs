@@ -80,8 +80,11 @@ namespace KSW.ATE01.Project.Base.Helpers
             var endIndex = 0;
             var isPack = false;
             var isFinish = true;
+            var andTempVector = true;
             var maxVectorCount = 124;
             var loopVectors = new List<PinPatternModel>();
+            var tempVectors = new List<PinPatternModel>();
+
             foreach (var pinPatternModel in pinPatterns)
             {
                 if (pinPatternModel.Instruction != lastInstruction || endIndex - startIndex >= maxVectorCount)
@@ -92,16 +95,24 @@ namespace KSW.ATE01.Project.Base.Helpers
                     {
                         isPack = true;
                         if (count < maxVectorCount)
+                        {
                             count += 1;
+                            andTempVector = false;
+                            tempVectors.Add(pinPatternModel);
+                        }
                         else
+                        {
+                            andTempVector = true;
                             isFinish = false;
+                        }
                     }
                     else if (pinPatternModel.Instruction == CommandType.loop)
                     {
                         loopVectors.Clear();
-                        loopVectors.Add(pinPatternModel);
                         lastInstruction = pinPatternModel.Instruction;
                         lastCommandParameter = pinPatternModel.CommandParameter;
+                        loopVectors.Add(pinPatternModel);
+                        andTempVector = false;
                         isPack = true;
                     }
                     else if (pinPatternModel.Instruction == CommandType.endloop)
@@ -124,29 +135,34 @@ namespace KSW.ATE01.Project.Base.Helpers
                     }
                     else
                     {
+                        andTempVector = true;
                         isPack = true;
                     }
 
                     if (isPack)
                     {
-                        var patterns = pinPatterns.GetRange(startIndex, count);
-                        var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
-                        lastInstruction = pinPatternModel.Instruction;
-                        lastCommandParameter = pinPatternModel.CommandParameter;
-                        startIndex = endIndex;
-                        endIndex++;
-                        pack.Data.Add(group);
-                        pack.Length += 64;
+                        var patterns = tempVectors;//pinPatterns.GetRange(startIndex, count);
+                        if (patterns.Any())
+                        {
+                            var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
+                            startIndex = endIndex;
+                            endIndex++;
+                            pack.Data.Add(group);
+                            pack.Length += 64;
+                        }
                         isFinish = true;
+                        tempVectors.Clear();
+                        if (andTempVector)
+                            tempVectors.Add(pinPatternModel);
                     }
                 }
                 else
                 {
                     endIndex++;
                     if (lastInstruction == CommandType.loop)
-                    {
                         loopVectors.Add(pinPatternModel);
-                    }
+                    else
+                        tempVectors.Add(pinPatternModel);
                     isFinish = false;
                 }
 
@@ -155,7 +171,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (!isFinish)
             {
                 var count = pinPatterns.Count - startIndex;
-                var patterns = pinPatterns.GetRange(startIndex, count);
+                var patterns = tempVectors;//pinPatterns.GetRange(startIndex, count);
                 var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
                 pack.Data.Add(group);
                 pack.Length += 64;

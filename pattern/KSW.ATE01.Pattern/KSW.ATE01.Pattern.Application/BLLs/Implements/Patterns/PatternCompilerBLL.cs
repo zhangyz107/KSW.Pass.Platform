@@ -1806,6 +1806,8 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                                             else if (pinPattern.Instruction == CommandType.loop)
                                             {
                                                 loopVectors.Clear();
+                                                lastInstruction = pinPattern.Instruction;
+                                                lastCommandParameter = pinPattern.CommandParameter;
                                                 loopVectors.Add(pinPattern);
                                                 andTempVector = false;
                                                 isPack = true;
@@ -1842,15 +1844,16 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                                             if (isPack)
                                             {
                                                 var patterns = tempVectors;
-                                                var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
-                                                lastInstruction = pinPattern.Instruction;
-                                                lastCommandParameter = pinPattern.CommandParameter;
-                                                startIndex = endIndex;
-                                                endIndex++;
-                                                writer.Write(group.VectorNumber);
-                                                writer.Write(group.Instruction);
-                                                writer.Write(group.Data);
-                                                totalLength += 64;
+                                                if (patterns.Any())
+                                                {
+                                                    var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
+                                                    startIndex = endIndex;
+                                                    endIndex++;
+                                                    writer.Write(group.VectorNumber);
+                                                    writer.Write(group.Instruction);
+                                                    writer.Write(group.Data);
+                                                    totalLength += 64;
+                                                }
                                                 isFinish = true;
                                                 tempVectors.Clear();
                                                 if (andTempVector)
@@ -2088,7 +2091,7 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             }
         }
 
-        private async Task VectorAnalysisPins(string timingSet, CommandModel commandModel, string timesetAndPinsValue, long currentLine, List<string> pinList, Dictionary<string, ConcurrentQueue<PinPatternModel>> dicQueue)
+        private void VectorAnalysisPins(string timingSet, CommandModel commandModel, string timesetAndPinsValue, long currentLine, List<string> pinList, Dictionary<string, ConcurrentQueue<PinPatternModel>> dicQueue)
         {
             string[] array = timesetAndPinsValue.Split(new string[2] { " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
             if (array.Length != pinList.Count)
@@ -2111,7 +2114,7 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
 
                 while (queue.Count > 10000)
                 {
-                    await Task.Delay(10);
+                    Thread.Sleep(10);
                 }
 
                 queue.Enqueue(new PinPatternModel

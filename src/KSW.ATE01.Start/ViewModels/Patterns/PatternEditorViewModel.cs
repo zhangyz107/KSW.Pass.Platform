@@ -202,15 +202,29 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
 
         private async void ExecuteCompileCommand()
         {
-            if (!IsVaild(VectorInfos, out var error))
+            var stopwatch = new Stopwatch();
+
+            var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
             {
-                _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                stopwatch.Start();
+                await Task.Factory.StartNew(() =>
                 {
-                    Content = error,
-                    Type = UI.WPF.Enums.NotificationType.Error,
+                    if (!IsValid(VectorInfos, out var error))
+                    {
+                        _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                        {
+                            Content = error,
+                            Type = UI.WPF.Enums.NotificationType.Error,
+                        });
+                        return;
+                    }
                 });
-                return;
-            }
+
+                stopwatch.Stop();
+                Debug.WriteLine($"耗时：{stopwatch.ElapsedMilliseconds}ms");
+            });
+
+            await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
 
             var fileSaveDialog = new SaveFileDialog();
             fileSaveDialog.Filter = ".bin文件|*.bin";
@@ -219,28 +233,55 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
             {
                 var filePath = fileSaveDialog.FileName;
                 Pattern.PatternVectors = VectorInfos.ToList();
-                var result = await _patternBLL?.CompileAsync(Pattern, filePath);
-                if (result)
-                    _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
-                    {
-                        Content = L["CompileSuccessful"],
-                        Type = UI.WPF.Enums.NotificationType.Success,
-                    });
-                else
-                    _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
-                    {
-                        Content = L["CompileFailed"],
-                        Type = UI.WPF.Enums.NotificationType.Error,
-                    });
+
+                processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
+                {
+
+                    var result = await _patternBLL?.CompileAsync(Pattern, filePath);
+                    if (result)
+                        _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                        {
+                            Content = L["CompileSuccessful"],
+                            Type = UI.WPF.Enums.NotificationType.Success,
+                        });
+                    else
+                        _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                        {
+                            Content = L["CompileFailed"],
+                            Type = UI.WPF.Enums.NotificationType.Error,
+                        });
+                });
+
+                await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
             }
 
         }
 
-        private bool IsVaild(IEnumerable<PatternVectorModel> list, out string error)
+        private bool IsValid(IList<PatternVectorModel> list, out string error)
         {
-            var hasError = list.FirstOrDefault(x => !x.Error.IsEmpty() || x.Pins.Any(y => !y.Error.IsEmpty()));
-            error = hasError?.Error ?? string.Empty;
-            return hasError == null;
+            bool isValid = true;
+            PatternVectorModel errorVector = null;
+            error = string.Empty;
+
+            var result = list.AsParallel()
+    .Select((vector, idx) => new { vector, idx })
+    .FirstOrDefault(x =>
+        !string.IsNullOrEmpty(x.vector.Error) ||
+        x.vector.Pins.Any(p => !string.IsNullOrEmpty(p.Error)));
+
+            if (result != null)
+            {
+                isValid = false;
+                errorVector = result.vector;
+            }
+            else
+            {
+                isValid = true;
+                errorVector = null;
+            }
+
+            error = errorVector?.Error ?? string.Empty;
+            return isValid;
         }
 
         private void ExecuteInsertVectorCommand()
