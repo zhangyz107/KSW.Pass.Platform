@@ -135,8 +135,17 @@ namespace KSW.ATE01.Project.Base.Helpers
                     }
                     else
                     {
-                        andTempVector = true;
-                        isPack = true;
+                        switch (lastInstruction)
+                        {
+                            case CommandType.loop:
+                                loopVectors.Add(pinPatternModel);
+                                isPack = false;
+                                break;
+                            default:
+                                andTempVector = true;
+                                isPack = true;
+                                break;
+                        }
                     }
 
                     if (isPack)
@@ -188,7 +197,9 @@ namespace KSW.ATE01.Project.Base.Helpers
                 return result;
 
             var startIndex = 0;
-            var x = patterns.Count * loopCount;
+            var x = (long)patterns.Count * (long)loopCount;
+            var patternsVector = patterns.Select(x => x.VectorValue).ToList();
+
             if (patterns.Count >= 224)
             {
                 var n = patterns.Count / 112;
@@ -196,7 +207,7 @@ namespace KSW.ATE01.Project.Base.Helpers
 
                 if ((n >= 2 && reset > 0) || n > 3)
                 {
-                    var loopPack = GeneratorLoopPack(patterns, loopCount, 112);
+                    var loopPack = GeneratorLoopPack(patternsVector, loopCount, 112);
                     result.Add(loopPack);
                     startIndex += 112;
 
@@ -205,27 +216,27 @@ namespace KSW.ATE01.Project.Base.Helpers
                     {
                         for (int i = 0; i < normalPackCount; i++)
                         {
-                            var normalPack = GeneratorNormalPack(patterns, startIndex, 112);
+                            var normalPack = GeneratorNormalPack(patternsVector.Skip(startIndex), 112);
                             result.Add(normalPack);
                             startIndex += 112;
                         }
                     }
                     else if (normalPackCount == 0)
                     {
-                        var normalPack = GeneratorNormalPack(patterns, startIndex, 112);
+                        var normalPack = GeneratorNormalPack(patternsVector.Skip(startIndex), 112);
                         result.Add(normalPack);
                         startIndex += 112;
                     }
 
-                    var endPack = GeneratorEndPack(patterns, startIndex, reset);
+                    var endPack = GeneratorEndPack(patternsVector, startIndex, reset);
                     result.Add(endPack);
                 }
                 else
                 {
-                    var loopPack = GeneratorLoopPack(patterns, loopCount, 112);
+                    var loopPack = GeneratorLoopPack(patternsVector, loopCount, 112);
                     result.Add(loopPack);
                     startIndex += 112;
-                    var endPack = GeneratorEndPack(patterns, startIndex, reset);
+                    var endPack = GeneratorEndPack(patternsVector, startIndex, reset);
                     result.Add(endPack);
                 }
             }
@@ -233,13 +244,10 @@ namespace KSW.ATE01.Project.Base.Helpers
             {
                 var k = 224 / patterns.Count;
                 var n = loopCount / k;
-                var loopVectors = new List<PinPatternModel>();
-                var totalVecoters = new List<PinPatternModel>();
+                var loopVectors = new List<VectorValueType>();
+                var totoalVectorCount = (long)patternsVector.Count * (long)loopCount;
                 for (int i = 0; i < k; i++)
-                    loopVectors.AddRange(patterns);
-
-                for (int i = 0; i < loopCount; i++)
-                    totalVecoters.AddRange(patterns);
+                    loopVectors.AddRange(patternsVector);
 
                 var half = loopVectors.Count / 2;
                 var loopPack = GeneratorLoopPack(loopVectors, n, half);
@@ -248,51 +256,52 @@ namespace KSW.ATE01.Project.Base.Helpers
                 var endPack = GeneratorEndPack(loopVectors, startIndex, loopVectors.Count - half);
                 result.Add(endPack);
 
-                var normalNumber = totalVecoters.Count - (loopVectors.Count * n);
+                var restLoop = loopCount - n * k;
+                var normalNumber = totoalVectorCount - ((long)loopVectors.Count * (long)n);
                 var count = normalNumber / 124;
-                var rest = normalNumber % 124;
-                startIndex = loopVectors.Count * n;
+                var rest = (int)(normalNumber % 124);
+                var restVectors = Enumerable.Repeat(patternsVector, restLoop).SelectMany(x => x);   //不实际存储的可枚举序列
+                startIndex = 0;
 
                 for (var i = 0; i < count; i++)
                 {
-                    var normalPack = GeneratorNormalPack(totalVecoters, startIndex, 124);
+                    var normalPack = GeneratorNormalPack(restVectors, 124);
                     result.Add(normalPack);
                     startIndex += 124;
                 }
 
                 if (rest > 0)
                 {
-                    var normalPack = GeneratorNormalPack(totalVecoters, startIndex, rest);
+                    var normalPack = GeneratorNormalPack(restVectors.Skip(startIndex), rest);
                     result.Add(normalPack);
                 }
             }
             else
             {
-                var totalVectors = new List<PinPatternModel>();
                 startIndex = 0;
                 var isFinish = true;
-                for (int i = 0; i < loopCount; i++)
-                    totalVectors.AddRange(patterns);
+                var totalVectors = Enumerable.Repeat(patternsVector, loopCount).SelectMany(x => x);
+                var totoalVectorCount = (long)patternsVector.Count * (long)loopCount;
 
-                var n = totalVectors.Count / 124;
-                var rest = totalVectors.Count % 124;
+                var n = totoalVectorCount / 124;
+                var rest = totoalVectorCount % 124;
 
                 for (int i = 0; i <= n; i++)
                 {
                     if (i != n)
                     {
-                        var normalGroup = GeneratorNormalPack(totalVectors, startIndex, 124);
+                        var normalGroup = GeneratorNormalPack(totalVectors.Skip(startIndex), 124);
                         result.Add(normalGroup);
                         startIndex += 124;
                     }
                     else
                     {
-                        var vectors = totalVectors.GetRange(i * 124, rest);
+                        var vectors = totalVectors.Skip(startIndex); //totalVectors.GetRange(i * 124, rest);
                         if (vectors.Any())
                         {
                             var end = new PatternVectorGroupModel()
                             {
-                                VectorNumber = (byte)vectors.Count,
+                                VectorNumber = (byte)vectors.Count(),
                             };
                             startIndex = 0;
                             byte symbol = 0;
@@ -301,12 +310,12 @@ namespace KSW.ATE01.Project.Base.Helpers
                             {
                                 if (index % 2 == 0)
                                 {
-                                    symbol = (byte)vector.VectorValue;
+                                    symbol = (byte)vector;
                                     isFinish = false;
                                 }
                                 else
                                 {
-                                    symbol |= (byte)((byte)vector.VectorValue << 4);
+                                    symbol |= (byte)((byte)vector << 4);
                                     end.Data[startIndex++] = symbol;
                                     isFinish = true;
                                 }
@@ -325,7 +334,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             return result;
         }
 
-        private static PatternVectorGroupModel GeneratorLoopPack(List<PinPatternModel> patterns, int loopCount, int vectorNumber)
+        private static PatternVectorGroupModel GeneratorLoopPack(List<VectorValueType> patterns, int loopCount, int vectorNumber)
         {
             var intBytes = BitConverter.GetBytes(loopCount);
             var result = new PatternVectorGroupModel()
@@ -343,12 +352,12 @@ namespace KSW.ATE01.Project.Base.Helpers
             {
                 if (i % 2 == 0)
                 {
-                    vector = (byte)patterns[i].VectorValue;
+                    vector = (byte)patterns[i];
                     isFinish = false;
                 }
                 else
                 {
-                    vector |= (byte)((byte)patterns[i].VectorValue << 4);
+                    vector |= (byte)((byte)patterns[i] << 4);
                     result.Data[6 + index++] = vector;
                     isFinish = true;
                 }
@@ -360,7 +369,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             return result;
         }
 
-        private static PatternVectorGroupModel GeneratorNormalPack(List<PinPatternModel> patterns, int startIndex, int vectorNumber)
+        private static PatternVectorGroupModel GeneratorNormalPack(IEnumerable<VectorValueType> patterns, int vectorNumber)
         {
             var result = new PatternVectorGroupModel()
             {
@@ -369,20 +378,25 @@ namespace KSW.ATE01.Project.Base.Helpers
 
             byte vector = 0;
             var index = 0;
+            var i = 0;
             bool isFinish = true;
-            for (int i = 0; i < vectorNumber; i++)
+
+            foreach (var item in patterns)
             {
                 if (i % 2 == 0)
                 {
-                    vector = (byte)patterns[startIndex + i].VectorValue;
+                    vector = (byte)item;
                     isFinish = false;
                 }
                 else
                 {
-                    vector |= (byte)((byte)patterns[startIndex + i].VectorValue << 4);
+                    vector |= (byte)((byte)item << 4);
                     result.Data[index++] = vector;
                     isFinish = true;
                 }
+                i++;
+                if (i == vectorNumber)
+                    break;
             }
 
             if (!isFinish)
@@ -391,7 +405,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             return result;
         }
 
-        private static PatternVectorGroupModel GeneratorEndPack(List<PinPatternModel> patterns, int startIndex, int reset)
+        private static PatternVectorGroupModel GeneratorEndPack(List<VectorValueType> patterns, int startIndex, int reset)
         {
             var result = new PatternVectorGroupModel()
             {
@@ -406,12 +420,12 @@ namespace KSW.ATE01.Project.Base.Helpers
             {
                 if (i % 2 == 0)
                 {
-                    vector = (byte)patterns[startIndex + i].VectorValue;
+                    vector = (byte)patterns[startIndex + i];
                     isFinish = false;
                 }
                 else
                 {
-                    vector |= (byte)((byte)patterns[startIndex + i].VectorValue << 4);
+                    vector |= (byte)((byte)patterns[startIndex + i] << 4);
                     result.Data[6 + index++] = vector;
                     isFinish = true;
                 }

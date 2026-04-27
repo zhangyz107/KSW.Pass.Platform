@@ -18,12 +18,15 @@ using KSW.ATE01.Pattern.Application.Events.Patterns;
 using KSW.ATE01.Pattern.Application.Extensions;
 using KSW.ATE01.Pattern.Application.Models.Projects;
 using KSW.ATE01.Pattern.Domain.Projects.Core.Enums;
+using KSW.Helpers;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Regex = System.Text.RegularExpressions.Regex;
 
 namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
 {
@@ -1837,8 +1840,17 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                                             }
                                             else
                                             {
-                                                andTempVector = true;
-                                                isPack = true;
+                                                switch (lastInstruction)
+                                                {
+                                                    case CommandType.loop:
+                                                        loopVectors.Add(pinPattern);
+                                                        isPack = false;
+                                                        break;
+                                                    default:
+                                                        andTempVector = true;
+                                                        isPack = true;
+                                                        break;
+                                                }
                                             }
 
                                             if (isPack)
@@ -2139,145 +2151,152 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             else
                 return result;
 
-            var startIndex = 0;
-            var x = patterns.Count * loopCount;
-            if (patterns.Count >= 224)
+            int startIndex = 0;
+            var x = (long)patterns.Count * (long)loopCount;
+            var patternsVector = patterns.Select(x => x.VectorValue).ToList();
+            try
             {
-                var n = patterns.Count / 112;
-                var reset = patterns.Count % 112;
 
-                if ((n >= 2 && reset > 0) || n > 3)
+                if (patterns.Count >= 224)
                 {
-                    var loopPack = GeneratorLoopPack(patterns, loopCount, 112);
-                    result.Add(loopPack);
-                    startIndex += 112;
+                    var n = patterns.Count / 112;   // 512bit(=64byte)，其中9bit时向量数，7bit时指令Id,剩下62Byte(当指令Id不为0时，还有6byte作为操作数，剩余56byte,已知一个1byte表达两个向量符号 = 56 * 2)
+                    var reset = patterns.Count % 112;
 
-                    var normalPackCount = n - 2;
-                    if (normalPackCount > 0)
+                    if ((n >= 2 && reset > 0) || n > 3)
                     {
-                        for (int i = 0; i < normalPackCount; i++)
+                        var loopPack = GeneratorLoopPack(patternsVector, loopCount, 112);
+                        result.Add(loopPack);
+                        startIndex += 112;
+
+                        var normalPackCount = n - 2;
+                        if (normalPackCount > 0)
                         {
-                            var normalPack = GeneratorNormalPack(patterns, startIndex, 112);
+                            for (int i = 0; i < normalPackCount; i++)
+                            {
+                                var normalPack = GeneratorNormalPack(patternsVector.SkipFast(startIndex), 112);
+                                result.Add(normalPack);
+                                startIndex += 112;
+                            }
+                        }
+                        else if (normalPackCount == 0)
+                        {
+                            var normalPack = GeneratorNormalPack(patternsVector.SkipFast(startIndex), 112);
                             result.Add(normalPack);
                             startIndex += 112;
                         }
-                    }
-                    else if (normalPackCount == 0)
-                    {
-                        var normalPack = GeneratorNormalPack(patterns, startIndex, 112);
-                        result.Add(normalPack);
-                        startIndex += 112;
-                    }
 
-                    var endPack = GeneratorEndPack(patterns, startIndex, reset);
-                    result.Add(endPack);
-                }
-                else
-                {
-                    var loopPack = GeneratorLoopPack(patterns, loopCount, 112);
-                    result.Add(loopPack);
-                    startIndex += 112;
-                    var endPack = GeneratorEndPack(patterns, startIndex, reset);
-                    result.Add(endPack);
-                }
-            }
-            else if (x >= 372)
-            {
-                var k = 224 / patterns.Count;
-                var n = loopCount / k;
-                var loopVectors = new List<PinPatternModel>();
-                var totalVecoters = new List<PinPatternModel>();
-                for (int i = 0; i < k; i++)
-                    loopVectors.AddRange(patterns);
-
-                for (int i = 0; i < loopCount; i++)
-                    totalVecoters.AddRange(patterns);
-
-                var half = loopVectors.Count / 2;
-                var loopPack = GeneratorLoopPack(loopVectors, n, half);
-                result.Add(loopPack);
-                startIndex += half;
-                var endPack = GeneratorEndPack(loopVectors, startIndex, loopVectors.Count - half);
-                result.Add(endPack);
-
-                var normalNumber = totalVecoters.Count - (loopVectors.Count * n);
-                var count = normalNumber / 124;
-                var rest = normalNumber % 124;
-                startIndex = loopVectors.Count * n;
-
-                for (var i = 0; i < count; i++)
-                {
-                    var normalPack = GeneratorNormalPack(totalVecoters, startIndex, 124);
-                    result.Add(normalPack);
-                    startIndex += 124;
-                }
-
-                if (rest > 0)
-                {
-                    var normalPack = GeneratorNormalPack(totalVecoters, startIndex, rest);
-                    result.Add(normalPack);
-                }
-            }
-            else
-            {
-                var totalVectors = new List<PinPatternModel>();
-                startIndex = 0;
-                var isFinish = true;
-                for (int i = 0; i < loopCount; i++)
-                    totalVectors.AddRange(patterns);
-
-                var n = totalVectors.Count / 124;
-                var rest = totalVectors.Count % 124;
-
-                for (int i = 0; i <= n; i++)
-                {
-                    if (i != n)
-                    {
-                        var normalGroup = GeneratorNormalPack(totalVectors, startIndex, 124);
-                        result.Add(normalGroup);
-                        startIndex += 124;
+                        var endPack = GeneratorEndPack(patternsVector, startIndex, reset);
+                        result.Add(endPack);
                     }
                     else
                     {
-                        var vectors = totalVectors.GetRange(i * 124, rest);
-                        if (vectors.Any())
+                        var loopPack = GeneratorLoopPack(patternsVector, loopCount, 112);
+                        result.Add(loopPack);
+                        startIndex += 112;
+                        var endPack = GeneratorEndPack(patternsVector, startIndex, reset);
+                        result.Add(endPack);
+                    }
+                }
+                else if (x >= 372)
+                {
+                    var k = 224 / patterns.Count;
+                    var n = loopCount / k;
+                    var loopVectors = new List<VectorValueType>();
+                    var totoalVectorCount = (long)patternsVector.Count * (long)loopCount;
+                    for (int i = 0; i < k; i++)
+                        loopVectors.AddRange(patternsVector);
+
+                    var half = loopVectors.Count / 2;
+                    var loopPack = GeneratorLoopPack(loopVectors, n, half);
+                    result.Add(loopPack);
+                    startIndex += half;
+                    var endPack = GeneratorEndPack(loopVectors, startIndex, loopVectors.Count - half);
+                    result.Add(endPack);
+
+                    var restLoop = loopCount - n * k;
+                    var normalNumber = totoalVectorCount - ((long)loopVectors.Count * (long)n);
+                    var count = normalNumber / 124;
+                    var rest = (int)(normalNumber % 124);
+                    var restVectors = Enumerable.Repeat(patternsVector, restLoop).SelectMany(x => x);   //不实际存储的可枚举序列
+                    startIndex = 0;
+                    for (var i = 0; i < count; i++)
+                    {
+                        var normalPack = GeneratorNormalPack(restVectors, 124);
+                        result.Add(normalPack);
+                        startIndex += 124;
+                    }
+
+                    if (rest > 0)
+                    {
+                        var normalPack = GeneratorNormalPack(restVectors.Skip(startIndex), rest);
+                        result.Add(normalPack);
+                    }
+                }
+                else
+                {
+                    startIndex = 0;
+                    var isFinish = true;
+                    var totalVectors = Enumerable.Repeat(patternsVector, loopCount).SelectMany(x => x);
+                    var totoalVectorCount = (long)patternsVector.Count * (long)loopCount;
+
+                    var n = totoalVectorCount / 124;
+                    var rest = (int)(totoalVectorCount % 124);
+
+                    for (int i = 0; i <= n; i++)
+                    {
+                        if (i != n)
                         {
-                            var end = new PatternVectorGroupModel()
+                            var normalGroup = GeneratorNormalPack(totalVectors.SkipFast(startIndex), 124);
+                            result.Add(normalGroup);
+                            startIndex += 124;
+                        }
+                        else
+                        {
+                            var vectors = totalVectors.SkipFast(i * 124).Take(rest);
+                            if (vectors.Any())
                             {
-                                VectorNumber = (byte)vectors.Count,
-                            };
-                            startIndex = 0;
-                            byte symbol = 0;
-                            var index = 0;
-                            foreach (var vector in vectors)
-                            {
-                                if (index % 2 == 0)
+                                var end = new PatternVectorGroupModel()
                                 {
-                                    symbol = (byte)vector.VectorValue;
-                                    isFinish = false;
-                                }
-                                else
+                                    VectorNumber = (byte)vectors.Count(),
+                                };
+                                startIndex = 0;
+                                byte symbol = 0;
+                                var index = 0;
+                                foreach (var vector in vectors)
                                 {
-                                    symbol |= (byte)((byte)vector.VectorValue << 4);
-                                    end.Data[startIndex++] = symbol;
-                                    isFinish = true;
+                                    if (index % 2 == 0)
+                                    {
+                                        symbol = (byte)vector;
+                                        isFinish = false;
+                                    }
+                                    else
+                                    {
+                                        symbol |= (byte)((byte)vector << 4);
+                                        end.Data[startIndex++] = symbol;
+                                        isFinish = true;
+                                    }
+                                    index++;
                                 }
-                                index++;
+
+                                if (!isFinish)
+                                    end.Data[startIndex] = symbol;
+
+                                result.Add(end);
                             }
-
-                            if (!isFinish)
-                                end.Data[startIndex] = symbol;
-
-                            result.Add(end);
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+
+                Debug.WriteLine(ex.Message);
             }
 
             return result;
         }
 
-        private static PatternVectorGroupModel GeneratorLoopPack(List<PinPatternModel> patterns, int loopCount, int vectorNumber)
+        private static PatternVectorGroupModel GeneratorLoopPack(List<VectorValueType> patterns, int loopCount, int vectorNumber)
         {
             var intBytes = BitConverter.GetBytes(loopCount);
             var result = new PatternVectorGroupModel()
@@ -2295,12 +2314,12 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             {
                 if (i % 2 == 0)
                 {
-                    vector = (byte)patterns[i].VectorValue;
+                    vector = (byte)patterns[i];
                     isFinish = false;
                 }
                 else
                 {
-                    vector |= (byte)((byte)patterns[i].VectorValue << 4);
+                    vector |= (byte)((byte)patterns[i] << 4);
                     result.Data[6 + index++] = vector;
                     isFinish = true;
                 }
@@ -2312,7 +2331,7 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             return result;
         }
 
-        private static PatternVectorGroupModel GeneratorNormalPack(List<PinPatternModel> patterns, int startIndex, int vectorNumber)
+        private static PatternVectorGroupModel GeneratorNormalPack(IEnumerable<VectorValueType> patterns, int vectorNumber)
         {
             var result = new PatternVectorGroupModel()
             {
@@ -2321,20 +2340,25 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
 
             byte vector = 0;
             var index = 0;
+            var i = 0;
             bool isFinish = true;
-            for (int i = 0; i < vectorNumber; i++)
+
+            foreach (var item in patterns)
             {
                 if (i % 2 == 0)
                 {
-                    vector = (byte)patterns[startIndex + i].VectorValue;
+                    vector = (byte)item;
                     isFinish = false;
                 }
                 else
                 {
-                    vector |= (byte)((byte)patterns[startIndex + i].VectorValue << 4);
+                    vector |= (byte)((byte)item << 4);
                     result.Data[index++] = vector;
                     isFinish = true;
                 }
+                i++;
+                if (i == vectorNumber)
+                    break;
             }
 
             if (!isFinish)
@@ -2343,7 +2367,7 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             return result;
         }
 
-        private static PatternVectorGroupModel GeneratorEndPack(List<PinPatternModel> patterns, int startIndex, int reset)
+        private static PatternVectorGroupModel GeneratorEndPack(List<VectorValueType> patterns, int startIndex, int reset)
         {
             var result = new PatternVectorGroupModel()
             {
@@ -2358,12 +2382,12 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
             {
                 if (i % 2 == 0)
                 {
-                    vector = (byte)patterns[startIndex + i].VectorValue;
+                    vector = (byte)patterns[startIndex + i];
                     isFinish = false;
                 }
                 else
                 {
-                    vector |= (byte)((byte)patterns[startIndex + i].VectorValue << 4);
+                    vector |= (byte)((byte)patterns[startIndex + i] << 4);
                     result.Data[6 + index++] = vector;
                     isFinish = true;
                 }
