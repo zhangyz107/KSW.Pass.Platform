@@ -22,7 +22,6 @@ using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.ATE01.Start.Views.Patterns;
-using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Helpers;
 using KSW.Localization;
 using KSW.Ui;

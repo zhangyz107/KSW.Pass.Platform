@@ -234,9 +234,8 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
                 var filePath = fileSaveDialog.FileName;
                 Pattern.PatternVectors = VectorInfos.ToList();
 
-                processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
+               var  compileProcessBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
-
                     var result = await _patternBLL?.CompileAsync(Pattern, filePath);
                     if (result)
                         _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
@@ -252,7 +251,7 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
                         });
                 });
 
-                await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
+                await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, compileProcessBarParameters);
             }
 
         }
