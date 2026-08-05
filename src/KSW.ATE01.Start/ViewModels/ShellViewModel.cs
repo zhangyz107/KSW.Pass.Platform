@@ -220,7 +220,7 @@ namespace KSW.ATE01.Start.ViewModels
 
         private void ExecuteLoadingCommand()
         {
-            _projectBLL = ContainerProvider?.Resolve<ProjectBLL>();
+            _projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
 
             ChangePrimaryColor(BlueSwatch.Blue300);
 
