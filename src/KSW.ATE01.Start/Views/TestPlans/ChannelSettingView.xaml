@@ -47,7 +47,12 @@
                     <ColumnDefinition Width="auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="站点数："></TextBlock>
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock.Inlines>
+                        <Run Text="{language:L SitesCount}"></Run>
+                        <Run Text=":"></Run>
+                    </TextBlock.Inlines>
+                </TextBlock>
                 <ComboBox Grid.Column="1" Padding="4" Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding SiteCountList}" SelectedValue="{Binding PinOverview.SiteCount}" IsEnabled="{Binding CanEdit}"></ComboBox>
                 <Button Margin="6,0,0,0" Grid.Column="3" Command="{Binding SureSiteCountCommand}" Content="{language:L ComfirmSiteCount}">
                 </Button>

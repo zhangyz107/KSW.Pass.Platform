@@ -14,7 +14,6 @@
 
 
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
-using KSW.ATE01.Application.BLLs.Implements.Projects;
 using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
@@ -26,6 +25,7 @@ using KSW.Helpers;
 using KSW.Localization;
 using KSW.Ui;
 using KSW.UI.WPF.Controls;
+using KSW.UI.WPF.Views;
 using MaterialDesignColors;
 using MaterialDesignColors.ColorManipulation;
 using MaterialDesignColors.Recommended;
@@ -153,6 +153,10 @@ namespace KSW.ATE01.Start.ViewModels
         private DelegateCommand _patternToolCommand;
         public DelegateCommand PatternToolCommand =>
             _patternToolCommand ?? (_patternToolCommand = new DelegateCommand(ExecutePatternToolCommand));
+
+        private DelegateCommand _logCommand;
+        public DelegateCommand LogCommand =>
+            _logCommand ?? (_logCommand = new DelegateCommand(ExecuteLogCommand));
 
         #endregion
 
@@ -316,6 +320,11 @@ namespace KSW.ATE01.Start.ViewModels
             ShowBackwardView = true;
             ShowRunView = false;
             ShowPatterToolView = true;
+        }
+
+        private void ExecuteLogCommand()
+        {
+            DialogService.ShowDialog(nameof(LogViewerDialog));
         }
 
     }

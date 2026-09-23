@@ -741,4 +741,10 @@
   <data name="ParameterCanNotBeEmpty" xml:space="preserve">
     <value>{0}不能为空</value>
   </data>
+  <data name="Log" xml:space="preserve">
+    <value>日志</value>
+  </data>
+  <data name="SitesCount" xml:space="preserve">
+    <value>站点数</value>
+  </data>
 </root>

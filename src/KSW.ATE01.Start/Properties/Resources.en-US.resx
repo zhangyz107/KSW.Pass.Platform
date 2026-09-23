@@ -741,4 +741,10 @@
   <data name="ParameterCanNotBeEmpty" xml:space="preserve">
     <value>{0} can not be empty</value>
   </data>
+  <data name="Log" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="SitesCount" xml:space="preserve">
+    <value>Sites Count</value>
+  </data>
 </root>

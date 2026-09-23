@@ -1723,203 +1723,6 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
 
             int maxConcurrency = Math.Min(pinList.Count, Environment.ProcessorCount);
             var process = ProcessAllVectorsAsync(vectorDic, pinList, uniqueTempFolder, maxConcurrency);
-            //var process = 
-            //    Task.Run(async () =>
-            //{
-            //    var storeTasks = new List<Task>();
-            //    while (vectorDic.Count != pinList.Count)
-            //        await Task.Delay(10);
-
-            //    foreach (var pinVector in vectorDic)
-            //    {
-            //        var pinName = pinVector.Key;
-            //        var channel = pinVector.Value;
-
-            //        storeTasks.Add(
-            //        Task.Run(async () =>
-            //        {
-            //            var isFirst = true;
-            //            var lastInstruction = CommandType.nop;
-            //            object lastCommandParameter = null;
-            //            var startIndex = 0;
-            //            var endIndex = 0;
-            //            var totalLength = 0L;
-            //            var lengthStartPos = 0;
-            //            var isPack = false;
-            //            var isFinish = true;
-            //            var andTempVector = true;
-            //            var maxVectorCount = 124;
-            //            var loopVectors = new List<PinPatternModel>();
-            //            var tempVectors = new List<PinPatternModel>();
-
-            //            using (var fs = new FileStream(Path.Combine(uniqueTempFolder, pinName + ".bin"), FileMode.Create))
-            //            {
-            //                using (var writer = new BinaryWriter(fs))
-            //                {
-            //                    while (true)
-            //                    {
-            //                        if (isEnd && channel.Reader.Count == 0)
-            //                            break;
-
-            //                        if (channel.TryDequeue(out var pinPattern))
-            //                        {
-            //                            if (isFirst)
-            //                            {
-            //                                isFirst = false;
-            //                                lastInstruction = pinPattern.Instruction;
-            //                                lastCommandParameter = pinPattern.CommandParameter;
-            //                                var nameBytes = Encoding.UTF8.GetBytes(pinName);
-            //                                writer.Write(nameBytes.Length);
-            //                                lengthStartPos += 4;
-            //                                writer.Write(nameBytes);
-            //                                lengthStartPos += nameBytes.Length;
-            //                                if (!string.IsNullOrEmpty(pinPattern.TimingSet))
-            //                                {
-            //                                    var timingSetBytes = Encoding.UTF8.GetBytes(pinPattern.TimingSet);
-            //                                    if (timingSetBytes.IsEmpty())
-            //                                    {
-            //                                        writer.Write(0);
-            //                                        lengthStartPos += 1;
-            //                                    }
-            //                                    else
-            //                                    {
-            //                                        writer.Write(timingSetBytes.Length);
-            //                                        lengthStartPos += 4;
-            //                                        writer.Write(timingSetBytes);
-            //                                        lengthStartPos += timingSetBytes.Length;
-            //                                    }
-            //                                }
-            //                                writer.Write(new byte[8]); //向量长度占位
-            //                            }
-
-            //                            if (pinPattern.Instruction != lastInstruction || endIndex - startIndex >= maxVectorCount)
-            //                            {
-            //                                var count = endIndex - startIndex;
-
-            //                                if (pinPattern.Instruction == CommandType.halt)
-            //                                {
-            //                                    isPack = true;
-            //                                    if (count < maxVectorCount)
-            //                                    {
-            //                                        count += 1;
-            //                                        andTempVector = false;
-            //                                        tempVectors.Add(pinPattern);
-            //                                    }
-            //                                    else
-            //                                    {
-            //                                        andTempVector = true;
-            //                                        isFinish = false;
-            //                                    }
-            //                                }
-            //                                else if (pinPattern.Instruction == CommandType.loop)
-            //                                {
-            //                                    loopVectors.Clear();
-            //                                    lastInstruction = pinPattern.Instruction;
-            //                                    lastCommandParameter = pinPattern.CommandParameter;
-            //                                    loopVectors.Add(pinPattern);
-            //                                    andTempVector = false;
-            //                                    isPack = true;
-            //                                }
-            //                                else if (pinPattern.Instruction == CommandType.endloop)
-            //                                {
-            //                                    loopVectors.Add(pinPattern);
-            //                                    if (loopVectors.Any())
-            //                                    {
-            //                                        var groups = PackLoopPattern(lastCommandParameter, loopVectors);
-            //                                        if (groups.Any())
-            //                                        {
-            //                                            totalLength += groups.Count * 64;
-            //                                            foreach (var group in groups)
-            //                                            {
-            //                                                writer.Write(group.VectorNumber);
-            //                                                writer.Write(group.Instruction);
-            //                                                writer.Write(group.Data);
-            //                                            }
-            //                                        }
-            //                                    }
-            //                                    lastInstruction = CommandType.nop;
-            //                                    lastCommandParameter = null;
-            //                                    startIndex = ++endIndex;
-            //                                    isPack = false;
-            //                                    isFinish = true;
-            //                                }
-            //                                else
-            //                                {
-            //                                    switch (lastInstruction)
-            //                                    {
-            //                                        case CommandType.loop:
-            //                                            loopVectors.Add(pinPattern);
-            //                                            isPack = false;
-            //                                            break;
-            //                                        default:
-            //                                            andTempVector = true;
-            //                                            isPack = true;
-            //                                            break;
-            //                                    }
-            //                                }
-
-            //                                if (isPack)
-            //                                {
-            //                                    var patterns = tempVectors;
-            //                                    if (patterns.Any())
-            //                                    {
-            //                                        var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
-            //                                        startIndex = endIndex;
-            //                                        endIndex++;
-            //                                        writer.Write(group.VectorNumber);
-            //                                        writer.Write(group.Instruction);
-            //                                        writer.Write(group.Data);
-            //                                        totalLength += 64;
-            //                                    }
-            //                                    isFinish = true;
-            //                                    tempVectors.Clear();
-            //                                    if (andTempVector)
-            //                                        tempVectors.Add(pinPattern);
-            //                                }
-            //                            }
-            //                            else
-            //                            {
-            //                                endIndex++;
-            //                                if (lastInstruction == CommandType.loop)
-            //                                    loopVectors.Add(pinPattern);
-            //                                else
-            //                                    tempVectors.Add(pinPattern);
-            //                                isFinish = false;
-            //                            }
-            //                        }
-            //                        else
-            //                            await Task.Delay(1);
-
-            //                        if (startIndex % 10000 == 0)
-            //                            writer.Flush();
-
-            //                    }
-
-            //                    if (!isFinish)
-            //                    {
-            //                        var patterns = tempVectors;
-            //                        var group = PackPattern(lastInstruction, lastCommandParameter, patterns);
-            //                        writer.Write(group.VectorNumber);
-            //                        writer.Write(group.Instruction);
-            //                        writer.Write(group.Data);
-            //                        totalLength += 64;
-            //                    }
-
-            //                    //补充数据长度
-            //                    var totalLengthBytes = BitConverter.GetBytes(totalLength);
-            //                    writer.BaseStream.Position = lengthStartPos;
-            //                    writer.BaseStream.Write(totalLengthBytes, 0, totalLengthBytes.Length);
-            //                    writer.Flush();
-            //                }
-            //            }
-
-            //        })
-            //            );
-            //    }
-
-            //    await Task.WhenAll(storeTasks);
-
-            //});
 
             foreach (var line in lines.GetConsumingEnumerable())
             {
@@ -1932,14 +1735,6 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                 channel?.Writer.TryComplete();
             }
             await process;
-            //Parallel.ForEach(lines.GetConsumingEnumerable(),
-            //    new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-            //    line =>
-            //    {
-            //        var vector = ProcessLine(moduleType, pinList, line);
-            //        if (vector != null)
-            //            vectorList.Add((PatternVectorModel)vector); // 你的处理逻辑
-            //    });
         }
 
         private async Task ProcessAllVectorsAsync(IDictionary<string, Channel<PinPatternModel>> vectorChannels, ICollection<string> pinList, string uniqueTempFolder, int maxConcurrency, CancellationToken cancellationToken = default)
@@ -2039,7 +1834,7 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                     break;
 
                 // 每次循环重新计算最大向量个数（根据当前指令类型）
-                int maxVectorCount = (lastInstruction == CommandType.nop) ? 124 : 112;
+                int maxVectorCount = 128;// (lastInstruction == CommandType.nop) ? 124 : 112;
                 int count = endIndex - startIndex;
 
                 // 特殊指令处理：halt / loop / endloop
@@ -2070,43 +1865,43 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
                         continue;
                     }
                 }
-                else if (pinPattern.Instruction == CommandType.loop)
-                {
-                    // 先打包之前积累的数据
-                    if (tempVectors.Count > 0)
-                    {
-                        WritePack(writer, lastInstruction, lastCommandParameter, tempVectors,
-                                        ref totalLength, ref startIndex, ref endIndex);
-                        tempVectors.Clear();
-                    }
-                    // 开始新的 loop 块
-                    tempVectors.Add(pinPattern);
-                    lastInstruction = pinPattern.Instruction;
-                    lastCommandParameter = pinPattern.CommandParameter;
-                    continue;
-                }
-                else if (pinPattern.Instruction == CommandType.endloop)
-                {
-                    tempVectors.Add(pinPattern);
-                    if (tempVectors.Count > 1)  // 至少包含 loop 和 endloop
-                    {
-                        var groups = PackLoopPattern(lastCommandParameter, tempVectors);
-                        foreach (var group in groups)
-                        {
-                            writer.Write(group.VectorNumber);
-                            writer.Write(group.Instruction);
-                            writer.Write(group.Data);
-                            totalLength += 64;
-                        }
-                    }
-                    // 重置状态
-                    lastInstruction = CommandType.nop;
-                    lastCommandParameter = null;
-                    startIndex = endIndex;
-                    endIndex = startIndex + 1;
-                    tempVectors.Clear();
-                    continue;
-                }
+                //else if (pinPattern.Instruction == CommandType.loop)
+                //{
+                //    // 先打包之前积累的数据
+                //    if (tempVectors.Count > 0)
+                //    {
+                //        WritePack(writer, lastInstruction, lastCommandParameter, tempVectors,
+                //                        ref totalLength, ref startIndex, ref endIndex);
+                //        tempVectors.Clear();
+                //    }
+                //    // 开始新的 loop 块
+                //    tempVectors.Add(pinPattern);
+                //    lastInstruction = pinPattern.Instruction;
+                //    lastCommandParameter = pinPattern.CommandParameter;
+                //    continue;
+                //}
+                //else if (pinPattern.Instruction == CommandType.endloop)
+                //{
+                //    tempVectors.Add(pinPattern);
+                //    if (tempVectors.Count > 1)  // 至少包含 loop 和 endloop
+                //    {
+                //        var groups = PackLoopPattern(lastCommandParameter, tempVectors);
+                //        foreach (var group in groups)
+                //        {
+                //            writer.Write(group.VectorNumber);
+                //            writer.Write(group.Instruction);
+                //            writer.Write(group.Data);
+                //            totalLength += 64;
+                //        }
+                //    }
+                //    // 重置状态
+                //    lastInstruction = CommandType.nop;
+                //    lastCommandParameter = null;
+                //    startIndex = endIndex;
+                //    endIndex = startIndex + 1;
+                //    tempVectors.Clear();
+                //    continue;
+                //}
 
                 // 无需打包，继续累积
                 if (tempVectors.Count >= maxVectorCount)
@@ -2145,8 +1940,8 @@ namespace KSW.ATE01.Pattern.Application.BLLs.Implements.Patterns
         {
             if (patterns.Count == 0) return;
             var group = PackPattern(instruction, commandParameter, patterns);
-            writer.Write(group.VectorNumber);
-            writer.Write(group.Instruction);
+            //writer.Write(group.VectorNumber);
+            //writer.Write(group.Instruction);
             writer.Write(group.Data);
             totalLength += 64;
             // 更新索引（使 startIndex 指向当前批次末尾）

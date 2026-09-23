@@ -14,6 +14,8 @@
         d:DataContext="{d:DesignInstance viewmodel:ShellViewModel}"
         d:Width="1200"
         d:Height="800"
+        Style="{StaticResource MaterialDesignWindow}"
+        FontFamily="{StaticResource SourceHanSansFont}"
         Title="{Binding Title}"
         WindowState="Maximized"
         prism:ViewModelLocator.AutoWireViewModel="True"
@@ -54,6 +56,9 @@
                             <MenuItem Header="English" IsCheckable="True" IsChecked="{Binding IsChinese,Converter={StaticResource InvertBooleanConverter}}"></MenuItem>
                         </MenuItem>
                         <MenuItem Header="{language:L AboutUs}" Foreground="{DynamicResource MaterialDesignLightForeground}">
+                        </MenuItem>
+                        <MenuItem Header="{language:L Log}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding LogCommand}">
+                            
                         </MenuItem>
                     </MenuItem>
                 </Menu>

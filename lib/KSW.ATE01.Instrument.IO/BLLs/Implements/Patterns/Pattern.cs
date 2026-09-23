@@ -1,6 +1,5 @@
 ﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
-using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Patterns;
 using KSW.ATE01.Instrument.IO.Helpers;
@@ -13,10 +12,8 @@ using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.Exceptions;
 using KSW.ATE01.Project.Base.Models.Patterns;
-using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.IO.Packaging;
 using System.Text;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
@@ -300,38 +297,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 throw;
             }
         }
-
-        //public static void SetPatternFile(string[] patternFiles)
-        //{
-        //    if (patternFiles == null || !patternFiles.Any())
-        //        return;
-
-        //    try
-        //    {
-        //        Instance?._binPatterns?.Clear();
-        //        long lastPatternDataEndAddress = 0;
-        //        foreach (string patternFile in patternFiles)
-        //        {
-        //            if (!File.Exists(patternFile)) continue;
-        //            var groupQueue = new ConcurrentQueue<PatternVectorGroupModel>();
-        //            var pattern = PatternReaderWriterHelper.ReadPattern(patternFile);
-        //            Instance?._binPatterns.Add(pattern);
-        //            if (pattern != null)
-        //            {
-        //                pattern.DataStartAddress = lastPatternDataEndAddress;
-        //                var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress);
-        //                pattern.DataEndAddress = lastPatternDataEndAddress;
-        //                if (package != null && package.Any())
-        //                    SendPatternPackageToInstrument(package);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
 
         public static void SetPatternFile(string[] patternFiles)
         {

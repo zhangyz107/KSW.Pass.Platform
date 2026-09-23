@@ -1051,6 +1051,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Log 的本地化字符串。
+        /// </summary>
+        internal static string Log {
+            get {
+                return ResourceManager.GetString("Log", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Log File 的本地化字符串。
         /// </summary>
         internal static string LogFile {
@@ -1704,6 +1713,15 @@ namespace KSW.ATE01.Start.Properties {
         internal static string SiteInformation {
             get {
                 return ResourceManager.GetString("SiteInformation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Sites Count 的本地化字符串。
+        /// </summary>
+        internal static string SitesCount {
+            get {
+                return ResourceManager.GetString("SitesCount", resourceCulture);
             }
         }
         

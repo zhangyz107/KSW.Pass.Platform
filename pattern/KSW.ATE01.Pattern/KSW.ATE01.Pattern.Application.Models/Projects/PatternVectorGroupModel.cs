@@ -28,7 +28,7 @@ namespace KSW.ATE01.Pattern.Application.Models.Projects
 
         public PatternVectorGroupModel()
         {
-            Data = new byte[62];
+            Data = new byte[64];
         }
     }
 }

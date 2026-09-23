@@ -156,6 +156,8 @@ namespace KSW.ATE01.Start.ViewModels
 
             // 回到通道设置
             _regionManager.RequestNavigate(RegionNameManagement.TestPlanContent, nameof(ChannelSettingView));
+
+            Log.LogError(new ArgumentNullException("测试消息"), "测试消息");
         }
 
         private async Task ReloadList()

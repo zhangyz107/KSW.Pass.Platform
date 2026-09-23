@@ -95,8 +95,8 @@
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="FolderOpenOutline" Foreground="#0074b0"/>
-                        <TextBlock Grid.Column="1" Text="{language:L Open}" Foreground="#0074b0"></TextBlock>
+                        <materialDesign:PackIcon VerticalAlignment="Center" Margin="0,0,4,0" Kind="FolderOpenOutline" Foreground="#0074b0"/>
+                        <TextBlock HorizontalAlignment="Center"  Grid.Column="1" Text="{language:L Open}" Foreground="#0074b0"></TextBlock>
                     </Grid>
                 </materialDesign:SplitButton.Content>
                 <materialDesign:SplitButton.PopupContent>
@@ -121,7 +121,7 @@
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="ContentSaveEditOutline" />
+                        <materialDesign:PackIcon Margin="0,0,4,0" VerticalAlignment="Center" Kind="ContentSaveEditOutline" />
                         <TextBlock Grid.Column="1" Text="{language:L Save}"></TextBlock>
                     </Grid>
                 </Button.Content>
@@ -134,7 +134,7 @@
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="ContentSaveAllOutline" />
+                        <materialDesign:PackIcon Margin="0,0,4,0" VerticalAlignment="Center" Kind="ContentSaveAllOutline" />
                         <TextBlock Grid.Column="1" Text="{language:L SaveAs}"></TextBlock>
                     </Grid>
                 </Button.Content>
@@ -147,7 +147,7 @@
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="PackageDown" />
+                        <materialDesign:PackIcon Margin="0,0,4,0" VerticalAlignment="Center" Kind="PackageDown" />
                         <TextBlock Grid.Column="1" Text="{language:L Compile}"></TextBlock>
                     </Grid>
                 </Button.Content>
@@ -160,7 +160,7 @@
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="Plus" />
+                        <materialDesign:PackIcon Margin="0,0,4,0" VerticalAlignment="Center" Kind="Plus" />
                         <TextBlock Grid.Column="1" Text="{language:L InsertVector}"></TextBlock>
                     </Grid>
                 </Button.Content>
@@ -173,7 +173,7 @@
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Margin="0,0,4,0" Kind="Plus" />
+                        <materialDesign:PackIcon Margin="0,0,4,0" VerticalAlignment="Center" Kind="Plus" />
                         <TextBlock Grid.Column="1" Text="{language:L AddVector}"></TextBlock>
                     </Grid>
                 </Button.Content>
@@ -186,7 +186,7 @@
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                             <ColumnDefinition Width="auto" ></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Image Margin="0,0,4,0" Source="/Resource/Images/reduce.png" Width="16" Height="16"></Image>
+                        <Image Margin="0,0,4,0" VerticalAlignment="Center" Source="/Resources/Images/reduce.png" Width="16" Height="16"></Image>
                         <TextBlock Grid.Column="1" Text="{language:L DeleteVector}"></TextBlock>
                     </Grid>
                 </Button.Content>

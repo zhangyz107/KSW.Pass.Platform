@@ -1,20 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>$(NetTargetFramework)</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>$(NetTargetFramework)</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Resource\Images\reduce.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Resources\Images\reduce.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Resource\Images\reduce.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Resources\Images\reduce.png" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
@@ -28,41 +29,41 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\src-platform\KSW.UI.WPF\KSW.UI.WPF.csproj" />
-	  <ProjectReference Include="..\KSW.ATE01.Application.Events\KSW.ATE01.Application.Events.csproj" />
-	  <ProjectReference Include="..\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj" />
-	  <ProjectReference Include="..\KSW.ATE01.Application\KSW.ATE01.Application.csproj" />
-	  <ProjectReference Include="..\KSW.ATE01.Data\KSW.ATE01.Data.csproj" />
-	  <ProjectReference Include="..\KSW.ATE01.Domain.Projects.Core\KSW.ATE01.Domain.Projects.Core.csproj" />
-	  <ProjectReference Include="..\KSW.ATE01.Sqlite\KSW.ATE01.Sqlite.csproj" />
+		<ProjectReference Include="..\..\src-platform\KSW.UI.WPF\KSW.UI.WPF.csproj" />
+		<ProjectReference Include="..\KSW.ATE01.Application.Events\KSW.ATE01.Application.Events.csproj" />
+		<ProjectReference Include="..\KSW.ATE01.Application.Models\KSW.ATE01.Application.Models.csproj" />
+		<ProjectReference Include="..\KSW.ATE01.Application\KSW.ATE01.Application.csproj" />
+		<ProjectReference Include="..\KSW.ATE01.Data\KSW.ATE01.Data.csproj" />
+		<ProjectReference Include="..\KSW.ATE01.Domain.Projects.Core\KSW.ATE01.Domain.Projects.Core.csproj" />
+		<ProjectReference Include="..\KSW.ATE01.Sqlite\KSW.ATE01.Sqlite.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="KSW.ATE01.Instrument.IO">
-	    <HintPath>..\..\lib\KSW.ATE01.Instrument.IO\bin\Debug\net8.0-windows\KSW.ATE01.Instrument.IO.dll</HintPath>
-	  </Reference>
-	  <Reference Include="KSW.ATE01.Project.Base">
-	    <HintPath>..\..\lib\KSW.ATE01.Project.Base\bin\Debug\net8.0-windows\KSW.ATE01.Project.Base.dll</HintPath>
-	  </Reference>
+		<Reference Include="KSW.ATE01.Instrument.IO">
+			<HintPath>..\..\lib\KSW.ATE01.Instrument.IO\bin\Debug\net8.0-windows\KSW.ATE01.Instrument.IO.dll</HintPath>
+		</Reference>
+		<Reference Include="KSW.ATE01.Project.Base">
+			<HintPath>..\..\lib\KSW.ATE01.Project.Base\bin\Debug\net8.0-windows\KSW.ATE01.Project.Base.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Properties\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="call postbuild.bat $(SolutionDir) $(TargetDir)" />
+		<Exec Command="call postbuild.bat $(SolutionDir) $(TargetDir)" />
 	</Target>
 
 </Project>
