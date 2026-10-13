@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="BLLs\Abstractions\Results\**" />
+    <EmbeddedResource Remove="BLLs\Abstractions\Results\**" />
+    <None Remove="BLLs\Abstractions\Results\**" />
+    <Page Remove="BLLs\Abstractions\Results\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\KSW.ATE01.Drawing.Shmoo\KSW.ATE01.Drawing.Shmoo.csproj" />
     <ProjectReference Include="..\KSW.ATE01.Project.Base\KSW.ATE01.Project.Base.csproj" />
   </ItemGroup>
@@ -32,10 +39,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="BLLs\Abstractions\Results\" />
   </ItemGroup>
 
 </Project>

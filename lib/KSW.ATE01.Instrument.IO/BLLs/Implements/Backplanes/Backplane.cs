@@ -71,8 +71,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Backplanes
                 else
                     command.CommandCode = "0x0002";
 
-                var message = CommandHelper.GetCommandBytes(0xFE, BoardType, InstructionType.Configuration, new List<CommandInfoModel>() { command });
-                var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, "0xFE");
+                var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, "0xFE");
+                if (instrumentInfo == null)
+                    return;
+
+                var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, new List<CommandInfoModel>() { command });
                 if (controlService != null && instrumentInfo != null)
                     controlService.Send(instrumentInfo, message);
             }
@@ -109,8 +112,12 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Backplanes
                 else
                     command.CommandCode = "0x0002";
 
-                var message = CommandHelper.GetCommandBytes(0xFE, (BoardType)Instance?.BoardType, InstructionType.Configuration, new List<CommandInfoModel>() { command });
-                var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, "0xFE");
+                var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.AllowedBoardType, "0xFE");
+                if (instrumentInfo == null)
+                    return;
+
+                var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, new List<CommandInfoModel>() { command });
+
                 if (controlService != null && instrumentInfo != null)
                     controlService.Send(instrumentInfo, message);
 

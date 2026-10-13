@@ -5,6 +5,7 @@ namespace KSW.ATE01.Instrument.IO.Enums.Instruments
     /// <summary>
     /// 板卡类型
     /// </summary>
+    [Flags]
     public enum BoardType
     {
         /// <summary>
@@ -24,6 +25,12 @@ namespace KSW.ATE01.Instrument.IO.Enums.Instruments
         /// </summary>
         [Description("Backplane")]
         Backplane = 0x0301,
+
+        /// <summary>
+        /// ALPG
+        /// </summary>
+        [Description("ALPG")]
+        ALPG = 0x0401,
 
         /// <summary>
         /// 未知

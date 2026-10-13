@@ -90,8 +90,8 @@
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{language:L Vector}" IsReadOnly="True" Binding="{Binding Label.IndexInVectors,IsAsync=True}" Width="auto"></DataGridTextColumn>
-                <DataGridTextColumn Header="{language:L Label}" IsReadOnly="True" Binding="{Binding Label.LabelFullContent,IsAsync=True}" Width="auto"></DataGridTextColumn>
-                <DataGridTextColumn Header="{language:L Command}" IsReadOnly="True" Binding="{Binding Command.CommandFullContent,IsAsync=True}" Width="auto"></DataGridTextColumn>
+                <DataGridTextColumn Header="{language:L Label}" IsReadOnly="True" Binding="{Binding Label.LabelFullContent,IsAsync=True}" Width="auto"  Visibility="Collapsed"></DataGridTextColumn>
+                <DataGridTextColumn Header="{language:L Command}" IsReadOnly="True" Binding="{Binding Command.CommandFullContent,IsAsync=True}" Width="auto" Visibility="Collapsed"></DataGridTextColumn>
                 <!--<DataGridTextColumn Header="{language:L Instrument}" IsReadOnly="True" Binding="{Binding Instrument}" Width="auto"></DataGridTextColumn>-->
                 <DataGridTextColumn Header="{language:L TimingName}" Width="auto">
                     <DataGridTextColumn.Binding >

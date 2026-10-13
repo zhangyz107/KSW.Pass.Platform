@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Channels;
 
 namespace KSW.ATE01.Project.Base.Helpers
 {
@@ -41,6 +42,7 @@ namespace KSW.ATE01.Project.Base.Helpers
         private static ushort _patternUnitLength = 4 * 1024;    // Pattern单位长度
         private static int _maxVectorGroupByUnitSize = _patternUnitLength / _vectorGroupSize;  // 一个单位长的包可以容纳多少向量组（64）
         private static int _maxUnitCount = 15; // 65535 / 4096 取整
+        private const int bufferSize = 81920; // 80KB   
         private static long _mbByte = 128 * 1024 * 1024L;
         private static string _tempNestLoopOutermostLoopName = string.Empty;
 
@@ -228,6 +230,808 @@ namespace KSW.ATE01.Project.Base.Helpers
             }
 
             return result;
+        }
+
+        public static async Task AnalyzeAndCompilePatternAsync(string patternFile, string saveFilePath = null)
+        {
+            _compileError = false;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var result = new PatternModel();
+            await AnalysisPatternTimeSetAsync(patternFile, result);
+            //_eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            //{
+            //    RecordMessage = "解析向量文件的时钟设置",
+            //    RecordTime = DateTime.Now
+            //});
+
+            var instrumentInfo = await AnalysisPatternDigitalInstrumentAsync(patternFile);
+            result.InstrumentName = instrumentInfo;
+            //_eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            //{
+            //    RecordMessage = "解析向量文件的设备名称",
+            //    RecordTime = DateTime.Now
+            //});
+
+            var pinList = await AnalysisPatternPinsAsync(patternFile, result);
+            //_eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            //{
+            //    RecordMessage = "解析向量文件的引脚名称",
+            //    RecordTime = DateTime.Now
+            //});
+            UpdateParametersByModuleType(patternFile, result.ModuleType);
+
+            await AnalysisAndCompilePatternVector(patternFile, pinList, result);
+            stopwatch.Stop();
+            //_eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            //{
+            //    RecordMessage = $"解析用时{stopwatch.ElapsedMilliseconds}ms",
+            //    RecordTime = DateTime.Now
+            //});
+
+            stopwatch.Restart();
+            await MergeAllFiles(patternFile, pinList, result, saveFilePath: saveFilePath);
+            stopwatch.Stop();
+            //_eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+            //{
+            //    RecordMessage = $"合并文件用时{stopwatch.ElapsedMilliseconds}ms",
+            //    RecordTime = DateTime.Now
+            //});
+        }
+
+        private static async Task AnalysisPatternTimeSetAsync(string patternFile, PatternModel patternResult)
+        {
+            string input;
+            bool isMatch = false;
+            try
+            {
+                using (StreamReader streamReader = new StreamReader(patternFile))
+                {
+                    while ((input = (await streamReader.ReadLineAsync()).Trim()) != null)
+                    {
+                        if (_timeSetRegex.IsMatch(input))
+                        {
+                            isMatch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isMatch)
+                {
+                    string[] array = _timeSetRegex.Match(input).Groups[1].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < array.Length; i++)
+                    {
+                        if (patternResult.TimingSets.Contains(array[i].Trim()))
+                        {
+                            _compileError = true;
+                            //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
+                        }
+                        patternResult.TimingSets.Add(array[i].Trim());
+                    }
+                }
+                else
+                {
+                    _compileError = true;
+                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(L["PatternCompileErr001"]);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private static async Task<string> AnalysisPatternDigitalInstrumentAsync(string patternFile)
+        {
+            var strDigitalInstrument = string.Empty;
+            string input;
+            bool isMatch = false;
+
+            try
+            {
+                using (var streamReader = new StreamReader(patternFile))
+                {
+                    while ((input = (await streamReader.ReadLineAsync()).Trim()) != null)
+                    {
+                        if (_atpPinsRegex.IsMatch(input))
+                        {
+                            isMatch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isMatch)
+                {
+                    strDigitalInstrument = _digitalInstrumentRegex.Match(input).Groups[1].Value;
+                }
+                return strDigitalInstrument;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private static async Task<List<string>> AnalysisPatternPinsAsync(string patternFile, PatternModel patternResult)
+        {
+            var patternPins = new List<string>();
+            StreamReader streamReader = new StreamReader(patternFile);
+            string empty = string.Empty;
+            string text = string.Empty;
+            string empty2 = string.Empty;
+            do
+            {
+                if (!streamReader.EndOfStream)
+                {
+                    empty = text;
+                    do
+                    {
+                        text = streamReader.ReadLine().Trim().RemoveNode();
+                    }
+                    while (text.Length == 0);
+                    empty2 = empty + " " + text;
+                    continue;
+                }
+                _compileError = true;
+                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(L["PatternCompileErr002"]);
+                return patternPins;
+            }
+            while (!_atpPinsRegex.IsMatch(empty2));
+            Match match = _atpPinsRegex.Match(empty2);
+            var memoryName = match.Groups[1].Value.Trim();
+            var vectorName = match.Groups[2].Value.Trim();
+            string[] array = match.Groups[3].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = array[i].Replace("(", ":").Replace(")", "");
+                //patternPinsWithDigitalMode.Add(array[i]);
+                string text2 = array[i].Split(':')[0];
+                if (patternPins.Contains(text2))
+                {
+                    _compileError = true;
+                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr03"]}{text2}."));
+                }
+                patternPins.Add(text2);
+            }
+            switch (memoryName.ToLower())
+            {
+                default:
+                    _compileError = true;
+                    //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr04"]}{memoryName}."));
+                    break;
+                case "srm_vector":
+                    patternResult.ModuleType = ModuleType.SRM_Vector;
+                    break;
+                case "lvm_vector":
+                    patternResult.ModuleType = ModuleType.LVM_Vector;
+                    break;
+                case "vm_vector":
+                    patternResult.ModuleType = ModuleType.VM_Vector;
+                    break;
+            }
+            return patternPins;
+        }
+
+        private static async Task AnalysisAndCompilePatternVector(string patternFile, List<string> pinList, PatternModel patternResult)
+        {
+            const int BUFFER_SIZE = 4 * 1024 * 1024;
+
+            var lines = new BlockingCollection<ReadLineStruct>(boundedCapacity: 10000); // 缓冲1万行
+            var vectorDic = new Dictionary<string, Channel<PinPatternModel>>();
+            var moduleType = patternResult.ModuleType;
+            var isEnd = false;
+
+            var dir = Path.GetDirectoryName(patternFile);
+            var uniqueTempFolder = Path.Combine(dir, Path.GetFileNameWithoutExtension(patternFile));
+            if (!Directory.Exists(uniqueTempFolder))
+                Directory.CreateDirectory(uniqueTempFolder);
+
+            Task producer = Task.Run(() =>
+            {
+                using var fileStream = new FileStream(patternFile, FileMode.Open, FileAccess.Read, FileShare.Read, BUFFER_SIZE, FileOptions.SequentialScan);
+                using var reader = new StreamReader(fileStream, Encoding.UTF8, bufferSize: BUFFER_SIZE);
+
+                string? line;
+                var lineNumber = 1L;
+                var validVectorCount = 0L;
+
+                while ((line = reader.ReadLine()) != null && !_atpPinsRegex.IsMatch(line.Trim()))
+                {
+                    lineNumber++;
+                }
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    lines.Add(new ReadLineStruct()
+                    {
+                        LineNumber = lineNumber,
+                        ValidVectorNumber = validVectorCount,
+                        LineStr = line
+                    });
+                    validVectorCount++;
+                    lineNumber++;
+
+                    if (validVectorCount % 10000 == 0)
+                    {
+                        //_eventAggregator.GetEvent<RecordMessageEvent>().Publish(new Models.Instruments.RecordMessageModel()
+                        //{
+                        //    RecordMessage = $"已读取{validVectorCount}行向量",
+                        //    RecordTime = DateTime.Now
+                        //});
+                        //Log.LogDebug($"已读取{validVectorCount}行向量");
+                    }
+                }
+                lines.CompleteAdding();
+            });
+
+            int maxConcurrency = Math.Min(pinList.Count, Environment.ProcessorCount);
+            var process = ProcessAllVectorsAsync(vectorDic, pinList, uniqueTempFolder, maxConcurrency);
+
+            foreach (var line in lines.GetConsumingEnumerable())
+            {
+                await ProcessLine(moduleType, pinList, vectorDic, line);
+            }
+
+            foreach (var vector in vectorDic)
+            {
+                var channel = vector.Value;
+                channel?.Writer.TryComplete();
+            }
+            await process;
+        }
+
+        private static async Task ProcessAllVectorsAsync(IDictionary<string, Channel<PinPatternModel>> vectorChannels, ICollection<string> pinList, string uniqueTempFolder, int maxConcurrency, CancellationToken cancellationToken = default)
+        {
+            // 1. 等待所有引脚的数据通道都已准备好（即 vectorChannels 包含所有 pinList 中的引脚）
+            while (vectorChannels.Count != pinList.Count)
+            {
+                // 使用非忙等待：若缺失引脚，可以短暂等待或通过信号通知。这里简化用 Delay。
+                await Task.Delay(10, cancellationToken);
+            }
+
+            // 2. 限制并发写入数量
+            using var semaphore = new SemaphoreSlim(maxConcurrency);
+            var tasks = vectorChannels.Select(async kv =>
+            {
+                await semaphore.WaitAsync(cancellationToken);
+                try
+                {
+                    await ProcessSinglePinAsync(kv.Key, kv.Value.Reader, uniqueTempFolder, cancellationToken);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            await Task.WhenAll(tasks);
+        }
+
+        /// <summary>
+        /// 处理单个引脚的向量通道，将数据打包后写入 .bin 文件。
+        /// </summary>
+        private static async Task ProcessSinglePinAsync(string pinName, ChannelReader<PinPatternModel> reader, string uniqueTempFolder, CancellationToken cancellationToken)
+        {
+            // 复用列表，避免重复分配
+            var tempVectors = new List<PinPatternModel>();
+
+            string filePath = Path.Combine(uniqueTempFolder, $"{pinName}.bin");
+            await using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None,
+                                                4096, useAsync: true);
+            using var writer = new BinaryWriter(fs, Encoding.UTF8, leaveOpen: false);
+
+            // ---- 写入固定头部信息（引脚名称、TimingSet等） ----
+            // 名称长度及名称
+            byte[] nameBytes = Encoding.UTF8.GetBytes(pinName);
+            writer.Write(nameBytes.Length);
+            writer.Write(nameBytes);
+            long headerEndPos = 4 + nameBytes.Length;
+
+            // 注意：原始代码中只有非首个元素且 TimingSet 非空时才写入；实际首元素逻辑为 isFirst 时写入 TimingSet。
+            // 但为了简化且合理，这里假设 TimingSet 来自第一个数据包（原始代码中在 isFirst 内判断 pinPattern.TimingSet）。
+            // 然而在流式处理中第一个数据包还未读取，因此这里先预留 TimingSet 写入位置，稍后回填。
+            // 更好的方式：先读取第一个数据包再写头部。这里为保持逻辑相近，暂不改变原始行为，
+            // 原始代码在 isFirst 块内读取了 pinPattern.TimingSet 并写入，因此我们必须先消费一个数据包。
+            // 但由于 ChannelReader 是异步流，我们需要先读取第一个 item。修改如下：
+
+            // 读取第一个数据包（必须存在，否则整个文件无意义）
+            if (!await reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false) || !reader.TryRead(out var firstItem))
+            {
+                // 没有数据，不创建文件
+                return;
+            }
+
+            // 写入 TimingSet（若存在）
+            if (!string.IsNullOrEmpty(firstItem.TimingSet))
+            {
+                byte[] timingBytes = Encoding.UTF8.GetBytes(firstItem.TimingSet);
+                writer.Write(timingBytes.Length);
+                writer.Write(timingBytes);
+                headerEndPos += 4 + timingBytes.Length;
+            }
+            else
+            {
+                writer.Write(0); // 长度0
+                headerEndPos += 4;
+            }
+
+            // 预留 8 字节给总长度
+            long totalLengthPos = headerEndPos;
+            writer.Write(0L); // 占位符
+            headerEndPos += 8;
+
+            // ---- 状态机变量 ----
+            long totalLength = 0;
+            CommandType lastInstruction = firstItem.Instruction;
+            object lastCommandParameter = firstItem.CommandParameter;
+            int startIndex = 0, endIndex = 1;      // 第一个 item 已计入
+
+            // 将第一个 item 放入临时列表
+            tempVectors.Add(firstItem);
+
+            // 如果第一个就是 halt 或 loop，原始逻辑复杂，我们按通用流处理
+            // 开始处理剩余的数据包
+            await foreach (var pinPattern in reader.ReadAllAsync(cancellationToken))
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
+                // 每次循环重新计算最大向量个数（根据当前指令类型）
+                // 08.25取消指令Id
+                int maxVectorCount = 128;// (lastInstruction == CommandType.nop) ? 124 : 112; 
+                int count = endIndex - startIndex;
+
+                // 特殊指令处理：halt / loop / endloop
+                if (pinPattern.Instruction == CommandType.halt)
+                {
+                    // halt 需要和前面的向量一起打包（如果未满则包含当前 halt）
+                    if (count <= maxVectorCount)
+                    {
+                        count++;
+                        tempVectors.Add(pinPattern);    // 把 halt 加入当前批次
+                        WritePack(writer, lastInstruction, lastCommandParameter, tempVectors,
+                                        ref totalLength, ref startIndex, ref endIndex);
+                        tempVectors.Clear();
+                        // 重置状态，halt 不延续
+                        lastInstruction = CommandType.nop;
+                        lastCommandParameter = null;
+                        continue;
+                    }
+                    else
+                    {
+                        // 当前批次已满，先打包现有数据，halt 作为下一批第一个
+                        WritePack(writer, lastInstruction, lastCommandParameter, tempVectors,
+                                        ref totalLength, ref startIndex, ref endIndex);
+                        tempVectors.Clear();
+                        tempVectors.Add(pinPattern);
+                        lastInstruction = pinPattern.Instruction;
+                        lastCommandParameter = pinPattern.CommandParameter;
+                        continue;
+                    }
+                }
+                // 08.25取消指令Id
+                //else if (pinPattern.Instruction == CommandType.loop)
+                //{
+                //    // 先打包之前积累的数据
+                //    if (tempVectors.Count > 0)
+                //    {
+                //        WritePack(writer, lastInstruction, lastCommandParameter, tempVectors,
+                //                        ref totalLength, ref startIndex, ref endIndex);
+                //        tempVectors.Clear();
+                //    }
+                //    // 开始新的 loop 块
+                //    tempVectors.Add(pinPattern);
+                //    lastInstruction = pinPattern.Instruction;
+                //    lastCommandParameter = pinPattern.CommandParameter;
+                //    continue;
+                //}
+                //else if (pinPattern.Instruction == CommandType.endloop)
+                //{
+                //    tempVectors.Add(pinPattern);
+                //    if (tempVectors.Count > 1)  // 至少包含 loop 和 endloop
+                //    {
+                //        var groups = PackLoopPattern(lastCommandParameter, tempVectors);
+                //        foreach (var group in groups)
+                //        {
+                //            writer.Write(group.VectorNumber);
+                //            writer.Write(group.Instruction);
+                //            writer.Write(group.Data);
+                //            totalLength += 64;
+                //        }
+                //    }
+                //    // 重置状态
+                //    lastInstruction = CommandType.nop;
+                //    lastCommandParameter = null;
+                //    startIndex = endIndex;
+                //    endIndex = startIndex + 1;
+                //    tempVectors.Clear();
+                //    continue;
+                //}
+
+                // 无需打包，继续累积
+                if (tempVectors.Count >= maxVectorCount)
+                {
+                    WritePack(writer, lastInstruction, lastCommandParameter, tempVectors,
+                                  ref totalLength, ref startIndex, ref endIndex);
+                    tempVectors.Clear();
+                }
+                endIndex++;
+                tempVectors.Add(pinPattern);
+            }
+
+            // 循环结束后，若还有未打包的剩余数据
+            if (tempVectors.Count > 0)
+            {
+                WritePack(writer, lastInstruction, lastCommandParameter, tempVectors,
+                                ref totalLength, ref startIndex, ref endIndex);
+            }
+
+            // 最后回填文件总长度
+            writer.BaseStream.Position = totalLengthPos;
+            writer.Write(totalLength);
+            writer.Flush();
+        }
+
+        /// <summary>
+        /// 执行一次打包并写入文件。
+        /// </summary>
+        private static void WritePack(BinaryWriter writer,
+                                            CommandType instruction,
+                                            object commandParameter,
+                                            List<PinPatternModel> patterns,
+                                            ref long totalLength,
+                                            ref int startIndex,
+                                            ref int endIndex)
+        {
+            if (patterns.Count == 0) return;
+            var group = PackPattern(instruction, commandParameter, patterns);
+            // 08.25取消指令Id
+            //writer.Write(group.VectorNumber);
+            //writer.Write(group.Instruction);
+            writer.Write(group.Data);
+            totalLength += 64;
+            // 更新索引（使 startIndex 指向当前批次末尾）
+            startIndex = endIndex;
+            endIndex = startIndex + 1;
+            // 注意：endIndex 在调用方会维护，此处不修改
+        }
+
+        private static PatternVectorGroupModel PackPattern(CommandType instruction, object patternParamter, List<PinPatternModel> patterns)
+        {
+            var result = new PatternVectorGroupModel()
+            {
+                VectorNumber = (byte)patterns.Count,
+                Instruction = (byte)instruction,
+            };
+            int startIndex = 0;
+            // 08.25取消指令Id
+            //if (instruction != CommandType.nop)
+            //{
+            //    startIndex = 6;
+            //    if (patternParamter is int param)
+            //    {
+            //        var parameterArray = new byte[6];
+            //        var intParam = instruction == CommandType.loop ? param - 1 : param; //循环情况下
+            //        var parameterBytes = BitConverter.GetBytes(intParam).ToArray();    // 不反序
+            //        Array.Copy(parameterBytes, 0, result.Data, 0, parameterBytes.Length);
+            //    }
+            //}
+
+            byte vector = 0;
+            var vectorList = new List<byte>();
+            bool isFinish = true;
+            var index = 0;
+            foreach (var pinPatternModel in patterns)
+            {
+                if (index % 2 == 0)
+                {
+                    vector = (byte)pinPatternModel.VectorValue;
+                    isFinish = false;
+                }
+                else
+                {
+                    vector |= (byte)((byte)pinPatternModel.VectorValue << 4);
+                    vectorList.Add(vector);
+                    isFinish = true;
+                }
+                index++;
+            }
+
+            if (!isFinish && patterns.Any())
+                vectorList.Add(vector);
+
+            if (vectorList.Count <= result.Data.Count())
+                Array.Copy(vectorList.ToArray(), 0, result.Data, startIndex, vectorList.Count);
+
+            return result;
+        }
+
+        private static async Task ProcessLine(ModuleType moduleType, List<string> pinList, Dictionary<string, Channel<PinPatternModel>> dicQueue, ReadLineStruct line)
+        {
+            try
+            {
+                // 使用有意义的变量名
+                var lineNumber = line.LineNumber;
+                var validVectorCount = line.ValidVectorNumber;
+                string currentLine = line.LineStr;
+
+                // 优化2: 使用StringBuilder替代字符串拼接，避免创建大量临时字符串
+                var textBuilder = new StringBuilder(256);  // 预分配合理容量
+
+                // 优化3: 使用HashSet实现O(1)查找，替代原来的List.Contains() O(n)查找
+                var maskHashSet = new HashSet<string>(_listTotalMaskCC.Select(x => x.Trim().ToLower()));
+
+                // 优化5: 复用集合对象，减少GC压力
+                var dataList = new List<string>(32);      // 预分配典型容量
+                var maskList = new List<string>(16);
+
+                string label, timingSet, pinsPart;
+                bool flowControl = VaildLine(lineNumber, currentLine, maskHashSet, dataList, maskList, out label, out timingSet, out pinsPart);
+                if (!flowControl)
+                    return;
+
+                string uCode = dataList.Count == 1 ? dataList[0] : string.Empty;
+                string strPseudo = string.Empty;
+                string strPseudoParameter = string.Empty;
+                CommandModel commandModel = new CommandModel();
+                // 优化7: 简化switch逻辑
+                bool hasPseudo = GetPseudoWithParameter(uCode, out strPseudo, out strPseudoParameter);
+
+                if (moduleType == ModuleType.VM_Vector || moduleType == ModuleType.LVM_Vector)
+                {
+                    if (!hasPseudo)
+                    {
+                        _compileError = true;
+                        //_eventAggregator.GetEvent<MessageUpdateEvent>()
+                        //    .Publish(string.Format(L["PatternCompileErr011"], lineNumber));
+                        return;
+                    }
+
+                    var labelModel = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+
+                    if (moduleType == ModuleType.VM_Vector)
+                    {
+                        commandModel = VectorAnalysisPseudoInstru(strPseudo, strPseudoParameter, lineNumber);
+                    }
+                    else
+                    {
+                        commandModel = VectorAnalysisLvmPseudoParameters(strPseudo, strPseudoParameter, lineNumber);
+                    }
+                }
+                else if (moduleType == ModuleType.SRM_Vector)
+                {
+                    VectorAnalysisSrmPseudoWithParametersModifiler(uCode, lineNumber, validVectorCount,
+                        out strPseudo, out strPseudoParameter);
+                    var labelModel = VectorAnalysisLabel(label, lineNumber, validVectorCount);
+                }
+
+                await VectorAnalysisPins(timingSet, commandModel, pinsPart, lineNumber, pinList, dicQueue);
+
+                _validVectorLinesCountInPatternFile++;
+
+                // 优化8: 使用OrdinalIgnoreCase避免ToLower()
+                if (strPseudo.Equals("halt", StringComparison.OrdinalIgnoreCase) &&
+                    _haltInVectorLinesPosition == -1)
+                {
+                    _haltInVectorLinesPosition = _validVectorLinesCountInPatternFile;
+                }
+
+                if (_compileError) return;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private static bool VaildLine(long lineNumber, string currentLine, HashSet<string> maskHashSet, List<string> dataList, List<string> maskList, out string label, out string timingSet, out string pinsPart)
+        {
+            label = string.Empty;
+            timingSet = string.Empty;
+            pinsPart = string.Empty;
+            // 优化2: 直接使用ReadOnlySpan避免字符串分配
+            ReadOnlySpan<char> lineSpan = currentLine.AsSpan();
+            int commentIndex = lineSpan.IndexOf('#');
+
+            ReadOnlySpan<char> validPart = commentIndex >= 0
+                ? lineSpan.Slice(0, commentIndex).Trim()
+                : lineSpan.Trim();
+
+            if (validPart.IsEmpty) return false;
+
+            // 快速检查是否向量行
+            if (!_vectorRegex.IsMatch(validPart.ToString()))
+                return false;
+
+            // 优化3: 使用ReadOnlySpan解析，避免多次ToString()
+            var match = _vectorRegex.Match(validPart.ToString());
+            if (!match.Success) return false;
+
+            label = match.Groups[1].Value;
+            timingSet = match.Groups[5].Value;
+            pinsPart = match.Groups[6].Value;
+            string vectorData = match.Groups[4].Value;
+
+            // 解析MTE - 使用Span优化
+            string strMTE = string.Empty;
+            ReadOnlySpan<char> vectorSpan = vectorData.AsSpan();
+            var mteMatch = _mteRegex.Match(vectorData);
+            if (mteMatch.Success)
+            {
+                strMTE = mteMatch.Groups[1].Value;
+                vectorSpan = vectorData.AsSpan().Slice(mteMatch.Length).ToString().AsSpan();
+            }
+
+            // 优化4: 使用Span.Split替代string.Split
+            dataList.Clear();
+            maskList.Clear();
+
+            if (!vectorSpan.IsEmpty)
+            {
+                // 手动解析CSV，避免Split分配
+                int start = 0;
+                for (int i = 0; i <= vectorSpan.Length; i++)
+                {
+                    if (i == vectorSpan.Length || vectorSpan[i] == ',')
+                    {
+                        if (i > start)
+                        {
+                            var part = vectorSpan.Slice(start, i - start).Trim();
+                            if (!part.IsEmpty)
+                            {
+                                dataList.Add(part.ToString());
+                            }
+                        }
+                        start = i + 1;
+                    }
+                }
+            }
+
+            // 优化5: 从后往前遍历，避免多次Remove
+            for (int i = dataList.Count - 1; i >= 0; i--)
+            {
+                string item = dataList[i];
+                if (maskHashSet.Contains(item))
+                {
+                    maskList.Add(item);
+                    dataList.RemoveAt(i);
+                }
+            }
+
+            // 优化6: 手动计数冒号，避免LINQ
+            int colonCount = 0;
+            foreach (char c in label)
+            {
+                if (c == ':')
+                {
+                    colonCount++;
+                    if (colonCount > 1) break;
+                }
+            }
+
+            if (colonCount > 1)
+            {
+                _compileError = true;
+                //_eventAggregator.GetEvent<MessageUpdateEvent>()
+                //    .Publish(string.Format(L["PatternCompileErr024"], lineNumber));
+                return false;
+            }
+
+            if (dataList.Count > 1)
+            {
+                _compileError = true;
+                //_eventAggregator.GetEvent<MessageUpdateEvent>()
+                //    .Publish(string.Format(L["PatternCompileErr020"], lineNumber));
+                return false;
+            }
+
+            return true;
+        }
+
+        private static async Task VectorAnalysisPins(string timingSet, CommandModel commandModel, string timesetAndPinsValue, long currentLine, List<string> pinList, Dictionary<string, Channel<PinPatternModel>> dicQueue)
+        {
+            string[] array = timesetAndPinsValue.Split(new string[2] { " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+            if (array.Length != pinList.Count)
+            {
+                _compileError = true;
+                //_eventAggregator.GetEvent<MessageUpdateEvent>().Publish(string.Format($"{L["PatternCompileErr014"]}", currentLine));
+                return;
+            }
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                var pinName = pinList[i];
+                var strPinValue = array[i];
+                if (!dicQueue.ContainsKey(pinName))
+                {
+                    dicQueue[pinName] = Channel.CreateUnbounded<PinPatternModel>(); //Channel.CreateBounded<PinPatternModel>(new BoundedChannelOptions(10000)
+                    //{
+                    //    FullMode = BoundedChannelFullMode.Wait
+                    //});
+                }
+
+                var channel = dicQueue[pinName];
+                await channel.Writer.WriteAsync(new PinPatternModel
+                {
+                    PinName = pinName,
+                    TimingSet = timingSet,
+                    Instruction = commandModel.Type,
+                    CommandParameter = commandModel.CommandParameter,
+                    VectorValue = EnumHelper.GetEnumValueFromDescription<VectorValueType>(strPinValue),
+                });
+
+                //while (channel.Count > 10000)
+                //{
+                //    Thread.Sleep(10);
+                //}
+
+                //channel.Enqueue(new PinPatternModel
+                //{
+                //    PinName = pinName,
+                //    TimingSet = timingSet,
+                //    Instruction = commandModel.Type,
+                //    CommandParameter = commandModel.CommandParameter,
+                //    VectorValue = KSW.Helpers.Enum.GetEnumValueFromDescription<VectorValueType>(strPinValue),
+                //});
+            }
+
+            return;
+        }
+
+        private static async Task MergeAllFiles(string patternFile, List<string> pinList, PatternModel result, bool deleteDir = true, string saveFilePath = null)
+        {
+            var dir = Path.GetDirectoryName(patternFile);
+            var uniqueTempFolder = Path.Combine(dir, Path.GetFileNameWithoutExtension(patternFile));
+            var targetFile = Path.Combine(dir, $"{Path.GetFileNameWithoutExtension(patternFile)}.bin");
+            if (saveFilePath != null && !string.IsNullOrEmpty(saveFilePath))
+                targetFile = saveFilePath;
+
+            var inputFiles = new List<string>();
+
+            foreach (var pin in pinList)
+            {
+                var currentPinFile = Path.Combine(uniqueTempFolder, $"{pin}.bin");
+                if (File.Exists(currentPinFile))
+                {
+                    inputFiles.Add(currentPinFile);
+                }
+            }
+
+            using (var outputStream = new FileStream(targetFile,
+    FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true))
+            {
+                outputStream.WriteByte((byte)result.ModuleType);
+                await MergeFilesAsync(outputStream, inputFiles);
+            }
+
+            if (deleteDir && Directory.Exists(uniqueTempFolder))
+            {
+                Directory.Delete(uniqueTempFolder, true);
+            }
+        }
+
+        public static async Task MergeFilesAsync(FileStream outputStream, List<string> inputFiles, IProgress<int> progress = null)
+        {
+            var totalFiles = inputFiles.Count;
+            var processedFiles = 0;
+
+            foreach (var inputFile in inputFiles)
+            {
+                using (var inputStream = new FileStream(inputFile,
+                    FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, true))
+                {
+                    await inputStream.CopyToAsync(outputStream);
+
+                    processedFiles++;
+                    progress?.Report((processedFiles * 100) / totalFiles);
+                }
+            }
         }
 
         public static List<PatternPackageModel> ConversionPatternModel(Dictionary<string, List<PinPatternModel>> pinPatternList, ref long dataStartAddress, out int patternDataLength)
@@ -853,7 +1657,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                         continue;
                     }
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr001"]);
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(L["PatternCompileErr001"]);
                     return;
                 } while (!_timeSetRegex.IsMatch(input));
                 string[] array = _timeSetRegex.Match(input).Groups[1].Value.Split(new string[3] { ",", "\t", " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -862,7 +1666,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     if (patternResult.TimingSets.Contains(array[i].Trim()))
                     {
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr003"]}{array[i].Trim()}."));
                     }
                     patternResult.TimingSets.Add(array[i].Trim());
                 }
@@ -954,7 +1758,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                         continue;
                     }
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr002"]);
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(L["PatternCompileErr002"]);
                     return patternPins;
                 }
                 while (!_atpPinsRegex.IsMatch(empty2));
@@ -971,7 +1775,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     if (patternPins.Contains(text2))
                     {
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr03"]}{text2}."));
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr03"]}{text2}."));
                     }
                     patternPins.Add(text2);
                 }
@@ -979,7 +1783,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 {
                     default:
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr04"]}{memoryName}."));
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr04"]}{memoryName}."));
                         break;
                     case "srm_vector":
                         patternResult.ModuleType = ModuleType.SRM_Vector;
@@ -1047,15 +1851,15 @@ namespace KSW.ATE01.Project.Base.Helpers
                             {
                                 _compileError = true;
                                 var msg = L["PatternCompileErr005"];
-                                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{msg}", text2));
+                                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{msg}", text2));
                             }
                             return;
                         }
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileErr006"]);
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(L["PatternCompileErr006"]);
                         break;
                     }
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(L["PatternCompileInfo001"]);
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(L["PatternCompileInfo001"]);
                     break;
                 }
                 while (!_atpPinsRegex.IsMatch(text));
@@ -1075,7 +1879,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (array.Length != 6)
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr007"]}", strInstrument));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr007"]}", strInstrument));
                     return result;
                 }
                 result = new InstrumentModel();
@@ -1099,19 +1903,19 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (!int.TryParse(array[2], out var result2))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr008"]}", array[2]));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr008"]}", array[2]));
                 }
                 else
                 {
                     if (result2 < 1 || result2 > 32)
                     {
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr009"]}", result2));
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr009"]}", result2));
                     }
                     if (array[3].ToLower() == "parallel" && result2 != 1)
                     {
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr010"]}", result2));
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr010"]}", result2));
                     }
                     result.InstrumentWidth = result2;
                 }
@@ -1304,7 +2108,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 if (!GetPseudoWithParameterSRM(text, out strPseudo, out strPseudoParameter))
                                 {
                                     _compileError = true;
-                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr026"]}", rowNumber, text));
+                                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr026"]}", rowNumber, text));
                                 }
                                 break;
                             case ModuleType.VM_Vector:
@@ -1312,14 +2116,14 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 if (!GetPseudoWithParameter(text, out strPseudo, out strPseudoParameter))
                                 {
                                     _compileError = true;
-                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr026"]}", rowNumber, text));
+                                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr026"]}", rowNumber, text));
                                 }
                                 break;
                         }
                         if (value3.Replace(" ", "").Replace("\t", "").Length != 0)
                         {
                             _compileError = true;
-                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr027"]}", rowNumber - (listRowVector.Count - 1 - num)));
+                            _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr027"]}", rowNumber - (listRowVector.Count - 1 - num)));
                         }
                         string[] array = value2.Split(new string[2] { " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
                         if (array.Length != atpPinsPinGroups.Count)
@@ -1333,7 +2137,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 if (array[normalPinIndex[j]].Contains("D") || array[normalPinIndex[j]].Contains("V"))
                                 {
                                     _compileError = true;
-                                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr028"]}", rowNumber - (listRowVector.Count - 1 - num)));
+                                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr028"]}", rowNumber - (listRowVector.Count - 1 - num)));
                                 }
                             }
                         }
@@ -1348,7 +2152,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             _ignoreCurrentVectorRowStart = true;
                             if (value2.ToUpper().Contains("D"))
                             {
-                                _eventAggregator.GetEvent<PatternWarnMessageEvent>().Publish(string.Format($"{L["PatternCompileWarn001"]}", rowNumber - (listRowVector.Count - 1 - num)));
+                                _eventAggregator?.GetEvent<PatternWarnMessageEvent>().Publish(string.Format($"{L["PatternCompileWarn001"]}", rowNumber - (listRowVector.Count - 1 - num)));
                             }
                         }
                         else if (strPseudo.ToLower() == "trig")
@@ -1358,7 +2162,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             _ignoreCurrentVectorRowTrig = true;
                             if (value2.ToUpper().Contains("V"))
                             {
-                                _eventAggregator.GetEvent<PatternWarnMessageEvent>().Publish(string.Format($"{L["PatternCompileWarn002"]}", rowNumber - (listRowVector.Count - 1 - num)));
+                                _eventAggregator?.GetEvent<PatternWarnMessageEvent>().Publish(string.Format($"{L["PatternCompileWarn002"]}", rowNumber - (listRowVector.Count - 1 - num)));
                             }
                         }
                         else if (strPseudo.ToLower() == "repeat")
@@ -1366,7 +2170,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             if (!int.TryParse(strPseudoParameter, out var result))
                             {
                                 _compileError = true;
-                                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr029"]}", rowNumber - (listRowVector.Count - 1 - num), strPseudoParameter));
+                                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr029"]}", rowNumber - (listRowVector.Count - 1 - num), strPseudoParameter));
                             }
                             num2 = result;
                         }
@@ -1375,7 +2179,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                             if (!int.TryParse(strPseudoParameter, out var result2))
                             {
                                 _compileError = true;
-                                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr029"]}", rowNumber - (listRowVector.Count - 1 - num), strPseudoParameter));
+                                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr029"]}", rowNumber - (listRowVector.Count - 1 - num), strPseudoParameter));
                             }
                             _nestLoopBuffDic.Add(strPseudo.ToLower(), result2);
                             _nestLoopIndex++;
@@ -1407,7 +2211,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     if (array[pinsIndex[k]].Contains("D"))
                                     {
                                         _compileError = true;
-                                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr030"]}", rowNumber - (listRowVector.Count - 1 - num), "D"));
+                                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr030"]}", rowNumber - (listRowVector.Count - 1 - num), "D"));
                                     }
                                 }
                             }
@@ -1440,7 +2244,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                                     if (array[pinsIndex2[l]].Contains("V"))
                                     {
                                         _compileError = true;
-                                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr030"]}", rowNumber - (listRowVector.Count - 1 - num), "V"));
+                                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr030"]}", rowNumber - (listRowVector.Count - 1 - num), "V"));
 
                                     }
                                 }
@@ -1455,15 +2259,15 @@ namespace KSW.ATE01.Project.Base.Helpers
                         continue;
                     }
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr020"]}", rowNumber));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr020"]}", rowNumber));
                     return;
                 }
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr024"]}", rowNumber));
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr024"]}", rowNumber));
                 return;
             }
             _compileError = true;
-            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr013"]}", rowNumber - (listRowVector.Count - 1 - num)));
+            _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr013"]}", rowNumber - (listRowVector.Count - 1 - num)));
         }
 
         private static List<int> GetPinsIndex(Dictionary<string, List<string>> dicPinItem, List<string> atpPinsPinGroups)
@@ -1701,7 +2505,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (_validVectorLinesCountInPatternFile < 32)
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?
                     .Publish(string.Format($"{L["PatternCompileErr025"]}",
                         _validVectorLinesCountInPatternFile, 32));
             }
@@ -1819,7 +2623,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (colonCount > 1)
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?
                         .Publish(string.Format(L["PatternCompileErr024"], lineNumber));
                     return null;
                 }
@@ -1827,7 +2631,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (dataList.Count > 1)
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?
                         .Publish(string.Format(L["PatternCompileErr020"], lineNumber));
                     return null;
                 }
@@ -1844,7 +2648,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     if (!hasPseudo)
                     {
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>()
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?
                             .Publish(string.Format(L["PatternCompileErr011"], lineNumber));
                         return null;
                     }
@@ -1922,7 +2726,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (array.Length > 2)
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr012"]}", currentLine, strLabel));
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr012"]}", currentLine, strLabel));
             }
             else if (array.Length == 1)
             {
@@ -1958,7 +2762,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                         break;
                     default:
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr012"]}", currentLine, array[0]));
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr012"]}", currentLine, array[0]));
                         return result;
                     case "stop_subr":
                         labelCommandType = LabelCommandType.StopSubr;
@@ -1978,7 +2782,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (array.Length != atpPinsPinGroups.Count)
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr013"]}", currentLine));
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr013"]}", currentLine));
                 return pinList;
             }
 
@@ -2015,7 +2819,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     continue;
                 }
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr014"]}", array[i].ToString()));
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr014"]}", array[i].ToString()));
             }
         }
 
@@ -2030,7 +2834,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             if (!_pseudoInstruDic.Keys.Contains(pseudoInstru.ToLower()))
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr015"]}", currentLine, pseudoInstru));
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr015"]}", currentLine, pseudoInstru));
                 return result;
             }
             switch (pseudoInstru.ToLower())
@@ -2046,7 +2850,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     if (pseudoInstruParameter.Length != 0)
                     {
                         _compileError = true;
-                        _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr016"]}", currentLine, pseudoInstru));
+                        _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr016"]}", currentLine, pseudoInstru));
                     }
                     else
                     {
@@ -2055,7 +2859,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                     break;
                 default:
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, pseudoInstru));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, pseudoInstru));
                     break;
                 case "start":
                 case "repeat":
@@ -2064,7 +2868,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                         if (pseudoInstruParameter.Length == 0)
                         {
                             _compileError = true;
-                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr018"]}", currentLine, pseudoInstru));
+                            _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr018"]}", currentLine, pseudoInstru));
                             break;
                         }
                         int parameter = 0;
@@ -2077,12 +2881,12 @@ namespace KSW.ATE01.Project.Base.Helpers
                                 break;
                             }
                             _compileError = true;
-                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, pseudoInstru, 2, 1048575));
+                            _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, pseudoInstru, 2, 1048575));
                         }
                         else
                         {
                             _compileError = true;
-                            _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, pseudoInstruParameter, 2, 1048575, string.Join(",", _dataBlockMarkerParameter)));
+                            _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, pseudoInstruParameter, 2, 1048575, string.Join(",", _dataBlockMarkerParameter)));
                         }
                         break;
                     }
@@ -2104,13 +2908,13 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (strPseudoParameter.Length == 0)
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudo));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudo));
                     return result;
                 }
                 if (int.TryParse(strPseudoParameter, out var parameter) && (parameter < 0 || parameter > 4095))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 0, 4095));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 0, 4095));
                     return result;
                 }
             }
@@ -2119,13 +2923,13 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (strPseudoParameter.Length == 0)
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, strPseudo));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, strPseudo));
                     return result;
                 }
                 if (int.TryParse(strPseudoParameter, out var parameter) && (parameter < 2 || parameter > int.MaxValue))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, int.MaxValue));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, int.MaxValue));
                     return result;
                 }
             }
@@ -2146,12 +2950,12 @@ namespace KSW.ATE01.Project.Base.Helpers
                     return result;
                 }
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudoParameter, num, int.MaxValue));
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr019"]}", currentLine, strPseudoParameter, num, int.MaxValue));
             }
             else
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, strPseudoParameter, num, int.MaxValue, string.Join(",", _dataBlockMarkerParameter)));
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr022"]}", currentLine, strPseudoParameter, num, int.MaxValue, string.Join(",", _dataBlockMarkerParameter)));
             }
 
             return result;
@@ -2177,7 +2981,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             else
             {
                 _compileError = true;
-                _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr015"]}", currentLine, uCode));
+                _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr015"]}", currentLine, uCode));
             }
 
             return result;
@@ -2213,13 +3017,13 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (strPseudoParameter.Length == 0)
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, strPseudo));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr017"]}", currentLine, strPseudo));
                     return false;
                 }
                 if (int.TryParse(strPseudoParameter, out var result) && (result < 2 || result > int.MaxValue))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, int.MaxValue));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr021"]}", currentLine, strPseudoParameter, strPseudo, 2, int.MaxValue));
                     return false;
                 }
             }
@@ -2249,7 +3053,7 @@ namespace KSW.ATE01.Project.Base.Helpers
                 if (!GetConditionFlagValue(strPseudo, strPseudoParameter.Split(new string[4] { " ", "\t", "and", "or" }, StringSplitOptions.RemoveEmptyEntries).ToList(), out var value2, out var _))
                 {
                     _compileError = true;
-                    _eventAggregator.GetEvent<PatternErrorMessageEvent>().Publish(string.Format($"{L["PatternCompileErr023"]}", currentLine, strPseudoParameter));
+                    _eventAggregator?.GetEvent<PatternErrorMessageEvent>()?.Publish(string.Format($"{L["PatternCompileErr023"]}", currentLine, strPseudoParameter));
                     return false;
                 }
                 num = value2;

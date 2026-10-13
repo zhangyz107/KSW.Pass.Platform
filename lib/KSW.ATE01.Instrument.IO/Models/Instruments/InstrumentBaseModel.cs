@@ -85,5 +85,10 @@ namespace KSW.ATE01.Instrument.IO.Models.Instruments
         /// 创建连接命令
         /// </summary>
         public ICommand CreateConnectCommand { get; set; }
+
+        /// <summary>
+        /// 板卡信息
+        /// </summary>
+        public BoardInfoModel BoardInfo { get; set; }
     }
 }

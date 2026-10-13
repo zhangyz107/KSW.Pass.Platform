@@ -28,7 +28,7 @@ namespace KSW.ATE01.Project.Base.Models.Patterns
 
         public PatternVectorGroupModel()
         {
-            Data = new byte[62];
+            Data = new byte[64];  // 08.25取消指令Id    62
         }
 
         /// <summary>

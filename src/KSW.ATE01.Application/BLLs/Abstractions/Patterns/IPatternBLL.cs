@@ -1,5 +1,7 @@
 ﻿using KSW.Application;
 using KSW.ATE01.Application.Models.Patterns;
+using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Project.Base.Models.TestPlans;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,5 +38,11 @@ namespace KSW.ATE01.Application.BLLs.Abstractions.Patterns
         /// <param name="filePath"></param>
         /// <returns></returns>
         public Task<bool> CompileAsync(PatternModel pattern, string filePath);
+
+        /// <summary>
+        /// 下载Pattern文件
+        /// </summary>
+        /// <returns></returns>
+        public Task<bool> DownloadPatternAsync(ProjectInfoModel projectInfo, TestPlanModel testPlan);
     }
 }

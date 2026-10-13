@@ -1,5 +1,6 @@
 ﻿using KSW.ATE01.Instrument.IO.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.Results;
 using KSW.ATE01.Instrument.IO.Enums.Instruments;
 using KSW.ATE01.Instrument.IO.Enums.Patterns;
 using KSW.ATE01.Instrument.IO.Helpers;
@@ -12,8 +13,10 @@ using KSW.ATE01.Project.Base.Models;
 using KSW.ATE01.Project.Base.Models.Errors;
 using KSW.ATE01.Project.Base.Models.Exceptions;
 using KSW.ATE01.Project.Base.Models.Patterns;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.IO.Packaging;
 using System.Text;
 
 namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
@@ -23,7 +26,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
         private const long _mbByte = 128 * 1024 * 1024L;
         private const int _maxChannelNum = 127;
         private const int _packageAdditionalLength = 8;
-        private static ushort _patternUnitLength = 4 * 1024 * 8;    // Pattern单位长度(61440)
+        private static ushort _patternUnitLength = 4 * 1024;    // Pattern单位长度(61440)
 
         //private List<PatternModel> _patterns = new List<PatternModel>();
         private List<BinPatternModel> _binPatterns = new List<BinPatternModel>();
@@ -92,9 +95,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                         foreach (var commandList in commandListDic)
                         {
                             var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                            var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                            if (instrumentInfo == null)
+                                continue;
 
-                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                            var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                             if (controlService != null && instrumentInfo != null)
                                 controlService.Send(instrumentInfo, message);
@@ -164,9 +169,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                         foreach (var commandList in commandListDic)
                         {
                             var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                            var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                            if (instrumentInfo == null)
+                                continue;
 
-                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                            var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                             if (controlService != null && instrumentInfo != null)
                                 controlService.Send(instrumentInfo, message);
@@ -281,9 +288,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (controlService != null && instrumentInfo != null)
                             controlService.Send(instrumentInfo, message);
@@ -298,6 +307,38 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             }
         }
 
+        //public static void SetPatternFile(string[] patternFiles)
+        //{
+        //    if (patternFiles == null || !patternFiles.Any())
+        //        return;
+
+        //    try
+        //    {
+        //        Instance?._binPatterns?.Clear();
+        //        long lastPatternDataEndAddress = 0;
+        //        foreach (string patternFile in patternFiles)
+        //        {
+        //            if (!File.Exists(patternFile)) continue;
+        //            var groupQueue = new ConcurrentQueue<PatternVectorGroupModel>();
+        //            var pattern = PatternReaderWriterHelper.ReadPattern(patternFile);
+        //            Instance?._binPatterns.Add(pattern);
+        //            if (pattern != null)
+        //            {
+        //                pattern.DataStartAddress = lastPatternDataEndAddress;
+        //                var package = PatternHelper.ConversionPatternModel(pattern, ref lastPatternDataEndAddress);
+        //                pattern.DataEndAddress = lastPatternDataEndAddress;
+        //                if (package != null && package.Any())
+        //                    SendPatternPackageToInstrument(package);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
+
         public static void SetPatternFile(string[] patternFiles)
         {
             if (patternFiles == null || !patternFiles.Any())
@@ -309,7 +350,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 long lastPatternDataEndAddress = 0;
                 var groups = new BlockingCollection<PatternVectorGroupModel>(boundedCapacity: 12800);
                 var lengthBytes = BitConverter.GetBytes(_patternUnitLength).Reverse().ToArray();
-                var onePackageVectorCount = _patternUnitLength / 64; //一个udp包最大字节数（61440）/单个向量字节数
+                var onePackageVectorCount = _patternUnitLength / 64; //一个udp包最大字节数（4096）/单个向量字节数
                 foreach (string patternFile in patternFiles)
                 {
                     if (!File.Exists(patternFile)) continue;
@@ -450,9 +491,10 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     var group = new PatternVectorGroupModel();
                     group.PinName = pinName;
-                    group.VectorNumber = br.ReadByte();
-                    group.Instruction = br.ReadByte();
-                    group.Data = br.ReadBytes(62);
+                    // 2026.08.25 取消向量数和指令Id
+                    //group.VectorNumber = br.ReadByte();
+                    //group.Instruction = br.ReadByte();
+                    group.Data = br.ReadBytes(64);
                     groupQueue.Add(group);
                     length -= 64;
                 }
@@ -472,7 +514,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
             packageModel.LengthBytes = lengthBytes;
             lastPatternDataEndAddress += _patternUnitLength;
             pinDataLength += _patternUnitLength;
-            var vectorGroupCount = _patternUnitLength / 64;  //一个打包包含512个向量组 4096 * 8 / 64 = 512
+            var vectorGroupCount = _patternUnitLength / 64;  //一个打包包含512个向量组 4096 / 64 = 64
             if (groupUnit.Count < vectorGroupCount)
             {
                 var rest = vectorGroupCount - groupUnit.Count;
@@ -502,14 +544,21 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     var contentBytes = new byte[package.Length + _packageAdditionalLength];
                     contentBytes[0] = (byte)channelNum;
+#if DEBUG
+                    var addressBytes = new byte[8];
+                    Array.Copy(package.Address.Reverse().ToArray(), addressBytes, package.Address.Length);
+                    var address = BitConverter.ToInt64(addressBytes);
+                    LogHelper.WriteLog($"下载{package.PinName}-{site.SiteName}-{channelNum}的Pattern文件，起始地址为：{address}");
+#endif
                     Array.Copy(package.Address, 0, contentBytes, 1, package.Address.Length);
                     Array.Copy(package.LengthBytes, 0, contentBytes, 1 + package.Address.Length, package.LengthBytes.Length);
                     var index = 1 + package.Address.Length + package.LengthBytes.Length;
                     foreach (var unit in package.PatternGroups)
                     {
-                        var instruction = (byte)unit.Instruction;
-                        contentBytes[index++] = unit.VectorNumber;
-                        contentBytes[index++] = (byte)(instruction << 1);
+                        // 08.25取消指令Id 
+                        //var instruction = (byte)unit.Instruction;
+                        //contentBytes[index++] = unit.VectorNumber;
+                        //contentBytes[index++] = (byte)(instruction << 1);
                         Array.Copy(unit.Data, 0, contentBytes, index, unit.Data.Length);
                         index += unit.Data.Length;
                     }
@@ -521,9 +570,12 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     };
 
                     var slotNum = $"0x{slot.ToString("x2")}";
-                    var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
 
-                    var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+                    var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.AllowedBoardType, slotNum);
+                    if (instrumentInfo == null)
+                        continue;
+
+                    var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, new List<CommandInfoModel>() { command });
 
                     if (controlService != null && instrumentInfo != null)
                         controlService.Send(instrumentInfo, message);
@@ -584,9 +636,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                             };
 
                             var slotNum = $"0x{slot.ToString("x2")}";
-                            var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, new List<CommandInfoModel>() { command });
+                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.AllowedBoardType, slotNum);
+                            if (instrumentInfo == null)
+                                continue;
 
-                            var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+                            var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, new List<CommandInfoModel>() { command });
 
                             if (controlService != null && instrumentInfo != null)
                                 controlService.Send(instrumentInfo, message);
@@ -675,9 +729,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, commandList.Value);
 
                         if (controlService != null && instrumentInfo != null)
                         {
@@ -766,9 +822,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, commandList.Value);
 
                         if (controlService != null && instrumentInfo != null)
                         {
@@ -839,7 +897,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 var instrumentInfos = new List<InstrumentBaseModel>();
                 foreach (var slot in slotList)
                 {
-                    var tempInstumentInfos = InstrumentManagerHelper.GetInstrumentInfosByBoardType((BoardType)Instance?.BoardType, $"0x{slot.ToString("x2")}");
+                    var tempInstumentInfos = InstrumentManagerHelper.GetInstrumentInfosByBoardType((BoardType)Instance?.AllowedBoardType, $"0x{slot.ToString("x2")}");
                     instrumentInfos.AddRange(tempInstumentInfos);
                 }
 
@@ -853,7 +911,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                 {
                     foreach (var instrumentInfo in instrumentInfos)
                     {
-                        var message = CommandHelper.GetCommandBytes((byte)instrumentInfo.SortId, BoardType.PE, InstructionType.Query, new List<CommandInfoModel>() { sendCommand });
+                        var message = CommandHelper.GetCommandBytes((byte)instrumentInfo.SortId, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, new List<CommandInfoModel>() { sendCommand });
                         var queryResult = controlService.Query(instrumentInfo, message);
                         var commands = CommandHelper.ConversionBytesToCommands(queryResult);
 
@@ -989,9 +1047,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, commandList.Value);
 
                         if (controlService != null && instrumentInfo != null)
                         {

@@ -17,11 +17,14 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
 
         protected string CommonPinList { get; set; }
 
-        protected virtual BoardType BoardType { get; }
+        /// <summary>
+        /// 允许的板卡类型
+        /// </summary>
+        protected virtual BoardType AllowedBoardType { get; }
 
         internal static T Instance { get => _instance.Value; }
 
-        protected virtual IInstruentControlService ControlService { get => InstrumentManagerHelper.GetControlServiceByBoardType(BoardType); }
+        protected virtual IInstruentControlService ControlService { get => InstrumentManagerHelper.GetControlServiceByBoardType(AllowedBoardType); }
 
         protected virtual List<ChannelModel> GetPinList(string pinList)
         {
@@ -81,9 +84,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType, InstructionType.Configuration, commandList.Value);
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (ControlService != null && instrumentInfo != null)
                             ControlService.Send(instrumentInfo, message);
@@ -142,9 +147,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType, InstructionType.Configuration, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (ControlService != null && instrumentInfo != null)
                             ControlService.Send(instrumentInfo, message);
@@ -163,7 +170,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
         {
             int fpga = 0;
 
-            if (BoardType == BoardType.PE)
+            if (AllowedBoardType.HasFlag(BoardType.PE))
             {
                 if (channelNum < 32)
                 {
@@ -182,7 +189,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
                     fpga = 3;
                 }
             }
-            else if (BoardType == BoardType.DPS)
+            else if (AllowedBoardType.HasFlag(BoardType.DPS))
             {
                 fpga = 0;
             }
@@ -234,8 +241,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType, InstructionType.Configuration, commandList.Value);
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
+
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (ControlService != null && instrumentInfo != null)
                             ControlService.Send(instrumentInfo, message);
@@ -295,8 +305,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType, InstructionType.Configuration, commandList.Value);
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
+
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (ControlService != null && instrumentInfo != null)
                             ControlService.Send(instrumentInfo, message);

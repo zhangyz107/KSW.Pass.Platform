@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Project" xml:space="preserve">
+    <value>项目</value>
+  </data>
   <data name="NewProject" xml:space="preserve">
     <value>新建项目</value>
   </data>
@@ -149,9 +152,6 @@
   </data>
   <data name="Executable" xml:space="preserve">
     <value>可执行程序</value>
-  </data>
-  <data name="Project" xml:space="preserve">
-    <value>项目</value>
   </data>
   <data name="Language" xml:space="preserve">
     <value>语言</value>
@@ -741,10 +741,7 @@
   <data name="ParameterCanNotBeEmpty" xml:space="preserve">
     <value>{0}不能为空</value>
   </data>
-  <data name="Log" xml:space="preserve">
-    <value>日志</value>
-  </data>
-  <data name="SitesCount" xml:space="preserve">
-    <value>站点数</value>
+  <data name="DownloadPattern" xml:space="preserve">
+    <value>下载Pattern文件</value>
   </data>
 </root>

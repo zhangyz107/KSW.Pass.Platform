@@ -174,9 +174,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (controlService != null && instrumentInfo != null)
                             controlService.Send(instrumentInfo, message);
@@ -589,9 +591,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Digitals
                                     foreach (var commandList in commandListDic)
                                     {
                                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.AllowedBoardType, slotNum);
+                                        if (instrumentInfo == null)
+                                            continue;
 
-                                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType((BoardType)Instance?.BoardType, slotNum);
+                                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                                         if (controlService != null && instrumentInfo != null)
                                             controlService.Send(instrumentInfo, message);

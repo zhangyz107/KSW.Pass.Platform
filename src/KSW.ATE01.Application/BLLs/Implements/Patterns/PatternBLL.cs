@@ -15,20 +15,17 @@
 using KSW.Application;
 using KSW.ATE01.Application.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Application.Models.Patterns;
+using KSW.ATE01.Application.Models.Projects;
+using KSW.ATE01.Domain.Projects.Repositories;
+using KSW.ATE01.Domain.TestPlan.Repositories;
+using KSW.ATE01.Instrument.IO.BLLs.Implements.Patterns;
 using KSW.ATE01.Project.Base.Enums.Patterns;
 using KSW.ATE01.Project.Base.Helpers;
-using Microsoft.Extensions.Logging;
-using NPOI.SS.Formula.Functions;
-using System;
-using System.Collections.Generic;
+using KSW.ATE01.Project.Base.Models;
+using KSW.ATE01.Project.Base.Models.TestPlans;
+using KSW.ATE01.Project.Base.Services.Loggers;
+using KSW.Exceptions;
 using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using CommandType = KSW.ATE01.Project.Base.Enums.Patterns.CommandType;
 
 namespace KSW.ATE01.Application.BLLs.Implements.Patterns
@@ -38,9 +35,13 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
     /// </summary>
     public class PatternBLL : ServiceBase, IPatternBLL
     {
+        private readonly IPinOverviewRepository _pinOverviewRepository;
+        private readonly ISiteInfoRepository _siteInfoRepository;
+
         public PatternBLL(IContainerProvider containerProvider) : base(containerProvider)
         {
-
+            _pinOverviewRepository = containerProvider?.Resolve<IPinOverviewRepository>();
+            _siteInfoRepository = containerProvider?.Resolve<ISiteInfoRepository>();
         }
 
         public async Task<List<PatternModel>> GetPatternsByFilesAsync(string path, bool isDir = false)
@@ -217,7 +218,7 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
                     //}
 
                     //moduleType
-                    sw.WriteLine(patternModel.ModuleType.Description());
+                    sw.WriteLine(patternModel.ModuleType.Description().ToLower());
 
                     //pattern header
                     var patternHeader = GetPatternHeader(pattern);
@@ -312,8 +313,11 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
 
             try
             {
-                var singlePinPatternDic = GetSinglePinPatternList(pattern);
-                PatternReaderWriterHelper.WritePattern(filePath, pattern.ModuleType, singlePinPatternDic);
+                await SavePattern(pattern, pattern.FilePath);
+                await PatternHelper.AnalyzeAndCompilePatternAsync(pattern.FilePath, filePath);
+
+                //var singlePinPatternDic = GetSinglePinPatternList(pattern);
+                //PatternReaderWriterHelper.WritePattern(filePath, pattern.ModuleType, singlePinPatternDic);
                 result = true;
             }
             catch (Exception)
@@ -335,22 +339,23 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
 
             foreach (var vectorModel in pattern.PatternVectors)
             {
-                if (vectorModel.Command != null)
-                {
-                    switch (vectorModel.Command.Type)
-                    {
-                        case CommandType.loop:
-                            lastInstruction = vectorModel.Command.Type;
-                            lastCommandParameter = vectorModel.Command.CommandParameter;
-                            break;
-                        case CommandType.endloop:
-                            lastInstruction = CommandType.nop;
-                            lastCommandParameter = null;
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                // 08.25取消指令Id 
+                //if (vectorModel.Command != null)
+                //{
+                //    switch (vectorModel.Command.Type)
+                //    {
+                //        case CommandType.loop:
+                //            lastInstruction = vectorModel.Command.Type;
+                //            lastCommandParameter = vectorModel.Command.CommandParameter;
+                //            break;
+                //        case CommandType.endloop:
+                //            lastInstruction = CommandType.nop;
+                //            lastCommandParameter = null;
+                //            break;
+                //        default:
+                //            break;
+                //    }
+                //}
 
                 foreach (var pinModel in vectorModel.Pins)
                 {
@@ -366,8 +371,8 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
                     pinPatternModelList.Add(new Project.Base.Models.Patterns.PinPatternModel
                     {
                         PinName = pinModel.PinName,
-                        Instruction = vectorModel.Command.Type == CommandType.nop ? lastInstruction : vectorModel.Command.Type,
-                        CommandParameter = vectorModel.Command.Type == CommandType.nop ? lastCommandParameter : vectorModel.Command.CommandParameter,
+                        Instruction = CommandType.nop, // 08.25取消指令Id  vectorModel.Command.Type == CommandType.nop ? lastInstruction : vectorModel.Command.Type,
+                        CommandParameter = null, // 08.25取消指令Id vectorModel.Command.Type == CommandType.nop ? lastCommandParameter : vectorModel.Command.CommandParameter,
                         TimingSet = vectorModel.TimingSet,
                         VectorValue = pinModel.VectorValue,
                     });
@@ -375,6 +380,64 @@ namespace KSW.ATE01.Application.BLLs.Implements.Patterns
             }
 
             return result;
+        }
+
+        public async Task<bool> DownloadPatternAsync(ProjectInfoModel projectInfo, TestPlanModel testPlan)
+        {
+            try
+            {
+                if (projectInfo == null)
+                    throw new Warning(string.Format("{0}{1}", L["ProjectFile"], L["IsEmpty"]));
+
+                var commonData = CommonData.Instance;
+                var globalSetting = GlobalSetting.Instance;
+                if (commonData != null)
+                    commonData.TestPlan = testPlan;
+
+                if (globalSetting != null)
+                    globalSetting.ProjectInfo = projectInfo.MapTo<Project.Base.Models.Projects.ProjectInfo>();
+
+                var pinOverviews = await _pinOverviewRepository?.FindAllAsync(x => x.ProjectInfoId.Equals(projectInfo.Id.ToGuid()));
+                if (!pinOverviews.IsEmpty())
+                {
+                    var pinOverview = pinOverviews.FirstOrDefault();
+                    if (pinOverview != null)
+                    {
+                        var siteInfos = await _siteInfoRepository.FindAllAsync(x => x.PinOverviewId.Equals(pinOverview.Id));
+
+                        if (commonData != null)
+                            commonData.UseSiteName = siteInfos.Select(x => x.SiteName).ToList();
+                    }
+                }
+
+                PrintResultLog.PrintRealTimeTxt = projectInfo.SaveRealTimeText == true;
+                var patternFiles = testPlan?.Global?.Select(x => x.PatternFile);
+
+                if (patternFiles.IsEmpty())
+                    return false;
+
+                if (projectInfo?.ReleasePath?.IsEmpty() == true || !Directory.Exists(projectInfo?.ReleasePath))
+                    return false;
+
+                var patternFilePaths = new List<string>();
+                var releasePath = projectInfo?.ReleasePath;
+                foreach (var patternFile in patternFiles)
+                {
+                    var loadFile = Path.Combine(releasePath, "Patterns", patternFile);
+                    if (File.Exists(loadFile))
+                        patternFilePaths.Add(loadFile);
+                }
+
+                if (patternFilePaths.IsEmpty())
+                    return false;
+
+                Pattern.SetPatternFile(patternFilePaths.ToArray());
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

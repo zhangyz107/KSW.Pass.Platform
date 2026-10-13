@@ -57,8 +57,9 @@ namespace KSW.ATE01.Project.Base.Helpers
                         writer.Write(pack.Length);
                         foreach (var data in pack.Data)
                         {
-                            writer.Write(data.VectorNumber);
-                            writer.Write(data.Instruction);
+                            // 08.25取消指令Id 
+                            //writer.Write(data.VectorNumber);
+                            //writer.Write(data.Instruction);
                             writer.Write(data.Data);
                         }
                     }
@@ -81,7 +82,7 @@ namespace KSW.ATE01.Project.Base.Helpers
             var isPack = false;
             var isFinish = true;
             var andTempVector = true;
-            var maxVectorCount = 124;
+            var maxVectorCount = 128;
             var loopVectors = new List<PinPatternModel>();
             var tempVectors = new List<PinPatternModel>();
 
@@ -106,33 +107,34 @@ namespace KSW.ATE01.Project.Base.Helpers
                             isFinish = false;
                         }
                     }
-                    else if (pinPatternModel.Instruction == CommandType.loop)
-                    {
-                        loopVectors.Clear();
-                        lastInstruction = pinPatternModel.Instruction;
-                        lastCommandParameter = pinPatternModel.CommandParameter;
-                        loopVectors.Add(pinPatternModel);
-                        andTempVector = false;
-                        isPack = true;
-                    }
-                    else if (pinPatternModel.Instruction == CommandType.endloop)
-                    {
-                        loopVectors.Add(pinPatternModel);
-                        if (loopVectors.Any())
-                        {
-                            var groups = PackLoopPattern(lastCommandParameter, loopVectors);
-                            if (groups.Any())
-                            {
-                                pack.Data.AddRange(groups);
-                                pack.Length += 64 * groups.Count;
-                            }
-                        }
-                        lastInstruction = CommandType.nop;
-                        lastCommandParameter = null;
-                        startIndex = ++endIndex;
-                        isPack = false;
-                        isFinish = true;
-                    }
+                    // 08.25取消指令Id 
+                    //else if (pinPatternModel.Instruction == CommandType.loop)
+                    //{
+                    //    loopVectors.Clear();
+                    //    lastInstruction = pinPatternModel.Instruction;
+                    //    lastCommandParameter = pinPatternModel.CommandParameter;
+                    //    loopVectors.Add(pinPatternModel);
+                    //    andTempVector = false;
+                    //    isPack = true;
+                    //}
+                    //else if (pinPatternModel.Instruction == CommandType.endloop)
+                    //{
+                    //    loopVectors.Add(pinPatternModel);
+                    //    if (loopVectors.Any())
+                    //    {
+                    //        var groups = PackLoopPattern(lastCommandParameter, loopVectors);
+                    //        if (groups.Any())
+                    //        {
+                    //            pack.Data.AddRange(groups);
+                    //            pack.Length += 64 * groups.Count;
+                    //        }
+                    //    }
+                    //    lastInstruction = CommandType.nop;
+                    //    lastCommandParameter = null;
+                    //    startIndex = ++endIndex;
+                    //    isPack = false;
+                    //    isFinish = true;
+                    //}
                     else
                     {
                         switch (lastInstruction)
@@ -445,17 +447,18 @@ namespace KSW.ATE01.Project.Base.Helpers
                 Instruction = (byte)instruction,
             };
             int startIndex = 0;
-            if (instruction != CommandType.nop)
-            {
-                startIndex = 6;
-                if (patternParamter is int param)
-                {
-                    var parameterArray = new byte[6];
-                    var intParam = instruction == CommandType.loop ? param - 1 : param; //循环情况下
-                    var parameterBytes = BitConverter.GetBytes(intParam).ToArray();    // 不反序
-                    Array.Copy(parameterBytes, 0, result.Data, 0, parameterBytes.Length);
-                }
-            }
+            // 08.25取消指令Id 
+            //if (instruction != CommandType.nop)
+            //{
+            //    startIndex = 6;
+            //    if (patternParamter is int param)
+            //    {
+            //        var parameterArray = new byte[6];
+            //        var intParam = instruction == CommandType.loop ? param - 1 : param; //循环情况下
+            //        var parameterBytes = BitConverter.GetBytes(intParam).ToArray();    // 不反序
+            //        Array.Copy(parameterBytes, 0, result.Data, 0, parameterBytes.Length);
+            //    }
+            //}
 
             byte vector = 0;
             var vectorList = new List<byte>();

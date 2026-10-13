@@ -13,7 +13,10 @@
 //------------------------------------------------------------*/
 
 
+using KSW.ATE01.Application.BLLs.Abstractions.Patterns;
 using KSW.ATE01.Application.BLLs.Abstractions.Projects;
+using KSW.ATE01.Application.BLLs.Implements.Patterns;
+using KSW.ATE01.Application.BLLs.Implements.Projects;
 using KSW.ATE01.Application.Events;
 using KSW.ATE01.Application.Events.Projects;
 using KSW.ATE01.Domain.Projects.Core.Enums;
@@ -21,11 +24,11 @@ using KSW.ATE01.Project.Base.Helpers;
 using KSW.ATE01.Start.Views;
 using KSW.ATE01.Start.Views.Dialogs;
 using KSW.ATE01.Start.Views.Patterns;
+using KSW.ATE01.Start.Views.TestPlans;
 using KSW.Helpers;
 using KSW.Localization;
 using KSW.Ui;
 using KSW.UI.WPF.Controls;
-using KSW.UI.WPF.Views;
 using MaterialDesignColors;
 using MaterialDesignColors.ColorManipulation;
 using MaterialDesignColors.Recommended;
@@ -45,9 +48,10 @@ namespace KSW.ATE01.Start.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly PaletteHelper _paletteHelper = new();
         private IProjectBLL _projectBLL;
+        private IPatternBLL _patternBLL;
         private bool _isChinese;
         private bool _showProjectView = true;
-        private bool _showBackwardView = false;
+        //private bool _showBackwardView = false;
         private bool _showRunView = false;
         private bool _showPatterToolView = false;
         private string _selectProject;
@@ -75,16 +79,6 @@ namespace KSW.ATE01.Start.ViewModels
             get => _showRunView;
             set => SetProperty(ref _showRunView, value);
         }
-
-        /// <summary>
-        /// 显示返回视图
-        /// </summary>
-        public bool ShowBackwardView
-        {
-            get => _showBackwardView;
-            set => SetProperty(ref _showBackwardView, value);
-        }
-
 
         /// <summary>
         /// 显示项目视图
@@ -150,13 +144,13 @@ namespace KSW.ATE01.Start.ViewModels
         public DelegateCommand BackwardCommand =>
             _backwardCommand ?? (_backwardCommand = new DelegateCommand(ExecuteBackwardCommand));
 
+        private AsyncDelegateCommand _downloadPatternCommand;
+        public AsyncDelegateCommand DownloadPatternCommand =>
+            _downloadPatternCommand ?? (_downloadPatternCommand = new AsyncDelegateCommand(ExecuteDownloadPatternCommand));
+
         private DelegateCommand _patternToolCommand;
         public DelegateCommand PatternToolCommand =>
             _patternToolCommand ?? (_patternToolCommand = new DelegateCommand(ExecutePatternToolCommand));
-
-        private DelegateCommand _logCommand;
-        public DelegateCommand LogCommand =>
-            _logCommand ?? (_logCommand = new DelegateCommand(ExecuteLogCommand));
 
         #endregion
 
@@ -225,7 +219,7 @@ namespace KSW.ATE01.Start.ViewModels
         private void ExecuteLoadingCommand()
         {
             _projectBLL = ContainerProvider?.Resolve<IProjectBLL>();
-
+            _patternBLL = ContainerProvider?.Resolve<IPatternBLL>();
             ChangePrimaryColor(BlueSwatch.Blue300);
 
             var currentCulture = CultureInfo.CurrentCulture;
@@ -301,7 +295,6 @@ namespace KSW.ATE01.Start.ViewModels
         private async void ExecuteRunCommand()
         {
             ShowProjectView = false;
-            ShowBackwardView = true;
             ShowRunView = true;
             ShowPatterToolView = false;
         }
@@ -309,22 +302,44 @@ namespace KSW.ATE01.Start.ViewModels
         private void ExecuteBackwardCommand()
         {
             ShowProjectView = true;
-            ShowBackwardView = false;
             ShowRunView = false;
             ShowPatterToolView = false;
+        }
+
+        private async Task ExecuteDownloadPatternCommand()
+        {
+            var processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
+            {
+                var currentProjectInfo = _projectBLL?.GetCurrentProjectInfo();
+                var testPlan = await _projectBLL?.ConversionTestPlanAsync(currentProjectInfo?.Id);
+                var result = await _patternBLL?.DownloadPatternAsync(currentProjectInfo, testPlan);
+
+                if (result)
+                {
+                    _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                    {
+                        Content = "下载Pattern文件成功",
+                        Type = UI.WPF.Enums.NotificationType.Success,
+                    });
+                }
+                else
+                {
+                    _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
+                    {
+                        Content = "下载Pattern文件失败",
+                        Type = UI.WPF.Enums.NotificationType.Error,
+                    });
+                }
+            });
+
+            await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
         }
 
         private void ExecutePatternToolCommand()
         {
             ShowProjectView = false;
-            ShowBackwardView = true;
             ShowRunView = false;
             ShowPatterToolView = true;
-        }
-
-        private void ExecuteLogCommand()
-        {
-            DialogService.ShowDialog(nameof(LogViewerDialog));
         }
 
     }

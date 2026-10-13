@@ -234,8 +234,9 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
                 var filePath = fileSaveDialog.FileName;
                 Pattern.PatternVectors = VectorInfos.ToList();
 
-               var  compileProcessBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
+                processBarParameters = ProcessBarHelper.CreateProcessBarParameters(async (action) =>
                 {
+
                     var result = await _patternBLL?.CompileAsync(Pattern, filePath);
                     if (result)
                         _eventAggregator.GetEvent<ShowShellToastEvent>().Publish(new Toast()
@@ -251,7 +252,7 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
                         });
                 });
 
-                await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, compileProcessBarParameters);
+                await ProcessBarHelper.ShowProcessBarDialogAsync(DialogService, processBarParameters);
             }
 
         }
@@ -367,16 +368,13 @@ namespace KSW.ATE01.Start.ViewModels.Patterns
                 //GC.Collect();
                 Title = Path.GetFileNameWithoutExtension(pattern.FileName);
                 VectorInfos.AddRange(Pattern.PatternVectors);
-                //if (!Pattern.PatternVectors.IsEmpty())
-                //{
-                //    var index = 0;
-                //    foreach (var item in Pattern.PatternVectors)
-                //    {
-                //        item.Label.IndexInVectors = ++index;
-                //        VectorInfos.Add(item);
-                //    }
-                //}
-                //PatternUpdated?.Invoke(this, VectorInfos);
+                if (!Pattern.PatternVectors.IsEmpty())
+                {
+                    var index = 0;
+                    foreach (var item in Pattern.PatternVectors)
+                        item.Label.IndexInVectors = ++index;
+                }
+                PatternUpdated?.Invoke(this, VectorInfos);
                 ExecuteRefreshCommand();
                 //if (lastPattern != null)
                 //    lastPattern = null;

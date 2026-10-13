@@ -67,7 +67,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
             try
             {
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+                var controlService = Instance?.ControlService;
 
                 if (string.IsNullOrEmpty(levelSheet))
                     levelSheet = CommonData.Instance.Level;
@@ -150,9 +150,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (controlService != null && instrumentInfo != null)
                             controlService.Send(instrumentInfo, message);
@@ -257,9 +259,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (ControlService != null && instrumentInfo != null)
                             ControlService.Send(instrumentInfo, message);
@@ -305,7 +309,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+                var controlService = Instance?.ControlService;
 
                 foreach (var pin in PinList)
                 {
@@ -346,8 +350,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
+
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (controlService != null && instrumentInfo != null)
                             controlService.Send(instrumentInfo, message);
@@ -475,7 +482,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
 
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+                var controlService = Instance?.ControlService;
 
                 foreach (var pin in PinList)
                 {
@@ -516,9 +523,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Configuration, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Configuration, commandList.Value);
 
                         if (controlService != null && instrumentInfo != null)
                             controlService.Send(instrumentInfo, message);
@@ -614,9 +623,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, commandList.Value);
 
                         if (ControlService != null && message.Any())
                         {
@@ -721,7 +732,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             {
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+                var controlService = Instance?.ControlService;
 
                 foreach (var pin in PinList)
                 {
@@ -758,9 +769,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, commandList.Value);
 
                         if (controlService != null && message.Any())
                         {
@@ -837,7 +850,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             {
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+                var controlService = Instance?.ControlService;
 
                 foreach (var pin in PinList)
                 {
@@ -875,8 +888,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
 
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
+
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, commandList.Value);
 
                         if (controlService != null && message.Any())
                         {
@@ -955,7 +971,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             {
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+                var controlService = Instance?.ControlService;
 
                 foreach (var pin in PinList)
                 {
@@ -992,9 +1008,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, commandList.Value);
 
                         if (controlService != null && message.Any())
                         {
@@ -1067,7 +1085,7 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
             {
                 //  组装数据包
                 var commandListDic = new Dictionary<int, List<CommandInfoModel>>();
-                var controlService = InstrumentManagerHelper.GetControlServiceByBoardType(BoardType);
+                var controlService = Instance?.ControlService;
 
                 foreach (var pin in PinList)
                 {
@@ -1104,9 +1122,11 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Ppmus
                     foreach (var commandList in commandListDic)
                     {
                         var slotNum = $"0x{commandList.Key.ToString("x2")}";
+                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(AllowedBoardType, slotNum);
+                        if (instrumentInfo == null)
+                            continue;
 
-                        var message = CommandHelper.GetCommandBytes(0xFF, BoardType.PE, InstructionType.Query, commandList.Value);
-                        var instrumentInfo = InstrumentManagerHelper.GetInstrumentInfoByBoardType(BoardType, slotNum);
+                        var message = CommandHelper.GetCommandBytes(0xFF, instrumentInfo?.BoardInfo?.BoardType ?? BoardType.Unknown, InstructionType.Query, commandList.Value);
 
                         if (controlService != null && message.Any())
                         {

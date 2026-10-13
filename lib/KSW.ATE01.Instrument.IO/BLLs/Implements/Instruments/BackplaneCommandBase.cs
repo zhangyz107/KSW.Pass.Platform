@@ -10,6 +10,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
 {
     public abstract class BackplaneCommandBase<T> : InstrumentCommandBase<T> where T : new()
     {
-        protected override BoardType BoardType { get => BoardType.Backplane; }
+        protected override BoardType AllowedBoardType { get => BoardType.Backplane; }
     }
 }

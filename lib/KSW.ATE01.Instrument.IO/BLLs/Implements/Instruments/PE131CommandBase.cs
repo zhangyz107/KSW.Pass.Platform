@@ -5,6 +5,6 @@ namespace KSW.ATE01.Instrument.IO.BLLs.Implements.Instruments
 {
     public abstract class PE131CommandBase<T> : InstrumentCommandBase<T> where T : new()
     {
-        protected override BoardType BoardType { get => BoardType.PE; }
+        protected override BoardType AllowedBoardType { get => BoardType.PE | BoardType.ALPG; }
     }
 }

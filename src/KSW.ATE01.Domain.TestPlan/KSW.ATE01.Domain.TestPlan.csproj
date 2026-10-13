@@ -7,7 +7,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\src-platform\KSW.Domain\KSW.Domain.csproj" />
+	  <PackageReference Include="KSW.Core" Version="8.0.3" />
+	  <PackageReference Include="KSW.Domain" Version="8.0.3" />
+	  <PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\KSW.ATE01.Domain.TestPlan.Core\KSW.ATE01.Domain.TestPlan.Core.csproj" />
 	</ItemGroup>
 

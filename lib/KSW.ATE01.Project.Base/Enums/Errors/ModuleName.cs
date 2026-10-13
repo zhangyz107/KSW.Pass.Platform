@@ -43,6 +43,18 @@ namespace KSW.ATE01.Project.Base.Enums.Errors
         /// Shmoo图
         /// </summary>
         [Description("Shmoo")]
-        Shmoo
+        Shmoo,
+
+        /// <summary>
+        /// PE图
+        /// </summary>
+        [Description("Pe")]
+        Pe,
+
+        /// <summary>
+        /// ALPG
+        /// </summary>
+        [Description("ALPG")]
+        ALPG
     }
 }

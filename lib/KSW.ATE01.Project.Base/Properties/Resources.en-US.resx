@@ -246,4 +246,7 @@
   <data name="ShmooTestNameEmpty" xml:space="preserve">
     <value>Shmoo test name is empty</value>
   </data>
+  <data name="PeWorkVoltageOutOfRange" xml:space="preserve">
+    <value>WorkVoltage {0} setting value {1}out of range:{2}~{3}</value>
+  </data>
 </root>

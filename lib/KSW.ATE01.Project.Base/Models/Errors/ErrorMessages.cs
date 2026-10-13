@@ -47,5 +47,21 @@ namespace KSW.ATE01.Project.Base.Models.Errors
                 return ShmooErrors.Instance;
             }
         }
+
+        public static PeErrors Pe
+        {
+            get
+            {
+                return PeErrors.Instance;
+            }
+        }
+
+        public static ALPGErrors ALPG
+        {
+            get
+            {
+                return ALPGErrors.Instance;
+            }
+        }
     }
 }

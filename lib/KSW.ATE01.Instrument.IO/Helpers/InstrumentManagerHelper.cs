@@ -27,12 +27,13 @@ namespace KSW.ATE01.Instrument.IO.Helpers
 
         private void InitInstrumentDic()
         {
-            _instrumentDic.Add(new BoardInfoModel()
+            var boardInfo = new BoardInfoModel()
             {
                 BoardName = "Backplane",
                 BoardType = BoardType.Backplane,
                 SlotNum = "0xFE"
-            },
+            };
+            _instrumentDic.Add(boardInfo,
             new UdpInstrumentModel()
             {
                 InstrumentName = "Backplane",
@@ -40,7 +41,8 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                 Port = 40288,
                 LocalPort = 9988,
                 ConnectType = IOTypeEnum.UDP,
-                SortId = 16
+                SortId = 16,
+                BoardInfo = boardInfo
             });
         }
 
@@ -73,13 +75,13 @@ namespace KSW.ATE01.Instrument.IO.Helpers
 
                             var boardType = (BoardType)type;
                             var boardInfos = _instrumentDic.Keys.Where(x => x.BoardType == boardType);
-
-                            _instrumentDic.Add(new BoardInfoModel()
+                            var newBoardInfo = new BoardInfoModel()
                             {
                                 BoardName = boardType.GetDescription(),
                                 BoardType = boardType,
                                 SlotNum = $"0x{slot.ToString("x2")}"
-                            },
+                            };
+                            _instrumentDic.Add(newBoardInfo,
                             new UdpInstrumentModel()
                             {
                                 InstrumentName = $"{boardType.GetDescription()}-{boardInfos.Count() + 1}",
@@ -87,7 +89,8 @@ namespace KSW.ATE01.Instrument.IO.Helpers
                                 Port = 40288,
                                 LocalPort = localPort,
                                 ConnectType = IOTypeEnum.UDP,
-                                SortId = slot
+                                SortId = slot,
+                                BoardInfo = newBoardInfo
                             });
                         }
                     }
@@ -102,11 +105,14 @@ namespace KSW.ATE01.Instrument.IO.Helpers
             if (helper == null)
                 return result;
 
-            var boardInfos = helper._instrumentDic.Keys.Where(x => x.BoardType == boardType);
+            var boardInfos = helper._instrumentDic.Keys.Where(x => boardType.HasFlag(x.BoardType));
             if (!string.IsNullOrEmpty(slot))
                 boardInfos = boardInfos.Where(x => x.SlotNum.ToLower().Equals(slot.ToLower()));
             else
-                result = helper._instrumentDic.Where(x => x.Key.BoardType == boardType).Select(x => x.Value).ToList();
+            {
+                result = helper._instrumentDic.Where(x => boardType.HasFlag(x.Key.BoardType)).Select(x => x.Value).ToList();
+                return result;
+            }
 
             foreach (var boardInfo in boardInfos)
             {
@@ -126,7 +132,7 @@ namespace KSW.ATE01.Instrument.IO.Helpers
             if (helper == null)
                 return null;
 
-            return helper._instrumentDic.Where(x => x.Key.BoardType == boardType).Select(x => x).ToDictionary();
+            return helper._instrumentDic.Where(x => boardType.HasFlag(x.Key.BoardType)).Select(x => x).ToDictionary();
         }
 
         public static IInstruentControlService GetControlServiceByBoardType(BoardType boardType)

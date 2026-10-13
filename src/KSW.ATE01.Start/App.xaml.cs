@@ -43,7 +43,7 @@ namespace KSW.ATE01.Platform
         protected override void OnStartup(StartupEventArgs e)
         {
             bool createNew;
-            mutex = new Mutex(true, "Singleton", out createNew);
+            mutex = new Mutex(true, _title, out createNew);
             Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
             if (!createNew)
             {
@@ -138,7 +138,8 @@ namespace KSW.ATE01.Platform
         {
             var container = containerRegistry.GetContainer();
 
-            
+            // 初始化日志配置
+            InitLogConfig();
 
             // 初始化多语言配置
             InitLanguageConfig(containerRegistry);
@@ -151,9 +152,6 @@ namespace KSW.ATE01.Platform
             // 启动引导程序
             var bootstrapper = new Bootstrapper(containerRegistry);
             bootstrapper.Start();
-
-            // 初始化日志配置
-            InitLogConfig();
 
             // 注册视图
             RegisterView(containerRegistry);
@@ -211,13 +209,9 @@ namespace KSW.ATE01.Platform
             // 日志路径配置
             var logOutputTemplate = ConfigurationManager.AppSettings["OutputTemplate"];
 
-            var memorySink = Container.Resolve<InMemoryLogSink>();
-            //var memorySink = new InMemoryLogSink();
-
             // 日志配置
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.Sink(memorySink)
                 .Enrich.FromLogContext()
                 .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day, outputTemplate: logOutputTemplate)
                 .CreateLogger();

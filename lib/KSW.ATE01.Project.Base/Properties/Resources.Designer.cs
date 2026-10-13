@@ -430,6 +430,15 @@ namespace KSW.ATE01.Project.Base.Properties {
         }
         
         /// <summary>
+        ///   查找类似 WorkVoltage {0} setting value {1}out of range:{2}~{3} 的本地化字符串。
+        /// </summary>
+        internal static string PeWorkVoltageOutOfRange {
+            get {
+                return ResourceManager.GetString("PeWorkVoltageOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Pin collection is empty 的本地化字符串。
         /// </summary>
         internal static string PinListNullOrEmpty {

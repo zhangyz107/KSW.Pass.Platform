@@ -16,10 +16,10 @@
 
 	<ItemGroup>
 	  <Reference Include="KSW.ATE01.Instrument.IO">
-	    <HintPath>C:\ATE01\bin\KSW.ATE01.Instrument.IO.dll</HintPath>
+	    <HintPath>C:\ATE01\KSW.ATE01.Instrument.IO.dll</HintPath>
 	  </Reference>
 	  <Reference Include="KSW.ATE01.Project.Base">
-	    <HintPath>C:\ATE01\bin\KSW.ATE01.Project.Base.dll</HintPath>
+	    <HintPath>C:\ATE01\KSW.ATE01.Project.Base.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 

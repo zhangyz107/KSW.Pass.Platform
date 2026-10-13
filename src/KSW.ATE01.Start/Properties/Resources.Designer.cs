@@ -520,6 +520,15 @@ namespace KSW.ATE01.Start.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Download Pattern File 的本地化字符串。
+        /// </summary>
+        internal static string DownloadPattern {
+            get {
+                return ResourceManager.GetString("DownloadPattern", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Dut Result 的本地化字符串。
         /// </summary>
         internal static string DutResult {
@@ -1047,15 +1056,6 @@ namespace KSW.ATE01.Start.Properties {
         internal static string LoadTestPlan {
             get {
                 return ResourceManager.GetString("LoadTestPlan", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Log 的本地化字符串。
-        /// </summary>
-        internal static string Log {
-            get {
-                return ResourceManager.GetString("Log", resourceCulture);
             }
         }
         
@@ -1713,15 +1713,6 @@ namespace KSW.ATE01.Start.Properties {
         internal static string SiteInformation {
             get {
                 return ResourceManager.GetString("SiteInformation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Sites Count 的本地化字符串。
-        /// </summary>
-        internal static string SitesCount {
-            get {
-                return ResourceManager.GetString("SitesCount", resourceCulture);
             }
         }
         

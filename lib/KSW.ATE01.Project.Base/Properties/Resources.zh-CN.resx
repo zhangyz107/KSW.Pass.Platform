@@ -246,4 +246,7 @@
   <data name="ShmooTestNameEmpty" xml:space="preserve">
     <value>Shmoo测试名为空</value>
   </data>
+  <data name="PeWorkVoltageOutOfRange" xml:space="preserve">
+    <value>工作电压{0}设置值{1}超出范围:{2}~{3}</value>
+  </data>
 </root>

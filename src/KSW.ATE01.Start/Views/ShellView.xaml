@@ -14,9 +14,9 @@
         d:DataContext="{d:DesignInstance viewmodel:ShellViewModel}"
         d:Width="1200"
         d:Height="800"
+        Title="{Binding Title}"
         Style="{StaticResource MaterialDesignWindow}"
         FontFamily="{StaticResource SourceHanSansFont}"
-        Title="{Binding Title}"
         WindowState="Maximized"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Loaded="Window_Loaded">
@@ -57,9 +57,6 @@
                         </MenuItem>
                         <MenuItem Header="{language:L AboutUs}" Foreground="{DynamicResource MaterialDesignLightForeground}">
                         </MenuItem>
-                        <MenuItem Header="{language:L Log}" Foreground="{DynamicResource MaterialDesignLightForeground}" Command="{Binding LogCommand}">
-                            
-                        </MenuItem>
                     </MenuItem>
                 </Menu>
 
@@ -76,7 +73,16 @@
                 <ToolBarTray Grid.Row="1" 
                              Background="Transparent" 
                              Style="{StaticResource MaterialDesignToolBarTray}"
-                             Visibility="{Binding ShowBackwardView,Converter={StaticResource BooleanToVisibilityConverter}}">
+                             Visibility="{Binding ShowRunView,Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ToolBar Style="{StaticResource MaterialDesignToolBar}" Background="Transparent">
+                        <Button Content="{materialDesign:PackIcon Kind=ArrowLeft}"  Command="{Binding BackwardCommand}" ToolTip="{language:L Backward}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></Button>
+                        <Button Content="{materialDesign:PackIcon Kind=Download}" Command="{Binding DownloadPatternCommand}" ToolTip="{language:L DownloadPattern}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></Button>
+                    </ToolBar>
+                </ToolBarTray>
+                <ToolBarTray Grid.Row="1" 
+                             Background="Transparent" 
+                             Style="{StaticResource MaterialDesignToolBarTray}"
+                             Visibility="{Binding ShowPatterToolView,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ToolBar Style="{StaticResource MaterialDesignToolBar}" Background="Transparent">
                         <Button Content="{materialDesign:PackIcon Kind=ArrowLeft}"  Command="{Binding BackwardCommand}" ToolTip="{language:L Backward}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></Button>
                     </ToolBar>
